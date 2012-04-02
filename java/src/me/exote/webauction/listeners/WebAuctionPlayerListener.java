@@ -18,14 +18,16 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class WebAuctionPlayerListener extends PlayerListener {
+public class WebAuctionPlayerListener implements Listener {
 
 	private final WebAuction plugin;
 
@@ -39,27 +41,28 @@ public class WebAuctionPlayerListener extends PlayerListener {
 		return rounded.doubleValue();
 	}
 
-	@Override
-	public void onPlayerQuit(PlayerQuitEvent event){
+	@EventHandler(priority = EventPriority.NORMAL)
+	public void onPlayerQuit(PlayerQuitEvent event) {
 		plugin.lastSignUse.remove(event.getPlayer().getName());
 	}
-	
-	@Override
+
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		String player = event.getPlayer().getName();
 
-		// Alert player of any new sale alerts
-		if (plugin.showSalesOnJoin == true){
+		// Alert player of new sale alerts
+		if (plugin.showSalesOnJoin == true) {
 			List<SaleAlert> saleAlerts = plugin.dataQueries.getNewSaleAlertsForSeller(player);
 			for (SaleAlert saleAlert : saleAlerts) {
-				event.getPlayer().sendMessage(plugin.logPrefix + "You sold " + saleAlert.getQuantity() + " " + saleAlert.getItem() + " to " + saleAlert.getBuyer() + " for "+ saleAlert.getPriceEach() + " each.");
-				plugin.dataQueries.markSaleAlertSeen(saleAlert.getId());
+				event.getPlayer().sendMessage(plugin.chatPrefix + "You sold " +
+					saleAlert.getQuantity() + saleAlert.getItem() + " to " +
+					saleAlert.getBuyer() + " for " + saleAlert.getPriceEach() + " each.");
 			}
 		}
 
-		// Alert player of any new mail
+		// Alert player of new mail
 		if (plugin.dataQueries.hasMail(player)) {
-			event.getPlayer().sendMessage(plugin.logPrefix + "You have new mail!");
+			event.getPlayer().sendMessage(plugin.chatPrefix + "You have new mail!");
 		}
 
 		// Determine permissions
@@ -77,27 +80,31 @@ public class WebAuctionPlayerListener extends PlayerListener {
 		}
 
 		if (null != plugin.dataQueries.getPlayer(player)) {
-			plugin.log.info(plugin.logPrefix + "Player found - "+ player+ " with permissions: canbuy = " + canBuy + " cansell = " + canSell + " isAdmin = " + isAdmin);
+			plugin.log.info(plugin.logPrefix + "Player found - " + player +
+				" with permissions: canbuy = " + canBuy + " cansell = " +
+				canSell + " isAdmin = " + isAdmin);
 			// Update permissions
 			plugin.dataQueries.updatePlayerPermissions(player, canBuy, canSell, isAdmin);
 		}
 	}
 
 	@SuppressWarnings("deprecation")
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
 			return;
 		}
 
 		Block block = event.getClickedBlock();
-		if (null == block || (block.getType() != Material.SIGN_POST && block.getType() != Material.WALL_SIGN)) {
-			return;
+		if (block == null || block.getType() != Material.SIGN_POST) {
+			if (block.getType() != Material.WALL_SIGN) {
+				return;
+			}
 		}
 
 		// it's a sign
 		Sign sign = (Sign) block.getState();
 		String[] lines = sign.getLines();
-
 		if (!lines[0].equals("[WebAuction]")) {
 			return;
 		}
@@ -108,16 +115,88 @@ public class WebAuctionPlayerListener extends PlayerListener {
 		// Make sure we can use the sign
 		if (plugin.lastSignUse.containsKey(player)) {
 			long lastSignUse = plugin.lastSignUse.get(player);
-			if (lastSignUse + plugin.signDelay > plugin.getCurrentMilli()) {
-				event.getPlayer().sendMessage(plugin.logPrefix + "Please wait a bit before using that again");
+			if (lastSignUse + (long)plugin.signDelay > plugin.getCurrentMilli()) {
+//				event.getPlayer().sendMessage(plugin.chatPrefix + "Please wait a bit before using that again");
 				return;
 			}
 		}
 		plugin.lastSignUse.put(player, plugin.getCurrentMilli());
 
+		// Shout sign
+		if (lines[1].equals("Shout")) {
+			Random generator = new Random();
+			int roll = generator.nextInt(20);
+			switch (roll) {
+			case 0:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "RAAN MIR TAH!");
+				break;
+			case 1:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "LAAS YAH NIR!");
+				break;
+			case 2:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "FEIM ZII GRON!");
+				break;
+			case 3:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "OD AH VIING!");
+				break;
+			case 4:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "HUN KAL ZOOR!");
+				break;
+			case 5:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "LOK VAH KOOR!");
+				break;
+			case 6:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "ZUN HAAL VIK!");
+				break;
+			case 7:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "FAAS RU MAAR!");
+				break;
+			case 8:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "JOOR ZAH FRUL!");
+				break;
+			case 9:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "SU GRAH DUN!");
+				break;
+			case 10:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "YOL TOOR SHOL!");
+				break;
+			case 11:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "FO KRAH DIIN!");
+				break;
+			case 12:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "LIZ SLEN NUS!");
+				break;
+			case 13:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "KAAN DREM OV!");
+				break;
+			case 14:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "KRII LUN AUS!");
+				break;
+			case 15:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "TIID KLO UL!");
+				break;
+			case 16:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "STRUN BAH QO!");
+				break;
+			case 17:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "ZUL MEY GUT!");
+				break;
+			case 18:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "WULK NAH KEST!");
+				break;
+			default:
+				event.getPlayer().sendMessage(plugin.chatPrefix + "FUS RO DAH!");
+				break;
+			}
+		} else
+
+		// Deposit sign (money)
 		if (lines[1].equals("Deposit")) {
-			if (plugin.permission.has(event.getPlayer(), "wa.use.deposit.money")) {
-				double amount = 0.0;
+			if (!plugin.permission.has(event.getPlayer(), "wa.use.deposit.money")) {
+				event.getPlayer().sendMessage(plugin.chatPrefix +
+					"You do not have enough money in your pocket.");
+			} else {
+				double amount = 0.0D;
 				if (!lines[2].equals("All")) {
 					amount = Double.parseDouble(lines[2]);
 				}
@@ -130,90 +209,35 @@ public class WebAuctionPlayerListener extends PlayerListener {
 						}
 						currentMoney += amount;
 						currentMoney = round(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
-						event.getPlayer().sendMessage(plugin.logPrefix + "Added " + amount + " to auction account, new auction balance: " + currentMoney);
+						event.getPlayer().sendMessage(plugin.chatPrefix + "Added " + amount +
+							" to auction account, new auction balance: " + currentMoney);
 						plugin.dataQueries.updatePlayerMoney(player, currentMoney);
 						plugin.economy.withdrawPlayer(player, amount);
 					} else {
-						event.getPlayer().sendMessage(plugin.logPrefix + "No WebAuction account found, try logging off and back on again");
+						event.getPlayer().sendMessage(plugin.chatPrefix +
+							"No WebAuction account found, try logging off and back on again");
 					}
-				} else {
-					event.getPlayer().sendMessage(plugin.logPrefix + "You do not have enough money in your pocket.");
 				}
 			}
-		} else if (lines[1].equals("Shout")) {
-			Random generator = new Random();
-			int roll = generator.nextInt(20);
-			switch (roll){
-			case 0:
-				event.getPlayer().sendMessage(plugin.logPrefix + "RAAN MIR TAH!");
-				break;
-			case 1:
-				event.getPlayer().sendMessage(plugin.logPrefix + "LAAS YAH NIR!");
-				break;
-			case 2:
-				event.getPlayer().sendMessage(plugin.logPrefix + "FEIM ZII GRON!");
-				break;
-			case 3:
-				event.getPlayer().sendMessage(plugin.logPrefix + "OD AH VIING!");
-				break;
-			case 4:
-				event.getPlayer().sendMessage(plugin.logPrefix + "HUN KAL ZOOR!");
-				break;
-			case 5:
-				event.getPlayer().sendMessage(plugin.logPrefix + "LOK VAH KOOR!");
-				break;
-			case 6:
-				event.getPlayer().sendMessage(plugin.logPrefix + "ZUN HAAL VIK!");
-				break;
-			case 7:
-				event.getPlayer().sendMessage(plugin.logPrefix + "FAAS RU MAAR!");
-				break;
-			case 8:
-				event.getPlayer().sendMessage(plugin.logPrefix + "JOOR ZAH FRUL!");
-				break;
-			case 9:
-				event.getPlayer().sendMessage(plugin.logPrefix + "SU GRAH DUN!");
-				break;
-			case 10:
-				event.getPlayer().sendMessage(plugin.logPrefix + "YOL TOOR SHOL!");
-				break;
-			case 11:
-				event.getPlayer().sendMessage(plugin.logPrefix + "FO KRAH DIIN!");
-				break;
-			case 12:
-				event.getPlayer().sendMessage(plugin.logPrefix + "LIZ SLEN NUS!");
-				break;
-			case 13:
-				event.getPlayer().sendMessage(plugin.logPrefix + "KAAN DREM OV!");
-				break;
-			case 14:
-				event.getPlayer().sendMessage(plugin.logPrefix + "KRII LUN AUS!");
-				break;
-			case 15:
-				event.getPlayer().sendMessage(plugin.logPrefix + "TIID KLO UL!");
-				break;
-			case 16:
-				event.getPlayer().sendMessage(plugin.logPrefix + "STRUN BAH QO!");
-				break;
-			case 17:
-				event.getPlayer().sendMessage(plugin.logPrefix + "ZUL MEY GUT!");
-				break;
-			case 18:
-				event.getPlayer().sendMessage(plugin.logPrefix + "WULK NAH KEST!");
-				break;
-			default:
-				event.getPlayer().sendMessage(plugin.logPrefix + "FUS RO DAH!");
-				break;
-			}	
-		} else if (lines[1].equals("Withdraw")) {
-			if (plugin.permission.has(event.getPlayer(), "wa.use.withdraw.money")) {
-				double amount = 0.0;
+		} else
+
+		// Withdraw sign (money)
+		if (lines[1].equals("Withdraw")) {
+			if (!plugin.permission.has(event.getPlayer(), "wa.use.withdraw.money")) {
+				event.getPlayer().sendMessage(plugin.chatPrefix +
+					"You do not have permission to withdraw money");
+				event.setCancelled(true);
+			} else {
+				double amount = 0.0D;
 				if (!lines[2].equals("All")) {
 					amount = Double.parseDouble(lines[2]);
 				}
 				try {
 					AuctionPlayer auctionPlayer = plugin.dataQueries.getPlayer(player);
-					if (null != auctionPlayer) {
+					if (null == auctionPlayer) {
+						event.getPlayer().sendMessage(plugin.chatPrefix +
+							"No WebAuction account found, try logging off and back on again");
+					} else {
 						// Match found!
 						double currentMoney = auctionPlayer.getMoney();
 						if (lines[2].equals("All")) {
@@ -222,26 +246,33 @@ public class WebAuctionPlayerListener extends PlayerListener {
 						if (currentMoney >= amount) {
 							currentMoney -= amount;
 							currentMoney = round(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
-							event.getPlayer().sendMessage(plugin.logPrefix + "Removed " + amount + " from auction account, new auction balance: " + currentMoney);
+							event.getPlayer().sendMessage(plugin.chatPrefix + "Removed " +
+								amount + " from auction account, new auction balance: " + currentMoney);
 							plugin.dataQueries.updatePlayerMoney(player, currentMoney);
 							plugin.economy.depositPlayer(player, amount);
 						} else {
-							event.getPlayer().sendMessage(plugin.logPrefix + "You do not have enough money in your WebAuction account.");
+							event.getPlayer().sendMessage(plugin.chatPrefix +
+								"You do not have enough money in your WebAuction account.");
 						}
-					} else {
-						event.getPlayer().sendMessage(plugin.logPrefix + "No WebAuction account found, try logging off and back on again");
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			} else {
-				event.getPlayer().sendMessage(plugin.logPrefix + "You do not have permission to withdraw money");
-				event.setCancelled(true);
 			}
-		} else if ((lines[1].equals("MailBox")) || (lines[1].equals("Mailbox")) || (lines[1].equals("Mail Box"))) {
-			if ((lines[2].equals("Deposit")) && (plugin.permission.has(event.getPlayer(), "wa.use.deposit.items"))) {
+		} else
+
+		// MailBox Deposit (items)
+		if (lines[1].equals("MailBox") && lines[2].equals("Deposit")) {
+			if (!plugin.permission.has(event.getPlayer(), "wa.use.deposit.items")) {
+				event.getPlayer().sendMessage(plugin.chatPrefix +
+					"You do not have permission to use the mailbox");
+				event.setCancelled(true);
+			} else {
 				ItemStack stack = event.getPlayer().getItemInHand();
-				if (stack != null) {
+				if (stack == null) {
+					event.getPlayer().sendMessage(plugin.chatPrefix +
+						"Please hold a stack of item in your hand and right click to deposit them.");
+				} else {
 					int itemID = stack.getTypeId();
 					if (itemID != 0) {
 						int itemDamage = 0;
@@ -259,9 +290,8 @@ public class WebAuctionPlayerListener extends PlayerListener {
 							List<Integer> enchantmentIds = new ArrayList<Integer>();
 							List<Integer> enchantmentIdsStoredTemp;
 							for (Map.Entry<Enchantment, Integer> entry : itemEnchantments.entrySet()) {
-								Enchantment key = entry.getKey();
+								Enchantment key = (Enchantment)entry.getKey();
 								String enchName = key.getName();
-								// player.sendMessage(enchName);
 								int enchId = key.getId();
 								int level = entry.getValue();
 
@@ -274,11 +304,11 @@ public class WebAuctionPlayerListener extends PlayerListener {
 										enchTableId = dbEnchTableId;
 									}
 								}
-								enchantmentIds.add(enchTableId);
+								//enchantmentIds.add(enchTableId);
 								// player.sendMessage(enchantmentIds.size()+" part1");
 							}
-							Collections.sort(enchantmentIds);
 
+							Collections.sort(enchantmentIds);
 							enchantmentIdsStoredTemp = plugin.dataQueries.getEnchantIDsForLinks(itemID, 0);
 							Collections.sort(enchantmentIdsStoredTemp);
 
@@ -286,132 +316,125 @@ public class WebAuctionPlayerListener extends PlayerListener {
 								int currentQuantity = auctionItem.getQuantity();
 								currentQuantity += quantityInt;
 								plugin.dataQueries.updateItemQuantity(currentQuantity, itemTableIdNumber);
-								foundMatch = true;
-							} else if ((enchantmentIds.isEmpty()) && (enchantmentIdsStoredTemp.isEmpty())) {
+								foundMatch = Boolean.valueOf(true);
+							} else if (enchantmentIds.isEmpty() && enchantmentIdsStoredTemp.isEmpty()) {
 								int currentQuantity = auctionItem.getQuantity();
 								currentQuantity += quantityInt;
 								plugin.dataQueries.updateItemQuantity(currentQuantity, itemTableIdNumber);
-								foundMatch = true;
+								foundMatch = Boolean.valueOf(true);
 							}
 						}
-						if (foundMatch == false) {
+						if (!foundMatch.booleanValue()) {
 							// Create item
 							plugin.dataQueries.createItem(itemID, itemDamage, player, quantityInt);
+//							List<AuctionItem> newItems = plugin.dataQueries.getItems(player, itemID, itemDamage, true);
 
-							// Retrieve to get ID
-							List<AuctionItem> newItems = plugin.dataQueries.getItems(player, itemID, itemDamage, true);
-							int itemTableId = -1;
-							if (!newItems.isEmpty()) {
-								itemTableId = newItems.get(0).getId();
-							}
+//							int itemTableId = -1;
+//							if (!newItems.isEmpty()) {
+//								itemTableId = ((AuctionItem)newItems.get(0)).getId();
+//							}
 
+							int enchTableId;
 							for (Map.Entry<Enchantment, Integer> entry : itemEnchantments.entrySet()) {
-								Enchantment key = entry.getKey();
+								Enchantment key = (Enchantment)entry.getKey();
 								String enchName = key.getName();
 								int enchId = key.getId();
-								Integer level = entry.getValue();
-								// see if exists already
-								int enchTableId = -1;
-								while (enchTableId == -1) {
-									int dbEnchTableId = plugin.dataQueries.getEnchantTableID(enchId, level, enchName);
+								Integer level = (Integer)entry.getValue();
+								// see if already exists
+								for (enchTableId = -1; enchTableId == -1;) {
+									int dbEnchTableId = plugin.dataQueries.getEnchantTableID(enchId, level.intValue(), enchName);
 									if (dbEnchTableId == -1) {
-										plugin.dataQueries.createEnchantment(enchName, enchId, level);
+										plugin.dataQueries.createEnchantment(enchName, enchId, level.intValue());
 									} else {
 										enchTableId = dbEnchTableId;
 									}
 								}
-								plugin.dataQueries.createEnchantLink(enchTableId, 0, itemTableId);
 							}
 						}
-						event.getPlayer().sendMessage(plugin.logPrefix + "Item stack stored.");
-					}else{
-						event.getPlayer().sendMessage(plugin.logPrefix + "Please hold a stack of item in your hand and right click to deposit them.");						
+						event.getPlayer().sendMessage((new StringBuilder(String.valueOf(plugin.logPrefix))).append("Item stack stored.").toString());
+						event.getPlayer().setItemInHand(null);
 					}
 				}
-				event.getPlayer().setItemInHand(null);
+			}
+		} else
 
+		// MailBox Withdraw (items)
+		if (lines[1].equals("MailBox") && lines[2].equals("Withdraw")) {
+			if (!plugin.permission.has(event.getPlayer(), "wa.use.withdraw.items")) {
+				event.getPlayer().sendMessage(plugin.chatPrefix +
+					"You do not have permission to use the mailbox");
+				event.setCancelled(true);
 			} else {
-				if (plugin.permission.has(event.getPlayer(), "wa.use.withdraw.items")) {
-					try {
-						List<AuctionMail> auctionMail = plugin.dataQueries.getMail(player);
-						boolean invFull = true;
-						boolean gotMail = false;
-						for (AuctionMail mail : auctionMail) {
-							boolean enchanted = false;
-							List<Integer> enchantments = new ArrayList<Integer>();
-							List<Integer> enchLevels = new ArrayList<Integer>();
+				try {
+					List<AuctionMail> auctionMail = plugin.dataQueries.getMail(player);
+					boolean invFull = true;
+					boolean gotMail = false;
+					for (AuctionMail mail : auctionMail) {
+						boolean enchanted = false;
+						List<Integer> enchantments = new ArrayList<Integer>();
+						List<Integer> enchLevels = new ArrayList<Integer>();
 
-							List<Integer> enchIDs = plugin.dataQueries.getEnchantIDsForLinks(mail.getId(), 2);
-							if (event.getPlayer().getInventory().firstEmpty() != -1) {
-								ItemStack stack = mail.getItemStack();
-								for (int enchantID : enchIDs) {
-									Map<Integer, Integer> enchMap = plugin.dataQueries.getEnchantIDLevel(enchantID);
-									for (Map.Entry<Integer, Integer> entry : enchMap.entrySet()) {
-										Enchantment tempEnch = Enchantment.getById(entry.getKey());
-										// player.sendMessage(tempEnch.getName()+" "+resultEnch.getInt("level"));
-										if (tempEnch.canEnchantItem(stack)) {
-											// player.sendMessage("Enchanting");
-											// stack.addEnchantment(tempEnch,
-											// resultEnch.getInt("level"));
-											enchantments.add(entry.getKey());
-											enchLevels.add(entry.getValue());
-											enchanted = true;
-										} else {
-
-											// player.sendMessage("Can't enchant for some reason");
-										}
-										// player.sendMessage(""+stack.containsEnchantment(tempEnch));
+						List<Integer> enchIDs = plugin.dataQueries.getEnchantIDsForLinks(mail.getId(), 2);
+						if (event.getPlayer().getInventory().firstEmpty() != -1) {
+							ItemStack stack = mail.getItemStack();
+							for (int enchantID : enchIDs) {
+								Map<Integer, Integer> enchMap = plugin.dataQueries.getEnchantIDLevel(enchantID);
+								for (Map.Entry<Integer, Integer> entry : enchMap.entrySet()) {
+									Enchantment tempEnch = Enchantment.getById(((Integer)entry.getKey()).intValue());
+									// player.sendMessage(tempEnch.getName()+" "+resultEnch.getInt("level"));
+									if (tempEnch.canEnchantItem(stack)) {
+										enchantments.add((Integer)entry.getKey());
+										enchLevels.add((Integer)entry.getValue());
+										enchanted = true;
+									} else {
+										plugin.log.info(              plugin.logPrefix  + "Can't enchant for some reason");
+										event.getPlayer().sendMessage(plugin.chatPrefix + "Can't enchant for some reason");
 									}
 								}
-								plugin.dataQueries.deleteMail(mail.getId());
-
-								int firstEmpty = -1;
-								if (enchanted == true) {
-									firstEmpty = event.getPlayer().getInventory().firstEmpty();
-
-								}
-								event.getPlayer().getInventory().addItem(stack);
-								if (enchanted == true) {
-									ItemStack tempStack = event.getPlayer().getInventory().getItem(firstEmpty);
-									Iterator<Integer> itr = enchantments.iterator();
-									Iterator<Integer> itrl = enchLevels.iterator();
-									while ((itr.hasNext()) && (itrl.hasNext())) {
-										Enchantment tempEnch = Enchantment.getById(itr.next());
-										tempStack.addEnchantment(tempEnch, itrl.next());
-
-									}
-								}
-								event.getPlayer().updateInventory();
-								
-								gotMail = true;
-								invFull = false;
-							} else {
-								event.getPlayer().sendMessage(plugin.logPrefix + "Inventory full, cannot get mail");
-								invFull = true;
 							}
-							if (invFull == true) {
-								break;
+							plugin.dataQueries.deleteMail(mail.getId());
+
+							int firstEmpty = -1;
+							if (enchanted) {
+								firstEmpty = event.getPlayer().getInventory().firstEmpty();
 							}
+							event.getPlayer().getInventory().addItem(new ItemStack[] {
+								stack
+							});
+							if (enchanted) {
+								ItemStack tempStack = event.getPlayer().getInventory().getItem(firstEmpty);
+								Iterator<Integer> itr = enchantments.iterator();
+								Iterator<Integer> itrl = enchLevels.iterator();
+								while ( (itr.hasNext()) && (itrl.hasNext()) ) {
+									Enchantment tempEnch = Enchantment.getById(itr.next());
+									tempStack.addEnchantment(tempEnch, ((Integer)itrl.next()).intValue());
+								}
+							}
+							event.getPlayer().updateInventory();
+							gotMail = true;
+							invFull = false;
+						} else {
+							event.getPlayer().sendMessage(plugin.chatPrefix + "Inventory full, cannot get mail");
+							invFull = true;
 						}
-						if (gotMail){
-							event.getPlayer().sendMessage(plugin.logPrefix + "Mail retrieved");
-						}else{
-						  if (!invFull) {
-							  event.getPlayer().sendMessage(plugin.logPrefix + "No mail");
-						  }
+						if (invFull) {
+							break;
 						}
-						if (auctionMail.isEmpty()){	
-							event.getPlayer().sendMessage(plugin.logPrefix + "No mail");
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
 					}
-				} else {
-					event.getPlayer().sendMessage(plugin.logPrefix + "You do not have permission to use the mailbox");
-					event.setCancelled(true);
+
+					if (gotMail) {
+						event.getPlayer().sendMessage(plugin.chatPrefix + "Mail retrieved");
+					} else if (!invFull) {
+						event.getPlayer().sendMessage(plugin.chatPrefix + "No mail");
+					}
+					if (auctionMail.isEmpty()) {
+						event.getPlayer().sendMessage(plugin.chatPrefix + "No mail");
+					}
+				} catch(Exception e) {
+					e.printStackTrace();
 				}
 			}
 		}
-
 	}
+
 }

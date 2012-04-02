@@ -8,6 +8,9 @@ public class AuctionMail {
 	private ItemStack itemStack;
 	private String playerName;
 
+	public AuctionMail() {
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -31,4 +34,5 @@ public class AuctionMail {
 	public void setPlayerName(String playerName) {
 		this.playerName = playerName;
 	}
+
 }

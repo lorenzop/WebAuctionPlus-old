@@ -1,6 +1,6 @@
 name: WebAuction
 main: me.exote.webauction.WebAuction
-version: 0.6.4
+version: 1.0.0
 author: Exote
 depend: [Vault]
 softdepend: [SignLink]
@@ -26,6 +26,7 @@ permissions:
             wa.cansell: true
             wa.remove: true
             wa.webadmin: true
+            wa.reload: true
     wa.use.*:
         description: Gives access to all WebAuction commands
         children:
@@ -37,6 +38,7 @@ permissions:
             wa.cansell: true
             wa.remove: false
             wa.webadmin: false
+            wa.reload: false
     wa.use.withdraw.items:
         description: Lets you use the mailbox
     wa.use.withdraw.money:
@@ -65,3 +67,5 @@ permissions:
         description: Lets you remove signs
     wa.webadmin:
         description: Lets you change other peoples data via website
+    wa.reload:
+        description: Reloads WebAuctions config.yml

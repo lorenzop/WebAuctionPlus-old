@@ -38,18 +38,42 @@ public class WebAuctionCommands implements CommandExecutor {
 		return hexString.toString();
 	}
 
-	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] split) {
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-		int params = split.length;
-		String player = ((Player) sender).getName();
+		int params = args.length;
+
+		String player = "";
+		if (sender instanceof Player) {
+			player = ((Player) sender).getName();
+		}
+
 		if (params == 0) {
 			return false;
 		} else if (params == 1) {
+			// /wa reload
+			if (args[0].equalsIgnoreCase("reload")){
+				// from player
+				if (sender instanceof Player) {
+					if (!sender.hasPermission("wa.reload")){
+						((Player)sender).sendMessage(plugin.chatPrefix + "You do not have permission");
+						return false;
+					}
+					((Player)sender).sendMessage(plugin.chatPrefix + "reloading..");
+				}
+				plugin.log.info(plugin.logPrefix + "reloading..");
+				plugin.onDisable();
+				plugin.onEnable();
+				return true;
+			}
 			return false;
 		} else if (params == 2) {
-			if (split[0].equals("password")) {
-				if (split[1] != null) {
+			// /wa password
+			if (args[0].equals("password")) {
+				if (!(sender instanceof Player)) {
+					plugin.log.info(plugin.logPrefix + "/wa password must be used by a player.");
+					return false;
+				}
+				if (args[1] != null) {
 					int canBuy = 0;
 					int canSell = 0;
 					int isAdmin = 0;
@@ -62,20 +86,19 @@ public class WebAuctionCommands implements CommandExecutor {
 					if (plugin.permission.has(sender, "wa.webadmin")) {
 						isAdmin = 1;
 					}
-					if (null != plugin.dataQueries.getPlayer(player)) {
-						//no need to create a new account
-					} else {
+					if (plugin.dataQueries.getPlayer(player) == null) {
 						plugin.log.info(plugin.logPrefix + "Player not found, creating account");
 						// create that person in database
-						plugin.dataQueries.createPlayer(player, "Password", 0.0d, canBuy, canSell, isAdmin);
+						plugin.dataQueries.createPlayer(player, "Password", 0.0D, canBuy, canSell, isAdmin);
 					}
-					String newPass = MD5(split[1]);
+					String newPass = MD5(args[1]);
 					plugin.dataQueries.updatePlayerPassword(player, newPass);
-					sender.sendMessage(plugin.logPrefix + "Password changed");
+					sender.sendMessage(plugin.chatPrefix + "Password changed");
 					return true;
 				}
 			}
 		}
 		return false;
 	}
+
 }

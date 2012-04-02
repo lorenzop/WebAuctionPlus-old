@@ -10,6 +10,9 @@ public class AuctionPlayer {
 	private int canSell;
 	private int isAdmin;
 
+	public AuctionPlayer() {
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -65,4 +68,5 @@ public class AuctionPlayer {
 	public void setIsAdmin(int isAdmin) {
 		this.isAdmin = isAdmin;
 	}
+
 }

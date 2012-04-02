@@ -22,7 +22,6 @@ public class RecentSignTask implements Runnable {
 		this.plugin = plugin;
 	}
 
-	@Override
 	public void run() {
 
 		List<Location> toRemove = new ArrayList<Location>();
@@ -30,23 +29,23 @@ public class RecentSignTask implements Runnable {
 		List<Variable> WAPrices = new ArrayList<Variable>();
 		List<Variable> WAQuants = new ArrayList<Variable>();
 		List<Variable> WASellers = new ArrayList<Variable>();
-		
+
 		int totalAuctionCount = plugin.dataQueries.getTotalAuctionCount();
-		if (plugin.useSignLink){
-			for (int i = 0; i < plugin.numberOfRecentLink; i++){
-				Variable tempName = Variables.get("WAName"+i);
-				Variable tempQuant = Variables.get("WAQuant"+i);
-				Variable tempPrice = Variables.get("WAPrice"+i);
-				Variable tempSeller = Variables.get("WASeller"+i);
+		if (plugin.useSignLink) {
+			for (int i = 0; i < plugin.numberOfRecentLink; i++) {
+				Variable tempName = Variables.get("WAName" + i);
+				Variable tempQuant = Variables.get("WAQuant" + i);
+				Variable tempPrice = Variables.get("WAPrice" + i);
+				Variable tempSeller = Variables.get("WASeller" + i);
 				tempName.setDefault("N/A");
 				tempQuant.setDefault("N/A");
 				tempPrice.setDefault("N/A");
 				tempSeller.setDefault("N/A");
-				if (i < totalAuctionCount -1){
+				if (i < totalAuctionCount - 1) {
 					Auction offsetAuction = plugin.dataQueries.getAuctionForOffset(i);
-					ItemStack stack = offsetAuction.getItemStack();			
+					ItemStack stack = offsetAuction.getItemStack();
 					tempName.set(stack.getType().toString());
-					tempQuant.set(stack.getAmount()+"");
+					tempQuant.set(Integer.toString(stack.getAmount()));
 					tempPrice.set(plugin.economy.format(offsetAuction.getPrice()));
 					tempSeller.set(offsetAuction.getPlayerName());
 					WANames.add(tempName);
@@ -56,37 +55,36 @@ public class RecentSignTask implements Runnable {
 				}
 			}
 		}
-		if (plugin.useOriginalRecent){
-		for (Location key : plugin.recentSigns.keySet()) {
-			int offset = plugin.recentSigns.get(key);
-			if (offset <= totalAuctionCount) {
-				Auction offsetAuction = plugin.dataQueries.getAuctionForOffset(offset - 1);
+		if (plugin.useOriginalRecent) {
+			for (Location key : plugin.recentSigns.keySet()) {
+				int offset = (Integer)plugin.recentSigns.get(key);
+				if (offset <= totalAuctionCount) {
+					Auction offsetAuction = plugin.dataQueries.getAuctionForOffset(offset - 1);
 
-				ItemStack stack = offsetAuction.getItemStack();
-				int qty = stack.getAmount();
-				String formattedPrice = plugin.economy.format(offsetAuction.getPrice());
-				
-				if (key.getBlock().getType() == Material.SIGN_POST || key.getBlock().getType() == Material.WALL_SIGN) {
-					Sign thisSign = (Sign) key.getBlock().getState();
-					thisSign.setLine(1, stack.getType().toString());
-					thisSign.setLine(2, qty + "");
-					thisSign.setLine(3, "" + formattedPrice);
-					thisSign.update();
-				} else {
-					toRemove.add(key);
-				}
-			} else {
+					ItemStack stack = offsetAuction.getItemStack();
+					int qty = stack.getAmount();
+					String formattedPrice = plugin.economy.format(offsetAuction.getPrice());
+
+					if (key.getBlock().getType() == Material.SIGN_POST || key.getBlock().getType() == Material.WALL_SIGN) {
+						Sign thisSign = (Sign)key.getBlock().getState();
+						thisSign.setLine(1, stack.getType().toString());
+						thisSign.setLine(2, Integer.toString(qty));
+						thisSign.setLine(3, formattedPrice);
+						thisSign.update();
+					} else {
+						toRemove.add(key);
+					}
+				} else
 				if (key.getBlock().getType() == Material.SIGN_POST || key.getBlock().getType() == Material.WALL_SIGN) {
 					Sign thisSign = (Sign) key.getBlock().getState();
 					thisSign.setLine(1, "Recent");
-					thisSign.setLine(2, offset + "");
+					thisSign.setLine(2, Integer.toString(offset));
 					thisSign.setLine(3, "Not Available");
 					thisSign.update();
 				} else {
 					toRemove.add(key);
 				}
 			}
-		}
 		}
 
 		// Remove any signs flagged for removal
@@ -96,4 +94,5 @@ public class RecentSignTask implements Runnable {
 			plugin.log.info(plugin.logPrefix + "Removed invalid sign at location: " + signLoc);
 		}
 	}
+
 }

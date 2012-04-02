@@ -8,6 +8,9 @@ public class SaleAlert {
 	private int quantity;
 	private double priceEach;
 
+	public SaleAlert() {
+	}
+
 	public int getId() {
 		return id;
 	}

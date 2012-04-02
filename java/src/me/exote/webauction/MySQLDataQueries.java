@@ -190,10 +190,11 @@ public class MySQLDataQueries {
 
 		try {
 			st = conn.prepareStatement("SELECT * FROM WA_ShoutSigns");
+			Location location;
 			rs = st.executeQuery();
 			while (rs.next()) {
 				World world = plugin.getServer().getWorld(rs.getString(2));
-				Location location = new Location(world, rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
+				location = new Location(world, rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
 				signLocations.put(location, rs.getInt("radius"));
 			}
 		} catch (SQLException e) {
@@ -214,10 +215,11 @@ public class MySQLDataQueries {
 
 		try {
 			st = conn.prepareStatement("SELECT * FROM WA_RecentSigns");
+			Location location;
 			rs = st.executeQuery();
 			while (rs.next()) {
 				World world = plugin.getServer().getWorld(rs.getString(2));
-				Location location = new Location(world, rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
+				location = new Location(world, rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
 				signLocations.put(location, rs.getInt("offset"));
 			}
 		} catch (SQLException e) {
@@ -240,9 +242,10 @@ public class MySQLDataQueries {
 			st = conn.prepareStatement("SELECT * FROM WA_SaleAlerts WHERE seller = ? AND alerted = ?");
 			st.setString(1, player);
 			st.setInt(2, 0);
+			SaleAlert saleAlert;
 			rs = st.executeQuery();
 			while (rs.next()) {
-				SaleAlert saleAlert = new SaleAlert();
+				saleAlert = new SaleAlert();
 				saleAlert.setId(rs.getInt("id"));
 				saleAlert.setBuyer(rs.getString("buyer"));
 				saleAlert.setItem(rs.getString("item"));
@@ -588,9 +591,10 @@ public class MySQLDataQueries {
 			st.setString(1, player);
 			st.setInt(2, itemID);
 			st.setInt(3, damage);
+			AuctionItem auctionItem;
 			rs = st.executeQuery();
 			while (rs.next()) {
-				AuctionItem auctionItem = new AuctionItem();
+				auctionItem = new AuctionItem();
 				auctionItem.setId(rs.getInt("id"));
 				auctionItem.setName(rs.getInt("name"));
 				auctionItem.setDamage(rs.getInt("damage"));
@@ -742,9 +746,10 @@ public class MySQLDataQueries {
 		try {
 			st = conn.prepareStatement("SELECT * FROM WA_Mail WHERE player = ?");
 			st.setString(1, player);
+			AuctionMail auctionMail;
 			rs = st.executeQuery();
 			while (rs.next()) {
-				AuctionMail auctionMail = new AuctionMail();
+				auctionMail = new AuctionMail();
 				auctionMail.setId(rs.getInt("id"));
 				ItemStack stack = new ItemStack(rs.getInt("name"), rs.getInt("quantity"), rs.getShort("damage"));
 				auctionMail.setItemStack(stack);
@@ -799,4 +804,5 @@ public class MySQLDataQueries {
 			closeResources(conn, st, rs);
 		}
 	}
+
 }

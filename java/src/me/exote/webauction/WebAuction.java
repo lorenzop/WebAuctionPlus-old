@@ -13,9 +13,8 @@ import me.exote.webauction.tasks.ShoutSignTask;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,11 +22,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class WebAuction extends JavaPlugin {
 
 	public String logPrefix = "[WebAuction] ";
+	public String chatPrefix = ChatColor.DARK_GREEN + "[" + ChatColor.WHITE + "WebAuction" + ChatColor.DARK_GREEN + "] ";
 	public Logger log = Logger.getLogger("Minecraft");
-
-	private final WebAuctionPlayerListener playerListener = new WebAuctionPlayerListener(this);
-	private final WebAuctionBlockListener blockListener = new WebAuctionBlockListener(this);
-	private final WebAuctionServerListener serverListener = new WebAuctionServerListener(this);
 
 	public MySQLDataQueries dataQueries;
 
@@ -37,24 +33,27 @@ public class WebAuction extends JavaPlugin {
 
 	public int signDelay = 0;
 	public int numberOfRecentLink = 0;
-	
+
 	public Boolean useSignLink = false;
 	public Boolean useOriginalRecent = true;
-	
+
 	public Boolean showSalesOnJoin = false;
 
 	public Permission permission = null;
 	public Economy economy = null;
 
+	public WebAuction() {
+	}
+
 	public long getCurrentMilli() {
 		return System.currentTimeMillis();
 	}
 
-	@Override
 	public void onEnable() {
 
 		log.info(logPrefix + "WebAuction is initializing.");
 
+		// Init configs
 		initConfig();
 		String dbHost = getConfig().getString("MySQL.Host");
 		String dbUser = getConfig().getString("MySQL.Username");
@@ -72,21 +71,19 @@ public class WebAuction extends JavaPlugin {
 		useSignLink = getConfig().getBoolean("SignLink.UseSignLink");
 		numberOfRecentLink = getConfig().getInt("SignLink.NumberOfLatestAuctionsToTrack");
 
+		// Command listener
 		getCommand("wa").setExecutor(new WebAuctionCommands(this));
 
 		setupEconomy();
 		setupPermissions();
 
-		// Set up DataQueries
+		// Init database
 		dataQueries = new MySQLDataQueries(this, dbHost, dbPort, dbUser, dbPass, dbDatabase);
-
-		// Init tables
 		log.info(logPrefix + "MySQL Initializing.");
 		dataQueries.initTables();
 
 		// Build shoutSigns map
 		shoutSigns.putAll(dataQueries.getShoutSignLocations());
-
 		// Build recentSigns map
 		recentSigns.putAll(dataQueries.getRecentSignLocations());
 
@@ -106,19 +103,15 @@ public class WebAuction extends JavaPlugin {
 			}
 
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new ShoutSignTask(this), shoutSignUpdateFrequency, shoutSignUpdateFrequency);
-			getServer().getScheduler().scheduleSyncRepeatingTask(this, new RecentSignTask(this), recentSignUpdateFrequency, recentSignUpdateFrequency);	
+			getServer().getScheduler().scheduleSyncRepeatingTask(this, new RecentSignTask(this), recentSignUpdateFrequency, recentSignUpdateFrequency);
 		}
 
 		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Priority.Normal, this);
-		pm.registerEvent(Event.Type.SIGN_CHANGE, blockListener, Priority.Normal, this);
-		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLUGIN_ENABLE, serverListener, Priority.Monitor, this);
+		pm.registerEvents(new WebAuctionPlayerListener(this), this);
+		pm.registerEvents(new WebAuctionBlockListener (this), this);
+		pm.registerEvents(new WebAuctionServerListener(this), this);
 	}
 
-	@Override
 	public void onDisable() {
 		getServer().getScheduler().cancelTasks(this);
 		log.info(logPrefix + "Disabled. Bye :D");
@@ -126,13 +119,13 @@ public class WebAuction extends JavaPlugin {
 
 	private void initConfig() {
 		getConfig().addDefault("MySQL.Host", "localhost");
-		getConfig().addDefault("MySQL.Username", "root");
+		getConfig().addDefault("MySQL.Username", "minecraft");
 		getConfig().addDefault("MySQL.Password", "password123");
 		getConfig().addDefault("MySQL.Port", "3306");
 		getConfig().addDefault("MySQL.Database", "minecraft");
-		getConfig().addDefault("Misc.ReportSales", false);
-		getConfig().addDefault("Misc.UseOriginalRecentSigns", false);
-		getConfig().addDefault("Misc.ShowSalesOnJoin", false);
+		getConfig().addDefault("Misc.ReportSales", true);
+		getConfig().addDefault("Misc.UseOriginalRecentSigns", true);
+		getConfig().addDefault("Misc.ShowSalesOnJoin", true);
 		getConfig().addDefault("Development.UseMultithreads", false);
 		getConfig().addDefault("Misc.SignDelay", 1000);
 		getConfig().addDefault("SignLink.UseSignLink", false);
@@ -147,7 +140,7 @@ public class WebAuction extends JavaPlugin {
 	private Boolean setupPermissions() {
 		RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(Permission.class);
 		if (permissionProvider != null) {
-			permission = permissionProvider.getProvider();
+			permission = (Permission)permissionProvider.getProvider();
 		}
 		return (permission != null);
 	}
@@ -155,9 +148,9 @@ public class WebAuction extends JavaPlugin {
 	private Boolean setupEconomy() {
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
 		if (economyProvider != null) {
-			economy = economyProvider.getProvider();
+			economy = (Economy)economyProvider.getProvider();
 		}
-
 		return (economy != null);
 	}
+
 }

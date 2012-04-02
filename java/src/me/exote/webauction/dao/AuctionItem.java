@@ -8,6 +8,9 @@ public class AuctionItem {
 	private String playerName;
 	private int quantity;
 
+	public AuctionItem() {
+	}
+
 	public int getId() {
 		return id;
 	}
