@@ -18,6 +18,7 @@ $DamageValues=array(
   256=>251,
   257=>251,
   258=>251,
+  259=>65,
   261=>385,
   267=>251,
   268=>60,
@@ -61,6 +62,7 @@ $DamageValues=array(
   315=>996,
   316=>92,
   317=>80,
+  359=>238,
   -1 =>0
 );
 function isTrueDamage ($itemId, $itemDamage){global $DamageValues;
@@ -166,18 +168,75 @@ function getMarketPrice($itemTableId, $tableId){
 }
 
 
-function getItemName($itemId, $itemDamage){
-  if(!isset($ItemNames[$itemId])){
-    return(@$ItemNames[-1]);
+
+function getEnchName($enchId){global $EnchantmentNames;
+  if(!isset($EnchantmentNames)){
+    return(@$EnchantmentNames[-1]);
   }else{
-    return($ItemNames[$itemId]);
+    return($EnchantmentNames[$enchId]);
   }
 }
-function getItemImage($itemId, $itemDamage){
-  if(!isset($ItemImages[$itemId])){
-    return(@$ItemImages[-1]);
+$EnchantmentNames=array(
+  0=>'Protection',
+  1=>'Fire Protecion',
+  2=>'Feather Falling',
+  3=>'Blast Protection',
+  4=>'Projectile Protection',
+  5=>'Respiration',
+  6=>'Aqua Affinity',
+  16=>'Sharpness',
+  17=>'Smite',
+  18=>'Bane of Arthropods',
+  19=>'Knockback',
+  20=>'Fire Aspect',
+  21=>'Looting',
+  32=>'Efficiency',
+  33=>'Silk Touch',
+  34=>'Unbreaking',
+  35=>'Fortune',
+  -1=>'Unknown'
+);
+
+
+
+
+function getItemName($itemId, $itemDamage){global $ItemNames,$DamageValues;
+  $output='';
+  if(isset($ItemNames[$itemId])){
+    if(is_array($ItemNames[$itemId])){
+      if(isset($ItemNames[$itemId][$itemDamage])){
+        $output=$ItemNames[$itemId][$itemDamage];
+      }else{
+        $output=$ItemNames[$itemId][-1];
+      }
+    }else{
+      $output=$ItemNames[$itemId];
+    }
   }else{
-    return($ItemImages[$itemId]);
+    $output=@$ItemNames[-1];
+  }
+  // damage %
+  if(strpos($output,'#%')!==FALSE){
+    $output=str_replace('#%', '<br />'.round(($itemDamage/@$DamageValues[$itemId])*100, 1).'%' ,$output);
+  // map #
+  }elseif(strpos($output,'#')!==FALSE){
+    $output=str_replace('#','# '.$itemDamage,$output);
+  }
+  return($output);
+}
+function getItemImage($itemId, $itemDamage){global $ItemImages;
+  if(isset($ItemImages[$itemId])){
+    if(is_array($ItemImages[$itemId])){
+      if(isset($ItemImages[$itemId][$itemDamage])){
+        return('images/'.$ItemImages[$itemId][$itemDamage]);
+      }else{
+        return('images/'.$ItemImages[$itemId][-1]);
+      }
+    }else{
+      return('images/'.$ItemImages[$itemId]);
+    }
+  }else{
+    return('images/'.@$ItemImages[-1]);
   }
 }
 
@@ -378,12 +437,12 @@ $ItemNames=array(
   121=>'End Stone',
   122=>'Dragon Egg',
   123=>'Redstone Lamp',
-  256=>'Iron Shovel .round(($itemDamage/251)*100, 1).% damaged',
-  257=>'Iron Pickaxe .round(($itemDamage/251)*100, 1).% damaged',
-  258=>'Iron Axe .round(($itemDamage/251)*100, 1).% damaged',
-  259=>'Flint and Steel',
+  256=>'Iron Shovel #% damaged',
+  257=>'Iron Pickaxe #% damaged',
+  258=>'Iron Axe #% damaged',
+  259=>'Flint and Steel #% damaged',
   260=>'Apple',
-  261=>'Bow .round(($itemDamage/385)*100, 1).% damaged',
+  261=>'Bow #% damaged',
   262=>'Arrow',
   263=>array(
     0 =>'Coal',
@@ -393,57 +452,57 @@ $ItemNames=array(
   264=>'Diamond',
   265=>'Iron Ingot',
   266=>'Gold Ingot',
-  267=>'Iron Sword .round(($itemDamage/251)*100, 1).% damaged',
-  268=>'Wooden Sword .round(($itemDamage/60)*100, 1).% damaged',
-  269=>'Wooden Shovel .round(($itemDamage/60)*100, 1).% damaged',
-  270=>'Wooden Pickaxe .round(($itemDamage/60)*100, 1).% damaged',
-  271=>'Wooden Axe .round(($itemDamage/60)*100, 1).% damaged',
-  272=>'Stone Sword .round(($itemDamage/132)*100, 1).% damaged',
-  273=>'Stone Shovel .round(($itemDamage/132)*100, 1).% damaged',
-  274=>'Stone Pickaxe .round(($itemDamage/132)*100, 1).% damaged',
-  275=>'Stone Axe .round(($itemDamage/132)*100, 1).% damaged',
-  276=>'Diamond Sword .round(($itemDamage/1562)*100, 1).% damaged',
-  277=>'Diamond Shovel .round(($itemDamage/1562)*100, 1).% damaged',
-  278=>'Diamond Pickaxe .round(($itemDamage/1562)*100, 1).% damaged',
-  279=>'Diamond Axe .round(($itemDamage/1562)*100, 1).% damaged',
+  267=>'Iron Sword #% damaged',
+  268=>'Wooden Sword #% damaged',
+  269=>'Wooden Shovel #% damaged',
+  270=>'Wooden Pickaxe #% damaged',
+  271=>'Wooden Axe #% damaged',
+  272=>'Stone Sword #% damaged',
+  273=>'Stone Shovel #% damaged',
+  274=>'Stone Pickaxe #% damaged',
+  275=>'Stone Axe #% damaged',
+  276=>'Diamond Sword #% damaged',
+  277=>'Diamond Shovel #% damaged',
+  278=>'Diamond Pickaxe #% damaged',
+  279=>'Diamond Axe #% damaged',
   280=>'Stick',
   281=>'Bowl',
   282=>'Mushroom Soup',
-  283=>'Gold Sword .round(($itemDamage/33)*100, 1).% damaged',
-  284=>'Gold Shovel .round(($itemDamage/33)*100, 1).% damaged',
-  285=>'Gold Pickaxe .round(($itemDamage/33)*100, 1).% damaged',
-  286=>'Gold Axe .round(($itemDamage/33)*100, 1).% damaged',
+  283=>'Gold Sword #% damaged',
+  284=>'Gold Shovel #% damaged',
+  285=>'Gold Pickaxe #% damaged',
+  286=>'Gold Axe #% damaged',
   287=>'String',
   288=>'Feather',
   289=>'Gunpowder',
-  290=>'Wooden Hoe .round(($itemDamage/60)*100, 1).% damaged',
-  291=>'Stone Hoe .round(($itemDamage/132)*100, 1).% damaged',
-  292=>'Iron Hoe .round(($itemDamage/251)*100, 1).% damaged',
-  293=>'Diamond Hoe .round(($itemDamage/1562)*100, 1).% damaged',
-  294=>'Gold Hoe .round(($itemDamage/33)*100, 1).% damaged',
+  290=>'Wooden Hoe #% damaged',
+  291=>'Stone Hoe #% damaged',
+  292=>'Iron Hoe #% damaged',
+  293=>'Diamond Hoe #% damaged',
+  294=>'Gold Hoe #% damaged',
   295=>'Wheat Seeds',
   296=>'Wheat',
   297=>'Bread',
-  298=>'Leather Helmet .round(($itemDamage/34)*100, 1).% damaged',
-  299=>'Leather Chestplate .round(($itemDamage/49)*100, 1).% damaged',
-  300=>'Leather Leggings .round(($itemDamage/46)*100, 1).% damaged',
-  301=>'Leather Boots .round(($itemDamage/40)*100, 1).% damaged',
-  302=>'Chain Mail Helmet .round(($itemDamage/67)*100, 1).% damaged',
-  303=>'Chain Mail Chestplate .round(($itemDamage/96)*100, 1).% damaged',
-  304=>'Chain Mail Leggings .round(($itemDamage/92)*100, 1).% damaged',
-  305=>'Chain Mail Boots .round(($itemDamage/79)*100, 1).% damaged',
-  306=>'Iron Helmet .round(($itemDamage/136)*100, 1).% damaged',
-  307=>'Iron Chestplate .round(($itemDamage/192)*100, 1).% damaged',
-  308=>'Iron Leggings .round(($itemDamage/184)*100, 1).% damaged',
-  309=>'Iron Boots .round(($itemDamage/160)*100, 1).% damaged',
-  310=>'Diamond Helmet .round(($itemDamage/272)*100, 1).% damaged',
-  311=>'Diamond Chestplate .round(($itemDamage/384)*100, 1).% damaged',
-  312=>'Diamond Leggings .round(($itemDamage/368)*100, 1).% damaged',
-  313=>'Diamond Boots .round(($itemDamage/320)*100, 1).% damaged',
-  314=>'Gold Helmet .round(($itemDamage/68)*100, 1).% damaged',
-  315=>'Gold Chestplate .round(($itemDamage/96)*100, 1).% damaged',
-  316=>'Gold Leggings .round(($itemDamage/92)*100, 1).% damaged',
-  317=>'Gold Boots .round(($itemDamage/80)*100, 1).% damaged',
+  298=>'Leather Helmet #% damaged',
+  299=>'Leather Chestplate #% damaged',
+  300=>'Leather Leggings #% damaged',
+  301=>'Leather Boots #% damaged',
+  302=>'Chain Mail Helmet #% damaged',
+  303=>'Chain Mail Chestplate #% damaged',
+  304=>'Chain Mail Leggings #% damaged',
+  305=>'Chain Mail Boots #% damaged',
+  306=>'Iron Helmet #% damaged',
+  307=>'Iron Chestplate #% damaged',
+  308=>'Iron Leggings #% damaged',
+  309=>'Iron Boots #% damaged',
+  310=>'Diamond Helmet #% damaged',
+  311=>'Diamond Chestplate #% damaged',
+  312=>'Diamond Leggings #% damaged',
+  313=>'Diamond Boots #% damaged',
+  314=>'Gold Helmet #% damaged',
+  315=>'Gold Chestplate #% damaged',
+  316=>'Gold Leggings #% damaged',
+  317=>'Gold Boots #% damaged',
   318=>'Flint',
   319=>'Raw Porkchop',
   320=>'Cooked Porkchop',
@@ -502,8 +561,8 @@ $ItemNames=array(
   355=>'Bed',
   356=>'Redstone Repeater',
   357=>'Cookie',
-  358=>'Map .$itemDamage',
-  359=>'Shears',
+  358=>'Map #',
+  359=>'Shears #% damaged',
   360=>'Melon Slice',
   361=>'Pumpkin Seeds',
   362=>'Melon Seeds',
@@ -615,7 +674,7 @@ $ItemNames=array(
   2265=>'Music Disc (Ward)',
   2266=>'Music Disc (11)',
   // TODO=> Return 'Unknown (id=>value)' instead?
-  -1  =>'Unknown Item Id=> .$itemId.($itemDamage==0?""=>=>.$itemDamage')
+  -1  =>'Unknown Item Id=> .$itemId.($itemDamage==0?""=>=>.$itemDamage)'
 );
 
 
@@ -633,7 +692,7 @@ $ItemImages=array(
   ),
   6=>array(
     0 =>'Sapling_Oak.png',
-    1 =>'Sapling_Spruce.png',
+    1 =>'Sapling_Pine.png',
     2 =>'Sapling_Birch.png',
     3 =>'Sapling_Jungle.png',
     -1=>'Sapling.png'
@@ -756,7 +815,7 @@ $ItemImages=array(
   61=>'Furnace.png',
   62=>'Furnace.png',
   63=>'Sign.png',
-  64=>'Door_Wooden.png',
+  64=>'Door_Wood.png',
   65=>'Ladder.png',
   66=>'Rails.png',
   67=>'Stairs_Cobblestone.png',
@@ -868,8 +927,8 @@ $ItemImages=array(
   295=>'Seeds_Wheat.png',
   296=>'Wheat.png',
   297=>'Bread.png',
-  298=>'Leather_Cap.png',
-  299=>'Leather_Tunic.png',
+  298=>'Leather_Helmet.png',
+  299=>'Leather_Chestplate.png',
   300=>'Leather_Pants.png',
   301=>'Leather_Boots.png',
   302=>'Chain_Armor_Helmet.png',
@@ -889,12 +948,12 @@ $ItemImages=array(
   316=>'Gold_Leggings.png',
   317=>'Gold_Boots.png',
   318=>'Flint.png',
-  319=>'Raw_Porkchop.png',
-  320=>'Cooked_Porkchop.png',
+  319=>'Porkchop_Raw.png',
+  320=>'Porkchop_Cooked.png',
   321=>'Painting.png',
   322=>'Apple_Golden.png',
   323=>'Sign.png',
-  324=>'Door_Wooden.png',
+  324=>'Door_Wood.png',
   325=>'Bucket.png',
   326=>'Bucket_Water.png',
   327=>'Bucket_Lava.png',
@@ -1045,7 +1104,7 @@ $ItemImages=array(
     120=>'Spawn_Villager.png',
     -1 =>'Egg.png'
   ),
-  384=>'Bottle_o\'_Enchanting.png',
+  384=>'Bottle_o_Enchanting.png',
   385=>'Fire_Charge.png',
   2256=>'Disc_Gold.png',
   2257=>'Disc_Green.png',
@@ -1070,475 +1129,187 @@ $ItemImages=array(
 
 
 
-function getEnchName($enchId){
-$EnchantmentNames=array(
-  0=>'Protection',
-  1=>'Fire Protecion',
-  2=>'Feather Falling',
-  3=>'Blast Protection',
-  4=>'Projectile Protection',
-  5=>'Respiration',
-  6=>'Aqua Affinity',
-  16=>'Sharpness',
-  17=>'Smite',
-  18=>'Bane of Arthropods',
-  19=>'Knockback',
-  20=>'Fire Aspect',
-  21=>'Looting',
-  32=>'Efficiency',
-  33=>'Silk Touch',
-  34=>'Unbreaking',
-  35=>'Fortune',
-  -1=>'Unknown'
+
+
+function getItemMaxStack($itemId){global $ItemMaxStacks;
+  if(!isset($ItemMaxStacks[$itemId])){
+    return(@$ItemMaxStacks[-1]);
+  }else{
+    return($ItemMaxStacks[$itemId]);
+  }
+}
+$ItemMaxStacks=array(
+  // Sign Post
+  63=>1,
+  // Wooden Door Block
+  64=>1,
+  // Wall Sign
+  68=>1,
+  // Iron Door Block
+  71=>1,
+  // Cake
+  92=>1,
+  // Iron Shovel
+  256=>1,
+  // Iron Pickaxe
+  257=>1,
+  // Iron Axe
+  258=>1,
+  // Flint and Steel
+  259=>1,
+  // Bow
+  261=>1,
+  // Iron Sword
+  267=>1,
+  // Wooden Sword
+  268=>1,
+  // Wooden Shovel
+  269=>1,
+  // Wooden Pickaxe
+  270=>1,
+  // Wooden Axe
+  271=>1,
+  // Stone Sword
+  272=>1,
+  // Stone Shovel
+  273=>1,
+  // Stone Pickaxe
+  274=>1,
+  // Stone Axe
+  275=>1,
+  // Diamond Sword
+  276=>1,
+  // Diamond Shovel
+  277=>1,
+  // Diamond Pickaxe
+  278=>1,
+  // Diamond Axe
+  279=>1,
+  // Mushroom Soup
+  282=>1,
+  // Gold Sword
+  283=>1,
+  // Gold Shovel
+  284=>1,
+  // Gold Pickaxe
+  285=>1,
+  // Gold Axe
+  286=>1,
+  // Wooden Hoe
+  290=>1,
+  // Stone Hoe
+  291=>1,
+  // Iron Hoe
+  292=>1,
+  // Diamond Hoe
+  293=>1,
+  // Gold Hoe
+  294=>1,
+  // Leather Helmet
+  298=>1,
+  // Leather Chestplate
+  299=>1,
+  // Leather Leggings
+  300=>1,
+  // Leather Boots
+  301=>1,
+  // Chain Mail Helmet
+  302=>1,
+  // Chain Mail Chestplate
+  303=>1,
+  // Chain Mail Leggings
+  304=>1,
+  // Chain Mail Boots
+  305=>1,
+  // Iron Helmet
+  306=>1,
+  // Iron Chestplate
+  307=>1,
+  // Iron Leggings
+  308=>1,
+  // Iron Boots
+  309=>1,
+  // Diamond Helmet
+  310=>1,
+  // Diamond Chestplate
+  311=>1,
+  // Diamond Leggings
+  312=>1,
+  // Diamond Boots
+  313=>1,
+  // Gold Helmet
+  314=>1,
+  // Gold Chestplate
+  315=>1,
+  // Gold Leggings
+  316=>1,
+  // Gold Boots
+  317=>1,
+  // Sign
+  323=>1,
+  // Wooden Door
+  324=>1,
+  // Bucket
+  325=>1,
+  // Water Bucket
+  326=>1,
+  // Lava Bucket
+  327=>1,
+  // Minecart
+  328=>1,
+  // Saddle
+  329=>1,
+  // Iron Door
+  330=>1,
+  // Snowball
+  332=>16,
+  // Boat
+  333=>1,
+  // Milk Bucket
+  335=>1,
+  // Storage Minecart
+  342=>1,
+  // Powered Minecart
+  343=>1,
+  // Egg
+  344=>16,
+  // Fishing Rod
+  346=>1,
+  // Cake
+  354=>1,
+  // Bed
+  355=>1,
+  // Map
+  358=>1,
+  // Shears
+  359=>1,
+  // Potion
+  373=>1,
+  // Music Disc (13)
+  2256=>1,
+  // Music Disc (Cat)
+  2257=>1,
+  // Music Disc (Blocks)
+  2258=>1,
+  // Music Disc (Chirp)
+  2259=>1,
+  // Music Disc (Far)
+  2260=>1,
+  // Music Disc (Mall)
+  2261=>1,
+  // Music Disc (Mellohi)
+  2262=>1,
+  // Music Disc (Stal)
+  2263=>1,
+  // Music Disc (Strad)
+  2264=>1,
+  // Music Disc (Ward)
+  2265=>1,
+  // Music Disc (11)
+  2266=>1,
+  // Default
+  -1=>64
 );
 
-
-function getItemMaxStack($itemId){
-  switch($itemId){
-1=> // Stone
-2=> // Grass
-3=> // Dirt
-4=> // Cobblestone
-5=> // Wooden Plank
-6=> // Sapling
-7=> // Bedrock
-8=> // Water
-9=> // Stationary Water
-10=> // Lava
-11=> // Stationary Lava
-12=> // Sand
-13=> // Gravel
-14=> // Gold Ore
-15=> // Iron Ore
-16=> // Coal Ore
-17=> // Log
-18=> // Leaves
-19=> // Sponge
-  	case 20=> // Glass
-		case 21=> // Lapis Lazuli Ore
-		case 22=> // Lapis Lazuli Block
-		case 23=> // Dispenser
-		case 24=> // Sandstone
-		case 25=> // Note Block
-		case 26=> // Bed Block
-		case 27=> // Powered Rail
-		case 28=> // Detector Rail
-		case 29=> // Sticky Piston
-		case 30=> // Web
-		case 31=> // Shrub
-		case 32=> // Dead Shrub
-		case 33=> // Piston
-		case 34=> // Piston Head
-		case 35=> // Wool
-		case 37=> // Dandelion
-		case 38=> // Rose
-		case 39=> // Brown Mushroom
-		case 40=> // Red Mushroom
-		case 41=> // Gold Block
-		case 42=> // Iron Block
-		case 43=> // Double Slab
-		case 44=> // Slab
-		case 45=> // Brick Block
-		case 46=> // TNT
-		case 47=> // Bookshelf
-		case 48=> // Mossy Cobblestone
-		case 49=> // Obsidian
-		case 50=> // Torch
-		case 51=> // Fire
-		case 52=> // Monster Spawner
-		case 53=> // Wooden Stairs
-		case 54=> // Chest
-		case 55=> // Redstone Wire
-		case 56=> // Diamond Ore
-		case 57=> // Diamond Block
-		case 58=> // Workbench
-		case 59=> // Crops
-		case 60=> // Soil
-		case 61=> // Furnace
-		case 62=> // Burning Furnace
-			return 64,
-		case 63=> // Sign Post
-			return 1,
-		case 64=> // Wooden Door Block
-			return 1,
-		case 65=> // Ladder
-			return 64,
-		case 66=> // Rails
-			return 64,
-		case 67=> // Cobblestone Stairs
-			return 64,
-		case 68=> // Wall Sign
-			return 1,
-		case 69=> // Lever
-			return 64,
-		case 70=> // Stone Pressure Plate
-			return 64,
-		case 71=> // Iron Door Block
-			return 1,
-		case 72=> // Wooden Pressure Plate
-		case 73=> // Redstone Ore
-		case 74=> // Glowing Redstone Ore
-		case 75=> // Redstone Torch
-		case 76=> // Redstone Torch
-		case 77=> // Stone Button
-		case 78=> // Snow
-		case 79=> // Ice
-		case 80=> // Snow Block
-		case 81=> // Cactus
-		case 82=> // Clay
-		case 83=> // Sugar Cane (Block)
-		case 84=> // Jukebox
-		case 85=> // Fence
-		case 86=> // Pumpkin
-		case 87=> // Netherrack
-		case 88=> // Soul Sand
-		case 89=> // Glowstone
-		case 90=> // Portal
-		case 91=> // Jack-O-Lantern
-			return 64,
-		case 92=> // Cake
-			return 1,
-		case 93=> // Redstone Repeater
-		case 94=> // Redstone Repeater
-		case 95=> // Locked Chest
-		case 96=> // Trapdoor
-		case 97=> // Silverfish Stone
-		case 98=> // Brick
-		case 99=> // Brown Mushroom Cap
-		case 100=> // Red Mushroom Cap
-		case 101=> // Iron Bars
-		case 102=> // Glass Pane
-		case 103=> // Melon
-		case 104=> // Pumpkin Stem
-		case 105=> // Melon Stem
-		case 106=> // Vines
-		case 107=> // Fence Gate
-		case 108=> // Brick Stairs
-		case 109=> // Stone Brick Stairs
-		case 110=> // Mycelium
-		case 111=> // Lily Pad
-		case 112=> // Nether Brick
-		case 113=> // Nether Brick Fence
-		case 114=> // Nether Brick Stairs
-		case 115=> // Nether Wart
-		case 116=> // Enchantment Table
-		case 117=> // Brewing Stand (Block)
-		case 118=> // Cauldron (Block)
-		case 119=> // End Portal
-		case 120=> // End Portal Frame
-		case 121=> // End Stone
-		case 122=> // Dragon Egg
-		case 123=> // Redstone Lamp
-			return 64,
-		case 256=> // Iron Shovel
-			return 1,
-		case 257=> // Iron Pickaxe
-			return 1,
-		case 258=> // Iron Axe
-			return 1,
-		case 259=> // Flint and Steel
-			return 1,
-		case 260=> // Apple
-			return 64,
-		case 261=> // Bow
-			return 1,
-		case 262=> // Arrow
-			return 64,
-		case 263=> // Coal
-			return 64,
-		case 264=> // Diamond
-			return 64,
-		case 265=> // Iron Ingot
-			return 64,
-		case 266=> // Gold Ingot
-			return 64,
-		case 267=> // Iron Sword
-			return 1,
-		case 268=> // Wooden Sword
-			return 1,
-		case 269=> // Wooden Shovel
-			return 1,
-		case 270=> // Wooden Pickaxe
-			return 1,
-		case 271=> // Wooden Axe
-			return 1,
-		case 272=> // Stone Sword
-			return 1,
-		case 273=> // Stone Shovel
-			return 1,
-		case 274=> // Stone Pickaxe
-			return 1,
-		case 275=> // Stone Axe
-			return 1,
-		case 276=> // Diamond Sword
-			return 1,
-		case 277=> // Diamond Shovel
-			return 1,
-		case 278=> // Diamond Pickaxe
-			return 1,
-		case 279=> // Diamond Axe
-			return 1,
-		case 280=> // Stick
-			return 64,
-		case 281=> // Bowl
-			return 64,
-		case 282=> // Mushroom Soup
-			return 1,
-		case 283=> // Gold Sword
-			return 1,
-		case 284=> // Gold Shovel
-			return 1,
-		case 285=> // Gold Pickaxe
-			return 1,
-		case 286=> // Gold Axe
-			return 1,
-		case 287=> // String
-			return 64,
-		case 288=> // Feather
-			return 64,
-		case 289=> // Gunpowder
-			return 64,
-		case 290=> // Wooden Hoe
-			return 1,
-		case 291=> // Stone Hoe
-			return 1,
-		case 292=> // Iron Hoe
-			return 1,
-		case 293=> // Diamond Hoe
-			return 1,
-		case 294=> // Gold Hoe
-			return 1,
-		case 295=> // Seeds
-			return 64,
-		case 296=> // Wheat
-			return 64,
-		case 297=> // Bread
-			return 64,
-		case 298=> // Leather Helmet
-			return 1,
-		case 299=> // Leather Chestplate
-			return 1,
-		case 300=> // Leather Leggings
-			return 1,
-		case 301=> // Leather Boots
-			return 1,
-		case 302=> // Chain Mail Helmet
-			return 1,
-		case 303=> // Chain Mail Chestplate
-			return 1,
-		case 304=> // Chain Mail Leggings
-			return 1,
-		case 305=> // Chain Mail Boots
-			return 1,
-		case 306=> // Iron Helmet
-			return 1,
-		case 307=> // Iron Chestplate
-			return 1,
-		case 308=> // Iron Leggings
-			return 1,
-		case 309=> // Iron Boots
-			return 1,
-		case 310=> // Diamond Helmet
-			return 1,
-		case 311=> // Diamond Chestplate
-			return 1,
-		case 312=> // Diamond Leggings
-			return 1,
-		case 313=> // Diamond Boots
-			return 1,
-		case 314=> // Gold Helmet
-			return 1,
-		case 315=> // Gold Chestplate
-			return 1,
-		case 316=> // Gold Leggings
-			return 1,
-		case 317=> // Gold Boots
-			return 1,
-		case 318=> // Flint
-			return 64,
-		case 319=> // Raw Porkchop
-			return 64,
-		case 320=> // Cooked Porkchop
-			return 64,
-		case 321=> // Painting
-			return 64,
-		case 322=> // Golden Apple
-			return 64,
-		case 323=> // Sign
-			return 1,
-		case 324=> // Wooden Door
-			return 1,
-		case 325=> // Bucket
-			return 1,
-		case 326=> // Water Bucket
-			return 1,
-		case 327=> // Lava Bucket
-			return 1,
-		case 328=> // Minecart
-			return 1,
-		case 329=> // Saddle
-			return 1,
-		case 330=> // Iron Door
-			return 1,
-		case 331=> // Redstone
-			return 64,
-		case 332=> // Snowball
-			return 16,
-		case 333=> // Boat
-			return 1,
-		case 334=> // Leather
-			return 64,
-		case 335=> // Milk Bucket
-			return 1,
-		case 336=> // Clay Brick
-			return 64,
-		case 337=> // Clay Balls
-			return 64,
-		case 338=> // Sugar Cane
-			return 64,
-		case 339=> // Paper
-			return 64,
-		case 340=> // Book
-			return 64,
-		case 341=> // Slimeball
-			return 64,
-		case 342=> // Storage Minecart
-			return 1,
-		case 343=> // Powered Minecart
-			return 1,
-		case 344=> // Egg
-			return 16,
-		case 345=> // Compass
-			return 64,
-		case 346=> // Fishing Rod
-			return 1,
-		case 347=> // Clock
-			return 64,
-		case 348=> // Glowstone Dust
-			return 64,
-		case 349=> // Raw Fish
-			return 64,
-		case 350=> // Cooked Fish
-			return 64,
-		case 351=> // Dye
-			return 64,
-		case 352=> // Bone
-			return 64,
-		case 353=> // Sugar
-			return 64,
-		case 354=> // Cake
-			return 1,
-		case 355=> // Bed
-			return 1,
-		case 356=> // Redstone Repeater
-			return 64,
-		case 357=> // Cookie
-			return 64,
-		case 358=> // Map
-			return 1,
-		case 359=> // Shears
-			return 1,
-		case 360=> // Melon Slice
-			return 64,
-		case 361=> // Pumpkin Seeds
-			return 64,
-		case 362=> // Melon Seeds
-			return 64,
-		case 363=> // Raw Beef
-			return 64,
-		case 364=> // Steak
-			return 64,
-		case 365=> // Raw Chicken
-			return 64,
-		case 366=> // Cooked Chicken
-			return 64,
-		case 367=> // Rotten Flesh
-			return 64,
-		case 368=> // Ender Pearl
-			return 64,
-		case 369=> // Blaze Rod
-			return 64,
-		case 370=> // Ghast Tear
-			return 64,
-		case 371=> // Gold Nugget
-			return 64,
-		case 372=> // Nether Wart
-			return 64,
-		case 373=> // Potion
-			return 1,
-		case 374=> // Glass Bottle
-			return 64,
-		case 375=> // Spider Eye
-			return 64,
-		case 376=> // Fermented Spider Eye
-			return 64,
-		case 377=> // Blaze Powder
-			return 64,
-		case 378=> // Magma Cream
-			return 64,
-		case 379=> // Brewing Stand
-			return 64,
-		case 380=> // Cauldron
-			return 64,
-		case 381=> // Eye of Ender
-			return 64,
-		case 382=> // Glistering Melon (Slice)
-			return 64,
-		case 383=>
-			switch ($itemDamage){
-				case 50=> // Spawn Creeper
-				case 51=> // Spawn Skeleton
-				case 52=> // Spawn Spider
-				case 54=> // Spawn Zombie
-				case 55=> // Spawn Slime
-				case 56=> // Spawn Ghast
-				case 57=> // Spawn Pig Zombie
-				case 58=> // Spawn Enderman
-				case 59: // Spawn Cave_Spider
-				case 60: // Spawn Silverfish
-				case 61: // Spawn Blaze
-				case 62: // Spawn Magma Cube
-				case 90: // Spawn Pig
-				case 91: // Spawn Sheep
-				case 92: // Spawn Cow
-				case 93: // Spawn Chicken
-				case 94: // Spawn Squid
-				case 95: // Spawn Wolf
-				case 96: // Spawn Mooshroom
-				case 98: // Spawn Ocelot
-				case 120: // Spawn Villager
-				default:
-					return 64,
-			}
-		case 384: // Bottle o' Enchanting
-			return 64,
-		case 385: // Fire Charge
-			return 64,
-		case 2256: // Music Disc (13)
-			return 1,
-		case 2257: // Music Disc (Cat)
-			return 1,
-		case 2258: // Music Disc (Blocks)
-			return 1,
-		case 2259: // Music Disc (Chirp)
-			return 1,
-		case 2260: // Music Disc (Far)
-			return 1,
-		case 2261: // Music Disc (Mall)
-			return 1,
-		case 2262: // Music Disc (Mellohi)
-			return 1,
-		case 2263: // Music Disc (Stal)
-			return 1,
-		case 2264: // Music Disc (Strad)
-			return 1,
-		case 2265: // Music Disc (Ward)
-			return 1,
-		case 2266: // Music Disc (11)
-			return 1,
-		default:
-			return 64,
-	}
-}
 
 ?>
