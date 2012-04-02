@@ -1,0 +1,67 @@
+name: WebAuction
+main: me.exote.webauction.WebAuction
+version: 0.6.4
+author: Exote
+depend: [Vault]
+softdepend: [SignLink]
+commands:
+  wa:
+    description: WebAuction
+    usage: Use "/wa password [password]" to set your password, then log into the WebAuction on the website."
+permissions:
+    wa.*:
+        description: Gives access to all WebAuction commands
+        children:
+            wa.use.withdraw.items: true
+            wa.use.withdraw.money: true
+            wa.use.deposit.items: true
+            wa.use.deposit.money: true
+            wa.create.sign.deposit: true
+            wa.create.sign.withdraw: true
+            wa.create.sign.mailbox.deposit: true
+            wa.create.sign.mailbox.withdraw: true
+            wa.create.sign.recent: true
+            wa.create.sign.shout: true
+            wa.canbuy: true
+            wa.cansell: true
+            wa.remove: true
+            wa.webadmin: true
+    wa.use.*:
+        description: Gives access to all WebAuction commands
+        children:
+            wa.use.withdraw.items: true
+            wa.use.withdraw.money: true
+            wa.use.deposit.items: true
+            wa.use.deposit.money: true
+            wa.canbuy: true
+            wa.cansell: true
+            wa.remove: false
+            wa.webadmin: false
+    wa.use.withdraw.items:
+        description: Lets you use the mailbox
+    wa.use.withdraw.money:
+        description: Lets you withdraw money from web account
+    wa.use.deposit.items:
+        description: Lets you deposit items and send them to web account
+    wa.use.deposit.money:
+        description: Lets you deposit money to web account
+    wa.canbuy:
+        description: Lets you buy items on the website
+    wa.cansell:
+        description: Lets sell items on the website
+    wa.create.sign.deposit:
+        description: Lets you create money deposit points
+    wa.create.sign.withdraw:
+        description: Lets you create money withdraw points
+    wa.create.sign.recent:
+        description: Lets you create a sign to display recent auctions created
+    wa.create.sign.shout:
+        description: Lets you create a sign to shout to all players nearby when a new auction is made
+    wa.create.sign.mailbox.deposit:
+        description: Lets you create deposit mailboxes
+    wa.create.sign.mailbox.withdraw:
+        description: Lets you create withdraw mailboxes
+    wa.remove:
+        description: Lets you remove signs
+    wa.webadmin:
+        description: Lets you change other peoples data via website
