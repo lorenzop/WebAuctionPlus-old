@@ -1,12 +1,12 @@
-name: WebAuction
-main: me.exote.webauction.WebAuction
+name: WebAuctionPlus
+main: me.exote.webauctionplus.WebAuctionPlus
 version: 1.0.0
 author: Exote
 depend: [Vault]
 softdepend: [SignLink]
 commands:
   wa:
-    description: WebAuction
+    description: WebAuctionPlus
     usage: Use "/wa password [password]" to set your password, then log into the WebAuction on the website."
 permissions:
     wa.*:
@@ -50,7 +50,7 @@ permissions:
     wa.canbuy:
         description: Lets you buy items on the website
     wa.cansell:
-        description: Lets sell items on the website
+        description: Lets you sell items on the website
     wa.create.sign.deposit:
         description: Lets you create money deposit points
     wa.create.sign.withdraw:
