@@ -30,11 +30,11 @@
     <title>WebAuction</title>
     <style type="text/css" title="currentStyle">
       @import "css/table_jui.css";
-      @import "css/<?php echo $uiPack?>/jquery-ui-1.8.16.custom.css";
+      @import "css/<?php echo $uiPack?>/jquery-ui-1.8.18.custom.css";
     </style>
     <link rel="stylesheet" type="text/css" href="css/<?php echo $cssFile?>.css" />
-    <script type="text/javascript" language="javascript" src="js/jquery.js"></script>
-    <script type="text/javascript" language="javascript" src="js/jquery.dataTables.js"></script>
+    <script type="text/javascript" language="javascript" src="js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" language="javascript" src="js/jquery.dataTables.min-1.9.0.js"></script>
     <script type="text/javascript" language="javascript" src="js/inputfunc.js"></script>
     <script type="text/javascript" charset="utf-8">
       $(document).ready(function() {
@@ -62,7 +62,7 @@
 	}
 ?>
       </p>
-      <p style="color:green">
+      <p style="color: green;">
 <?php
 	if(isset($_SESSION['success'])) {
 		echo $_SESSION['success'];

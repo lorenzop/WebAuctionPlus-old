@@ -1,4 +1,93 @@
 <?php
+
+
+function numberToRoman($num){
+  // Make sure that we only use the integer portion of the value
+  $n=intval($num);
+  $result='';
+  // Declare a lookup array that we will use to traverse the number:
+  $lookup=array(
+    'M' => 1000,
+    'CM'=> 900,
+    'D' => 500,
+    'CD'=> 400,
+    'C' => 100,
+    'XC'=> 90,
+    'L' => 50,
+    'XL'=> 40,
+    'X' => 10,
+    'IX'=> 9,
+    'V' => 5,
+    'IV'=> 4,
+    'I' => 1);
+  foreach($lookup as $roman=>$value){
+    // Determine the number of matches
+    $matches=intval($n / $value);
+    // Store that many characters
+    $result.=str_repeat($roman, $matches);
+    // Substract that from the number
+    $n=$n % $value;
+  }
+  // The Roman numeral should be built, return it
+  return $result;
+}
+
+
+function indent($json) {
+
+    $result      = '';
+    $pos         = 0;
+    $strLen      = strlen($json);
+    $indentStr   = '  ';
+    $newLine     = "\n";
+    $prevChar    = '';
+    $outOfQuotes = true;
+
+    for ($i=0; $i<=$strLen; $i++) {
+
+        // Grab the next character in the string.
+        $char = substr($json, $i, 1);
+
+        // Are we inside a quoted string?
+        if ($char == '"' && $prevChar != '\\') {
+            $outOfQuotes = !$outOfQuotes;
+        
+        // If this character is the end of an element, 
+        // output a new line and indent the next line.
+        } else if(($char == '}' || $char == ']') && $outOfQuotes) {
+            $result .= $newLine;
+            $pos --;
+            for ($j=0; $j<$pos; $j++) {
+                $result .= $indentStr;
+            }
+        }
+        
+        // Add the character to the result string.
+        $result .= $char;
+
+        // If the last character was the beginning of an element, 
+        // output a new line and indent the next line.
+        if (($char == ',' || $char == '{' || $char == '[') && $outOfQuotes) {
+            $result .= $newLine;
+            if ($char == '{' || $char == '[') {
+                $pos ++;
+            }
+            
+            for ($j = 0; $j < $pos; $j++) {
+                $result .= $indentStr;
+            }
+        }
+        
+        $prevChar = $char;
+    }
+
+    return $result;
+}
+
+
+
+
+
 function itemAllowed ($itemId, $itemDamage){
   return true; 
 //  switch ($itemId){
@@ -170,10 +259,10 @@ function getMarketPrice($itemTableId, $tableId){
 
 
 function getEnchName($enchId){global $EnchantmentNames;
-  if(!isset($EnchantmentNames)){
-    return(@$EnchantmentNames[-1]);
-  }else{
+  if(isset($EnchantmentNames[$enchId])){
     return($EnchantmentNames[$enchId]);
+  }else{
+    return(@$EnchantmentNames[-1]);
   }
 }
 $EnchantmentNames=array(
@@ -194,6 +283,10 @@ $EnchantmentNames=array(
   33=>'Silk Touch',
   34=>'Unbreaking',
   35=>'Fortune',
+  48=>'Power',
+  49=>'Punch',
+  50=>'Flame',
+  51=>'Infinity',
   -1=>'Unknown'
 );
 
@@ -216,13 +309,13 @@ function getItemName($itemId, $itemDamage){global $ItemNames,$DamageValues;
     $output=@$ItemNames[-1];
   }
   // damage %
-  if(strpos($output,'#%')!==FALSE){
-    $output=str_replace('#%', '<br />'.round(($itemDamage/@$DamageValues[$itemId])*100, 1).'%' ,$output);
+  if(strpos($output,'%damaged%')!==FALSE){
+    $output=str_replace('%damaged%', '</b><br /><font size="-1">'.round(($itemDamage/@$DamageValues[$itemId])*100, 1).'% damaged</font><b>' ,$output);
   // map #
-  }elseif(strpos($output,'#')!==FALSE){
-    $output=str_replace('#','# '.$itemDamage,$output);
+  }elseif(strpos($output,'#map#')!==FALSE){
+    $output=str_replace('#map#','# '.$itemDamage,$output);
   }
-  return($output);
+  return('<font size="-1"><b>'.$output.'</b></font>');
 }
 function getItemImage($itemId, $itemDamage){global $ItemImages;
   if(isset($ItemImages[$itemId])){
@@ -437,12 +530,12 @@ $ItemNames=array(
   121=>'End Stone',
   122=>'Dragon Egg',
   123=>'Redstone Lamp',
-  256=>'Iron Shovel #% damaged',
-  257=>'Iron Pickaxe #% damaged',
-  258=>'Iron Axe #% damaged',
-  259=>'Flint and Steel #% damaged',
+  256=>'Iron Shovel %damaged%',
+  257=>'Iron Pickaxe %damaged%',
+  258=>'Iron Axe %damaged%',
+  259=>'Flint and Steel %damaged%',
   260=>'Apple',
-  261=>'Bow #% damaged',
+  261=>'Bow %damaged%',
   262=>'Arrow',
   263=>array(
     0 =>'Coal',
@@ -452,57 +545,57 @@ $ItemNames=array(
   264=>'Diamond',
   265=>'Iron Ingot',
   266=>'Gold Ingot',
-  267=>'Iron Sword #% damaged',
-  268=>'Wooden Sword #% damaged',
-  269=>'Wooden Shovel #% damaged',
-  270=>'Wooden Pickaxe #% damaged',
-  271=>'Wooden Axe #% damaged',
-  272=>'Stone Sword #% damaged',
-  273=>'Stone Shovel #% damaged',
-  274=>'Stone Pickaxe #% damaged',
-  275=>'Stone Axe #% damaged',
-  276=>'Diamond Sword #% damaged',
-  277=>'Diamond Shovel #% damaged',
-  278=>'Diamond Pickaxe #% damaged',
-  279=>'Diamond Axe #% damaged',
+  267=>'Iron Sword %damaged%',
+  268=>'Wooden Sword %damaged%',
+  269=>'Wooden Shovel %damaged%',
+  270=>'Wooden Pickaxe %damaged%',
+  271=>'Wooden Axe %damaged%',
+  272=>'Stone Sword %damaged%',
+  273=>'Stone Shovel %damaged%',
+  274=>'Stone Pickaxe %damaged%',
+  275=>'Stone Axe %damaged%',
+  276=>'Diamond Sword %damaged%',
+  277=>'Diamond Shovel %damaged%',
+  278=>'Diamond Pickaxe %damaged%',
+  279=>'Diamond Axe %damaged%',
   280=>'Stick',
   281=>'Bowl',
   282=>'Mushroom Soup',
-  283=>'Gold Sword #% damaged',
-  284=>'Gold Shovel #% damaged',
-  285=>'Gold Pickaxe #% damaged',
-  286=>'Gold Axe #% damaged',
+  283=>'Gold Sword %damaged%',
+  284=>'Gold Shovel %damaged%',
+  285=>'Gold Pickaxe %damaged%',
+  286=>'Gold Axe %damaged%',
   287=>'String',
   288=>'Feather',
   289=>'Gunpowder',
-  290=>'Wooden Hoe #% damaged',
-  291=>'Stone Hoe #% damaged',
-  292=>'Iron Hoe #% damaged',
-  293=>'Diamond Hoe #% damaged',
-  294=>'Gold Hoe #% damaged',
+  290=>'Wooden Hoe %damaged%',
+  291=>'Stone Hoe %damaged%',
+  292=>'Iron Hoe %damaged%',
+  293=>'Diamond Hoe %damaged%',
+  294=>'Gold Hoe %damaged%',
   295=>'Wheat Seeds',
   296=>'Wheat',
   297=>'Bread',
-  298=>'Leather Helmet #% damaged',
-  299=>'Leather Chestplate #% damaged',
-  300=>'Leather Leggings #% damaged',
-  301=>'Leather Boots #% damaged',
-  302=>'Chain Mail Helmet #% damaged',
-  303=>'Chain Mail Chestplate #% damaged',
-  304=>'Chain Mail Leggings #% damaged',
-  305=>'Chain Mail Boots #% damaged',
-  306=>'Iron Helmet #% damaged',
-  307=>'Iron Chestplate #% damaged',
-  308=>'Iron Leggings #% damaged',
-  309=>'Iron Boots #% damaged',
-  310=>'Diamond Helmet #% damaged',
-  311=>'Diamond Chestplate #% damaged',
-  312=>'Diamond Leggings #% damaged',
-  313=>'Diamond Boots #% damaged',
-  314=>'Gold Helmet #% damaged',
-  315=>'Gold Chestplate #% damaged',
-  316=>'Gold Leggings #% damaged',
-  317=>'Gold Boots #% damaged',
+  298=>'Leather Helmet %damaged%',
+  299=>'Leather Chestplate %damaged%',
+  300=>'Leather Leggings %damaged%',
+  301=>'Leather Boots %damaged%',
+  302=>'Chain Mail Helmet %damaged%',
+  303=>'Chain Mail Chestplate %damaged%',
+  304=>'Chain Mail Leggings %damaged%',
+  305=>'Chain Mail Boots %damaged%',
+  306=>'Iron Helmet %damaged%',
+  307=>'Iron Chestplate %damaged%',
+  308=>'Iron Leggings %damaged%',
+  309=>'Iron Boots %damaged%',
+  310=>'Diamond Helmet %damaged%',
+  311=>'Diamond Chestplate %damaged%',
+  312=>'Diamond Leggings %damaged%',
+  313=>'Diamond Boots %damaged%',
+  314=>'Gold Helmet %damaged%',
+  315=>'Gold Chestplate %damaged%',
+  316=>'Gold Leggings %damaged%',
+  317=>'Gold Boots %damaged%',
   318=>'Flint',
   319=>'Raw Porkchop',
   320=>'Cooked Porkchop',
@@ -561,8 +654,8 @@ $ItemNames=array(
   355=>'Bed',
   356=>'Redstone Repeater',
   357=>'Cookie',
-  358=>'Map #',
-  359=>'Shears #% damaged',
+  358=>'Map #map#',
+  359=>'Shears %damaged%',
   360=>'Melon Slice',
   361=>'Pumpkin Seeds',
   362=>'Melon Seeds',
