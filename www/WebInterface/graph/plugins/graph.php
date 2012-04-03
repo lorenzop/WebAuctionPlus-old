@@ -1,6 +1,6 @@
 <?php
-	session_start();
-	if (!isset($_SESSION['User'])){
+echo 'This unknown file has been accessed. Please tell an admin.';
+exit();
 		header("Location: login.php");
 	}
 	$user = $_SESSION['User'];

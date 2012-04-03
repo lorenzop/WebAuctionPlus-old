@@ -8,6 +8,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="css/<?php echo $cssFile?>.css" />
     <title>WebAuction - Login</title>
+    <link rel="icon" type="image/png" href="images/favicon.ico" />
   </head>
   <body>
     <div id="holder">

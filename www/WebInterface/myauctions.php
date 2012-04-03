@@ -29,13 +29,14 @@ $mailCount=mysql_num_rows($mailQuery);
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <link rel="shortcut icon" type="image/ico" href="http://www.datatables.net/media/images/favicon.ico" />
     <title>WebAuction</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
     <style type="text/css" title="currentStyle">
       @import "css/table_jui.css";
       @import "css/<?php echo $uiPack?>/jquery-ui-1.8.18.custom.css";
     </style>
     <link rel="stylesheet" type="text/css" href="css/<?php echo $cssFile?>.css" />
     <script type="text/javascript" language="javascript" src="js/jquery-1.7.2.min.js"></script>
-    <script type="text/javascript" language="javascript" src="js/jquery.dataTables.min-1.9.0.js"></script>
+    <script type="text/javascript" language="javascript" src="js/jquery.dataTables-1.9.0.min.js"></script>
     <script type="text/javascript" charset="utf-8">
       $(document).ready(function() {
         oTable=$('#example').dataTable({
