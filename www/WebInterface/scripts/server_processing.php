@@ -259,7 +259,16 @@ while($aRow=mysql_fetch_array($rResult)){
 	}
 }
 
-echo indent( json_encode($output) );
+
+if(isset($output)){
+  echo json_encode($output);
+}else{
+  echo '{"aaData":['.
+       '{"DT_RowClass":"gradeU","0":"&nbsp;","1":"","2":"","3":"","4":"","5":"","6":"","7":""},'.
+       '{"DT_RowClass":"gradeU","0":"&nbsp;","1":"","2":"","3":"","4":"No auctions to display","5":"","6":"","7":""},'.
+       '{"DT_RowClass":"gradeU","0":"&nbsp;","1":"","2":"","3":"","4":"","5":"","6":"","7":""}'.
+       ']}';
+}
 
 
 ?>

@@ -95,7 +95,7 @@ public class MySQLDataQueries {
 
 		try {
 			st = conn.prepareStatement("SHOW TABLES LIKE ?");
-			st.setString(1, tableName);
+			st.setString(1, plugin.dbPrefix + tableName);
 			rs = st.executeQuery();
 			while (rs.next()) {
 				exists = true;
@@ -115,118 +115,120 @@ public class MySQLDataQueries {
 		executeRawSQL("CREATE TABLE `" + plugin.dbPrefix + tableName + "` ( " + Sql + " );");
 	}
 
-	private boolean columnExists(String tableName, String columnName) {
-		boolean exists = false;
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			st = conn.prepareStatement("SHOW COLUMNS FROM `" + plugin.dbPrefix + tableName + "` LIKE ?");
-			st.setString(1, columnName);
-			rs = st.executeQuery();
-			while (rs.next()) {
-				exists = true;
-				break;
-			}
-		} catch (SQLException e) {
-			plugin.log.warning(plugin.logPrefix + "Unable to check if table column exists: " + plugin.dbPrefix + tableName + "::" + columnName);
-		}
-		return exists;
-	}
+// uncomment when needed
+//	private boolean columnExists(String tableName, String columnName) {
+//		boolean exists = false;
+//		Connection conn = getConnection();
+//		PreparedStatement st = null;
+//		ResultSet rs = null;
+//		try {
+//			st = conn.prepareStatement("SHOW COLUMNS FROM `" + plugin.dbPrefix + tableName + "` LIKE ?");
+//			st.setString(1, columnName);
+//			rs = st.executeQuery();
+//			while (rs.next()) {
+//				exists = true;
+//				break;
+//			}
+//		} catch (SQLException e) {
+//			plugin.log.warning(plugin.logPrefix + "Unable to check if table column exists: " + plugin.dbPrefix + tableName + "::" + columnName);
+//		}
+//		return exists;
+//	}
 
-	private void setColumnExists(String tableName, String columnName, String Attr) {
-		if (columnExists(tableName, columnName)) {return;}
-		plugin.log.info("Adding column " + columnName + " to table " + plugin.dbPrefix + tableName);
-		executeRawSQL("ALTER TABLE `" + plugin.dbPrefix + tableName + "` ADD `" + columnName + "` " + Attr);
-	}
+// uncomment when needed
+//	private void setColumnExists(String tableName, String columnName, String Attr) {
+//		if (columnExists(tableName, columnName)) {return;}
+//		plugin.log.info("Adding column " + columnName + " to table " + plugin.dbPrefix + tableName);
+//		executeRawSQL("ALTER TABLE `" + plugin.dbPrefix + tableName + "` ADD `" + columnName + "` " + Attr);
+//	}
 
 	public void initTables() {
-		setTableExists("WA_Players",
-			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`name`     VARCHAR(255)  NOT NULL DEFAULT '', " +
-			"`pass`     VARCHAR(32)   NOT NULL DEFAULT '', " +
-			"`money`     DOUBLE(11,2) NOT NULL DEFAULT '0.00', " +
-			"`itemsSold`    INT(11)   NOT NULL DEFAULT '0', " +
-			"`itemsBought`  INT(11)   NOT NULL DEFAULT '0', " +
-			"`earnt`     DOUBLE(11,2) NOT NULL DEFAULT '0.00', " +
-			"`spent`     DOUBLE(11,2) NOT NULL DEFAULT '0.00', " +
-			"`canBuy`   TINYINT(1)    NOT NULL DEFAULT '0', " +
-			"`canSell`  TINYINT(1)    NOT NULL DEFAULT '0', " +
-			"`isAdmin`  TINYINT(1)    NOT NULL DEFAULT '0'");
-		setTableExists("WA_StorageCheck",
-			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`time`         INT(11)   NOT NULL DEFAULT '0', ");
-		setTableExists("WA_Items",
-			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`name`         INT(11)   NOT NULL DEFAULT '0', " +
-			"`damage`       INT(11)   NOT NULL DEFAULT '0', " +
-			"`player`   VARCHAR(255)  NOT NULL DEFAULT '', " +
-			"`quantity`     INT(11)   NOT NULL DEFAULT '0'");
-		setTableExists("WA_Enchantments",
-			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`enchName` VARCHAR(255)  NOT NULL DEFAULT '', " +
-			"`enchId`       INT(11)   NOT NULL DEFAULT '0', " +
-			"`level`        INT(11)   NOT NULL DEFAULT '0', ");
-		setTableExists("WA_EnchantLinks",
-			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`enchId`       INT(11)   NOT NULL DEFAULT '0', " +
-			"`itemTableId`  INT(11)   NOT NULL DEFAULT '0', " +
-			"`itemId`       INT(11)   NOT NULL DEFAULT '0'");
-		setTableExists("WA_Auctions",
-			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`name`         INT(11)   NOT NULL DEFAULT '0', " +
-			"`damage`       INT(11)   NOT NULL DEFAULT '0', " +
-			"`player`   VARCHAR(255)  NOT NULL DEFAULT '', " +
-			"`quantity`     INT(11)   NOT NULL DEFAULT '0'" +
-			"`price`     DOUBLE(11,2) NOT NULL DEFAULT '0.00', " +
-			"`created`      INT(11)   NOT NULL DEFAULT '0', " +
-			"`allowBids` TINYINT(1)   NOT NULL DEFAULT '0', " +
-			"`currentBid` DOUBLE(11,2) NOT NULL DEFAULT '0.00', " +
-			"`currentWinner` VARCHAR(255) NOT NULL DEFAULT ''");
-		setTableExists("WA_SellPrice",
-			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`name`         INT(11)   NOT NULL DEFAULT '0', " +
-			"`damage`       INT(11)   NOT NULL DEFAULT '0', " +
-			"`time`         INT(11)   NOT NULL DEFAULT '0', " +
-			"`quantity`     INT(11)   NOT NULL DEFAULT '0', " +
-			"`price`     DOUBLE(11,2) NOT NULL DEFAULT '0.00', " +
-			"`seller`   VARCHAR(255)  NOT NULL DEFAULT '', " +
-			"`buyer`    VARCHAR(255)  NOT NULL DEFAULT ''");
-		setTableExists("WA_MarketPrices",
-			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`name`         INT(11)   NOT NULL DEFAULT '0', " +
-			"`damage`       INT(11)   NOT NULL DEFAULT '0', " +
-			"`time`         INT(11)   NOT NULL DEFAULT '0', " +
+		setTableExists("Players",
+			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
+			"`name`     VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`pass`     VARCHAR(32)   NOT NULL DEFAULT ''      , " +
+			"`money`     DOUBLE(11,2) NOT NULL DEFAULT '0.00'  , " +
+			"`itemsSold`    INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`itemsBought`  INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`earnt`     DOUBLE(11,2) NOT NULL DEFAULT '0.00'  , " +
+			"`spent`     DOUBLE(11,2) NOT NULL DEFAULT '0.00'  , " +
+			"`canBuy`   TINYINT(1)    NOT NULL DEFAULT '0'     , " +
+			"`canSell`  TINYINT(1)    NOT NULL DEFAULT '0'     , " +
+			"`isAdmin`  TINYINT(1)    NOT NULL DEFAULT '0'"    );
+		setTableExists("StorageCheck",
+			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
+			"`time`         INT(11)   NOT NULL DEFAULT '0'"    );
+		setTableExists("Items",
+			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
+			"`name`         INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`damage`       INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`player`   VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`quantity`     INT(11)   NOT NULL DEFAULT '0'"    );
+		setTableExists("Enchantments",
+			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
+			"`enchName` VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`enchId`       INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`level`        INT(11)   NOT NULL DEFAULT '0'"    );
+		setTableExists("EnchantLinks",
+			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
+			"`enchId`       INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`itemTableId`  INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`itemId`       INT(11)   NOT NULL DEFAULT '0'"    );
+		setTableExists("Auctions",
+			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
+			"`name`         INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`damage`       INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`player`   VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`quantity`     INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`price`     DOUBLE(11,2) NOT NULL DEFAULT '0.00'  , " +
+			"`created`      INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`allowBids` TINYINT(1)   NOT NULL DEFAULT '0'     , " +
+			"`currentBid` DOUBLE(11,2) NOT NULL DEFAULT '0.00' , " +
+			"`currentWinner` VARCHAR(255) NOT NULL DEFAULT ''" );
+		setTableExists("SellPrice",
+			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
+			"`name`         INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`damage`       INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`time`         INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`quantity`     INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`price`     DOUBLE(11,2) NOT NULL DEFAULT '0.00'  , " +
+			"`seller`   VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`buyer`    VARCHAR(255)  NOT NULL DEFAULT ''"     );
+		setTableExists("MarketPrices",
+			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
+			"`name`         INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`damage`       INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`time`         INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`marketprice` DOUBLE(11,2) NOT NULL DEFAULT '0.00', " +
-			"`ref`          INT(11)   NOT NULL DEFAULT '0'");
-		setTableExists("WA_Mail",
+			"`ref`          INT(11)   NOT NULL DEFAULT '0'"    );
+		setTableExists("Mail",
+			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
+			"`name`         INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`damage`       INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`player`   VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`quantity`     INT(11)   NOT NULL DEFAULT '0'"    );
+		setTableExists("RecentSigns",
 			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`name`         INT(11)   NOT NULL DEFAULT '0', " +
-			"`damage`       INT(11)   NOT NULL DEFAULT '0', " +
-			"`player`   VARCHAR(255)  NOT NULL DEFAULT '', " +
-			"`quantity`     INT(11)   NOT NULL DEFAULT '0'");
-		setTableExists("WA_RecentSigns",
+			"`world`    VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`offset`       INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`x`            INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`y`            INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`z`            INT(11)   NOT NULL DEFAULT '0'"    );
+		setTableExists("ShoutSigns",
 			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`world`    VARCHAR(255)  NOT NULL DEFAULT '', " +
-			"`offset`       INT(11)   NOT NULL DEFAULT '0', " +
-			"`x`            INT(11)   NOT NULL DEFAULT '0', " +
-			"`y`            INT(11)   NOT NULL DEFAULT '0', " +
-			"`z`            INT(11)   NOT NULL DEFAULT '0'");
-		setTableExists("WA_ShoutSigns",
+			"`world`    VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`radius`       INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`x`            INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`y`            INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`z`            INT(11)   NOT NULL DEFAULT '0'"    );
+		setTableExists("SaleAlerts",
 			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`world`    VARCHAR(255)  NOT NULL DEFAULT '', " +
-			"`radius`       INT(11)   NOT NULL DEFAULT '0', " +
-			"`x`            INT(11)   NOT NULL DEFAULT '0', " +
-			"`y`            INT(11)   NOT NULL DEFAULT '0', " +
-			"`z`            INT(11)   NOT NULL DEFAULT '0'");
-		setTableExists("WA_SaleAlerts",
-			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`seller`   VARCHAR(255)  NOT NULL DEFAULT '', " +
-			"`quantity`     INT(11)   NOT NULL DEFAULT '0', " +
-			"`price`     DOUBLE(11,2) NOT NULL DEFAULT '0.00', " +
-			"`buyer`    VARCHAR(255)  NOT NULL DEFAULT '', " +
-			"`item`     VARCHAR(255)  NOT NULL DEFAULT '', " +
-			"`alert`    TINYINT(1)    NOT NULL DEFAULT '0'");
+			"`seller`   VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`quantity`     INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`price`     DOUBLE(11,2) NOT NULL DEFAULT '0.00'  , " +
+			"`buyer`    VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`item`     VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`alerted`  TINYINT(1)    NOT NULL DEFAULT '0'"    );
 	}
 
 	public int getMaxAuctionID() {

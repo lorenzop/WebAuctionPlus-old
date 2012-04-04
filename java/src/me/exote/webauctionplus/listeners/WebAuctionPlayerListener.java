@@ -330,12 +330,12 @@ public class WebAuctionPlayerListener implements Listener {
 					if (!foundMatch.booleanValue()) {
 						// Create item
 						plugin.dataQueries.createItem(itemId, itemDamage, player, quantityInt);
-//						List<AuctionItem> newItems = plugin.dataQueries.getItems(player, itemID, itemDamage, true);
+						List<AuctionItem> newItems = plugin.dataQueries.getItems(player, itemId, itemDamage, true);
 
-//						int itemTableId = -1;
-//						if (!newItems.isEmpty()) {
-//							itemTableId = ((AuctionItem)newItems.get(0)).getId();
-//						}
+						int itemTableId = -1;
+						if (!newItems.isEmpty()) {
+							itemTableId = ((AuctionItem)newItems.get(0)).getId();
+						}
 
 						int enchTableId;
 						for (Map.Entry<Enchantment, Integer> entry : itemEnchantments.entrySet()) {
@@ -352,6 +352,7 @@ public class WebAuctionPlayerListener implements Listener {
 									enchTableId = dbEnchTableId;
 								}
 							}
+							plugin.dataQueries.createEnchantLink(enchTableId, 0, itemTableId);
 						}
 					}
 					p.sendMessage((new StringBuilder(String.valueOf(plugin.logPrefix))).append("Item stack stored.").toString());

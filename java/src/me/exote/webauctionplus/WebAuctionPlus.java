@@ -141,9 +141,9 @@ public class WebAuctionPlus extends JavaPlugin {
 		getConfig().addDefault("Misc.SignDelay", 1000);
 		getConfig().addDefault("SignLink.UseSignLink", false);
 		getConfig().addDefault("SignLink.NumberOfLatestAuctionsToTrack", 10);
-		getConfig().addDefault("Updates.SaleAlertFrequency", 30L);
-		getConfig().addDefault("Updates.ShoutSignUpdateFrequency", 90L);
-		getConfig().addDefault("Updates.RecentSignUpdateFrequency", 160L);
+		getConfig().addDefault("Updates.SaleAlertFrequency", 100L);
+		getConfig().addDefault("Updates.ShoutSignUpdateFrequency", 100L);
+		getConfig().addDefault("Updates.RecentSignUpdateFrequency", 200L);
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 	}
