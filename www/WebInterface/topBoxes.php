@@ -2,7 +2,7 @@
 
 echo '<div id="profile-box">'."\n";
 echo '<table cellspacing="3px">'."\n";
-echo '<tr><td><img width="64px" src="http://minotar.net/avatar/'.$user.'" /></td>'."\n";
+echo '<tr><td><img width="64px" src="scripts/mcface.php?username='.$user.'" /></td>'."\n";
 echo '<td><p>Name: &nbsp;&nbsp;'.$user.($isAdmin=="true"?' ADMIN':'')."<br />\n";
 
 // TODO: printf();

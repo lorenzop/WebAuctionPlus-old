@@ -180,7 +180,7 @@ while($aRow=mysql_fetch_array($rResult)){
     $row[]='<a href="graph.php?name='.$aRow[$aColumns[0]].'&damage='.$aRow[$aColumns[1]].'">'.
            '<img src="'.getItemImage($aRow[$aColumns[0]],$aRow[$aColumns[1]]).'" /><br />'.
            $fullItemName.$tempString.'</a>';
-    $row[]='<img width="32" src="http://minotar.net/avatar/'.$aRow[$aColumns[2]].'" /><br />'.
+    $row[]='<img width="32" src="scripts/mcface.php?username='.$aRow[$aColumns[2]].'" /><br />'.
            $aRow[$aColumns[2]];
     if($quantity==0){
       $row[]='Never';
