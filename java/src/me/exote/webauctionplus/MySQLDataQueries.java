@@ -23,14 +23,21 @@ import org.bukkit.inventory.ItemStack;
 
 public class MySQLDataQueries {
 
+	private List<Boolean> inuse = new ArrayList<Boolean> (4);
+	private List<Connection> connections = new ArrayList<Connection> (4);
+
 	private WebAuctionPlus plugin;
 	private String dbHost;
 	private String dbPort;
 	private String dbUser;
 	private String dbPass;
 	private String dbName;
+	public int ConnPoolSizeWarn = 6;
+	public int ConnPoolSizeHard = 20;
+	public boolean debugSQL = false;
 
-	public MySQLDataQueries(WebAuctionPlus plugin, String dbHost, String dbPort, String dbUser, String dbPass, String dbName) {
+	public MySQLDataQueries(WebAuctionPlus plugin, String dbHost, String dbPort,
+			String dbUser, String dbPass, String dbName) {
 		this.plugin = plugin;
 		this.dbHost = dbHost;
 		this.dbPort = dbPort;
@@ -39,35 +46,89 @@ public class MySQLDataQueries {
 		this.dbName = dbName;
 	}
 
-	private Connection getConnection() {
+	public Connection getConnection() {
+		synchronized (inuse) {
+			for(int i = 0; i != inuse.size(); i++) {
+				if(!inuse.get(i)) {
+					inuse.set(i, true);
+					try {
+						if(connections.get(i).isValid(2) == false) {
+							inuse.remove(i);
+							connections.remove(i);
+							break;
+						}
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					return connections.get(i);
+				}
+			}
+		}
+
+		if(connections.size() >= ConnPoolSizeHard) {
+			plugin.log.severe(plugin.logPrefix + "DB connection pool is full! Hard limit reached!  Size:" + Integer.toString(connections.size()));
+			return null;
+		} else if(connections.size() >= ConnPoolSizeWarn) {
+			plugin.log.warning(plugin.logPrefix + "DB connection pool is full! Warning limit reached.  Size: " + Integer.toString(connections.size()));
+		}
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			return DriverManager.getConnection("jdbc:mysql://" + dbHost + ":" + dbPort + "/" + dbName, dbUser, dbPass);
-		} catch (Exception e) {
-			plugin.log.severe(plugin.logPrefix + "Exception getting mySQL Connection");
+			Connection conn = DriverManager.getConnection("jdbc:mysql://"+dbHost+":"+dbPort+"/"+dbName, dbUser, dbPass);
+			connections.add(conn);
+			inuse.add(true);
+			return conn;
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		plugin.log.severe(plugin.logPrefix + "Exception getting mySQL Connection");
 		return null;
 	}
 
-	private void closeResources(Connection conn, Statement st, ResultSet rs) {
-		if (null != rs) {
+	public void releaseConnection(Connection conn) {
+		boolean valid = false;
+		try {
+			valid = conn.isValid(1);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		synchronized(inuse) {
+			int i = connections.indexOf(conn);
+			inuse.set(i, false);
+			if(!valid) {
+				inuse.remove(i);
+				connections.remove(i);
+			}
+		}
+	}
+
+	public void closeResources(Connection conn, Statement st, ResultSet rs) {
+		releaseConnection(conn);
+		closeResources(st, rs);
+	}
+	public void closeResources(Statement st, ResultSet rs) {
+		if (rs != null) {
 			try {
 				rs.close();
-			} catch (SQLException e) {
-			}
+			} catch (SQLException e) {}
 		}
-		if (null != st) {
+		if (st != null) {
 			try {
 				st.close();
-			} catch (SQLException e) {
-			}
+			} catch (SQLException e) {}
 		}
-		if (null != conn) {
+	}
+
+	public void forceCloseConnections() {
+		for(int i = 0; i != inuse.size(); i++) {
 			try {
-				conn.close();
-			} catch (SQLException e) {
-			}
+				connections.get(i).close();
+			} catch (SQLException e) {}
 		}
 	}
 
@@ -75,12 +136,11 @@ public class MySQLDataQueries {
 		Connection conn = getConnection();
 		Statement st = null;
 		ResultSet rs = null;
-
 		try {
 			st = conn.createStatement();
 			st.executeUpdate(sql);
 		} catch (SQLException e) {
-			plugin.log.warning(plugin.logPrefix + "Exception executing raw SQL" + sql);
+			plugin.log.warning(plugin.logPrefix + "Exception executing raw SQL: " + sql);
 			e.printStackTrace();
 		} finally {
 			closeResources(conn, st, rs);
@@ -92,7 +152,6 @@ public class MySQLDataQueries {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
 			st = conn.prepareStatement("SHOW TABLES LIKE ?");
 			st.setString(1, plugin.dbPrefix + tableName);
@@ -112,35 +171,33 @@ public class MySQLDataQueries {
 	private void setTableExists(String tableName, String Sql) {
 		if (tableExists(tableName)) {return;}
 		plugin.log.info(plugin.logPrefix + "Creating table " + tableName);
-		executeRawSQL("CREATE TABLE `" + plugin.dbPrefix + tableName + "` ( " + Sql + " );");
+		executeRawSQL("CREATE TABLE `" + plugin.dbPrefix + tableName + "` ( "+Sql+" );");
 	}
 
-// uncomment when needed
-//	private boolean columnExists(String tableName, String columnName) {
-//		boolean exists = false;
-//		Connection conn = getConnection();
-//		PreparedStatement st = null;
-//		ResultSet rs = null;
-//		try {
-//			st = conn.prepareStatement("SHOW COLUMNS FROM `" + plugin.dbPrefix + tableName + "` LIKE ?");
-//			st.setString(1, columnName);
-//			rs = st.executeQuery();
-//			while (rs.next()) {
-//				exists = true;
-//				break;
-//			}
-//		} catch (SQLException e) {
-//			plugin.log.warning(plugin.logPrefix + "Unable to check if table column exists: " + plugin.dbPrefix + tableName + "::" + columnName);
-//		}
-//		return exists;
-//	}
+	protected boolean columnExists(String tableName, String columnName) {
+		boolean exists = false;
+		Connection conn = getConnection();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			st = conn.prepareStatement("SHOW COLUMNS FROM `" + plugin.dbPrefix + tableName + "` LIKE ?");
+			st.setString(1, columnName);
+			rs = st.executeQuery();
+			while (rs.next()) {
+				exists = true;
+				break;
+			}
+		} catch (SQLException e) {
+			plugin.log.warning(plugin.logPrefix + "Unable to check if table column exists: " + plugin.dbPrefix + tableName + "::" + columnName);
+		}
+		return exists;
+	}
 
-// uncomment when needed
-//	private void setColumnExists(String tableName, String columnName, String Attr) {
-//		if (columnExists(tableName, columnName)) {return;}
-//		plugin.log.info("Adding column " + columnName + " to table " + plugin.dbPrefix + tableName);
-//		executeRawSQL("ALTER TABLE `" + plugin.dbPrefix + tableName + "` ADD `" + columnName + "` " + Attr);
-//	}
+	protected void setColumnExists(String tableName, String columnName, String Attr) {
+		if (columnExists(tableName, columnName)) {return;}
+		plugin.log.info("Adding column " + columnName + " to table " + plugin.dbPrefix + tableName);
+		executeRawSQL("ALTER TABLE `" + plugin.dbPrefix + tableName + "` ADD `" + columnName + "` " + Attr);
+	}
 
 	public void initTables() {
 		setTableExists("Players",
@@ -236,8 +293,8 @@ public class MySQLDataQueries {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: getMaxAuctionID");
 			st = conn.prepareStatement("SELECT MAX(`id`) FROM `" + plugin.dbPrefix + "Auctions`");
 			rs = st.executeQuery();
 			while (rs.next()) {
@@ -254,12 +311,11 @@ public class MySQLDataQueries {
 
 	public Map<Location, Integer> getShoutSignLocations() {
 		Map<Location, Integer> signLocations = new HashMap<Location, Integer>();
-
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: getShoutSignLocations");
 			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "ShoutSigns`");
 			Location location;
 			rs = st.executeQuery();
@@ -279,12 +335,11 @@ public class MySQLDataQueries {
 
 	public Map<Location, Integer> getRecentSignLocations() {
 		Map<Location, Integer> signLocations = new HashMap<Location, Integer>();
-
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: getRecentSignLocations");
 			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "RecentSigns`");
 			Location location;
 			rs = st.executeQuery();
@@ -304,12 +359,11 @@ public class MySQLDataQueries {
 
 	public List<SaleAlert> getNewSaleAlertsForSeller(String player) {
 		List<SaleAlert> saleAlerts = new ArrayList<SaleAlert>();
-
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: getNewSaleAlertsForSeller " + player);
 			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "SaleAlerts` WHERE `seller` = ? AND `alerted` = ?");
 			st.setString(1, player);
 			st.setInt(2, 0);
@@ -330,17 +384,15 @@ public class MySQLDataQueries {
 		} finally {
 			closeResources(conn, st, rs);
 		}
-
 		return saleAlerts;
 	}
 
 	public void markSaleAlertSeen(int id) {
-
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: markSaleAlertSeen " + Integer.toString(id));
 			st = conn.prepareStatement("UPDATE `" + plugin.dbPrefix + "SaleAlerts` SET `alerted` = ? WHERE `id` = ?");
 			st.setInt(1, 1);
 			st.setInt(2, id);
@@ -355,12 +407,11 @@ public class MySQLDataQueries {
 
 	public Auction getAuction(int id) {
 		Auction auction = null;
-
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: getAuction " + Integer.toString(id));
 			st = conn.prepareStatement("SELECT * FROM `WA_Auctions` WHERE `id` = ?");
 			st.setInt(1, id);
 			rs = st.executeQuery();
@@ -388,8 +439,8 @@ public class MySQLDataQueries {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: removeShoutSign " + location.toString());
 			st = conn.prepareStatement("DELETE FROM `" + plugin.dbPrefix + "ShoutSigns` WHERE " +
 				"`world` = ? AND `x` = ? AND `y` = ? AND `z` = ?");
 			st.setString(1, location.getWorld().getName());
@@ -407,12 +458,11 @@ public class MySQLDataQueries {
 
 	public int getTotalAuctionCount() {
 		int totalAuctionCount = 0;
-
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: getTotalAuctionCount");
 			st = conn.prepareStatement("SELECT COUNT(*) FROM `" + plugin.dbPrefix + "Auctions`");
 			rs = st.executeQuery();
 			while (rs.next()) {
@@ -429,12 +479,11 @@ public class MySQLDataQueries {
 
 	public Auction getAuctionForOffset(int offset) {
 		Auction auction = null;
-
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: getAuctionForOffset " + Integer.toString(offset));
 			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Auctions` ORDER BY `id` DESC LIMIT ?, 1");
 			st.setInt(1, offset);
 			rs = st.executeQuery();
@@ -459,8 +508,8 @@ public class MySQLDataQueries {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: removeRecentSign " + location.toString());
 			st = conn.prepareStatement("DELETE FROM `" + plugin.dbPrefix + "RecentSigns` WHERE " +
 				"`world` = ? AND `x` = ? AND `y` = ? AND `z` = ?");
 			st.setString(1, location.getWorld().getName());
@@ -469,7 +518,7 @@ public class MySQLDataQueries {
 			st.setInt(4, (int) location.getZ());
 			st.executeUpdate();
 		} catch (SQLException e) {
-			plugin.log.warning(plugin.logPrefix + "Unable to remove recent sign at location " + location);
+			plugin.log.warning(plugin.logPrefix + "Unable to remove recent sign at location " + location.toString());
 			e.printStackTrace();
 		} finally {
 			closeResources(conn, st, rs);
@@ -480,8 +529,8 @@ public class MySQLDataQueries {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: updatePlayerPassword " + player);
 			st = conn.prepareStatement("UPDATE `" + plugin.dbPrefix + "Players` SET `pass` = ? WHERE `name` = ?");
 			st.setString(1, newPass);
 			st.setString(2, player);
@@ -494,16 +543,18 @@ public class MySQLDataQueries {
 		}
 	}
 
-	public void createShoutSign(World world, int raidus, int x, int y, int z) {
+	public void createShoutSign(World world, int radius, int x, int y, int z) {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: createShoutSign " +
+				Integer.toString(radius) + " " + Integer.toString(x) + "," +
+				Integer.toString(y) + "," + Integer.toString(z) );
 			st = conn.prepareStatement("INSERT INTO `" + plugin.dbPrefix + "ShoutSigns` " +
 				"(`world`, `radius`, `x`, `y`, `z`) VALUES (?, ?, ?, ?, ?)");
 			st.setString(1, world.getName());
-			st.setInt(2, raidus);
+			st.setInt(2, radius);
 			st.setInt(3, x);
 			st.setInt(4, y);
 			st.setInt(5, z);
@@ -520,8 +571,10 @@ public class MySQLDataQueries {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: createRecentSign " +
+				world.getName() + " " + Integer.toString(offset) + " " +
+				Integer.toString(x) + "," + Integer.toString(y) + "," + Integer.toString(z) );
 			st = conn.prepareStatement("INSERT INTO `" + plugin.dbPrefix + "RecentSigns` " +
 				"(`world`, `offset`, `x`, `y`, `z`) VALUES (?, ?, ?, ?, ?)");
 			st.setString(1, world.getName());
@@ -543,8 +596,8 @@ public class MySQLDataQueries {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: hasMail " + player);
 			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Mail` WHERE `name` = ?");
 			st.setString(1, player);
 			rs = st.executeQuery();
@@ -562,24 +615,23 @@ public class MySQLDataQueries {
 
 	public AuctionPlayer getPlayer(String player) {
 		AuctionPlayer waPlayer = null;
-
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: getPlayer " + player);
 			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Players` WHERE `name` = ?");
 			st.setString(1, player);
 			rs = st.executeQuery();
 			while (rs.next()) {
 				waPlayer = new AuctionPlayer();
-				waPlayer.setId(rs.getInt("id"));
-				waPlayer.setName(rs.getString("name"));
-				waPlayer.setPass(rs.getString("pass"));
-				waPlayer.setMoney(rs.getDouble("money"));
-				waPlayer.setCanBuy(rs.getInt("canBuy"));
-				waPlayer.setCanSell(rs.getInt("canSell"));
-				waPlayer.setIsAdmin(rs.getInt("isAdmin"));
+				waPlayer.setId(     rs.getInt("id"));
+				waPlayer.setName(   rs.getString("name"));
+				waPlayer.setPass(   rs.getString("pass"));
+				waPlayer.setMoney(  rs.getDouble("money"));
+				waPlayer.setCanBuy( rs.getInt("canBuy")   != 0);
+				waPlayer.setCanSell(rs.getInt("canSell") != 0);
+				waPlayer.setIsAdmin(rs.getInt("isAdmin") != 0);
 			}
 		} catch (SQLException e) {
 			plugin.log.warning(plugin.logPrefix + "Unable to get player " + player);
@@ -590,17 +642,23 @@ public class MySQLDataQueries {
 		return waPlayer;
 	}
 
-	public void updatePlayerPermissions(String player, int canBuy, int canSell, int isAdmin) {
+	public void updatePlayerPermissions(String player, AuctionPlayer auctionPlayer, boolean canBuy, boolean canSell, boolean isAdmin) {
+		// return if update not needed
+		if (Boolean.valueOf( canBuy  ).equals( auctionPlayer.getCanBuy()  ) &&
+			Boolean.valueOf( canSell ).equals( auctionPlayer.getCanSell() ) &&
+			Boolean.valueOf( isAdmin ).equals( auctionPlayer.getIsAdmin() ) ) {
+			return;
+		}
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: updatePlayerPermissions " + player);
 			st = conn.prepareStatement("UPDATE `" + plugin.dbPrefix + "Players` SET " +
 				"`canBuy` = ?, `canSell` = ?, `isAdmin` = ? WHERE `name` = ?");
-			st.setInt(1, canBuy);
-			st.setInt(2, canSell);
-			st.setInt(3, isAdmin);
+			st.setInt(1, (canBuy) ?1:0 );
+			st.setInt(2, (canSell)?1:0 );
+			st.setInt(3, (isAdmin)?1:0 );
 			st.setString(4, player);
 			st.executeUpdate();
 		} catch (SQLException e) {
@@ -615,8 +673,8 @@ public class MySQLDataQueries {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: createPlayer " + player);
 			st = conn.prepareStatement("INSERT INTO `" + plugin.dbPrefix + "Players` " +
 				"(`name`, `pass`, `money`, `canBuy`, `canSell`, `isAdmin`) VALUES (?, ?, ?, ?, ?, ?)");
 			st.setString(1, player);
@@ -638,8 +696,8 @@ public class MySQLDataQueries {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: updatePlayerMoney " + player);
 			st = conn.prepareStatement("UPDATE `" + plugin.dbPrefix + "Players` SET `money` = ? WHERE `name` = ?");
 			st.setDouble(1, money);
 			st.setString(2, player);
@@ -654,17 +712,15 @@ public class MySQLDataQueries {
 
 	public List<AuctionItem> getItems(String player, int itemID, int damage, boolean reverseOrder) {
 		List<AuctionItem> auctionItems = new ArrayList<AuctionItem>();
-
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
-			String sql="SELECT * FROM `" + plugin.dbPrefix + "Items` WHERE `player` = ? AND `name` = ? AND `damage` = ?";
-			if (reverseOrder) {
-				sql+=" ORDER BY `id` DESC";
-			}
-			st = conn.prepareStatement(sql);
+			if (debugSQL) plugin.log.info("WA Query: getItems " + player + " " +
+				Integer.toString(itemID) + ":" + Integer.toString(damage) );
+			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Items` WHERE " +
+				"`player` = ? AND `name` = ? AND `damage` = ? " +
+				"ORDER BY `id` " + (reverseOrder?"DESC":"ASC") );
 			st.setString(1, player);
 			st.setInt(2, itemID);
 			st.setInt(3, damage);
@@ -690,12 +746,11 @@ public class MySQLDataQueries {
 
 	public int getEnchantTableID(int enchantID, int level, String enchantName) {
 		int tableID = -1;
-
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: getEnchantTableID " + enchantName);
 			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Enchantments` " +
 				"WHERE `enchId` = ? AND `level` = ? AND `enchName` = ?");
 			st.setInt(1, enchantID);
@@ -718,8 +773,8 @@ public class MySQLDataQueries {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: createEnchantment " + enchantName);
 			st = conn.prepareStatement("INSERT INTO `" + plugin.dbPrefix + "Enchantments` " +
 				"(`enchName`, `enchId`, `level`) VALUES (?, ?, ?)");
 			st.setString(1, enchantName);
@@ -736,12 +791,12 @@ public class MySQLDataQueries {
 
 	public List<Integer> getEnchantIDsForLinks(int itemID, int itemTableID) {
 		List<Integer> enchantIDs = new ArrayList<Integer>();
-
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: getEnchantIDsForLinks " +
+				Integer.toString(itemID) + " " + Integer.toString(itemTableID) );
 			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "EnchantLinks` " +
 				"WHERE `itemTableId` = ? AND `itemId` = ? ORDER BY `enchId` DESC");
 			st.setInt(1, itemTableID);
@@ -763,8 +818,9 @@ public class MySQLDataQueries {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: updateItemQuantity " +
+				Integer.toString(id) + " " + Integer.toString(quantity) );
 			st = conn.prepareStatement("UPDATE `" + plugin.dbPrefix + "Items` SET `quantity` = ? WHERE `id` = ?");
 			st.setInt(1, quantity);
 			st.setInt(2, id);
@@ -777,33 +833,47 @@ public class MySQLDataQueries {
 		}
 	}
 
-	public void createItem(int itemID, int itemDamage, String player, int quantity) {
+	public int createItem(int itemID, int itemDamage, String player, int quantity) {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
+		int keyId = 0;
 		try {
+			if (debugSQL) plugin.log.info("WA Query: createItem " +
+				Integer.toString(itemID) + ":" + Integer.toString(itemDamage) );
 			st = conn.prepareStatement("INSERT INTO `" + plugin.dbPrefix + "Items` " +
 				"(`name`, `damage`, `player`, `quantity`) VALUES (?, ?, ?, ?)");
 			st.setInt(1, itemID);
 			st.setInt(2, itemDamage);
 			st.setString(3, player);
 			st.setInt(4, quantity);
-			st.executeUpdate();
+			int affectedRows=st.executeUpdate();
+			if (affectedRows==0) {
+				throw new SQLException("Creating new item failed, no rows affected.");
+			}
+			// get insert id
+			ResultSet gKeys = st.getGeneratedKeys();
+			if (gKeys.next()) {
+				keyId = gKeys.getInt(1);
+			} else {
+				throw new SQLException("Creating new item failed, no generated key.");
+			}
 		} catch (SQLException e) {
 			plugin.log.warning(plugin.logPrefix + "Unable to create item");
 			e.printStackTrace();
 		} finally {
 			closeResources(conn, st, rs);
 		}
+		return keyId;
 	}
 
 	public void createEnchantLink(int enchantID, int itemTableID, int itemID) {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
+			if (debugSQL) plugin.log.info("WA Query: createEnchantLink " +
+				Integer.toString(enchantID) + " " + Integer.toString(itemTableID) + " " + Integer.toString(itemID) );
 			st = conn.prepareStatement("INSERT INTO `" + plugin.dbPrefix + "EnchantLinks` " +
 				"(`enchId`, `itemTableId`, `itemId`) VALUES (?, ?, ?)");
 			st.setInt(1, enchantID);
@@ -826,6 +896,7 @@ public class MySQLDataQueries {
 		ResultSet rs = null;
 
 		try {
+			if (debugSQL) plugin.log.info("WA Query: getMail " + player);
 			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Mail` WHERE `player` = ?");
 			st.setString(1, player);
 			AuctionMail auctionMail;
@@ -855,6 +926,7 @@ public class MySQLDataQueries {
 		ResultSet rs = null;
 
 		try {
+			if (debugSQL) plugin.log.info("WA Query: getEnchantIDLevel " + Integer.toString(id) );
 			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Enchantments` WHERE `id` = ?");
 			st.setInt(1, id);
 			rs = st.executeQuery();
@@ -876,6 +948,7 @@ public class MySQLDataQueries {
 		ResultSet rs = null;
 
 		try {
+			if (debugSQL) plugin.log.info("WA Query: deleteMail " + Integer.toString(id) );
 			st = conn.prepareStatement("DELETE FROM `" + plugin.dbPrefix + "Mail` WHERE `id` = ?");
 			st.setInt(1, id);
 			st.executeUpdate();

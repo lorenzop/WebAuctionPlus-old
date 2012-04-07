@@ -69,25 +69,17 @@ public class WebAuctionPlayerListener implements Listener {
 		}
 
 		// Determine permissions
-		int canBuy = 0;
-		int canSell = 0;
-		int isAdmin = 0;
-		if (plugin.permission.has(p, "wa.canbuy")) {
-			canBuy = 1;
-		}
-		if (plugin.permission.has(p, "wa.cansell")) {
-			canSell = 1;
-		}
-		if (plugin.permission.has(p, "wa.webadmin")) {
-			isAdmin = 1;
-		}
+		boolean canBuy  = plugin.permission.has(p, "wa.canbuy");
+		boolean canSell = plugin.permission.has(p, "wa.cansell");
+		boolean isAdmin = plugin.permission.has(p, "wa.webadmin");
 
-		if (null != plugin.dataQueries.getPlayer(player)) {
+		AuctionPlayer auctionPlayer = plugin.dataQueries.getPlayer(player);
+		if (auctionPlayer != null) {
 			plugin.log.info(plugin.logPrefix + "Player found - " + player +
-				" with permissions: canbuy = " + canBuy + " cansell = " +
-				canSell + " isAdmin = " + isAdmin);
+				" with perms: canbuy=" + canBuy + " cansell=" +
+				canSell + " isAdmin=" + isAdmin);
 			// Update permissions
-			plugin.dataQueries.updatePlayerPermissions(player, canBuy, canSell, isAdmin);
+			plugin.dataQueries.updatePlayerPermissions(player, auctionPlayer, canBuy, canSell, isAdmin);
 		}
 	}
 
@@ -275,7 +267,7 @@ public class WebAuctionPlayerListener implements Listener {
 				int itemId = stack.getTypeId();
 				if (itemId == 0) {
 					p.sendMessage(plugin.chatPrefix +
-						"Please hold a stack of item in your hand and right click to deposit them.");
+						"Please hold a stack of items in your hand and  right click to deposit them.");
 					event.setCancelled(true);
 				} else {
 					int itemDamage = 0;
@@ -329,14 +321,7 @@ public class WebAuctionPlayerListener implements Listener {
 					}
 					if (!foundMatch.booleanValue()) {
 						// Create item
-						plugin.dataQueries.createItem(itemId, itemDamage, player, quantityInt);
-						List<AuctionItem> newItems = plugin.dataQueries.getItems(player, itemId, itemDamage, true);
-
-						int itemTableId = -1;
-						if (!newItems.isEmpty()) {
-							itemTableId = ((AuctionItem)newItems.get(0)).getId();
-						}
-
+						int itemTableId = plugin.dataQueries.createItem(itemId, itemDamage, player, quantityInt);
 						int enchTableId;
 						for (Map.Entry<Enchantment, Integer> entry : itemEnchantments.entrySet()) {
 							Enchantment key = (Enchantment)entry.getKey();

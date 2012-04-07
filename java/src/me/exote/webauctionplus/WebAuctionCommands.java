@@ -24,9 +24,7 @@ public class WebAuctionCommands implements CommandExecutor {
 			e.printStackTrace();
 		}
 		md.update(str.getBytes());
-
 		byte[] byteData = md.digest();
-
 		StringBuffer hexString = new StringBuffer();
 		for (int i = 0; i < byteData.length; i++) {
 			String hex = Integer.toHexString(0xFF & byteData[i]);
@@ -39,16 +37,15 @@ public class WebAuctionCommands implements CommandExecutor {
 	}
 
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
 		int params = args.length;
-
 		String player = "";
 		if (sender instanceof Player) {
 			player = ((Player) sender).getName();
 		}
-
+		// 0 args
 		if (params == 0) {
 			return false;
+		// 1 arg
 		} else if (params == 1) {
 			// /wa reload
 			if (args[0].equalsIgnoreCase("reload")){
@@ -60,12 +57,18 @@ public class WebAuctionCommands implements CommandExecutor {
 					}
 					((Player)sender).sendMessage(plugin.chatPrefix + "reloading..");
 				}
-				plugin.log.info(plugin.logPrefix + "reloading..");
-				plugin.onDisable();
-				plugin.onEnable();
+				plugin.log.info(plugin.logPrefix + "Reloading..");
+				plugin.getServer().getScheduler().cancelTasks(plugin);
+				plugin.shoutSigns.clear();
+				plugin.recentSigns.clear();
+				plugin.dataQueries.forceCloseConnections();
+				plugin.reloadConfig();
+				plugin.onLoadConfig();
+				plugin.log.info(plugin.logPrefix + "Finished reloading");
 				return true;
 			}
 			return false;
+		// 2 args
 		} else if (params == 2) {
 			// /wa password
 			if (args[0].equals("password")) {

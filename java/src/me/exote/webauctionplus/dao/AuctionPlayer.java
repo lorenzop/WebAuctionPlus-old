@@ -6,9 +6,9 @@ public class AuctionPlayer {
 	private String name;
 	private String pass;
 	private double money;
-	private int canBuy;
-	private int canSell;
-	private int isAdmin;
+	private boolean canBuy;
+	private boolean canSell;
+	private boolean isAdmin;
 
 	public AuctionPlayer() {
 	}
@@ -45,27 +45,27 @@ public class AuctionPlayer {
 		this.money = money;
 	}
 
-	public int getCanBuy() {
+	public boolean getCanBuy() {
 		return canBuy;
 	}
 
-	public void setCanBuy(int canBuy) {
+	public void setCanBuy(boolean canBuy) {
 		this.canBuy = canBuy;
 	}
 
-	public int getCanSell() {
+	public boolean getCanSell() {
 		return canSell;
 	}
 
-	public void setCanSell(int canSell) {
+	public void setCanSell(boolean canSell) {
 		this.canSell = canSell;
 	}
 
-	public int getIsAdmin() {
+	public boolean getIsAdmin() {
 		return isAdmin;
 	}
 
-	public void setIsAdmin(int isAdmin) {
+	public void setIsAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
 	}
 

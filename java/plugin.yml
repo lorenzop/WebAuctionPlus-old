@@ -1,6 +1,6 @@
 name: WebAuctionPlus
 main: me.exote.webauctionplus.WebAuctionPlus
-version: 1.0.1
+version: 1.0.2
 author: Exote
 depend: [Vault]
 softdepend: [SignLink]
@@ -41,31 +41,46 @@ permissions:
             wa.reload: false
     wa.use.withdraw.items:
         description: Lets you use the mailbox
+        default: true
     wa.use.withdraw.money:
         description: Lets you withdraw money from web account
+        default: true
     wa.use.deposit.items:
         description: Lets you deposit items and send them to web account
+        default: true
     wa.use.deposit.money:
         description: Lets you deposit money to web account
+        default: true
     wa.canbuy:
         description: Lets you buy items on the website
+        default: true
     wa.cansell:
         description: Lets you sell items on the website
+        default: true
     wa.create.sign.deposit:
         description: Lets you create money deposit points
+        default: op
     wa.create.sign.withdraw:
         description: Lets you create money withdraw points
+        default: op
     wa.create.sign.recent:
         description: Lets you create a sign to display recent auctions created
+        default: op
     wa.create.sign.shout:
         description: Lets you create a sign to shout to all players nearby when a new auction is made
+        default: op
     wa.create.sign.mailbox.deposit:
         description: Lets you create deposit mailboxes
+        default: op
     wa.create.sign.mailbox.withdraw:
         description: Lets you create withdraw mailboxes
+        default: op
     wa.remove:
         description: Lets you remove signs
+        default: op
     wa.webadmin:
         description: Lets you change other peoples data via website
+        default: op
     wa.reload:
         description: Reloads WebAuctions config.yml
+        default: op
