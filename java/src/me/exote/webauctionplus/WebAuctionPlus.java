@@ -2,7 +2,9 @@ package me.exote.webauctionplus;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import me.exote.webauctionplus.listeners.WebAuctionBlockListener;
@@ -11,6 +13,7 @@ import me.exote.webauctionplus.listeners.WebAuctionServerListener;
 import me.exote.webauctionplus.tasks.RecentSignTask;
 import me.exote.webauctionplus.tasks.SaleAlertTask;
 import me.exote.webauctionplus.tasks.ShoutSignTask;
+import me.lorenzop.webauctionplus.tasks.AnnouncerTask;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
@@ -20,10 +23,11 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
 public class WebAuctionPlus extends JavaPlugin {
 
-	public String logPrefix = "[WebAuction+] ";
+	public String logPrefix  = "[WebAuction+] ";
 	public String chatPrefix = ChatColor.DARK_GREEN + "[" + ChatColor.WHITE + "WebAuction+" + ChatColor.DARK_GREEN + "] ";
 	public Logger log = Logger.getLogger("Minecraft");
 
@@ -34,20 +38,24 @@ public class WebAuctionPlus extends JavaPlugin {
 	public String dbPrefix = "WA_";
 	public WebAuctionCommands WebAuctionCommandsListener = new WebAuctionCommands(this);
 
-	public Map<String, Long> lastSignUse = new HashMap<String , Long>();
+	public Map<String,   Long>    lastSignUse = new HashMap<String , Long>();
 	public Map<Location, Integer> recentSigns = new HashMap<Location, Integer>();
-	public Map<Location, Integer> shoutSigns = new HashMap<Location, Integer>();
+	public Map<Location, Integer> shoutSigns  = new HashMap<Location, Integer>();
 
-	public int signDelay = 0;
+	public int signDelay          = 0;
 	public int numberOfRecentLink = 0;
 
-	public Boolean useSignLink = false;
-	public Boolean useOriginalRecent = true;
+	public Boolean useSignLink       = false;
+	public Boolean useOriginalRecent = false;
+	public Boolean showSalesOnJoin   = false;
 
-	public Boolean showSalesOnJoin = false;
+	// announcer
+	public boolean announceRandom = false;
+	public List<String> announcementMessages;
+	public String announcementPrefix = "";
 
 	public Permission permission = null;
-	public Economy economy = null;
+	public Economy    economy    = null;
 
 	public WebAuctionPlus() {
 	}
@@ -95,42 +103,69 @@ public class WebAuctionPlus extends JavaPlugin {
 		// Build recentSigns map
 		recentSigns.putAll(dataQueries.getRecentSignLocations());
 
+		// announcer
+		announcementPrefix   = Config.getString("Announcer.Prefix");
+		announceRandom       = Config.getBoolean("Announcer.Random");
+		announcementMessages = Config.getStringList("Announcements");
+
 		// enable scheduled tasks
-		long saleAlertFrequency = getConfig().getLong("Tasks.SaleAlertFrequency");
-		long shoutSignUpdateFrequency = getConfig().getLong("Tasks.ShoutSignUpdateFrequency");
-		long recentSignUpdateFrequency = getConfig().getLong("Tasks.RecentSignUpdateFrequency");
-		useOriginalRecent = getConfig().getBoolean("Misc.UseOriginalRecentSigns");
+		BukkitScheduler scheduler = getServer().getScheduler();
+		long saleAlertFrequency        = 20 * Config.getLong("Tasks.SaleAlertSeconds");
+		long shoutSignUpdateFrequency  = 20 * Config.getLong("Tasks.ShoutSignUpdateSeconds");
+		long recentSignUpdateFrequency = 20 * Config.getLong("Tasks.RecentSignUpdateSeconds");
+		long announcerFrequency        = 20 * Config.getLong("Tasks.AnnouncerSeconds");
+		useOriginalRecent              = Config.getBoolean("Misc.UseOriginalRecentSigns");
 		// multi-threaded
-		if (getConfig().getBoolean("Development.UseMultithreads")){
+		if (Config.getBoolean("Development.UseMultithreads")){
 			log.info(logPrefix + "Using Multiple Threads");
 			// report sales to players
 			if (saleAlertFrequency > 0)
-				getServer().getScheduler().scheduleAsyncRepeatingTask(this, new SaleAlertTask(this),
+				scheduler.scheduleAsyncRepeatingTask(this, new SaleAlertTask(this),
 					saleAlertFrequency, saleAlertFrequency);
+			log.info(logPrefix + (saleAlertFrequency>0?"Enabled":"Disabled") + " Sale Alert Task");
 			// shout sign task
 			if (shoutSignUpdateFrequency > 0)
-				getServer().getScheduler().scheduleAsyncRepeatingTask(this, new ShoutSignTask(this),
+				scheduler.scheduleAsyncRepeatingTask(this, new ShoutSignTask(this),
 					shoutSignUpdateFrequency+(shoutSignUpdateFrequency/2), shoutSignUpdateFrequency);
+			log.info(logPrefix + (shoutSignUpdateFrequency>0?"Enabled":"Disabled") + " Shout Sign Task");
 			// update recent signs
 			if (recentSignUpdateFrequency > 0)
-				getServer().getScheduler().scheduleAsyncRepeatingTask(this, new RecentSignTask(this),
+				scheduler.scheduleAsyncRepeatingTask(this, new RecentSignTask(this),
 					recentSignUpdateFrequency-(recentSignUpdateFrequency/2), recentSignUpdateFrequency);
+			log.info(logPrefix + (recentSignUpdateFrequency>0?"Enabled":"Disabled") + " Recent Sign Task");
+			// announcer task
+			if (announcerFrequency > 0)
+				scheduler.scheduleAsyncRepeatingTask(this, new AnnouncerTask(this),
+						announcerFrequency-(announcerFrequency/2), announcerFrequency);
+			log.info(logPrefix + (announcerFrequency>0?"Enabled":"Disabled") + " Announcer Task");
 		// single-threaded
 		}else{
 			log.info(logPrefix + "Using Single Thread");
 			// shout sign task
 			if (saleAlertFrequency > 0)
-				getServer().getScheduler().scheduleSyncRepeatingTask(this, new SaleAlertTask(this),
+				scheduler.scheduleSyncRepeatingTask(this, new SaleAlertTask(this),
 					saleAlertFrequency, saleAlertFrequency);
+			log.info(logPrefix + (saleAlertFrequency>0?"Enabled":"Disabled") + " Sale Alert Task");
 			// shout sign task
 			if (shoutSignUpdateFrequency > 0)
-				getServer().getScheduler().scheduleSyncRepeatingTask(this, new ShoutSignTask(this),
+				scheduler.scheduleSyncRepeatingTask(this, new ShoutSignTask(this),
 					shoutSignUpdateFrequency+(shoutSignUpdateFrequency/2), shoutSignUpdateFrequency);
+			log.info(logPrefix + (shoutSignUpdateFrequency>0?"Enabled":"Disabled") + " Shout Sign Task");
 			// update recent signs
 			if (recentSignUpdateFrequency > 0)
-				getServer().getScheduler().scheduleSyncRepeatingTask(this, new RecentSignTask(this),
+				scheduler.scheduleSyncRepeatingTask(this, new RecentSignTask(this),
 					recentSignUpdateFrequency-(recentSignUpdateFrequency/2), recentSignUpdateFrequency);
+			log.info(logPrefix + (recentSignUpdateFrequency>0?"Enabled":"Disabled") + " Recent Sign Task");
+			// announcer task
+			if (announcerFrequency > 0)
+				scheduler.scheduleSyncRepeatingTask(this, new AnnouncerTask(this),
+						announcerFrequency-(announcerFrequency/2), announcerFrequency);
+			log.info(logPrefix + (announcerFrequency>0?"Enabled":"Disabled") + " Announcer Task");
 		}
+	}
+
+	public void onSaveConfig() {
+//		FileConfiguration Config = getConfig();
 	}
 
 	public void onDisable() {
@@ -142,16 +177,16 @@ public class WebAuctionPlus extends JavaPlugin {
 	public boolean ConnectDB() {
 		// Init database
 		log.info(logPrefix + "MySQL Initializing.");
+		FileConfiguration Config = getConfig();
 		try {
-			FileConfiguration Config = getConfig();
 			dataQueries = new MySQLDataQueries(this,
 				Config.getString("MySQL.Host"),
 				Config.getString("MySQL.Port"),
 				Config.getString("MySQL.Username"),
 				Config.getString("MySQL.Password"),
 				Config.getString("MySQL.Database") );
-			dataQueries.ConnPoolSizeWarn = Config.getInt("MySQL.ConnPoolSizeWarn");
-			dataQueries.ConnPoolSizeHard = Config.getInt("MySQL.ConnPoolSizeHard");
+			dataQueries.ConnPoolSizeWarn = Config.getInt("MySQL.ConnectionPoolSizeWarn");
+			dataQueries.ConnPoolSizeHard = Config.getInt("MySQL.ConnectionPoolSizeHard");
 			dataQueries.debugSQL         = Config.getBoolean("Development.DebugSQL");
 		} catch (Exception e) {
 			if (e.getCause() instanceof SQLException) {
@@ -160,7 +195,7 @@ public class WebAuctionPlus extends JavaPlugin {
 			e.printStackTrace();
 			return false;
 		}
-		dbPrefix = getConfig().getString("MySQL.TablePrefix");
+		dbPrefix = Config.getString("MySQL.TablePrefix");
 		dataQueries.initTables();
 		return true;
 	}
@@ -173,19 +208,23 @@ public class WebAuctionPlus extends JavaPlugin {
 		Config.addDefault("MySQL.Port", "3306");
 		Config.addDefault("MySQL.Database", "minecraft");
 		Config.addDefault("MySQL.TablePrefix", "WA_");
-		Config.addDefault("MySQL.ConnPoolSizeWarn", 6);
-		Config.addDefault("MySQL.ConnPoolSizeHard", 20);
+		Config.addDefault("MySQL.ConnectionPoolSizeWarn", 6);
+		Config.addDefault("MySQL.ConnectionPoolSizeHard", 20);
 		Config.addDefault("Misc.ReportSales", true);
 		Config.addDefault("Misc.UseOriginalRecentSigns", true);
 		Config.addDefault("Misc.ShowSalesOnJoin", true);
 		Config.addDefault("Misc.SignClickDelay", 500);
-		Config.addDefault("Tasks.SaleAlertFrequency", 400L);
-		Config.addDefault("Tasks.ShoutSignUpdateFrequency", 400L);
-		Config.addDefault("Tasks.RecentSignUpdateFrequency", 1200L);
+		Config.addDefault("Tasks.SaleAlertSeconds", 20L);
+		Config.addDefault("Tasks.ShoutSignUpdateSeconds", 20L);
+		Config.addDefault("Tasks.RecentSignUpdateSeconds", 60L);
+		Config.addDefault("Tasks.AnnouncerSeconds", 3600L);
 		Config.addDefault("SignLink.UseSignLink", false);
 		Config.addDefault("SignLink.NumberOfLatestAuctionsToTrack", 10);
 		Config.addDefault("Development.UseMultithreads", false);
 		Config.addDefault("Development.DebugSQL", false);
+		Config.addDefault("Announcer.Prefix", "&c[Auto] ");
+		Config.addDefault("Announcer.Random", true);
+		Config.addDefault("Announcements", new String[]{"This is a default announcement."} );
 		Config.options().copyDefaults(true);
 		saveConfig();
 	}
@@ -204,6 +243,21 @@ public class WebAuctionPlus extends JavaPlugin {
 			economy = (Economy)economyProvider.getProvider();
 		}
 		return (economy != null);
+	}
+
+	public String ReplaceColors(String text){
+		return text.replaceAll("&([0-9a-fA-F])", "\247$1");
+	}
+
+	public int getNewRandom(int oldNumber, int maxNumber) {
+		if (maxNumber == 0) return maxNumber;
+		if (maxNumber == 1) return 1 - oldNumber;
+		Random randomGen = new Random();
+		int newNumber = 0;
+		while (true) {
+			newNumber = randomGen.nextInt(maxNumber + 1);
+			if (newNumber != oldNumber) return newNumber;
+		}
 	}
 
 //	public double updateCheck(double currentVersion) throws Exception {

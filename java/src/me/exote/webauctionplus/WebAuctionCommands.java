@@ -49,13 +49,12 @@ public class WebAuctionCommands implements CommandExecutor {
 		} else if (params == 1) {
 			// /wa reload
 			if (args[0].equalsIgnoreCase("reload")){
-				// from player
 				if (sender instanceof Player) {
 					if (!sender.hasPermission("wa.reload")){
 						((Player)sender).sendMessage(plugin.chatPrefix + "You do not have permission");
 						return false;
 					}
-					((Player)sender).sendMessage(plugin.chatPrefix + "reloading..");
+					((Player)sender).sendMessage(plugin.chatPrefix + "Reloading..");
 				}
 				plugin.log.info(plugin.logPrefix + "Reloading..");
 				plugin.getServer().getScheduler().cancelTasks(plugin);
@@ -65,7 +64,22 @@ public class WebAuctionCommands implements CommandExecutor {
 				plugin.reloadConfig();
 				plugin.onLoadConfig();
 				plugin.log.info(plugin.logPrefix + "Finished reloading");
+				if (sender instanceof Player)
+					((Player)sender).sendMessage(plugin.chatPrefix + "Reloaded");
 				return true;
+			// save config
+			} else if (args[0].equalsIgnoreCase("save")){
+				if (sender instanceof Player) {
+					if (!sender.hasPermission("wa.save")){
+						((Player)sender).sendMessage(plugin.chatPrefix + "You do not have permission");
+						return false;
+					}
+				}
+				plugin.log.info(plugin.logPrefix + "Saving config..");
+				plugin.log.info(plugin.logPrefix + ChatColor.RED + "This feature is incomplete");
+				plugin.saveConfig();
+				if (sender instanceof Player)
+					((Player)sender).sendMessage(plugin.chatPrefix + "Config Saved");
 			}
 			return false;
 		// 2 args

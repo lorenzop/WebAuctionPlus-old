@@ -16,6 +16,7 @@ permissions:
             wa.use.withdraw.money: true
             wa.use.deposit.items: true
             wa.use.deposit.money: true
+            wa.announcer.receive: true
             wa.create.sign.deposit: true
             wa.create.sign.withdraw: true
             wa.create.sign.mailbox.deposit: true
@@ -27,6 +28,7 @@ permissions:
             wa.remove: true
             wa.webadmin: true
             wa.reload: true
+            wa.save: true
     wa.use.*:
         description: Gives access to all WebAuction commands
         children:
@@ -34,11 +36,9 @@ permissions:
             wa.use.withdraw.money: true
             wa.use.deposit.items: true
             wa.use.deposit.money: true
+            wa.announcer.receive: true
             wa.canbuy: true
             wa.cansell: true
-            wa.remove: false
-            wa.webadmin: false
-            wa.reload: false
     wa.use.withdraw.items:
         description: Lets you use the mailbox
         default: true
@@ -50,6 +50,9 @@ permissions:
         default: true
     wa.use.deposit.money:
         description: Lets you deposit money to web account
+        default: true
+    wa.announcer.receive:
+        description: Let you see announcements in chat
         default: true
     wa.canbuy:
         description: Lets you buy items on the website
@@ -82,5 +85,8 @@ permissions:
         description: Lets you change other peoples data via website
         default: op
     wa.reload:
-        description: Reloads WebAuctions config.yml
+        description: Reloads the WebAuctionPlus config.yml
+        default: op
+    wa.save:
+        description: Saves the WebAuctionPlus config.yml
         default: op
