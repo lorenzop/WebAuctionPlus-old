@@ -1,25 +1,26 @@
 <?php
-	session_start();
-	if (!isset($_SESSION['User'])){
-		header("Location: login.php");
-	}
-	$user = $_SESSION['User'];
-	require 'scripts/config.php';
-	require 'scripts/itemInfo.php';
-	$isAdmin = $_SESSION['Admin'];
-	$queryAuctions=mysql_query("SELECT * FROM WA_Auctions");
-	$itemName = $_POST['name'];
-	$itemDamage = $_POST['damage'];
-	if ($useMySQLiConomy){
-		$queryiConomy=mysql_query("SELECT * FROM $iConTableName WHERE username='$user'");
-		$iConRow = mysql_fetch_row($queryiConomy);
-	}
-	$queryMarket=mysql_query("SELECT * FROM WA_MarketPrices WHERE name='$itemName' AND damage='$itemDamage'"); 
+session_start();
+if (!isset($_SESSION['User'])){
+	header("Location: login.php");
+}
+$user = $_SESSION['User'];
+require 'scripts/config.php';
+require 'scripts/itemInfo.php';
+$isAdmin = $_SESSION['Admin'];
+$queryAuctions=mysql_query("SELECT * FROM WA_Auctions");
+$itemName = $_POST['name'];
+$itemDamage = $_POST['damage'];
+if ($useMySQLiConomy){
+  $queryiConomy=mysql_query("SELECT `balance` FROM $iConTableName WHERE username='$user'");
+  $iConRow = mysql_fetch_assoc($queryiConomy);
+}
+$queryMarket=mysql_query("SELECT `id`,`name`,`damage`,UNIX_TIMESTAMP(`time`) AS `time`,`price`,`ref` FROM WA_MarketPrices WHERE name='$itemName' AND damage='$itemDamage'"); 
 
-	$playerQuery = mysql_query("SELECT * FROM WA_Players WHERE name='$user'");
-	$playerRow = mysql_fetch_row($playerQuery);
-	$mailQuery = mysql_query("SELECT * FROM WA_Mail WHERE player='$user'");
-	$mailCount = mysql_num_rows($mailQuery);
+$playerQuery = mysql_query("SELECT * FROM WA_Players WHERE name='$user'");
+$playerRow = mysql_fetch_row($playerQuery);
+$mailQuery = mysql_query("SELECT COUNT(*) AS `count` FROM WA_Mail WHERE player='$user'");
+$result = mysql_fetch_assoc($mailQuery);
+$mailCount = $result['count'];
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
@@ -103,8 +104,7 @@ $(document).ready(function(){
 	<tbody>
 	<?php
 	$marketNames = array();
-	while(list($id, $name, $damage, $time, $price, $ref)= mysql_fetch_row($queryMarket))
-    { 
+	while(list($id, $name, $damage, $time, $price, $ref)= mysql_fetch_row($queryMarket)){ 
 		$keyName = array_search($name.":".$damage, $marketNames);
 		if (!$keyName == false){
 		  //found this item id

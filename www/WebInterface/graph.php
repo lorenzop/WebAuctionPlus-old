@@ -22,10 +22,10 @@ if (isset($_POST['Damage'])) {
 
 $itemFullName=getItemName($itemName, $itemDamage);
 if($useMySQLiConomy){
-  $queryiConomy=mysql_query("SELECT * FROM $iConTableName WHERE username='$user'");
-  $iConRow=mysql_fetch_row($queryiConomy);
+  $queryiConomy=mysql_query("SELECT `balance` FROM $iConTableName WHERE username='$user'");
+  $iConRow = mysql_fetch_assoc($queryiConomy);
 }
-$queryMarket=mysql_query("SELECT * FROM WA_MarketPrices WHERE name='$itemName' AND damage='$itemDamage'"); 
+$queryMarket=mysql_query("SELECT `id`,`name`,`damage`,UNIX_TIMESTAMP(`time`) AS `time`,`marketprice`,`ref` FROM WA_MarketPrices WHERE name='$itemName' AND damage='$itemDamage'"); 
 $jsArrayString='[';
 while(list($id, $name, $damage, $time, $price, $ref)=mysql_fetch_row($queryMarket)){
   if(strlen($jsArrayString)>3){

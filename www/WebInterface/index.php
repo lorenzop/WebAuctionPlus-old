@@ -15,8 +15,8 @@ $isAdmin = $_SESSION['Admin'];
 $canBuy = $_SESSION['canBuy'];
 $queryAuctions = mysql_query("SELECT * FROM WA_Auctions");
 if ($useMySQLiConomy) {
-  $queryiConomy = mysql_query("SELECT * FROM $iConTableName WHERE username='$user'");
-  $iConRow = mysql_fetch_row($queryiConomy);
+  $queryiConomy=mysql_query("SELECT `balance` FROM $iConTableName WHERE username='$user'");
+  $iConRow = mysql_fetch_assoc($queryiConomy);
 }
 $playerQuery = mysql_query("SELECT * FROM WA_Players WHERE name='$user'");
 $playerRow = mysql_fetch_row($playerQuery);

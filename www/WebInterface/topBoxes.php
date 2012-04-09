@@ -8,9 +8,9 @@ echo '<td><p>Name: &nbsp;&nbsp;'.$user.($isAdmin=="true"?' ADMIN':'')."<br />\n"
 // TODO: printf();
 // TODO: get rid of table for formating, use css instead
 if($useMySQLiConomy){
-  echo 'Money: &nbsp;'.$currencyPrefix.$iConRow['2'].$currencyPostfix."<br />\n";
+  echo 'Money: &nbsp;'.$currencyPrefix.$iConRow['balance'].$currencyPostfix."<br />\n";
 }else{
-  echo 'Money: &nbsp'.$currencyPrefix.$playerRow['3'].$currencyPostfix."<br />\n";
+  echo 'Money: &nbsp'.$currencyPrefix.$playerRow['money'].$currencyPostfix."<br />\n";
 }
 echo 'Mail: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$mailCount."<br />\n";
 echo date('jS M Y H:i:s')."<br />\n";

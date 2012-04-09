@@ -12,8 +12,8 @@ require_once('classes/Market.php');
 $isAdmin=$_SESSION['Admin'];
 $queryAuctions=mysql_query("SELECT * FROM WA_Auctions");
 if($useMySQLiConomy){
-  $queryiConomy=mysql_query("SELECT * FROM $iConTableName WHERE username='$user'");
-  $iConRow=mysql_fetch_row($queryiConomy);
+  $queryiConomy=mysql_query("SELECT `balance` FROM $iConTableName WHERE username='$user'");
+  $iConRow = mysql_fetch_assoc($queryiConomy);
 }
 $queryMarket=mysql_query("SELECT * FROM WA_MarketPrices ORDER BY id DESC");
 $playerQuery=mysql_query("SELECT * FROM WA_Players WHERE name='$user'");

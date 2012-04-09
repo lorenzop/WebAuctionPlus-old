@@ -10,11 +10,11 @@ require('scripts/updateTables.php');
 $isAdmin=$_SESSION['Admin'];
 $queryAuctions=mysql_query("SELECT * FROM WA_Auctions");
 if($useMySQLiConomy){
-  $queryiConomy=mysql_query("SELECT * FROM $iConTableName WHERE username='$user'");
-  $iConRow=mysql_fetch_row($queryiConomy);
+  $queryiConomy=mysql_query("SELECT `balance` FROM $iConTableName WHERE username='$user'");
+  $iConRow = mysql_fetch_assoc($queryiConomy);
 }
-$queryMySales=mysql_query("SELECT * FROM WA_SellPrice WHERE seller='$user'");
-$queryMyPurchases=mysql_query("SELECT * FROM WA_SellPrice WHERE buyer='$user'");
+$queryMySales    =mysql_query("SELECT `id`,`name`,`damage`,UNIX_TIMESTAMP(`time`) AS `time`,`quantity`,`price`,`seller`,`buyer` FROM WA_SellPrice WHERE seller='$user'");
+$queryMyPurchases=mysql_query("SELECT `id`,`name`,`damage`,UNIX_TIMESTAMP(`time`) AS `time`,`quantity`,`price`,`seller`,`buyer` FROM WA_SellPrice WHERE buyer='$user'");
 
 $playerQuery=mysql_query("SELECT * FROM WA_Players WHERE name='$user'");
 $playerRow=mysql_fetch_row($playerQuery);
@@ -113,7 +113,7 @@ while(list($id, $name, $damage, $time, $quantity, $price, $seller, $buyer)=mysql
     echo '    <td>'.$timeFormat.'</td>'."\n";
     // alt="'.getItemName($name, $damage).'"
     echo '    <td><a href="graph.php?name='.$name.'&damage='.$damage.'"><img src="'.getItemImage($name, $damage).'" /><br/>'.getItemName($name, $damage);
-    $queryEnchantLinks=mysql_query("SELECT enchId FROM WA_EnchantLinks WHERE itemId='".$id."' AND itemTableId=3");
+    $queryEnchantLinks=mysql_query("SELECT enchId FROM WA_EnchantLinks WHERE itemId='".((int)$id)."' AND itemTableId=3");
     while(list($enchId)=mysql_fetch_row($queryEnchantLinks)){
       $queryEnchants=mysql_query("SELECT * FROM WA_Enchantments WHERE id='".$enchId."'");
       while(list($idj, $enchName, $enchantId, $level)=mysql_fetch_row($queryEnchants)){

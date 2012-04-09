@@ -10,8 +10,8 @@ require('scripts/itemInfo.php');
 $isAdmin=$_SESSION['Admin'];
 $queryAuctions=mysql_query("SELECT * FROM WA_Auctions");
 if($useMySQLiConomy){
-  $queryiConomy=mysql_query("SELECT * FROM $iConTableName WHERE username='$user'");
-  $iConRow=mysql_fetch_row($queryiConomy);
+  $queryiConomy=mysql_query("SELECT `balance` FROM $iConTableName WHERE username='$user'");
+  $iConRow = mysql_fetch_assoc($queryiConomy);
 }
 $queryItems=mysql_query("SELECT * FROM WA_Items WHERE player='$user'"); 
 
