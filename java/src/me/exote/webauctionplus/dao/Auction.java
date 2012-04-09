@@ -8,7 +8,7 @@ public class Auction {
 	private ItemStack itemStack;
 	private String playerName;
 	private double price;
-	private int created;
+//	private int created;
 	private Boolean allowBids;
 	private Double currentBid;
 	private String currentWinner;
@@ -48,13 +48,13 @@ public class Auction {
 		this.price = price;
 	}
 
-	public int getCreated() {
-		return created;
-	}
+//	public int getCreated() {
+//		return created;
+//	}
 
-	public void setCreated(int created) {
-		this.created = created;
-	}
+//	public void setCreated(int created) {
+//		this.created = created;
+//	}
 
 	public Boolean getAllowBids() {
 		return allowBids;

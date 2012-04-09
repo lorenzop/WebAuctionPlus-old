@@ -48,7 +48,7 @@ public class WebAuctionPlayerListener implements Listener {
 		plugin.lastSignUse.remove(event.getPlayer().getName());
 	}
 
-	@EventHandler(priority = EventPriority.NORMAL)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player p = event.getPlayer();
 		String player = p.getName();
@@ -65,8 +65,10 @@ public class WebAuctionPlayerListener implements Listener {
 
 		// Alert player of new mail
 		int mailCount = plugin.dataQueries.hasMail(player);
-		if (mailCount > 0)
+		plugin.log.info(plugin.logPrefix + "Player " + player + " has " + Integer.toString(mailCount) + " items in mailbox.");
+		if (mailCount > 0) {
 			p.sendMessage(plugin.chatPrefix + "You have [ " + Integer.toString(mailCount) + " ] new items in your mail!");
+		}
 
 		// Determine permissions
 		boolean canBuy  = plugin.permission.has(p, "wa.canbuy");
@@ -100,7 +102,7 @@ public class WebAuctionPlayerListener implements Listener {
 		// it's a sign
 		Sign sign = (Sign) block.getState();
 		String[] lines = sign.getLines();
-		if (!lines[0].equals("[WebAuction]")) {
+		if (!lines[0].equals("[WebAuction+]")) {
 			return;
 		}
 

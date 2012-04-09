@@ -412,7 +412,8 @@ public class MySQLDataQueries {
 		try {
 			if (debugSQL) plugin.log.info("WA Query: getAuction " + Integer.toString(id));
 			st = conn.prepareStatement("SELECT `name`,`damage`,`player`,`quantity`,`price`," +
-				"UNIX_TIMESTANP(`created`),`allowBids`,`currentBid`,`currentWinner` FROM `WA_Auctions` WHERE `id` = ?");
+				"`allowBids`,`currentBid`,`currentWinner` FROM `WA_Auctions` WHERE `id` = ?");
+//UNIX_TIMESTANP(`created`) AS `created`,
 			st.setInt(1, id);
 			rs = st.executeQuery();
 			while (rs.next()) {
@@ -421,7 +422,7 @@ public class MySQLDataQueries {
 				auction.setItemStack(new ItemStack(rs.getInt("name"), rs.getInt("quantity"), rs.getShort("damage")));
 				auction.setPlayerName(rs.getString("player"));
 				auction.setPrice(rs.getDouble("price"));
-				auction.setCreated(rs.getInt("created"));
+//				auction.setCreated(rs.getInt("created"));
 				auction.setAllowBids(rs.getBoolean("allowBids"));
 				auction.setCurrentBid(rs.getDouble("currentBid"));
 				auction.setCurrentWinner(rs.getString("currentWinner"));
@@ -483,8 +484,9 @@ public class MySQLDataQueries {
 		ResultSet rs = null;
 		try {
 			if (debugSQL) plugin.log.info("WA Query: getAuctionForOffset " + Integer.toString(offset));
-			st = conn.prepareStatement("SELECT `name`,`damage`,`player`,`quantity`,`price`,UNIX_TIMESTAMP(`created`) " +
+			st = conn.prepareStatement("SELECT `name`,`damage`,`player`,`quantity`,`price` " +
 				"FROM `" + plugin.dbPrefix + "Auctions` ORDER BY `id` DESC LIMIT ?, 1");
+//,UNIX_TIMESTAMP(`created`) AS `created`
 			st.setInt(1, offset);
 			rs = st.executeQuery();
 			while (rs.next()) {
@@ -493,7 +495,7 @@ public class MySQLDataQueries {
 				auction.setItemStack(new ItemStack(rs.getInt("name"), rs.getInt("quantity"), rs.getShort("damage")));
 				auction.setPlayerName(rs.getString("player"));
 				auction.setPrice(rs.getDouble("price"));
-				auction.setCreated(rs.getInt("created"));
+//				auction.setCreated(rs.getInt("created"));
 			}
 		} catch (SQLException e) {
 			plugin.log.warning(plugin.logPrefix + "Unable to get auction " + offset);

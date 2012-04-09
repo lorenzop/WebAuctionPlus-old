@@ -104,6 +104,11 @@ public class WebAuctionCommands implements CommandExecutor {
 				sender.sendMessage(plugin.chatPrefix + "Password changed");
 				return true;
 			}
+		} else if (params == 4) {
+			// /wa give <player> <item> <count>
+			if (args[0].equals("give")) {
+// /wa give lorenzop diamond 3
+			}
 		}
 		return false;
 	}

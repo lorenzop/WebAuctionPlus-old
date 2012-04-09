@@ -28,7 +28,7 @@ public class WebAuctionBlockListener implements Listener {
 		Player player = event.getPlayer();
 		if (block.getTypeId() == 63 || block.getTypeId() == 68) {
 			Sign thisSign = (Sign) block.getState();
-			if (thisSign.getLine(0).equals("[WebAuction]")) {
+			if (thisSign.getLine(0).equals("[WebAuction+]")) {
 				if (!plugin.permission.has(player, "wa.remove")) {
 					event.setCancelled(true);
 					player.sendMessage(plugin.chatPrefix + "You do not have permission to remove that");
@@ -48,11 +48,12 @@ public class WebAuctionBlockListener implements Listener {
 		if (player == null) {
 			return;
 		}
-		if (!lines[0].equalsIgnoreCase("[WebAuction]")) {
+		if (!lines[0].equalsIgnoreCase("[WebAuction]") &&
+			!lines[0].equalsIgnoreCase("[WebAuction+]")) {
 			return;
 		}
-		if (!lines[0].equals("[WebAuction]")) {
-			event.setLine(0, "[WebAuction]");
+		if (!lines[0].equals("[WebAuction+]")) {
+			event.setLine(0, "[WebAuction+]");
 		}
 		Boolean allowEvent = false;
 
@@ -85,6 +86,8 @@ public class WebAuctionBlockListener implements Listener {
 				int offset = 1;
 				try {
 					offset = Integer.parseInt(lines[2]);
+					if (offset<1) offset = 1;
+					if (offset>1) offset = 10;
 				} catch (NumberFormatException nfe) {
 					offset = 1;
 				}
