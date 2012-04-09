@@ -1,9 +1,5 @@
 <?php
 
-session_start();
-require 'config.php';
-require 'itemInfo.php';
-require 'jsonwrapper/jsonwrapper.php';
 $isAdmin=$_SESSION['Admin'];
 $canBuy=$_SESSION['canBuy'];
 // Script:    DataTables server-side script for PHP and MySQL
@@ -15,7 +11,15 @@ $canBuy=$_SESSION['canBuy'];
 
 // Array of database columns which should be read and sent back to DataTables. Use a space where
 // you want to insert a non-database field (for example a counter or static image)
-$aColumns=array( 'name', 'damage', 'player', 'quantity', 'price', 'id', 'created');
+$aColumns=array(
+  0=>'name',
+  1=>'damage',
+  2=>'player',
+  3=>'quantity',
+  4=>'price',
+  5=>'id',
+  6=>'UNIX_TIMESTAMP(`created`) AS `created`'
+);
 
 // Indexed column (used for fast and accurate table cardinality)
 $sIndexColumn="id";
@@ -95,37 +99,22 @@ for($i=0; $i<count($aColumns); $i++){
 // SQL queries
 // Get data to display
 if (isset($sOrder)){
-$sQuery="
-  SELECT SQL_CALC_FOUND_ROWS ".str_replace(" , ", " ", implode(", ", $aColumns))."
-  FROM   $sTable
-  $sWhere
-  $sOrder
-  $sLimit
-";
+$sQuery=" SELECT SQL_CALC_FOUND_ROWS ".str_replace(" , ", " ", implode(", ", $aColumns)).
+        " FROM $sTable $sWhere $sOrder $sLimit ";
 }else{
-$sQuery="
-  SELECT SQL_CALC_FOUND_ROWS ".str_replace(" , ", " ", implode(", ", $aColumns))."
-  FROM   $sTable
-  $sWhere
-  $sLimit
-";
-
+  $sQuery=" SELECT SQL_CALC_FOUND_ROWS ".str_replace(" , ", " ", implode(", ", $aColumns)).
+          " FROM $sTable $sWhere $sLimit ";
 }
 $rResult=mysql_query( $sQuery, $gaSql['link'] ) or die(mysql_error());
 
 // Data set length after filtering
-$sQuery="
-  SELECT FOUND_ROWS()
-";
+$sQuery=" SELECT FOUND_ROWS() ";
 $rResultFilterTotal=mysql_query( $sQuery, $gaSql['link'] ) or die(mysql_error());
 $aResultFilterTotal=mysql_fetch_array($rResultFilterTotal);
 $iFilteredTotal=$aResultFilterTotal[0];
 
 // Total data set length
-$sQuery="
-  SELECT COUNT(".$sIndexColumn.")
-  FROM   $sTable
-";
+$sQuery=" SELECT COUNT(".$sIndexColumn.") FROM $sTable ";
 $rResultTotal=mysql_query( $sQuery, $gaSql['link'] ) or die(mysql_error());
 $aResultTotal=mysql_fetch_array($rResultTotal);
 $iTotal=$aResultTotal[0];
@@ -140,17 +129,21 @@ if (isset($_GET['sEcho'])){
   );
 }
 
-while($aRow=mysql_fetch_array($rResult)){
+if(mysql_num_rows($rResult)==0){
+  return;
+}
+
+while($aRow=mysql_fetch_assoc($rResult)){
   $row=array();
-  $quantity=$aRow[ $aColumns[3] ];
-  $timeCreated=$aRow[ $aColumns[6] ];
-  if((time()<$timeCreated+$auctionDurationSec) || ($quantity == 0)){
-    $itemName=$aRow[$aColumns[0]];
-    $fullItemName=getItemName($aRow[ $aColumns[0] ], $aRow[ $aColumns[1] ]);
-    $itemDamage=$aRow[ $aColumns[1] ];
-    $marketPrice=getMarketPrice($aRow[ $aColumns[5] ], 1);
+  $quantity   =$aRow['quantity'];
+  $timeCreated=$aRow['created'];
+  if($quantity == 0 || (time()-$timeCreated)<$auctionDurationSec){
+    $itemName    =$aRow['name'];
+    $fullItemName=getItemName($aRow['name'], $aRow['damage']);
+    $itemDamage  =$aRow['damage'];
+    $marketPrice =getMarketPrice($aRow['id'], 1);
     if($marketPrice>0){
-      $marketPercent=round((($aRow[ $aColumns[4] ]/$marketPrice)*100), 1);
+      $marketPercent=round((($aRow['price']/$marketPrice)*100), 1);
     }else{
       $marketPercent='N/A';
     }
@@ -165,7 +158,7 @@ while($aRow=mysql_fetch_array($rResult)){
       $grade='gradeX';
     }
     $row['DT_RowClass']=$grade;
-    $theId=$aRow[ $aColumns[5] ];
+    $theId=$aRow['id'];
     $tempString='';
     $queryEnchantLinks=mysql_query("SELECT enchId FROM WA_EnchantLinks WHERE itemId='$theId' AND itemTableId='1'");
     //print_r(mysql_fetch_row($queryEnchantLinks));
@@ -177,43 +170,55 @@ while($aRow=mysql_fetch_array($rResult)){
 
     }
     // alt="'.$fullItemName.'"
-    $row[]='<a href="graph.php?name='.$aRow[$aColumns[0]].'&damage='.$aRow[$aColumns[1]].'">'.
-           '<img src="'.getItemImage($aRow[$aColumns[0]],$aRow[$aColumns[1]]).'" /><br />'.
+    $row[]='<a href="graph.php?name='.$aRow['name'].'&damage='.$aRow['damage'].'">'.
+           '<img src="'.getItemImage($aRow['name'],$aRow['damage']).'" /><br />'.
            $fullItemName.$tempString.'</a>';
-    $row[]='<img width="32" src="scripts/mcface.php?username='.$aRow[$aColumns[2]].'" /><br />'.
-           $aRow[$aColumns[2]];
+    $row[]='<img width="32" src="scripts/mcface.php?username='.$aRow['player'].'" /><br />'.
+           $aRow['player'];
     if($quantity==0){
       $row[]='Never';
     }else{
       $row[]=date('jS M Y H:i:s', $timeCreated+$auctionDurationSec);
     }
-    $row[]=number_format($aRow[$aColumns[3]],0);
-    $row[]='$ '.number_format($aRow[$aColumns[4]],2);
-    $row[]='$ '.number_format( ((double)$aRow[$aColumns[3]]) * ((double)$aRow[$aColumns[4]]) ,2);
+    $row[]=number_format($aRow['quantity'],0);
+    $row[]='$ '.number_format($aRow['price'],2);
+    $row[]='$ '.number_format( ((double)$aRow['quantity']) * ((double)$aRow['price']) ,2);
     if($marketPercent=='N/A'){
       $row[]='N/A';
     }else{
       $row[]=number_format($marketPercent,1).' %';
     }
 
-    if($canBuy==TRUE){
+    if($canBuy===TRUE){
       $row[]='<form action="scripts/purchaseItem.php" method="POST">'.
              '<input type="text" name="Quantity" onKeyPress="return numbersonly(this, event);" class="input" />'.
-             '<input type="hidden" name="ID" value="'.$aRow[$aColumns[5]].'" />'.
+             '<input type="hidden" name="ID" value="'.$aRow['id'].'" />'.
              '<input type="submit" value="Buy" class="button" /></form>';
     }else{
       $row[]="Can't Buy";
     }
-    if($isAdmin==TRUE){ 
-      $row[]='<td><a class="button" href="scripts/cancelAuctionAdmin.php?id='.$aRow[$aColumns[5]].'">Cancel</a></td>';
+
+    // display row
+    echo '<tr class="'.$row['DT_RowClass'].'">'."\n";
+    echo '  <td>'.$row[0].'</td>'."\n";
+    echo '  <td>'.$row[1].'</td>'."\n";
+    echo '  <td>'.$row[2].'</td>'."\n";
+    echo '  <td>'.$row[3].'</td>'."\n";
+    echo '  <td>'.$row[4].'</td>'."\n";
+    echo '  <td>'.$row[5].'</td>'."\n";
+    echo '  <td>'.$row[6].'</td>'."\n";
+    echo '  <td>'.$row[7].'</td>'."\n";
+    if($isAdmin===TRUE){ 
+      echo '  <td><a class="button" href="scripts/cancelAuctionAdmin.php?id='.$aRow['id'].'">Cancel</a></td>'."\n";
     }
-    $output['aaData'][]=$row;
+    echo "</tr>\n";;
+
   }else{
-    $user=$aRow[ $aColumns[2] ];
-    $id=$aRow[ $aColumns[5] ];
-    $itemName=$aRow[ $aColumns[0] ];
-    $itemDamage=$aRow[ $aColumns[1] ];
-    $itemQuantity=$aRow[ $aColumns[3] ];
+    $user        =$aRow['player'];
+    $id          =$aRow['id'];
+    $itemName    =$aRow['name'];
+    $itemDamage  =$aRow['damage'];
+    $itemQuantity=$aRow['quantity'];
     $queryPlayerItems=mysql_query("SELECT * FROM WA_Items WHERE player='$user'");
     $foundItem=FALSE;
     $stackId=0;
@@ -252,22 +257,12 @@ while($aRow=mysql_fetch_array($rResult)){
 
       $queryEnchants=mysql_query("SELECT * FROM WA_EnchantLinks WHERE itemId='$id' AND itemTableId ='1'"); 
       while(list($idk,$enchIdk, $tableIdk, $itemIdk)= mysql_fetch_row($queryEnchants)){
-  			$updateEnch=mysql_query("INSERT INTO WA_EnchantLinks (enchId, itemTableId, itemId) VALUES ('$enchIdk', '0', '$latestId')");
-			}
-		}
-		$itemDelete=mysql_query("DELETE FROM WA_Auctions WHERE id='$id'");
-	}
-}
+        $updateEnch=mysql_query("INSERT INTO WA_EnchantLinks (enchId, itemTableId, itemId) VALUES ('$enchIdk', '0', '$latestId')");
+      }
+    }
+    $itemDelete=mysql_query("DELETE FROM WA_Auctions WHERE id='$id'");
+  }
 
-
-if(isset($output)){
-  echo json_encode($output);
-}else{
-  echo '{"aaData":['.
-       '{"DT_RowClass":"gradeU","0":"&nbsp;","1":"","2":"","3":"","4":"","5":"","6":"","7":""},'.
-       '{"DT_RowClass":"gradeU","0":"&nbsp;","1":"","2":"","3":"","4":"No auctions to display","5":"","6":"","7":""},'.
-       '{"DT_RowClass":"gradeU","0":"&nbsp;","1":"","2":"","3":"","4":"","5":"","6":"","7":""}'.
-       ']}';
 }
 
 

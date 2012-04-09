@@ -56,9 +56,9 @@
 						}
 						if ($player->money >= $itemFee){
 							$item->changeQuantity(0 - $sellQuantity);
-							$timeNow = time();
 							$player->spend($itemFee, $useMySQLiConomy, $iConTableName);
-							$itemQuery = mysql_query("INSERT INTO WA_Auctions (name, damage, player, quantity, price, created, allowBids, currentBid, currentWinner) VALUES ('$item->name', '$item->damage', '$item->owner', '$sellQuantity', '$sellPrice', '$timeNow', '$allowBids', '$minBid', '$item->owner')");
+$itemQuery = mysql_query("INSERT INTO WA_Auctions (name, damage, player, quantity, price, created, allowBids, currentBid, currentWinner) ".
+                         "VALUES ('$item->name', '$item->damage', '$item->owner', '$sellQuantity', '$sellPrice', NOW(), '$allowBids', '$minBid', '$item->owner')");
 							$queryLatestAuction = mysql_query("SELECT id FROM WA_Auctions ORDER BY id DESC");
 							list($latestId)= mysql_fetch_row($queryLatestAuction);
 							if ($item->quantity == 0)
@@ -96,9 +96,9 @@
 							$itemFee = (($item->marketprice/100)*$auctionFee)*$sellQuantity;
 							if ($player->money >= $itemFee){
 								$item->changeQuantity(0 - $sellQuantity);
-								$timeNow = time();
 								$player->spend($itemFee, $useMySQLiConomy, $iConTableName);
-								$itemQuery = mysql_query("INSERT INTO WA_Auctions (name, damage, player, quantity, price, created, allowBids, currentBid, currentWinner) VALUES ('$item->name', '$item->damage', '$item->owner', '$sellQuantity', '$sellPrice', '$timeNow', '$allowBids', '$minBid', '$item->owner')");
+$itemQuery = mysql_query("INSERT INTO WA_Auctions (name, damage, player, quantity, price, created, allowBids, currentBid, currentWinner) ".
+                         "VALUES ('$item->name', '$item->damage', '$item->owner', '$sellQuantity', '$sellPrice', NOW(), '$allowBids', '$minBid', '$item->owner')");
 								$queryLatestAuction = mysql_query("SELECT id FROM WA_Auctions ORDER BY id DESC");
 								list($latestId)= mysql_fetch_row($queryLatestAuction);
 								if ($item->quantity == 0)
