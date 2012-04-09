@@ -22,6 +22,10 @@ import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 
 public class MySQLDataQueries {
+	// itemTableId
+	// 0 = WA_Items
+	// 1 = 
+	// 2 = WA_Mail
 
 	private List<Boolean> inuse = new ArrayList<Boolean> (4);
 	private List<Connection> connections = new ArrayList<Connection> (4);
@@ -202,8 +206,8 @@ public class MySQLDataQueries {
 	public void initTables() {
 		setTableExists("Players",
 			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
-			"`name`     VARCHAR(255)  NOT NULL DEFAULT ''      , " +
-			"`pass`     VARCHAR(32)   NOT NULL DEFAULT ''      , " +
+			"`name`     VARCHAR(16)       NULL DEFAULT NULL    , " +
+			"`pass`     VARCHAR(32)       NULL DEFAULT NULL    , " +
 			"`money`     DOUBLE(11,2) NOT NULL DEFAULT '0.00'  , " +
 			"`itemsSold`    INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`itemsBought`  INT(11)   NOT NULL DEFAULT '0'     , " +
@@ -212,18 +216,15 @@ public class MySQLDataQueries {
 			"`canBuy`   TINYINT(1)    NOT NULL DEFAULT '0'     , " +
 			"`canSell`  TINYINT(1)    NOT NULL DEFAULT '0'     , " +
 			"`isAdmin`  TINYINT(1)    NOT NULL DEFAULT '0'"    );
-		setTableExists("StorageCheck",
-			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
-			"`time`         INT(11)   NOT NULL DEFAULT '0'"    );
 		setTableExists("Items",
 			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
 			"`name`         INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`damage`       INT(11)   NOT NULL DEFAULT '0'     , " +
-			"`player`   VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`player`   VARCHAR(16)       NULL DEFAULT NULL    , " +
 			"`quantity`     INT(11)   NOT NULL DEFAULT '0'"    );
 		setTableExists("Enchantments",
 			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
-			"`enchName` VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`enchName` VARCHAR(32)       NULL DEFAULT NULL    , " +
 			"`enchId`       INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`level`        INT(11)   NOT NULL DEFAULT '0'"    );
 		setTableExists("EnchantLinks",
@@ -235,56 +236,56 @@ public class MySQLDataQueries {
 			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
 			"`name`         INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`damage`       INT(11)   NOT NULL DEFAULT '0'     , " +
-			"`player`   VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`player`   VARCHAR(16)       NULL DEFAULT NULL    , " +
 			"`quantity`     INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`price`     DOUBLE(11,2) NOT NULL DEFAULT '0.00'  , " +
-			"`created`      INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`created` DATETIME       NOT NULL DEFAULT '0000-00-00 00:00:00', " +
 			"`allowBids` TINYINT(1)   NOT NULL DEFAULT '0'     , " +
 			"`currentBid` DOUBLE(11,2) NOT NULL DEFAULT '0.00' , " +
-			"`currentWinner` VARCHAR(255) NOT NULL DEFAULT ''" );
+			"`currentWinner` VARCHAR(16)  NULL DEFAULT NULL" );
 		setTableExists("SellPrice",
 			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
 			"`name`         INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`damage`       INT(11)   NOT NULL DEFAULT '0'     , " +
-			"`time`         INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`time`    DATETIME       NOT NULL DEFAULT '0000-00-00 00:00:00', " +
 			"`quantity`     INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`price`     DOUBLE(11,2) NOT NULL DEFAULT '0.00'  , " +
-			"`seller`   VARCHAR(255)  NOT NULL DEFAULT ''      , " +
-			"`buyer`    VARCHAR(255)  NOT NULL DEFAULT ''"     );
+			"`seller`   VARCHAR(16)       NULL DEFAULT NULL      , " +
+			"`buyer`    VARCHAR(16)       NULL DEFAULT NULL"     );
 		setTableExists("MarketPrices",
 			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
 			"`name`         INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`damage`       INT(11)   NOT NULL DEFAULT '0'     , " +
-			"`time`         INT(11)   NOT NULL DEFAULT '0'     , " +
+			"`time`    DATETIME       NOT NULL DEFAULT '0000-00-00 00:00:00', " +
 			"`marketprice` DOUBLE(11,2) NOT NULL DEFAULT '0.00', " +
 			"`ref`          INT(11)   NOT NULL DEFAULT '0'"    );
 		setTableExists("Mail",
 			"`id`           INT(11)   NOT NULL AUTO_INCREMENT  , PRIMARY KEY(`id`), " +
 			"`name`         INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`damage`       INT(11)   NOT NULL DEFAULT '0'     , " +
-			"`player`   VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`player`   VARCHAR(16)       NULL DEFAULT NULL    , " +
 			"`quantity`     INT(11)   NOT NULL DEFAULT '0'"    );
 		setTableExists("RecentSigns",
 			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`world`    VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`world`    VARCHAR(32)       NULL DEFAULT NULL    , " +
 			"`offset`       INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`x`            INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`y`            INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`z`            INT(11)   NOT NULL DEFAULT '0'"    );
 		setTableExists("ShoutSigns",
 			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`world`    VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`world`    VARCHAR(32)       NULL DEFAULT NULL    , " +
 			"`radius`       INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`x`            INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`y`            INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`z`            INT(11)   NOT NULL DEFAULT '0'"    );
 		setTableExists("SaleAlerts",
 			"`id`           INT(11)   NOT NULL AUTO_INCREMENT, PRIMARY KEY(`id`), " +
-			"`seller`   VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`seller`   VARCHAR(16)       NULL DEFAULT NULL    , " +
 			"`quantity`     INT(11)   NOT NULL DEFAULT '0'     , " +
 			"`price`     DOUBLE(11,2) NOT NULL DEFAULT '0.00'  , " +
-			"`buyer`    VARCHAR(255)  NOT NULL DEFAULT ''      , " +
-			"`item`     VARCHAR(255)  NOT NULL DEFAULT ''      , " +
+			"`buyer`    VARCHAR(16)       NULL DEFAULT NULL    , " +
+			"`item`     VARCHAR(16)       NULL DEFAULT NULL    , " +
 			"`alerted`  TINYINT(1)    NOT NULL DEFAULT '0'"    );
 	}
 
@@ -297,9 +298,8 @@ public class MySQLDataQueries {
 			if (debugSQL) plugin.log.info("WA Query: getMaxAuctionID");
 			st = conn.prepareStatement("SELECT MAX(`id`) FROM `" + plugin.dbPrefix + "Auctions`");
 			rs = st.executeQuery();
-			while (rs.next()) {
+			if (rs.next())
 				maxAuctionID = rs.getInt(1);
-			}
 		} catch (SQLException e) {
 			plugin.log.warning(plugin.logPrefix + "Unable to query for max Auction ID");
 			e.printStackTrace();
@@ -316,13 +316,13 @@ public class MySQLDataQueries {
 		ResultSet rs = null;
 		try {
 			if (debugSQL) plugin.log.info("WA Query: getShoutSignLocations");
-			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "ShoutSigns`");
+			st = conn.prepareStatement("SELECT `world`,`radius`,`x`,`y`,`z` FROM `" + plugin.dbPrefix + "ShoutSigns`");
 			Location location;
 			rs = st.executeQuery();
 			while (rs.next()) {
-				World world = plugin.getServer().getWorld(rs.getString(2));
+				World world = plugin.getServer().getWorld(rs.getString("world"));
 				location = new Location(world, rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
-				signLocations.put(location, rs.getInt("radius"));
+				signLocations.put(location,    rs.getInt("radius"));
 			}
 		} catch (SQLException e) {
 			plugin.log.warning(plugin.logPrefix + "Unable to get shout sign locations");
@@ -340,13 +340,13 @@ public class MySQLDataQueries {
 		ResultSet rs = null;
 		try {
 			if (debugSQL) plugin.log.info("WA Query: getRecentSignLocations");
-			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "RecentSigns`");
+			st = conn.prepareStatement("SELECT `world`,`offset`,`x`,`y`,`z` FROM `" + plugin.dbPrefix + "RecentSigns`");
 			Location location;
 			rs = st.executeQuery();
 			while (rs.next()) {
-				World world = plugin.getServer().getWorld(rs.getString(2));
+				World world = plugin.getServer().getWorld(rs.getString("world"));
 				location = new Location(world, rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
-				signLocations.put(location, rs.getInt("offset"));
+				signLocations.put(location,    rs.getInt("offset"));
 			}
 		} catch (SQLException e) {
 			plugin.log.warning(plugin.logPrefix + "Unable to get shout sign locations");
@@ -364,9 +364,9 @@ public class MySQLDataQueries {
 		ResultSet rs = null;
 		try {
 			if (debugSQL) plugin.log.info("WA Query: getNewSaleAlertsForSeller " + player);
-			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "SaleAlerts` WHERE `seller` = ? AND `alerted` = ?");
+			st = conn.prepareStatement("SELECT `id`,`seller`,`quantity`,`price`,`buyer`,`item` FROM `" +
+				plugin.dbPrefix + "SaleAlerts` WHERE `seller` = ? AND `alerted` = 0");
 			st.setString(1, player);
-			st.setInt(2, 0);
 			SaleAlert saleAlert;
 			rs = st.executeQuery();
 			while (rs.next()) {
@@ -393,9 +393,8 @@ public class MySQLDataQueries {
 		ResultSet rs = null;
 		try {
 			if (debugSQL) plugin.log.info("WA Query: markSaleAlertSeen " + Integer.toString(id));
-			st = conn.prepareStatement("UPDATE `" + plugin.dbPrefix + "SaleAlerts` SET `alerted` = ? WHERE `id` = ?");
-			st.setInt(1, 1);
-			st.setInt(2, id);
+			st = conn.prepareStatement("UPDATE `" + plugin.dbPrefix + "SaleAlerts` SET `alerted` = 1 WHERE `id` = ?");
+			st.setInt(1, id);
 			st.executeUpdate();
 		} catch (SQLException e) {
 			plugin.log.warning(plugin.logPrefix + "Unable to mark sale alert seen " + id);
@@ -412,7 +411,8 @@ public class MySQLDataQueries {
 		ResultSet rs = null;
 		try {
 			if (debugSQL) plugin.log.info("WA Query: getAuction " + Integer.toString(id));
-			st = conn.prepareStatement("SELECT * FROM `WA_Auctions` WHERE `id` = ?");
+			st = conn.prepareStatement("SELECT `name`,`damage`,`player`,`quantity`,`price`," +
+				"UNIX_TIMESTANP(`created`),`allowBids`,`currentBid`,`currentWinner` FROM `WA_Auctions` WHERE `id` = ?");
 			st.setInt(1, id);
 			rs = st.executeQuery();
 			while (rs.next()) {
@@ -465,9 +465,8 @@ public class MySQLDataQueries {
 			if (debugSQL) plugin.log.info("WA Query: getTotalAuctionCount");
 			st = conn.prepareStatement("SELECT COUNT(*) FROM `" + plugin.dbPrefix + "Auctions`");
 			rs = st.executeQuery();
-			while (rs.next()) {
+			if (rs.next())
 				totalAuctionCount = rs.getInt(1);
-			}
 		} catch (SQLException e) {
 			plugin.log.warning(plugin.logPrefix + "Unable to get total auction count");
 			e.printStackTrace();
@@ -484,7 +483,8 @@ public class MySQLDataQueries {
 		ResultSet rs = null;
 		try {
 			if (debugSQL) plugin.log.info("WA Query: getAuctionForOffset " + Integer.toString(offset));
-			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Auctions` ORDER BY `id` DESC LIMIT ?, 1");
+			st = conn.prepareStatement("SELECT `name`,`damage`,`player`,`quantity`,`price`,UNIX_TIMESTAMP(`created`) " +
+				"FROM `" + plugin.dbPrefix + "Auctions` ORDER BY `id` DESC LIMIT ?, 1");
 			st.setInt(1, offset);
 			rs = st.executeQuery();
 			while (rs.next()) {
@@ -591,26 +591,25 @@ public class MySQLDataQueries {
 		}
 	}
 
-	public boolean hasMail(String player) {
-		boolean exists = false;
+	public int hasMail(String player) {
+		int mailCount = 0;
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
 			if (debugSQL) plugin.log.info("WA Query: hasMail " + player);
-			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Mail` WHERE `name` = ?");
+			st = conn.prepareStatement("SELECT COUNT(*) FROM `" + plugin.dbPrefix + "Mail` WHERE `player` = ?");
 			st.setString(1, player);
 			rs = st.executeQuery();
-			while (rs.next()) {
-				exists = true;
-			}
+			if (rs.next())
+				mailCount = rs.getInt(1);
 		} catch (SQLException e) {
 			plugin.log.warning(plugin.logPrefix + "Unable to check new mail for: " + player);
 			e.printStackTrace();
 		} finally {
 			closeResources(conn, st, rs);
 		}
-		return exists;
+		return mailCount;
 	}
 
 	public AuctionPlayer getPlayer(String player) {
@@ -620,18 +619,18 @@ public class MySQLDataQueries {
 		ResultSet rs = null;
 		try {
 			if (debugSQL) plugin.log.info("WA Query: getPlayer " + player);
-			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Players` WHERE `name` = ?");
+			st = conn.prepareStatement("SELECT `id`,`name`,`money`,`canBuy`,`canSell`,`isAdmin` " +
+				"FROM `" + plugin.dbPrefix + "Players` WHERE `name` = ?");
 			st.setString(1, player);
 			rs = st.executeQuery();
 			while (rs.next()) {
 				waPlayer = new AuctionPlayer();
-				waPlayer.setId(     rs.getInt("id"));
-				waPlayer.setName(   rs.getString("name"));
-				waPlayer.setPass(   rs.getString("pass"));
-				waPlayer.setMoney(  rs.getDouble("money"));
-				waPlayer.setCanBuy( rs.getInt("canBuy")   != 0);
-				waPlayer.setCanSell(rs.getInt("canSell") != 0);
-				waPlayer.setIsAdmin(rs.getInt("isAdmin") != 0);
+				waPlayer.setId(     rs.getInt    ("id"));
+				waPlayer.setName(   rs.getString ("name"));
+				waPlayer.setMoney(  rs.getDouble ("money"));
+				waPlayer.setCanBuy( rs.getBoolean("canBuy"));
+				waPlayer.setCanSell(rs.getBoolean("canSell"));
+				waPlayer.setIsAdmin(rs.getBoolean("isAdmin"));
 			}
 		} catch (SQLException e) {
 			plugin.log.warning(plugin.logPrefix + "Unable to get player " + player);
@@ -669,20 +668,19 @@ public class MySQLDataQueries {
 		}
 	}
 
-	public void createPlayer(String player, String pass, double money, int canBuy, int canSell, int isAdmin) {
+	public void createPlayer(String player, String pass, boolean canBuy, boolean canSell, boolean isAdmin) {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
 			if (debugSQL) plugin.log.info("WA Query: createPlayer " + player);
 			st = conn.prepareStatement("INSERT INTO `" + plugin.dbPrefix + "Players` " +
-				"(`name`, `pass`, `money`, `canBuy`, `canSell`, `isAdmin`) VALUES (?, ?, ?, ?, ?, ?)");
+				"(`name`, `pass`, `canBuy`, `canSell`, `isAdmin`) VALUES (?, ?, ?, ?, ?)");
 			st.setString(1, player);
 			st.setString(2, pass);
-			st.setDouble(3, money);
-			st.setInt(4, canBuy);
-			st.setInt(5, canSell);
-			st.setInt(6, isAdmin);
+			st.setInt(3, (canBuy ?1:0));
+			st.setInt(4, (canSell?1:0));
+			st.setInt(5, (isAdmin?1:0));
 			st.executeUpdate();
 		} catch (SQLException e) {
 			plugin.log.warning(plugin.logPrefix + "Unable to update player permissions in DB");
@@ -718,7 +716,8 @@ public class MySQLDataQueries {
 		try {
 			if (debugSQL) plugin.log.info("WA Query: getItems " + player + " " +
 				Integer.toString(itemID) + ":" + Integer.toString(damage) );
-			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Items` WHERE " +
+			st = conn.prepareStatement("SELECT `id`,`name`,`damage`,`player`,`quantity` " +
+				"FROM `" + plugin.dbPrefix + "Items` WHERE " +
 				"`player` = ? AND `name` = ? AND `damage` = ? " +
 				"ORDER BY `id` " + (reverseOrder?"DESC":"ASC") );
 			st.setString(1, player);
@@ -751,15 +750,14 @@ public class MySQLDataQueries {
 		ResultSet rs = null;
 		try {
 			if (debugSQL) plugin.log.info("WA Query: getEnchantTableID " + enchantName);
-			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Enchantments` " +
-				"WHERE `enchId` = ? AND `level` = ? AND `enchName` = ?");
+			st = conn.prepareStatement("SELECT `id` FROM `" + plugin.dbPrefix + "Enchantments` " +
+				"WHERE `enchId` = ? AND `level` = ? AND `enchName` = ? LIMIT 1");
 			st.setInt(1, enchantID);
 			st.setInt(2, level);
 			st.setString(3, enchantName);
 			rs = st.executeQuery();
-			while (rs.next()) {
+			if (rs.next())
 				tableID = rs.getInt("id");
-			}
 		} catch (SQLException e) {
 			plugin.log.warning(plugin.logPrefix + "Unable to get items");
 			e.printStackTrace();
@@ -797,7 +795,7 @@ public class MySQLDataQueries {
 		try {
 			if (debugSQL) plugin.log.info("WA Query: getEnchantIDsForLinks " +
 				Integer.toString(itemID) + " " + Integer.toString(itemTableID) );
-			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "EnchantLinks` " +
+			st = conn.prepareStatement("SELECT `enchId` FROM `" + plugin.dbPrefix + "EnchantLinks` " +
 				"WHERE `itemTableId` = ? AND `itemId` = ? ORDER BY `enchId` DESC");
 			st.setInt(1, itemTableID);
 			st.setInt(2, itemID);
@@ -842,7 +840,7 @@ public class MySQLDataQueries {
 			if (debugSQL) plugin.log.info("WA Query: createItem " +
 				Integer.toString(itemID) + ":" + Integer.toString(itemDamage) );
 			st = conn.prepareStatement("INSERT INTO `" + plugin.dbPrefix + "Items` " +
-				"(`name`, `damage`, `player`, `quantity`) VALUES (?, ?, ?, ?)");
+				"(`name`, `damage`, `player`, `quantity`) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 			st.setInt(1, itemID);
 			st.setInt(2, itemDamage);
 			st.setString(3, player);
@@ -890,14 +888,13 @@ public class MySQLDataQueries {
 
 	public List<AuctionMail> getMail(String player) {
 		List<AuctionMail> auctionMails = new ArrayList<AuctionMail>();
-
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
 			if (debugSQL) plugin.log.info("WA Query: getMail " + player);
-			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Mail` WHERE `player` = ?");
+			st = conn.prepareStatement("SELECT `id`,`name`,`damage`,`player`,`quantity` " +
+				"FROM `" + plugin.dbPrefix + "Mail` WHERE `player` = ?");
 			st.setString(1, player);
 			AuctionMail auctionMail;
 			rs = st.executeQuery();
@@ -920,14 +917,12 @@ public class MySQLDataQueries {
 
 	public Map<Integer, Integer> getEnchantIDLevel(int id) {
 		Map<Integer, Integer> returnInfo = new HashMap<Integer, Integer>();
-
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
 			if (debugSQL) plugin.log.info("WA Query: getEnchantIDLevel " + Integer.toString(id) );
-			st = conn.prepareStatement("SELECT * FROM `" + plugin.dbPrefix + "Enchantments` WHERE `id` = ?");
+			st = conn.prepareStatement("SELECT `enchId`,`level` FROM `" + plugin.dbPrefix + "Enchantments` WHERE `id` = ?");
 			st.setInt(1, id);
 			rs = st.executeQuery();
 			while (rs.next()) {
@@ -942,11 +937,11 @@ public class MySQLDataQueries {
 		return returnInfo;
 	}
 
+// should change id argument to a list
 	public void deleteMail(int id) {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-
 		try {
 			if (debugSQL) plugin.log.info("WA Query: deleteMail " + Integer.toString(id) );
 			st = conn.prepareStatement("DELETE FROM `" + plugin.dbPrefix + "Mail` WHERE `id` = ?");

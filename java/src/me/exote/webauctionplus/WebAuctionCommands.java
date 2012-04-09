@@ -3,6 +3,7 @@ package me.exote.webauctionplus;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -90,29 +91,18 @@ public class WebAuctionCommands implements CommandExecutor {
 					plugin.log.info(plugin.logPrefix + "/wa password must be used by a player.");
 					return false;
 				}
-				if (args[1] != null) {
-					int canBuy = 0;
-					int canSell = 0;
-					int isAdmin = 0;
-					if (plugin.permission.has(sender, "wa.canbuy")) {
-						canBuy = 1;
-					}
-					if (plugin.permission.has(sender, "wa.cansell")) {
-						canSell = 1;
-					}
-					if (plugin.permission.has(sender, "wa.webadmin")) {
-						isAdmin = 1;
-					}
-					if (plugin.dataQueries.getPlayer(player) == null) {
-						plugin.log.info(plugin.logPrefix + "Player not found, creating account");
-						// create that person in database
-						plugin.dataQueries.createPlayer(player, "Password", 0.0D, canBuy, canSell, isAdmin);
-					}
-					String newPass = MD5(args[1]);
-					plugin.dataQueries.updatePlayerPassword(player, newPass);
-					sender.sendMessage(plugin.chatPrefix + "Password changed");
-					return true;
+				if (args[1].isEmpty()) return false;
+				boolean canBuy  = plugin.permission.has(sender, "wa.canbuy");
+				boolean canSell = plugin.permission.has(sender, "wa.cansell");
+				boolean isAdmin = plugin.permission.has(sender, "wa.webadmin");
+				if (plugin.dataQueries.getPlayer(player) == null) {
+					plugin.log.info(plugin.logPrefix + "Player not found, creating account");
+					// create that person in database
+					plugin.dataQueries.createPlayer(player, "Password", canBuy, canSell, isAdmin);
 				}
+				plugin.dataQueries.updatePlayerPassword(player, MD5(args[1]));
+				sender.sendMessage(plugin.chatPrefix + "Password changed");
+				return true;
 			}
 		}
 		return false;

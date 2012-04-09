@@ -64,9 +64,9 @@ public class WebAuctionPlayerListener implements Listener {
 		}
 
 		// Alert player of new mail
-		if (plugin.dataQueries.hasMail(player)) {
-			p.sendMessage(plugin.chatPrefix + "You have new mail!");
-		}
+		int mailCount = plugin.dataQueries.hasMail(player);
+		if (mailCount > 0)
+			p.sendMessage(plugin.chatPrefix + "You have [ " + Integer.toString(mailCount) + " ] new items in your mail!");
 
 		// Determine permissions
 		boolean canBuy  = plugin.permission.has(p, "wa.canbuy");
@@ -76,8 +76,8 @@ public class WebAuctionPlayerListener implements Listener {
 		AuctionPlayer auctionPlayer = plugin.dataQueries.getPlayer(player);
 		if (auctionPlayer != null) {
 			plugin.log.info(plugin.logPrefix + "Player found - " + player +
-				" with perms: canbuy=" + canBuy + " cansell=" +
-				canSell + " isAdmin=" + isAdmin);
+				" with perms: canbuy=" + Boolean.toString(canBuy) + " cansell=" +
+				Boolean.toString(canSell) + " isAdmin=" + Boolean.toString(isAdmin) );
 			// Update permissions
 			plugin.dataQueries.updatePlayerPermissions(player, auctionPlayer, canBuy, canSell, isAdmin);
 		}
@@ -188,8 +188,7 @@ public class WebAuctionPlayerListener implements Listener {
 		// Deposit sign (money)
 		} else if (lines[1].equals("Deposit")) {
 			if (!plugin.permission.has(p, "wa.use.deposit.money")) {
-				p.sendMessage(plugin.chatPrefix +
-					"You do not have enough money in your pocket.");
+				p.sendMessage(plugin.chatPrefix + "You do not have enough money in your pocket.");
 			} else {
 				double amount = 0.0D;
 				if (!lines[2].equals("All")) {
@@ -209,8 +208,7 @@ public class WebAuctionPlayerListener implements Listener {
 						plugin.dataQueries.updatePlayerMoney(player, currentMoney);
 						plugin.economy.withdrawPlayer(player, amount);
 					} else {
-						p.sendMessage(plugin.chatPrefix +
-							"No WebAuction account found, try logging off and back on again");
+						p.sendMessage(plugin.chatPrefix + "No WebAuction account found, try logging off and back on again");
 					}
 				}
 			}
@@ -218,8 +216,7 @@ public class WebAuctionPlayerListener implements Listener {
 		// Withdraw sign (money)
 		} else if (lines[1].equals("Withdraw")) {
 			if (!plugin.permission.has(p, "wa.use.withdraw.money")) {
-				p.sendMessage(plugin.chatPrefix +
-					"You do not have permission to withdraw money");
+				p.sendMessage(plugin.chatPrefix + "You do not have permission to withdraw money");
 				event.setCancelled(true);
 			} else {
 				double amount = 0.0D;
@@ -228,8 +225,7 @@ public class WebAuctionPlayerListener implements Listener {
 				} try {
 					AuctionPlayer auctionPlayer = plugin.dataQueries.getPlayer(player);
 					if (null == auctionPlayer) {
-						p.sendMessage(plugin.chatPrefix +
-							"No WebAuction account found, try logging off and back on again");
+						p.sendMessage(plugin.chatPrefix + "No WebAuction account found, try logging off and back on again");
 					} else {
 						// Match found!
 						double currentMoney = auctionPlayer.getMoney();
@@ -244,8 +240,7 @@ public class WebAuctionPlayerListener implements Listener {
 							plugin.dataQueries.updatePlayerMoney(player, currentMoney);
 							plugin.economy.depositPlayer(player, amount);
 						} else {
-							p.sendMessage(plugin.chatPrefix +
-								"You do not have enough money in your WebAuction account.");
+							p.sendMessage(plugin.chatPrefix + "You do not have enough money in your WebAuction account.");
 						}
 					}
 				} catch (Exception e) {
@@ -266,8 +261,7 @@ public class WebAuctionPlayerListener implements Listener {
 				ItemStack stack = p.getItemInHand();
 				int itemId = stack.getTypeId();
 				if (itemId == 0) {
-					p.sendMessage(plugin.chatPrefix +
-						"Please hold a stack of items in your hand and  right click to deposit them.");
+					p.sendMessage(plugin.chatPrefix + "Please hold a stack of items in your hand and  right click to deposit them.");
 					event.setCancelled(true);
 				} else {
 					int itemDamage = 0;
@@ -278,18 +272,21 @@ public class WebAuctionPlayerListener implements Listener {
 					int quantityInt = stack.getAmount();
 
 					List<AuctionItem> auctionItems = plugin.dataQueries.getItems(player, itemId, itemDamage, false);
-					Boolean foundMatch = false;
+					boolean foundMatch = false;
 
+					// loop players items
 					for (AuctionItem auctionItem : auctionItems) {
 						int itemTableIdNumber = auctionItem.getId();
 						List<Integer> enchantmentIds = new ArrayList<Integer>();
 						List<Integer> enchantmentIdsStoredTemp;
+						// loop enchantments on an item
 						for (Map.Entry<Enchantment, Integer> entry : itemEnchantments.entrySet()) {
 							Enchantment key = (Enchantment)entry.getKey();
 							String enchName = key.getName();
 							int enchId = key.getId();
 							int level = entry.getValue();
 
+							// create enchantment if doesn't exist
 							int enchTableId = -1;
 							while (enchTableId == -1) {
 								int dbEnchTableId = plugin.dataQueries.getEnchantTableID(enchId, level, enchName);
@@ -299,35 +296,42 @@ public class WebAuctionPlayerListener implements Listener {
 									enchTableId = dbEnchTableId;
 								}
 							}
-							//enchantmentIds.add(enchTableId);
-							// player.sendMessage(enchantmentIds.size()+" part1");
+							enchantmentIds.add(enchTableId);
 						}
 
 						Collections.sort(enchantmentIds);
 						enchantmentIdsStoredTemp = plugin.dataQueries.getEnchantIDsForLinks(itemId, 0);
 						Collections.sort(enchantmentIdsStoredTemp);
 
+						// add to existing items
 						if (enchantmentIds.equals(enchantmentIdsStoredTemp)) {
 							int currentQuantity = auctionItem.getQuantity();
 							currentQuantity += quantityInt;
 							plugin.dataQueries.updateItemQuantity(currentQuantity, itemTableIdNumber);
-							foundMatch = Boolean.valueOf(true);
+							foundMatch = true;
+							plugin.log.info(plugin.logPrefix + "Item stack stored to existing with ench: " +
+									Integer.toString(itemId) + ":" + Integer.toString(itemDamage));
 						} else if (enchantmentIds.isEmpty() && enchantmentIdsStoredTemp.isEmpty()) {
 							int currentQuantity = auctionItem.getQuantity();
 							currentQuantity += quantityInt;
 							plugin.dataQueries.updateItemQuantity(currentQuantity, itemTableIdNumber);
-							foundMatch = Boolean.valueOf(true);
+							foundMatch = true;
+							plugin.log.info(plugin.logPrefix + "Item stack stored to existing: " +
+									Integer.toString(itemId) + ":" + Integer.toString(itemDamage));
 						}
 					}
-					if (!foundMatch.booleanValue()) {
+					if (!foundMatch) {
 						// Create item
 						int itemTableId = plugin.dataQueries.createItem(itemId, itemDamage, player, quantityInt);
+						plugin.log.info(plugin.logPrefix + "Item stack stored: " +
+							Integer.toString(itemId) + ":" + Integer.toString(itemDamage));
 						int enchTableId;
 						for (Map.Entry<Enchantment, Integer> entry : itemEnchantments.entrySet()) {
 							Enchantment key = (Enchantment)entry.getKey();
 							String enchName = key.getName();
 							int enchId = key.getId();
 							Integer level = (Integer)entry.getValue();
+							plugin.log.info(plugin.logPrefix + "With enchantment: " + enchName + "  level:" + Integer.toString(level));
 							// see if already exists
 							for (enchTableId = -1; enchTableId == -1;) {
 								int dbEnchTableId = plugin.dataQueries.getEnchantTableID(enchId, level.intValue(), enchName);
@@ -340,7 +344,7 @@ public class WebAuctionPlayerListener implements Listener {
 							plugin.dataQueries.createEnchantLink(enchTableId, 0, itemTableId);
 						}
 					}
-					p.sendMessage((new StringBuilder(String.valueOf(plugin.logPrefix))).append("Item stack stored.").toString());
+					p.sendMessage(plugin.chatPrefix + "Item stack stored.");
 					p.setItemInHand(null);
 				}
 			}
@@ -348,8 +352,7 @@ public class WebAuctionPlayerListener implements Listener {
 		// MailBox Withdraw (items)
 		} else if (lines[1].equals("MailBox") && lines[2].equals("Withdraw")) {
 			if (!plugin.permission.has(p, "wa.use.withdraw.items")) {
-				p.sendMessage(plugin.chatPrefix +
-					"You do not have permission to use the mailbox");
+				p.sendMessage(plugin.chatPrefix + "You do not have permission to use the mailbox");
 				event.setCancelled(true);
 			} else {
 				try {

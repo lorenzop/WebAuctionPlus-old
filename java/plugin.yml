@@ -39,6 +39,16 @@ permissions:
             wa.announcer.receive: true
             wa.canbuy: true
             wa.cansell: true
+    wa.create.*:
+        description: Gives access to all create and remove sign permissions
+        children:
+            wa.create.sign.deposit: true
+            wa.create.sign.withdraw: true
+            wa.create.sign.mailbox.deposit: true
+            wa.create.sign.mailbox.withdraw: true
+            wa.create.sign.recent: true
+            wa.create.sign.shout: true
+            wa.remove: true
     wa.use.withdraw.items:
         description: Lets you use the mailbox
         default: true

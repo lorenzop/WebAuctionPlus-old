@@ -223,7 +223,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		Config.addDefault("Development.UseMultithreads", false);
 		Config.addDefault("Development.DebugSQL", false);
 		Config.addDefault("Announcer.Prefix", "&c[Auto] ");
-		Config.addDefault("Announcer.Random", true);
+		Config.addDefault("Announcer.Random", false);
 		Config.addDefault("Announcements", new String[]{"This is a default announcement."} );
 		Config.options().copyDefaults(true);
 		saveConfig();
