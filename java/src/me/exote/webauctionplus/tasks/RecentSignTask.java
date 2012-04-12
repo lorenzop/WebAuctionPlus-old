@@ -23,6 +23,7 @@ public class RecentSignTask implements Runnable {
 	}
 
 	public void run() {
+		if (plugin.getServer().getOnlinePlayers().length == 0) return;
 
 		List<Location> toRemove = new ArrayList<Location>();
 		List<Variable> WANames = new ArrayList<Variable>();

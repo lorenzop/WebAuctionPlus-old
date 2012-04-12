@@ -16,6 +16,8 @@ public class SaleAlertTask implements Runnable {
 	}
 
 	public void run() {
+		if (plugin.getServer().getOnlinePlayers().length == 0) return;
+
 		Player[] playerList = plugin.getServer().getOnlinePlayers();
 		for (Player player : playerList) {
 			List<SaleAlert> newSaleAlerts = plugin.dataQueries.getNewSaleAlertsForSeller(player.getName());
