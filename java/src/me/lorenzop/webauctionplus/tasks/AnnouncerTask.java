@@ -1,12 +1,20 @@
 package me.lorenzop.webauctionplus.tasks;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import me.lorenzop.webauctionplus.WebAuctionPlus;
+
 import org.bukkit.Server;
-import me.exote.webauctionplus.WebAuctionPlus;
 
 public class AnnouncerTask implements Runnable {
 
-	public int currentAnnouncement   = 0;
-	public int numberOfAnnouncements = 0;
+	private int currentAnnouncement   = 0;
+	private int numberOfAnnouncements = 0;
+
+	public boolean announceRandom = false;
+	private List<String> announcementMessages = new ArrayList<String>();
+	public String chatPrefix = "";
 
 	private final WebAuctionPlus plugin;
 
@@ -15,15 +23,16 @@ public class AnnouncerTask implements Runnable {
 	}
 
 	public void run() {
-		if (plugin.announcementMessages.isEmpty()) return;
+		if (plugin.getServer().getOnlinePlayers().length == 0) return;
+		if (announcementMessages.isEmpty()) return;
 		// random
-		if (plugin.announceRandom) {
-			currentAnnouncement = plugin.getNewRandom(currentAnnouncement, plugin.announcementMessages.size() - 1);
+		if (announceRandom) {
+			currentAnnouncement = plugin.getNewRandom(currentAnnouncement, announcementMessages.size() - 1);
 			announce(currentAnnouncement);
 		// sequential
 		} else {
-			while (currentAnnouncement > plugin.announcementMessages.size()-1) {
-				currentAnnouncement -= plugin.announcementMessages.size();
+			while (currentAnnouncement > announcementMessages.size()-1) {
+				currentAnnouncement -= announcementMessages.size();
 			}
 			announce(currentAnnouncement);
 			currentAnnouncement++;
@@ -31,10 +40,21 @@ public class AnnouncerTask implements Runnable {
 		numberOfAnnouncements++;
 	}
 
+	public void addMessages(List<String> addMsg) {
+		for (String msg : addMsg)
+			addMessages(msg);
+	}
+	public void addMessages(String addMsg) {
+		announcementMessages.add(addMsg);
+	}
+	public void clearMessages() {
+		announcementMessages.clear();
+	}
+
 	public void announce(int lineNumber){
-		if (plugin.announcementMessages.isEmpty() || lineNumber < 0) return;
+		if (announcementMessages.isEmpty() || lineNumber < 0) return;
 		plugin.log.info(plugin.logPrefix + "Announcement # " + Integer.toString(lineNumber));
-		announce(plugin.announcementMessages.get(lineNumber));
+		announce(announcementMessages.get(lineNumber));
 	}
 
 	public void announce(String line){
@@ -46,7 +66,7 @@ public class AnnouncerTask implements Runnable {
 			if (message.startsWith("/")) {
 				server.dispatchCommand(server.getConsoleSender(), message.substring(1));
 			} else if (server.getOnlinePlayers().length > 0) {
-				message = plugin.ReplaceColors(plugin.announcementPrefix + message);
+				message = plugin.ReplaceColors(chatPrefix + message);
 				server.broadcast(message, "wa.announcer.receive");
 			}
 		}

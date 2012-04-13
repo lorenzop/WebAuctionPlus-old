@@ -3,6 +3,8 @@ package me.exote.webauctionplus;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import me.lorenzop.webauctionplus.WebAuctionPlus;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -59,6 +61,8 @@ public class WebAuctionCommands implements CommandExecutor {
 				}
 				plugin.log.info(plugin.logPrefix + "Reloading..");
 				plugin.getServer().getScheduler().cancelTasks(plugin);
+				plugin.waCronExecutorTask.clearCronUrls();
+				plugin.waAnnouncerTask.clearMessages();
 				plugin.shoutSigns.clear();
 				plugin.recentSigns.clear();
 				plugin.dataQueries.forceCloseConnections();

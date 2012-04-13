@@ -1,7 +1,7 @@
 package me.exote.webauctionplus.listeners;
 
-import me.exote.webauctionplus.WebAuctionPlus;
-import me.exote.webauctionplus.dao.Auction;
+import me.lorenzop.webauctionplus.WebAuctionPlus;
+import me.lorenzop.webauctionplus.dao.Auction;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;

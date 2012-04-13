@@ -3,8 +3,8 @@ package me.exote.webauctionplus.tasks;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.exote.webauctionplus.WebAuctionPlus;
-import me.exote.webauctionplus.dao.Auction;
+import me.lorenzop.webauctionplus.WebAuctionPlus;
+import me.lorenzop.webauctionplus.dao.Auction;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

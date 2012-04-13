@@ -2,8 +2,8 @@ package me.exote.webauctionplus.tasks;
 
 import java.util.List;
 
-import me.exote.webauctionplus.WebAuctionPlus;
-import me.exote.webauctionplus.dao.SaleAlert;
+import me.lorenzop.webauctionplus.WebAuctionPlus;
+import me.lorenzop.webauctionplus.dao.SaleAlert;
 
 import org.bukkit.entity.Player;
 
@@ -24,9 +24,9 @@ public class SaleAlertTask implements Runnable {
 			for (SaleAlert saleAlert : newSaleAlerts) {
 				String formattedPrice = plugin.economy.format(saleAlert.getPriceEach());
 				player.sendMessage(plugin.chatPrefix + "You sold " +
-					saleAlert.getQuantity() + " " + saleAlert.getItem() +
-					" to " + saleAlert.getBuyer() + " for " + formattedPrice + " each.");
-				plugin.dataQueries.markSaleAlertSeen(saleAlert.getId());
+					saleAlert.getQty() + " " + saleAlert.getItemName() +
+					" to " + saleAlert.getBuyerName() + " for " + formattedPrice + " each.");
+				plugin.dataQueries.markSaleAlertSeen(saleAlert.getAlertId());
 			}
 		}
 	}

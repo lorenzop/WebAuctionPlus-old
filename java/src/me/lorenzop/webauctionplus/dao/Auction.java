@@ -1,81 +1,81 @@
-package me.exote.webauctionplus.dao;
+package me.lorenzop.webauctionplus.dao;
 
 import org.bukkit.inventory.ItemStack;
 
 public class Auction {
 
-	private int id;
-	private ItemStack itemStack;
-	private String playerName;
-	private double price;
-//	private int created;
-	private Boolean allowBids;
-	private Double currentBid;
-	private String currentWinner;
+	private int AuctionId		= 0;
+	private ItemStack stack		= null;
+	private String player		= null;
+	private double price		= 0D;
+//	private long created		= 0;
+	private Boolean allowBids	= false;
+	private Double currentBid	= 0D;
+	private String currentWinner= null;
 
 	public Auction() {
 	}
 
-	public int getId() {
-		return id;
+	// auction id
+	public int getAuctionId() {
+		return AuctionId;
+	}
+	public void setAuctionId(int AuctionId) {
+		this.AuctionId = AuctionId;
 	}
 
-	public void setId(int id) {
-		this.id = id;
-	}
-
+	// item stack
 	public ItemStack getItemStack() {
-		return itemStack;
+		return stack;
+	}
+	public void setItemStack(ItemStack stack) {
+		this.stack = stack;
 	}
 
-	public void setItemStack(ItemStack itemStack) {
-		this.itemStack = itemStack;
-	}
-
+	// player name
 	public String getPlayerName() {
-		return playerName;
+		return player;
+	}
+	public void setPlayerName(String player) {
+		this.player = player;
 	}
 
-	public void setPlayerName(String playerName) {
-		this.playerName = playerName;
-	}
-
+	// price
 	public double getPrice() {
 		return price;
 	}
-
 	public void setPrice(double price) {
 		this.price = price;
 	}
 
-//	public int getCreated() {
+//	// created timestamp
+//	public long getCreated() {
 //		return created;
 //	}
-
-//	public void setCreated(int created) {
+//	public void setCreated(long created) {
 //		this.created = created;
 //	}
 
+	// allow bids ?
 	public Boolean getAllowBids() {
 		return allowBids;
 	}
-
 	public void setAllowBids(Boolean bid) {
 		this.allowBids = bid;
 	}
 
+	// current bid ?
 	public Double getCurrentBid() {
 		return currentBid;
 	}
-
 	public void setCurrentBid(Double bid) {
 		this.currentBid = bid;
 	}
 
+	// current winner ?
 	public String getCurrentWinner() {
 		return currentWinner;
 	}
-
 	public void setCurrentWinner(String player) {
 		this.currentWinner = player;
 	}

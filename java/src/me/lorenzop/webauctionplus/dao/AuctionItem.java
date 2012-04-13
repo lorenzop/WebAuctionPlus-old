@@ -1,54 +1,54 @@
-package me.exote.webauctionplus.dao;
+package me.lorenzop.webauctionplus.dao;
 
 public class AuctionItem {
 
-	private int id;
-	private int name;
-	private int damage;
-	private String playerName;
-	private int quantity;
+	private int itemId		= 0;
+	private int typeId		= 0;
+	private int damage		= 0;
+	private String player	= null;
+	private int qty			= 0;
 
 	public AuctionItem() {
 	}
 
-	public int getId() {
-		return id;
+	// db item id
+	public int getItemId() {
+		return itemId;
+	}
+	public void setItemId(int itemId) {
+		this.itemId = itemId;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	// item type id
+	public int getTypeId() {
+		return typeId;
+	}
+	public void setTypeId(int typeId) {
+		this.typeId = typeId;
 	}
 
-	public int getName() {
-		return name;
-	}
-
-	public void setName(int name) {
-		this.name = name;
-	}
-
+	// damage
 	public int getDamage() {
 		return damage;
 	}
-
 	public void setDamage(int damage) {
 		this.damage = damage;
 	}
 
+	// player name
 	public String getPlayerName() {
-		return playerName;
+		return player;
+	}
+	public void setPlayerName(String player) {
+		this.player = player;
 	}
 
-	public void setPlayerName(String playerName) {
-		this.playerName = playerName;
+	// quantity
+	public int getQty() {
+		return qty;
 	}
-
-	public int getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
+	public void setQty(int qty) {
+		this.qty = qty;
 	}
 
 }

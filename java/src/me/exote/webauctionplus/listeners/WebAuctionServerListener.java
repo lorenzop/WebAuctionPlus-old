@@ -1,6 +1,6 @@
 package me.exote.webauctionplus.listeners;
 
-import me.exote.webauctionplus.WebAuctionPlus;
+import me.lorenzop.webauctionplus.WebAuctionPlus;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
