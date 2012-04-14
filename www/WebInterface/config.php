@@ -39,11 +39,8 @@ $currencyPrefix = '$ '; //appears in front of cost values eg. "$" would make $10
 $currencyPostfix = ''; //appears after the cost values eg. "Pounds" would make 10 Pounds
 
 // iConomy config
-// uncomment one 'use'
-//$config['iConomy']['use'] = true;     // you you have iConomy data in another table in the same database?
-$config['iConomy']['use']   ='auto';
-//$config['iConomy']['use'] = false;
-$config['iConomy']['table'] ='iConomy'; // "iConomy" is the default table name when using MySQL with iConomy
+$config['iConomy']['use']   = 'auto';    // ( true / false / 'auto' )  you you have iConomy data in another table in the same database?
+$config['iConomy']['table'] = 'iConomy'; // "iConomy" is the default table name when using MySQL with iConomy
 
 // Mail config
 $sendPurchaceToMail = false; //if false send to my items, if true add to mail

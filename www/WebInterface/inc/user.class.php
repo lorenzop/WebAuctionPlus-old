@@ -2,30 +2,35 @@
 class userClass{
 
 protected $UserId        = 0;
-protected $UserName      = '';
-protected $numMail       = 0;
-protected $Money         = 0.0;
-protected $ItemsSold     = 0;
-protected $ItemsBought   = 0;
-protected $Earnt         = 0.0;
-protected $Spent         = 0.0;
-protected $CanBuy        = false;
-protected $CanSell       = false;
-protected $Admin         = false;
+protected $Name          = '';
+public    $numMail       = 0;
+public    $Money         = 0.0;
+public    $ItemsSold     = 0;
+public    $ItemsBought   = 0;
+public    $Earnt         = 0.0;
+public    $Spent         = 0.0;
+protected $permissions   = array();
 
-public function __construct(){global $config;
+public function __construct($username=NULL, $password=NULL){global $config;
+  $loginUrl = './?page=login';
   session_start();
-  if(!isset($_SESSION[$config['session name']])) ForwardTo('login.php');
-  $UserName = $_SESSION[$config['session name']];
-
-
-  if($UserName!='') $this->UserName=$UserName;
-  unset($UserName);
+  $query = '';
+  if($username===NULL || password===NULL){
+    if(isset($_SESSION[$config['session name']])){
+      $this->Name = trim($_SESSION[$config['session name']]);
+      $query = "WHERE `name`='".mysql_san($this->Name)."'";
+    }
+  }else{
+    $query = "WHERE `name`='".   mysql_san($username)."'".
+             " AND `password`='".mysql_san($password)."'";
+  }
+  if($this->Name=='') ForwardTo($loginUrl);
   // validate player
-  $result=RunQuery("SELECT `id`,`money`,`itemsSold`,`itemsBought`,`earnt`,`spent`,`canBuy`,`canSell`,`isAdmin` ".
-                   "FROM `".$config['table prefix']."Players` WHERE ".
-                   "`name`='".mysql_san($UserName)."'", __file__, __line__);
+  $query="SELECT `id`,`money`,`itemsSold`,`itemsBought`,`earnt`,`spent`,`permissions` ".
+                   "FROM `".$config['table prefix']."Players` ".$query;
+  $result=RunQuery($query, __file__, __line__);
   if($result){
+    if(mysql_num_rows($result)==0) ForwardTo($loginUrl);
     $row=mysql_fetch_assoc($result);
     $this->UserId      = ((int)    $row['id']         );
     $this->Money       = ((double) $row['money']      );
@@ -33,18 +38,26 @@ public function __construct(){global $config;
     $this->ItemsBought = ((int)    $row['itemsBought']);
     $this->Earnt       = ((double) $row['earnt']      );
     $this->Spent       = ((double) $row['spent']      );
+    foreach(explode(',',$row['permissions']) as $perm){
+      $permissions[$perm] = TRUE;
+    }
     $this->CanBuy      = ((boolean)$row['canBuy']     );
     $this->CanSell     = ((boolean)$row['canSell']    );
     $this->Admin       = ((boolean)$row['isAdmin']    );
+    // get mail count
+    $result=RunQyery("SELECT COUNT(*) AS `count` FROM `".$config['table prefix']."Mail` WHERE `name`='".mysql_san($this->Name)."'");
+    $row=mysql_fetch_assoc($result);
+    $this->numMail = ((int)$row['count']);
   }else{
-    echo mysql_error($db);
+    $_SESSION[$config['session name']] = '';
+    echo 'Error: '.mysql_error($db);
     exit();
   }
   // use iconomy table
   if ($config['iConomy']['use']===true || $config['iConomy']['use']==='auto'){
     global $db;
     $result=mysql_query("SELECT `balance` FROM `".mysql_san($config['iConomy']['table'])."` WHERE ".
-                        "`username`='".mysql_san($this->UserName)."' LIMIT 1", $db);
+                        "`playername`='".mysql_san($this->Name)."' LIMIT 1", $db);
     if($result){
       $row=mysql_fetch_assoc($result);
       $this->Money=((double)$row['balance']);
@@ -58,12 +71,36 @@ public function __construct(){global $config;
   }
 }
 
-// money
-public function getMoney(){
-  if($this->Money==0 && !$this->QueriedPlayer) $this->QueryPlayer();
-  return($this->Money);
+// user id
+public function getUserId(){
+  return(UserId);
 }
-// money actions
+
+// player name
+public function getName(){
+  return($Name);
+}
+
+// permissions
+public function hasPerms($perms){
+  if(empty($perms)) return(false);
+  if(is_array($perms)){
+    $hasPerms = true;
+    foreach($perms as $perm){
+      if($this->hasPerms($perm)) $hasPerms = false;
+    }
+    return($hasPerms);
+  }
+  return((boolean)@$permissions[$perms]);
+}
+
+
+
+
+
+
+
+// money
 public function saveMoney($useMySQLiConomy, $iConTableName){
 //  if ($useMySQLiConomy){
 //    $query = mysql_query("UPDATE `".mysql_san($iConTableName)."` SET ".
@@ -74,12 +111,12 @@ public function saveMoney($useMySQLiConomy, $iConTableName){
 //  }else{
 //    $query = mysql_query("UPDATE `".$config['table prefix']."Players` SET ".
 //                         "`money`=".((double)$this->money)." WHERE ".
-//                         "`name`='".mysql_san($this->UserName)."' LIMIT 1");
+//                         "`name`='".mysql_san($this->Name)."' LIMIT 1");
 //  }
 //  if ($useMySQLiConomy){
-//    $query = mysql_query("UPDATE $iConTableName SET balance='$this->money' WHERE username='$this->name'");
+//    $query = mysql_query("UPDATE $iConTableName SET balance='$this->money' WHERE playername='$this->Name'");
 //  }else{
-//    $query = mysql_query("UPDATE WA_Players SET money='$this->money' WHERE name='$this->name'");
+//    $query = mysql_query("UPDATE WA_Players SET money='$this->money' WHERE name='$this->Name'");
 //  }
 }
 public function spend($amount, $useMySQLiConomy, $iConTableName){

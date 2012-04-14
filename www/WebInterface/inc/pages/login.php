@@ -1,36 +1,43 @@
-<?php
-	require 'scripts/config.php';
-	require 'scripts/updateTables.php';
+<?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
+
+
+// check login
+$username = trim(stripslashes( getVar('WA_Login_Username') ));
+$password =      stripslashes( getVar('WA_Login_Password') );
+$user = NULL;
+if(!empty($username) && !empty($password)){
+  $user = new userClass($username,md5($password));
+  if($user!==NULL){
+    $_SESSION[$config['session name']] = $user->getName();
+    $lastpage = getVar('lastpage');
+    if(empty($lastpage)) ForwardTo('./');
+    else                 ForwardTo($lastpage);
+    exit();
+  }
+}
+unset($username,$password);
+
+
+
+
+$config['title'] = 'Login';
+echo '<body>'."\n".
+     '<div id="holder">'."\n".
+     '<h1>Web Auction</h1>'."\n".
+     '<p>&nbsp;</p>'."\n".
+     '<div id="login-box">'."\n".
+     '  <h2>Login</h2>'."\n".
+     '  <p style="color:red">'."\n";
+if(isset($_GET['error']))
+  if($_GET['error']==1)
+    echo 'Login Failed.';
+echo '  </p>'."\n".
+     '  <form action="scripts/login-script.php" method="post" name="login">'."\n".
+     '    <label>Username</label><input name="WA_Login_Username" type="text" class="input" size="30" /><br />'."\n".
+     '    <label>Password</label><input name="WA_Login_Password" type="password" class="input" size="30" /><br />'."\n".
+     '    <label>&nbsp;</label><input name="Submit" type="submit" class="button" />'."\n".
+     '  </form>'."\n".
+     '</div>'."\n".
+     '</div>'."\n";
+
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="css/<?php echo $cssFile?>.css" />
-    <title>WebAuction - Login</title>
-    <link rel="icon" type="image/png" href="images/favicon.ico" />
-  </head>
-  <body>
-    <div id="holder">
-      <h1>Web Auction</h1>
-      <p>&nbsp;</p>
-      <div id="login-box">
-        <h2>Login</h2>
-        <p style="color:red">
-<?php
-	if(isset($_GET['error'])) {
-		if($_GET['error']==1){
-			echo "Login Failed.";
-		}
-	}
-?>
-        </p>
-        <form action="scripts/login-script.php" method="post" name="login">
-          <label>Username</label><input name="Username" type="text" class="input" size="30" /><br />
-          <label>Password</label><input name="Password" type="password" class="input" size="30" /><br />
-          <label>&nbsp;</label><input name="Submit" type="submit" class="button" />
-        </form>
-      </div>
-    </div>
-  </body>
-</html>

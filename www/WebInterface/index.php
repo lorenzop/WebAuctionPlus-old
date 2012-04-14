@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ALL | E_STRICT);
 define('DEFINE_INDEX_FILE',TRUE);
 
 // get,post,cookie (highest priority last)
@@ -21,30 +22,104 @@ function getVar($name,$type='',$order=array('get','post')){$output='';
 
 // set defaults
 $config=array(
-  'table prefix'     => 'WA_',
-  'iConomy']['use']   = 'auto',
-  'iConomy']['Table'] = 'iConomy',
-  'session name']     = 'WebAuctionPlus User',
-  
+  'page'         => '',
+  'paths' => array(
+    'local' => array(),
+    'html'  => array()
+  ),
+  'title'        => '',
+  'theme'        => 'default',
+  'table prefix' => 'WA_',
+  'iConomy' => array(
+    'use'        => 'auto',
+    'Table'      => 'iConomy',
+  ),
+  'session name' => 'WebAuctionPlus User',
 );
+$page   = &$config['page'];
+$lpaths = &$paths['local'];
+$wpaths = &$paths['http'];
+$user   = &$config['user'];
+// local paths
+$lpaths['config']   = 'config.php';
+$lpaths['includes'] = 'inc/';
+$lpaths['classes']  = 'inc/';
+$lpaths['pages']    = 'inc/pages/';
+$lpaths['theme']    = 'inc/html/{theme}/';
+// http paths
+$wpaths['images']   = 'images/';
 // load config
-require('config.php');
+require($lpaths['config']);
 // includes
-require('inc/inc.php');
-require('inc/html.php');
+require($lpaths['includes'].'inc.php');
+require($lpaths['includes'].'html.php');
+
+$page_outputs=array(
+  'header'=>'',
+  'css'=>'',
+  'body'=>'',
+  'footer'=>''
+);
+$page=getVar('page');
+if(empty($page)){$page='home';}
 
 // init login system
-include('inc/user.class.php');
-$user = new userClass();
+include($lpaths['classes'].'user.class.php');
+if($page!='login')
+  $user = new userClass();
 
 
-echo $user->getMoney();
-exit();
+// render page content
+$page_outputs['body'] = include($lpaths['pages'].SanFilename($page).'.php');
+if    ($page_outputs['body'] === TRUE ) $page_outputs['body']='';
+elseif($page_outputs['body'] === FALSE) $page_outputs['body']='Page render returned FALSE';
 
-require('scripts/itemInfo.php');
-//require('classes/EconAccount.php');
-require('scripts/updateTables.php');
 
-include('inc/pages/auctions.php');
+
+// page header
+$page_outputs['header'].=
+  '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">'."\n".
+  '<html>'."\n".
+  '<head>'."\n".
+  '  <meta http-equiv="content-type" content="text/html; charset=utf-8" />'."\n".
+  '  <title>WebAuction</title>'."\n".
+  '  <link rel="icon" type="image/x-icon" href="images/favicon.ico" />'."\n".
+  '  <style type="text/css" title="currentStyle">'."\n".
+  '  </style>'."\n".
+// css
+loadCss('main.css');
+loadCss('table_jui.css');
+loadCss($uiPack.'/jquery-ui-1.8.18.custom.css');
+loadCss('jquery-ui-1.8.16.custom.css');
+loadCss($cssFile.'.css');
+$outputs['header'].='<style type="text/css">'."\n".
+                    $outputs['css']."\n".
+                    "</style>\n";
+// finish header
+$page_outputs['header'].=
+  '  <script type="text/javascript" language="javascript" src="js/jquery-1.7.2.min.js"></script>'."\n".
+  '  <script type="text/javascript" language="javascript" src="js/jquery.dataTables-1.9.0.min.js"></script>'."\n".
+  '  <script type="text/javascript" language="javascript" src="js/inputfunc.js"></script>'."\n".
+  '  <script type="text/javascript" charset="utf-8">'."\n".
+  '    $(document).ready(function() {'."\n".
+  '      oTable = $(\'#mainTable\').dataTable({'."\n".
+//  '        "bProcessing"     : true,'."\n".
+  '        "bJQueryUI": true,'."\n".
+//  '        "bStateSave"      : true,'."\n".
+  '        "sPaginationType": "full_numbers"'."\n".
+//  '        "sAjaxSource"     : "scripts/server_processing.php"'."\n".
+  '      });'."\n".
+  '    } );'."\n".
+  '  </script>'."\n".
+  '</head>'."\n";
+
+
+//<body>
+
+
+
+
+
+
 
 ?>

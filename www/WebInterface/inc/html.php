@@ -50,13 +50,13 @@ function RenderTags(&$html){global $config,$tags;
 
 
 // load a .css file
-function loadCss($file){global $config,$paths,$outputs;
+function loadCss($file){global $config,$paths,$page_outputs;
   $file=SanFilename($file);
   if(substr($file,-4)!='.css'){$file.='.css';}
   // default theme
-  $file2=str_replace('{theme}',$config['theme'],$paths['theme']).$file;
+  $file2=str_replace('{theme}',$config['local']['theme'],$paths['theme']).$file;
   if(file_exists($file2)){
-    $outputs['css'].="\n".file_get_contents($file2)."\n";
+    $page_outputs['css'].="\n".file_get_contents($file2)."\n";
     return;
   }
   echo '<p>File not found: '.$file."</p>\n";
