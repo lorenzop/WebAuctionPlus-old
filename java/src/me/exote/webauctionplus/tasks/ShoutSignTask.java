@@ -21,7 +21,7 @@ public class ShoutSignTask implements Runnable {
 
 		// Get current auction ID
 		lastAuction = plugin.dataQueries.getMaxAuctionID();
-		plugin.log.info(plugin.logPrefix + "Current Auction id = " + lastAuction);
+		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Current Auction id = " + lastAuction);
 	}
 
 	public void run() {
@@ -41,12 +41,12 @@ public class ShoutSignTask implements Runnable {
 			ItemStack stack = latestAuction.getItemStack();
 			String formattedPrice = plugin.economy.format(latestAuction.getPrice());
 
-			plugin.log.info(
-				plugin.logPrefix + "New Auction: " +
+			WebAuctionPlus.log.info(
+				WebAuctionPlus.logPrefix + "New Auction: " +
 				stack.getAmount() + " " + stack.getType() + " selling for " +
 				formattedPrice + " each.");
 			String message =
-				plugin.chatPrefix + "New Auction: " +
+				WebAuctionPlus.chatPrefix + "New Auction: " +
 				stack.getAmount() + " " + stack.getType() + " selling for " +
 				formattedPrice + " each.";
 
@@ -75,7 +75,7 @@ public class ShoutSignTask implements Runnable {
 		for (Location signLoc : toRemove) {
 			plugin.shoutSigns.remove(signLoc);
 			plugin.dataQueries.removeShoutSign(signLoc);
-			plugin.log.info(plugin.logPrefix + "Removed invalid sign at location: " + signLoc);
+			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Removed invalid sign at location: " + signLoc);
 		}
 	}
 

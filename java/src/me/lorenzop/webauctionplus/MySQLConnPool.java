@@ -24,8 +24,8 @@ public class MySQLConnPool {
 	private List<Boolean> inuse = new ArrayList<Boolean> (4);
 	private List<Connection> connections = new ArrayList<Connection> (4);
 
-	public Logger log = Logger.getLogger("Minecraft");
-	public String logPrefix = "";
+	public static Logger log = Logger.getLogger("Minecraft");
+	public static String logPrefix = "";
 
 	public Connection getConnection() {
 		synchronized (inuse) {
@@ -111,6 +111,12 @@ public class MySQLConnPool {
 				connections.get(i).close();
 			} catch (SQLException e) {}
 		}
+	}
+
+	public String addStringSet(String baseString, String addThis, String Delim) {
+		if (addThis.isEmpty())    return baseString;
+		if (baseString.isEmpty()) return addThis;
+		return baseString + Delim + addThis;
 	}
 
 	public void executeRawSQL(String sql) {

@@ -29,11 +29,11 @@ public class WebAuctionBlockListener implements Listener {
 		if (block.getTypeId() == 63 || block.getTypeId() == 68) {
 			Sign thisSign = (Sign) block.getState();
 			if (thisSign.getLine(0).equals("[WebAuction+]")) {
-				if (!plugin.permission.has(player, "wa.remove")) {
+				if (!player.hasPermission("wa.remove")) {
 					event.setCancelled(true);
-					player.sendMessage(plugin.chatPrefix + "You do not have permission to remove that");
+					player.sendMessage(WebAuctionPlus.chatPrefix + "You do not have permission to remove that");
 				} else {
-					player.sendMessage(plugin.chatPrefix + "WebAuction sign removed.");
+					player.sendMessage(WebAuctionPlus.chatPrefix + "WebAuction sign removed.");
 				}
 			}
 		}
@@ -59,9 +59,9 @@ public class WebAuctionBlockListener implements Listener {
 
 		// Shout sign
 		if (lines[1].equalsIgnoreCase("Shout")) {
-			if (plugin.permission.has(player, "wa.create.sign.shout")) {
+			if (player.hasPermission("wa.create.sign.shout")) {
 				allowEvent = true;
-				player.sendMessage(plugin.chatPrefix + "Shout sign created.");
+				player.sendMessage(WebAuctionPlus.chatPrefix + "Shout sign created.");
 				if (!lines[1].equals("Shout")) {
 					event.setLine(1, "Shout");
 				}
@@ -79,9 +79,9 @@ public class WebAuctionBlockListener implements Listener {
 
 		// Recent sign
 		if (lines[1].equalsIgnoreCase("Recent")) {
-			if (plugin.permission.has(player, "wa.create.sign.recent")) {
+			if (player.hasPermission("wa.create.sign.recent")) {
 				allowEvent = true;
-				player.sendMessage(plugin.chatPrefix + "Recent auction sign created.");
+				player.sendMessage(WebAuctionPlus.chatPrefix + "Recent auction sign created.");
 				// line 2: recent offset
 				int offset = 1;
 				try {
@@ -113,9 +113,9 @@ public class WebAuctionBlockListener implements Listener {
 
 		// Deposit sign (money)
 		if (lines[1].equalsIgnoreCase("Deposit")) {
-			if (plugin.permission.has(player, "wa.create.sign.deposit")) {
+			if (player.hasPermission("wa.create.sign.deposit")) {
 				allowEvent = true;
-				player.sendMessage(plugin.chatPrefix + "Deposit point created");
+				player.sendMessage(WebAuctionPlus.chatPrefix + "Deposit point created");
 				if (!lines[1].equals("Deposit")) {
 					event.setLine(1, "Deposit");
 				}
@@ -124,9 +124,9 @@ public class WebAuctionBlockListener implements Listener {
 
 		// Withdraw sign (money)
 		if (lines[1].equalsIgnoreCase("Withdraw")) {
-			if (plugin.permission.has(player, "wa.create.sign.withdraw")) {
+			if (player.hasPermission("wa.create.sign.withdraw")) {
 				allowEvent = true;
-				player.sendMessage(plugin.chatPrefix + "Withdraw point created");
+				player.sendMessage(WebAuctionPlus.chatPrefix + "Withdraw point created");
 				if (!lines[1].equals("Withdraw")) {
 					event.setLine(1,"Withdraw");
 				}
@@ -142,9 +142,9 @@ public class WebAuctionBlockListener implements Listener {
 			}
 			// Deposit sign (items)
 			if (lines[2].equalsIgnoreCase("Deposit")) {
-				if (plugin.permission.has(player, "wa.create.sign.mailbox.deposit")) {
+				if (player.hasPermission("wa.create.sign.mailbox.deposit")) {
 					allowEvent = true;
-					player.sendMessage(plugin.chatPrefix + "Deposit Mail Box created");
+					player.sendMessage(WebAuctionPlus.chatPrefix + "Deposit Mail Box created");
 					if (!lines[2].equals("Deposit")) {
 						event.setLine(2, "Deposit");
 					}
@@ -152,9 +152,9 @@ public class WebAuctionBlockListener implements Listener {
 			} else
 			// Withdraw sign (items)
 			if (lines[2].equalsIgnoreCase("Withdraw")) {
-				if (plugin.permission.has(player, "wa.create.sign.mailbox.withdraw")) {
+				if (player.hasPermission("wa.create.sign.mailbox.withdraw")) {
 					allowEvent = true;
-					player.sendMessage(plugin.chatPrefix + "Withdraw Mail Box created");
+					player.sendMessage(WebAuctionPlus.chatPrefix + "Withdraw Mail Box created");
 					if (!lines[2].equals("Withdraw")) {
 						event.setLine(2, "Withdraw");
 					}
@@ -167,7 +167,7 @@ public class WebAuctionBlockListener implements Listener {
 			sign.setTypeId(0);
 			ItemStack stack = new ItemStack(323, 1);
 			player.getInventory().addItem(stack);
-			player.sendMessage(plugin.chatPrefix + "You do not have permission");
+			player.sendMessage(WebAuctionPlus.chatPrefix + "You do not have permission");
 		}
 	}
 

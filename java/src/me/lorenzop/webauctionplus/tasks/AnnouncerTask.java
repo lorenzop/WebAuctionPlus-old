@@ -27,7 +27,7 @@ public class AnnouncerTask implements Runnable {
 		if (announcementMessages.isEmpty()) return;
 		// random
 		if (announceRandom) {
-			currentAnnouncement = plugin.getNewRandom(currentAnnouncement, announcementMessages.size() - 1);
+			currentAnnouncement = WebAuctionPlus.getNewRandom(currentAnnouncement, announcementMessages.size() - 1);
 			announce(currentAnnouncement);
 		// sequential
 		} else {
@@ -53,7 +53,7 @@ public class AnnouncerTask implements Runnable {
 
 	public void announce(int lineNumber){
 		if (announcementMessages.isEmpty() || lineNumber < 0) return;
-		plugin.log.info(plugin.logPrefix + "Announcement # " + Integer.toString(lineNumber));
+		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Announcement # " + Integer.toString(lineNumber));
 		announce(announcementMessages.get(lineNumber));
 	}
 
@@ -66,7 +66,7 @@ public class AnnouncerTask implements Runnable {
 			if (message.startsWith("/")) {
 				server.dispatchCommand(server.getConsoleSender(), message.substring(1));
 			} else if (server.getOnlinePlayers().length > 0) {
-				message = plugin.ReplaceColors(chatPrefix + message);
+				message = WebAuctionPlus.ReplaceColors(chatPrefix + message);
 				server.broadcast(message, "wa.announcer.receive");
 			}
 		}

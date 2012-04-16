@@ -23,7 +23,7 @@ public class SaleAlertTask implements Runnable {
 			List<SaleAlert> newSaleAlerts = plugin.dataQueries.getNewSaleAlertsForSeller(player.getName());
 			for (SaleAlert saleAlert : newSaleAlerts) {
 				String formattedPrice = plugin.economy.format(saleAlert.getPriceEach());
-				player.sendMessage(plugin.chatPrefix + "You sold " +
+				player.sendMessage(WebAuctionPlus.chatPrefix + "You sold " +
 					saleAlert.getQty() + " " + saleAlert.getItemName() +
 					" to " + saleAlert.getBuyerName() + " for " + formattedPrice + " each.");
 				plugin.dataQueries.markSaleAlertSeen(saleAlert.getAlertId());

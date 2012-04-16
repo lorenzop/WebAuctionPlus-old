@@ -7,7 +7,7 @@ softdepend: [SignLink]
 commands:
   wa:
     description: WebAuctionPlus
-    usage: Use "/wa password [password]" to set your password, then log into the WebAuction on the website."
+    usage: Use "/wa password [apassword]" to set your password, then log into the WebAuction on the website."
 permissions:
     wa.*:
         description: Gives access to all WebAuction commands

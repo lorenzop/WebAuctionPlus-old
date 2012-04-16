@@ -1,11 +1,12 @@
 package me.exote.webauctionplus.listeners;
 
 import me.lorenzop.webauctionplus.WebAuctionPlus;
-
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
 public class WebAuctionServerListener implements Listener {
 	private WebAuctionPlus plugin;
@@ -16,15 +17,23 @@ public class WebAuctionServerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPluginEnable(PluginEnableEvent event) {
-		if (plugin.economy != null) {
-			if (plugin.economy.isEnabled()) {
-				plugin.log.info(plugin.logPrefix + "Payment method enabled: " + plugin.economy.getName());
+//		// setup permissions
+//		if (plugin.permission == null) {
+//			RegisteredServiceProvider<Permission> permissionProvider = plugin.getServer().getServicesManager().getRegistration(Permission.class);
+//			if (permissionProvider != null) {
+//				plugin.permission = (Permission)permissionProvider.getProvider();
+//				plugin.log.info(plugin.logPrefix + "Permission method enabled: " + plugin.permission.getName());
+//			}
+//			return;
+//		}
+		// setup economy
+		if (plugin.economy == null) {
+			RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+			if (economyProvider != null) {
+				plugin.economy = (Economy)economyProvider.getProvider();
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Payment method enabled: " + plugin.economy.getName());
 			}
-		}
-		if (plugin.permission != null) {
-			if (plugin.permission.isEnabled()) {
-				plugin.log.info(plugin.logPrefix + "Permission method enabled: " + plugin.permission.getName());
-			}
+			return;
 		}
 	}
 

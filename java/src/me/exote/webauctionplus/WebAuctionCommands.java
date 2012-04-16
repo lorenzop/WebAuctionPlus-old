@@ -1,9 +1,7 @@
 package me.exote.webauctionplus;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import me.lorenzop.webauctionplus.WebAuctionPlus;
+import me.lorenzop.webauctionplus.dao.AuctionPlayer;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -17,26 +15,6 @@ public class WebAuctionCommands implements CommandExecutor {
 
 	public WebAuctionCommands(WebAuctionPlus plugin) {
 		this.plugin = plugin;
-	}
-
-	public static String MD5(String str) {
-		MessageDigest md = null;
-		try {
-			md = MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-		md.update(str.getBytes());
-		byte[] byteData = md.digest();
-		StringBuffer hexString = new StringBuffer();
-		for (int i = 0; i < byteData.length; i++) {
-			String hex = Integer.toHexString(0xFF & byteData[i]);
-			if (hex.length() == 1) {
-				hexString.append('0');
-			}
-			hexString.append(hex);
-		}
-		return hexString.toString();
 	}
 
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -54,12 +32,12 @@ public class WebAuctionCommands implements CommandExecutor {
 			if (args[0].equalsIgnoreCase("reload")){
 				if (sender instanceof Player) {
 					if (!sender.hasPermission("wa.reload")){
-						((Player)sender).sendMessage(plugin.chatPrefix + "You do not have permission");
+						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + "You do not have permission");
 						return false;
 					}
-					((Player)sender).sendMessage(plugin.chatPrefix + "Reloading..");
+					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + "Reloading..");
 				}
-				plugin.log.info(plugin.logPrefix + "Reloading..");
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Reloading..");
 				plugin.getServer().getScheduler().cancelTasks(plugin);
 				plugin.waCronExecutorTask.clearCronUrls();
 				plugin.waAnnouncerTask.clearMessages();
@@ -68,44 +46,67 @@ public class WebAuctionCommands implements CommandExecutor {
 				plugin.dataQueries.forceCloseConnections();
 				plugin.reloadConfig();
 				plugin.onLoadConfig();
-				plugin.log.info(plugin.logPrefix + "Finished reloading");
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Finished reloading");
 				if (sender instanceof Player)
-					((Player)sender).sendMessage(plugin.chatPrefix + "Reloaded");
+					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + "Reloaded");
 				return true;
 			// save config
 			} else if (args[0].equalsIgnoreCase("save")){
 				if (sender instanceof Player) {
 					if (!sender.hasPermission("wa.save")){
-						((Player)sender).sendMessage(plugin.chatPrefix + "You do not have permission");
+						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + "You do not have permission");
 						return false;
 					}
 				}
-				plugin.log.info(plugin.logPrefix + "Saving config..");
-				plugin.log.info(plugin.logPrefix + ChatColor.RED + "This feature is incomplete");
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Saving config..");
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + ChatColor.RED + "This feature is incomplete");
 				plugin.saveConfig();
 				if (sender instanceof Player)
-					((Player)sender).sendMessage(plugin.chatPrefix + "Config Saved");
+					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + "Config Saved");
 			}
 			return false;
 		// 2 args
-		} else if (params == 2) {
+		} else if (params == 2 || params == 3) {
 			// /wa password
-			if (args[0].equals("password")) {
-				if (!(sender instanceof Player)) {
-					plugin.log.info(plugin.logPrefix + "/wa password must be used by a player.");
-					return false;
+			if (args[0].equalsIgnoreCase("password") ||
+				args[0].equalsIgnoreCase("pass")   ) {
+				String pass = "";
+				// is player
+				if (sender instanceof Player) {
+					if (params != 2) return false;
+					if (args[1].isEmpty()) return false;
+					pass = WebAuctionPlus.MD5(args[1]);
+				// is console
+				} else {
+					if (params != 3) return false;
+					if (args[1].isEmpty() || args[2].isEmpty()) return false;
+					player = args[1];
+					pass = WebAuctionPlus.MD5(args[2]);
 				}
-				if (args[1].isEmpty()) return false;
-				boolean canBuy  = plugin.permission.has(sender, "wa.canbuy");
-				boolean canSell = plugin.permission.has(sender, "wa.cansell");
-				boolean isAdmin = plugin.permission.has(sender, "wa.webadmin");
-				if (plugin.dataQueries.getPlayer(player) == null) {
-					plugin.log.info(plugin.logPrefix + "Player not found, creating account");
-					// create that person in database
-					plugin.dataQueries.createPlayer(player, "Password", canBuy, canSell, isAdmin);
+				if (player.isEmpty()) return false;
+				AuctionPlayer waPlayer = plugin.dataQueries.getPlayer(player);
+				// create that person in database
+				if (waPlayer == null) {
+					waPlayer = new AuctionPlayer(player);
+WebAuctionPlus.log.warning("canbuy:  " + sender.hasPermission("wa.canbuy"));
+WebAuctionPlus.log.warning("cansell: " + sender.hasPermission("wa.cansell"));
+WebAuctionPlus.log.warning("isadmin: " + sender.hasPermission("wa.webadmin"));
+					waPlayer.setPerms(
+						sender.hasPermission("wa.canbuy"),
+						sender.hasPermission("wa.cansell"),
+						sender.hasPermission("wa.webadmin")
+					);
+					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Creating a new account for " + player +
+						" with perms: " + waPlayer.getPermsString());
+					plugin.dataQueries.createPlayer(waPlayer, pass);
+				} else {
+					plugin.dataQueries.updatePlayerPassword(player, pass);
 				}
-				plugin.dataQueries.updatePlayerPassword(player, MD5(args[1]));
-				sender.sendMessage(plugin.chatPrefix + "Password changed");
+				if (sender instanceof Player) {
+					sender.sendMessage(WebAuctionPlus.chatPrefix + "Password changed");
+				} else {
+					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Password changed");
+				}
 				return true;
 			}
 		} else if (params == 4) {

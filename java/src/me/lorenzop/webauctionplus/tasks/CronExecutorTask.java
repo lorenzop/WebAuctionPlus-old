@@ -12,10 +12,7 @@ public class CronExecutorTask implements Runnable {
 	// urls to query
 	private List<String> cronUrls = new ArrayList<String>();
 
-	private final WebAuctionPlus plugin;
-
-	public CronExecutorTask (WebAuctionPlus plugin) {
-		this.plugin  = plugin;
+	public CronExecutorTask () {
 	}
 
 	public void setCronUrl(String url) {
@@ -30,12 +27,12 @@ public class CronExecutorTask implements Runnable {
 
 	public void run() {
 		for (String url : cronUrls) {
-			plugin.log.info(plugin.logPrefix + "Running Cron Executor: " + url);
+			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Running Cron Executor: " + url);
 			if (!url.startsWith("http://") && !url.startsWith("https://")) {
-					plugin.log.warning(plugin.logPrefix + "Invalid url!");
+					WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Invalid url!");
 					continue;
 			}
-			plugin.log.info(executeUrl(url));
+			WebAuctionPlus.log.info(executeUrl(url));
 		}
 	}
 

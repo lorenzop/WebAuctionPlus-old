@@ -44,12 +44,24 @@ public class WebAuctionPlayerListener implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player p = event.getPlayer();
 		String player = p.getName();
+		AuctionPlayer waPlayer = plugin.dataQueries.getPlayer(player);
+		if (waPlayer == null) return;
+
+		// Update permissions
+		boolean canBuy  = p.hasPermission("wa.canbuy");
+		boolean canSell = p.hasPermission("wa.cansell");
+		boolean isAdmin = p.hasPermission("wa.webadmin");
+		plugin.dataQueries.updatePlayerPermissions(waPlayer, canBuy, canSell, isAdmin);
+		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Player found - " + player + " with perms: " +
+				(canBuy ?"canBuy " :"") +
+				(canSell?"canSell ":"") +
+				(isAdmin?"isAdmin ":"") );
 
 		// Alert player of new sale alerts
 		if (plugin.showSalesOnJoin == true) {
 			List<SaleAlert> saleAlerts = plugin.dataQueries.getNewSaleAlertsForSeller(player);
 			for (SaleAlert saleAlert : saleAlerts) {
-				p.sendMessage(plugin.chatPrefix + "You sold " +
+				p.sendMessage(WebAuctionPlus.chatPrefix + "You sold " +
 					saleAlert.getQty() + " " +
 					saleAlert.getItemName() + " to " +
 					saleAlert.getBuyerName() + " for $" +
@@ -60,23 +72,9 @@ public class WebAuctionPlayerListener implements Listener {
 
 		// Alert player of new mail
 		int mailCount = plugin.dataQueries.hasMail(player);
-		plugin.log.info(plugin.logPrefix + "Player " + player + " has " + Integer.toString(mailCount) + " items in mailbox.");
+		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Player " + player + " has " + Integer.toString(mailCount) + " items in mailbox.");
 		if (mailCount > 0) {
-			p.sendMessage(plugin.chatPrefix + "You have [ " + Integer.toString(mailCount) + " ] new items in your mail!");
-		}
-
-		// Determine permissions
-		boolean canBuy  = plugin.permission.has(p, "wa.canbuy");
-		boolean canSell = plugin.permission.has(p, "wa.cansell");
-		boolean isAdmin = plugin.permission.has(p, "wa.webadmin");
-
-		AuctionPlayer auctionPlayer = plugin.dataQueries.getPlayer(player);
-		if (auctionPlayer != null) {
-			plugin.log.info(plugin.logPrefix + "Player found - " + player +
-				" with perms: canbuy=" + Boolean.toString(canBuy) + " cansell=" +
-				Boolean.toString(canSell) + " isAdmin=" + Boolean.toString(isAdmin) );
-			// Update permissions
-			plugin.dataQueries.updatePlayerPermissions(player, auctionPlayer, canBuy, canSell, isAdmin);
+			p.sendMessage(WebAuctionPlus.chatPrefix + "You have [ " + Integer.toString(mailCount) + " ] new items in your mail!");
 		}
 	}
 
@@ -120,71 +118,71 @@ public class WebAuctionPlayerListener implements Listener {
 			int roll = generator.nextInt(20);
 			switch (roll) {
 			case 0:
-				p.sendMessage(plugin.chatPrefix + "RAAN MIR TAH!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "RAAN MIR TAH!");
 				break;
 			case 1:
-				p.sendMessage(plugin.chatPrefix + "LAAS YAH NIR!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "LAAS YAH NIR!");
 				break;
 			case 2:
-				p.sendMessage(plugin.chatPrefix + "FEIM ZII GRON!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "FEIM ZII GRON!");
 				break;
 			case 3:
-				p.sendMessage(plugin.chatPrefix + "OD AH VIING!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "OD AH VIING!");
 				break;
 			case 4:
-				p.sendMessage(plugin.chatPrefix + "HUN KAL ZOOR!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "HUN KAL ZOOR!");
 				break;
 			case 5:
-				p.sendMessage(plugin.chatPrefix + "LOK VAH KOOR!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "LOK VAH KOOR!");
 				break;
 			case 6:
-				p.sendMessage(plugin.chatPrefix + "ZUN HAAL VIK!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "ZUN HAAL VIK!");
 				break;
 			case 7:
-				p.sendMessage(plugin.chatPrefix + "FAAS RU MAAR!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "FAAS RU MAAR!");
 				break;
 			case 8:
-				p.sendMessage(plugin.chatPrefix + "JOOR ZAH FRUL!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "JOOR ZAH FRUL!");
 				break;
 			case 9:
-				p.sendMessage(plugin.chatPrefix + "SU GRAH DUN!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "SU GRAH DUN!");
 				break;
 			case 10:
-				p.sendMessage(plugin.chatPrefix + "YOL TOOR SHOL!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "YOL TOOR SHOL!");
 				break;
 			case 11:
-				p.sendMessage(plugin.chatPrefix + "FO KRAH DIIN!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "FO KRAH DIIN!");
 				break;
 			case 12:
-				p.sendMessage(plugin.chatPrefix + "LIZ SLEN NUS!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "LIZ SLEN NUS!");
 				break;
 			case 13:
-				p.sendMessage(plugin.chatPrefix + "KAAN DREM OV!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "KAAN DREM OV!");
 				break;
 			case 14:
-				p.sendMessage(plugin.chatPrefix + "KRII LUN AUS!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "KRII LUN AUS!");
 				break;
 			case 15:
-				p.sendMessage(plugin.chatPrefix + "TIID KLO UL!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "TIID KLO UL!");
 				break;
 			case 16:
-				p.sendMessage(plugin.chatPrefix + "STRUN BAH QO!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "STRUN BAH QO!");
 				break;
 			case 17:
-				p.sendMessage(plugin.chatPrefix + "ZUL MEY GUT!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "ZUL MEY GUT!");
 				break;
 			case 18:
-				p.sendMessage(plugin.chatPrefix + "WULK NAH KEST!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "WULK NAH KEST!");
 				break;
 			default:
-				p.sendMessage(plugin.chatPrefix + "FUS RO DAH!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "FUS RO DAH!");
 				break;
 			}
 
 		// Deposit sign (money)
 		} else if (lines[1].equals("Deposit")) {
-			if (!plugin.permission.has(p, "wa.use.deposit.money")) {
-				p.sendMessage(plugin.chatPrefix + "You do not have enough money in your pocket.");
+			if (!p.hasPermission("wa.use.deposit.money")) {
+				p.sendMessage(WebAuctionPlus.chatPrefix + "You do not have enough money in your pocket.");
 			} else {
 				double amount = 0.0D;
 				if (!lines[2].equals("All")) {
@@ -199,20 +197,20 @@ public class WebAuctionPlayerListener implements Listener {
 						}
 						currentMoney += amount;
 						currentMoney = round(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
-						p.sendMessage(plugin.chatPrefix + "Added " + amount +
+						p.sendMessage(WebAuctionPlus.chatPrefix + "Added " + amount +
 							" to auction account, new auction balance: " + currentMoney);
 						plugin.dataQueries.updatePlayerMoney(player, currentMoney);
 						plugin.economy.withdrawPlayer(player, amount);
 					} else {
-						p.sendMessage(plugin.chatPrefix + "No WebAuction account found, try logging off and back on again");
+						p.sendMessage(WebAuctionPlus.chatPrefix + "No WebAuction account found, try logging off and back on again");
 					}
 				}
 			}
 
 		// Withdraw sign (money)
 		} else if (lines[1].equals("Withdraw")) {
-			if (!plugin.permission.has(p, "wa.use.withdraw.money")) {
-				p.sendMessage(plugin.chatPrefix + "You do not have permission to withdraw money");
+			if (!p.hasPermission("wa.use.withdraw.money")) {
+				p.sendMessage(WebAuctionPlus.chatPrefix + "You do not have permission to withdraw money");
 				event.setCancelled(true);
 			} else {
 				double amount = 0.0D;
@@ -221,7 +219,7 @@ public class WebAuctionPlayerListener implements Listener {
 				} try {
 					AuctionPlayer auctionPlayer = plugin.dataQueries.getPlayer(player);
 					if (null == auctionPlayer) {
-						p.sendMessage(plugin.chatPrefix + "No WebAuction account found, try logging off and back on again");
+						p.sendMessage(WebAuctionPlus.chatPrefix + "No WebAuction account found, try logging off and back on again");
 					} else {
 						// Match found!
 						double currentMoney = auctionPlayer.getMoney();
@@ -231,12 +229,12 @@ public class WebAuctionPlayerListener implements Listener {
 						if (currentMoney >= amount) {
 							currentMoney -= amount;
 							currentMoney = round(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
-							p.sendMessage(plugin.chatPrefix + "Removed " +
+							p.sendMessage(WebAuctionPlus.chatPrefix + "Removed " +
 								amount + " from auction account, new auction balance: " + currentMoney);
 							plugin.dataQueries.updatePlayerMoney(player, currentMoney);
 							plugin.economy.depositPlayer(player, amount);
 						} else {
-							p.sendMessage(plugin.chatPrefix + "You do not have enough money in your WebAuction account.");
+							p.sendMessage(WebAuctionPlus.chatPrefix + "You do not have enough money in your WebAuction account.");
 						}
 					}
 				} catch (Exception e) {
@@ -246,14 +244,14 @@ public class WebAuctionPlayerListener implements Listener {
 
 		// MailBox Deposit (items)
 		} else if (lines[1].equals("MailBox") && lines[2].equals("Deposit")) {
-			if (!plugin.permission.has(p, "wa.use.deposit.items")) {
-				p.sendMessage(plugin.chatPrefix +
+			if (!p.hasPermission("wa.use.deposit.items")) {
+				p.sendMessage(WebAuctionPlus.chatPrefix +
 					"You do not have permission to use the mailbox");
 				event.setCancelled(true);
 				return;
 			// disallow creative
 			} else if (p.getGameMode() != GameMode.SURVIVAL) {
-				p.sendMessage(plugin.chatPrefix + "Hey, no cheating!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "Hey, no cheating!");
 				event.setCancelled(true);
 				return;
 			}
@@ -263,8 +261,8 @@ public class WebAuctionPlayerListener implements Listener {
 
 		// MailBox Withdraw (items)
 		} else if (lines[1].equals("MailBox") && lines[2].equals("Withdraw")) {
-			if (!plugin.permission.has(p, "wa.use.withdraw.items")) {
-				p.sendMessage(plugin.chatPrefix + "You do not have permission to use the mailbox");
+			if (!p.hasPermission("wa.use.withdraw.items")) {
+				p.sendMessage(WebAuctionPlus.chatPrefix + "You do not have permission to use the mailbox");
 				event.setCancelled(true);
 				return;
 			}

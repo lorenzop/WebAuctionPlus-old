@@ -1,5 +1,7 @@
 package me.lorenzop.webauctionplus;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,21 +18,19 @@ import me.exote.webauctionplus.tasks.ShoutSignTask;
 import me.lorenzop.webauctionplus.tasks.AnnouncerTask;
 import me.lorenzop.webauctionplus.tasks.CronExecutorTask;
 import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
 public class WebAuctionPlus extends JavaPlugin {
 
-	public String logPrefix  = "[WebAuction+] ";
-	public String chatPrefix = ChatColor.DARK_GREEN + "[" + ChatColor.WHITE + "WebAuction+" + ChatColor.DARK_GREEN + "] ";
-	public Logger log = Logger.getLogger("Minecraft");
+	public static String logPrefix  = "[WebAuction+] ";
+	public static String chatPrefix = ChatColor.DARK_GREEN+"["+ChatColor.WHITE+"WebAuction+"+ChatColor.DARK_GREEN+"] ";
+	public static Logger log = Logger.getLogger("Minecraft");
 
 	public Double currentVersion;
 	public Double newVersion;
@@ -63,7 +63,6 @@ public class WebAuctionPlus extends JavaPlugin {
 	public AnnouncerTask waAnnouncerTask;
 	public boolean announceEnabled   = false;
 
-	public Permission permission     = null;
 	public Economy    economy        = null;
 
 	public WebAuctionPlus() {
@@ -87,8 +86,6 @@ public class WebAuctionPlus extends JavaPlugin {
 		// load config.yml
 		onLoadConfig();
 
-		setupEconomy();
-		setupPermissions();
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new WebAuctionPlayerListener(this), this);
 		pm.registerEvents(new WebAuctionBlockListener (this), this);
@@ -118,7 +115,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		cronExecutorEnabled      = Config.getBoolean("CronExecutor.Enabled");
 		long cronExecutorSeconds = 20 * Config.getLong("Tasks.CronExecutorSeconds");
 		if (cronExecutorEnabled && cronExecutorSeconds>0) {
-			waCronExecutorTask = new CronExecutorTask(this);
+			waCronExecutorTask = new CronExecutorTask();
 			waCronExecutorTask.setCronUrl(Config.getString("CronExecutor.Url"));
 			// cron executor task (always multi-threaded)
 			scheduler.scheduleAsyncRepeatingTask(this, waCronExecutorTask,
@@ -259,27 +256,11 @@ public class WebAuctionPlus extends JavaPlugin {
 		saveConfig();
 	}
 
-	private Boolean setupPermissions() {
-		RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(Permission.class);
-		if (permissionProvider != null) {
-			permission = (Permission)permissionProvider.getProvider();
-		}
-		return (permission != null);
-	}
-
-	private Boolean setupEconomy() {
-		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
-		if (economyProvider != null) {
-			economy = (Economy)economyProvider.getProvider();
-		}
-		return (economy != null);
-	}
-
-	public String ReplaceColors(String text){
+	public static String ReplaceColors(String text){
 		return text.replaceAll("&([0-9a-fA-F])", "\247$1");
 	}
 
-	public int getNewRandom(int oldNumber, int maxNumber) {
+	public static int getNewRandom(int oldNumber, int maxNumber) {
 		if (maxNumber == 0) return maxNumber;
 		if (maxNumber == 1) return 1 - oldNumber;
 		Random randomGen = new Random();
@@ -290,7 +271,27 @@ public class WebAuctionPlus extends JavaPlugin {
 		}
 	}
 
-	void PrintProgress(double progress, int width) {
+	public static String MD5(String str) {
+		MessageDigest md = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		md.update(str.getBytes());
+		byte[] byteData = md.digest();
+		StringBuffer hexString = new StringBuffer();
+		for (int i = 0; i < byteData.length; i++) {
+			String hex = Integer.toHexString(0xFF & byteData[i]);
+			if (hex.length() == 1) {
+				hexString.append('0');
+			}
+			hexString.append(hex);
+		}
+		return hexString.toString();
+	}
+
+	public static void PrintProgress(double progress, int width) {
 		String output = "[";
 		int prog = (int)(progress * width);
 		if (prog > width) prog = width;
@@ -301,9 +302,9 @@ public class WebAuctionPlus extends JavaPlugin {
 		for (; i < width; i++) {
 			output += " ";
 		}
-		log.info(output + "]");
+		WebAuctionPlus.log.info(output + "]");
 	}
-	void PrintProgress(int count, int total, int width) {
+	public static void PrintProgress(int count, int total, int width) {
 		try {
 			// finished 100%
 			if (count == total) {
@@ -318,11 +319,11 @@ public class WebAuctionPlus extends JavaPlugin {
 			e.printStackTrace();
 		}
 	}
-	void PrintProgress(int count, int total) {
+	public static void PrintProgress(int count, int total) {
 		PrintProgress(count, total, 20);
 	}
 
-//	public double updateCheck(double currentVersion) throws Exception {
+//	public static double updateCheck(double currentVersion) throws Exception {
 //	String pluginUrlString = "http://dev.bukkit.org/server-mods/webauctionplus/files.rss";
 //	try {
 //		URL url = new URL(pluginUrlString);

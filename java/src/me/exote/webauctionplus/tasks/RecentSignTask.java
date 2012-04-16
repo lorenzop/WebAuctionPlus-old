@@ -92,7 +92,7 @@ public class RecentSignTask implements Runnable {
 		for (Location signLoc : toRemove) {
 			plugin.recentSigns.remove(signLoc);
 			plugin.dataQueries.removeRecentSign(signLoc);
-			plugin.log.info(plugin.logPrefix + "Removed invalid sign at location: " + signLoc);
+			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Removed invalid sign at location: " + signLoc);
 		}
 	}
 

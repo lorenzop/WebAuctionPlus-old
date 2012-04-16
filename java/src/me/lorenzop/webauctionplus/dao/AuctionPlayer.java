@@ -12,6 +12,9 @@ public class AuctionPlayer {
 
 	public AuctionPlayer() {
 	}
+	public AuctionPlayer(String player) {
+		this.player = player;
+	}
 
 	// player id
 	public int getPlayerId() {
@@ -46,24 +49,50 @@ public class AuctionPlayer {
 	public boolean getCanBuy() {
 		return canBuy;
 	}
-	public void setCanBuy(boolean canBuy) {
-		this.canBuy = canBuy;
-	}
+//	public void setCanBuy(boolean canBuy) {
+//		this.canBuy = canBuy;
+//	}
 
 	// can sell
 	public boolean getCanSell() {
 		return canSell;
 	}
-	public void setCanSell(boolean canSell) {
-		this.canSell = canSell;
-	}
+//	public void setCanSell(boolean canSell) {
+//		this.canSell = canSell;
+//	}
 
 	// is admin
 	public boolean getIsAdmin() {
 		return isAdmin;
 	}
-	public void setIsAdmin(boolean isAdmin) {
+//	public void setIsAdmin(boolean isAdmin) {
+//		this.isAdmin = isAdmin;
+//	}
+
+	// player permissions
+	public String getPermsString() {
+		String tempPerms = "";
+		if (canBuy)  tempPerms = this.addStringSet(tempPerms, "canBuy",  ",");
+		if (canSell) tempPerms = this.addStringSet(tempPerms, "canSell", ",");
+		if (isAdmin) tempPerms = this.addStringSet(tempPerms, "isAdmin", ",");
+		return tempPerms;
+	}
+	public void setPerms(boolean canBuy, boolean canSell, boolean isAdmin) {
+		this.canBuy  = canBuy;
+		this.canSell = canSell;
 		this.isAdmin = isAdmin;
+	}
+	public void setPerms(String Perms) {
+		Perms = ","+Perms+",";
+		canBuy  = Perms.contains(",canBuy,");
+		canSell = Perms.contains(",canSell,");
+		isAdmin = Perms.contains(",isAdmin,");
+	}
+
+	public String addStringSet(String baseString, String addThis, String Delim) {
+		if (addThis.isEmpty())    return baseString;
+		if (baseString.isEmpty()) return addThis;
+		return baseString + Delim + addThis;
 	}
 
 }

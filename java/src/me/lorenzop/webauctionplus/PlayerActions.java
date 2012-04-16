@@ -25,7 +25,7 @@ public class PlayerActions {
 		int itemTypeId = stack.getTypeId();
 		// no item in hand
 		if (itemTypeId == 0) {
-			p.sendMessage(plugin.chatPrefix + "Please hold a stack of items in your hand and  right click to deposit them.");
+			p.sendMessage(WebAuctionPlus.chatPrefix + "Please hold a stack of items in your hand and  right click to deposit them.");
 			return false;
 		}
 		int damage = stack.getDurability();
@@ -55,7 +55,7 @@ public class PlayerActions {
 			} else {
 				plugin.dataQueries.AddItemQuantity(foundItemId, stack.getAmount());
 			}
-			p.sendMessage(plugin.chatPrefix + "Item stack stored.");
+			p.sendMessage(WebAuctionPlus.chatPrefix + "Item stack stored.");
 			p.setItemInHand(null);
 			return true;
 		} catch (Exception e) {
@@ -90,11 +90,11 @@ public class PlayerActions {
 			}
 			plugin.dataQueries.deleteMail(player, delMail);
 			if (gotMail)
-				p.sendMessage(plugin.chatPrefix + "Mail retrieved");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "Mail retrieved");
 			else
-				p.sendMessage(plugin.chatPrefix + "No mail");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "No mail");
 			if (invFull)
-				p.sendMessage(plugin.chatPrefix + "Your inventory is full");
+				p.sendMessage(WebAuctionPlus.chatPrefix + "Your inventory is full");
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
