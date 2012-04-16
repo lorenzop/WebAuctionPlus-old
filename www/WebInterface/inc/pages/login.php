@@ -9,35 +9,48 @@ if(!empty($username) && !empty($password)){
   $user = new userClass($username,md5($password));
   if($user!==NULL){
     $_SESSION[$config['session name']] = $user->getName();
-    $lastpage = getVar('lastpage');
-    if(empty($lastpage)) ForwardTo('./');
-    else                 ForwardTo($lastpage);
-    exit();
+    if(getVar('error')==''){
+      $lastpage = getVar('lastpage');
+      if(empty($lastpage)) ForwardTo('./');
+      else                 ForwardTo($lastpage);
+      exit();
+    }
   }
 }
 unset($username,$password);
 
 
+function RenderPage_login(){global $config,$html; $output='';
+  $config['title'] = 'Login';
+  $username=''; $password='';
+  $html->setPageFrame('basic');
+  $html->loadCss('login.css');
+  if(getVar('error')!='')    $output.='<h2 style="color: #ff0000;">Login Failed</h2>'."\n";
+  if($config['demo']===TRUE){$username='demo'; $password='demo';}
+  $output.=
+    '<div id="login-box">'."\n".
+    '<div id="login-background"><img src="{path=images}wa_bg_login.png" alt="" /></div>'."\n".
+    '<form action="./" name="login" method="post">'."\n".
+    '<input type="hidden" name="page"     value="login" />'."\n".
+    '<input type="hidden" name="lastpage" value="'.getVar('lastpage').'" />'."\n".
+    '<table border="0" cellspacing="0" cellpadding="0" align="center" id="login-table">'."\n".
+    "  <tr>\n".
+    '    <td align="right"><label name="WA_Login_Username">Username:</label></td>'."\n".
+    '    <td><input type="text"   name="WA_Login_Username" value="'.$username.'" class="input" size="30" tabindex="1" autofocus="autofocus" /></td>'."\n".
+    "  </tr>\n".
+    '  <tr><td style="height: 10px;"></td></tr>'."\n".
+    "  <tr>\n".
+    '    <td align="right"><label   name="WA_Login_Password">Password:</label></td>'."\n".
+    '    <td><input type="password" name="WA_Login_Password" value="'.$password.'" class="input" size="30" tabindex="2" /></td>'."\n".
+    "  </tr>\n".
+    '  <tr><td style="height: 0px;"></td></tr>'."\n".
+    '  <tr><td colspan="2"><input type="submit" name="Submit" value="Submit" class="button" tabindex="3" /></td>'."\n".
+    "  </tr>\n".
+    "</table>\n".
+    "</div>\n";
+    "</form>\n";
+  return($output);
+}
 
-
-$config['title'] = 'Login';
-echo '<body>'."\n".
-     '<div id="holder">'."\n".
-     '<h1>Web Auction</h1>'."\n".
-     '<p>&nbsp;</p>'."\n".
-     '<div id="login-box">'."\n".
-     '  <h2>Login</h2>'."\n".
-     '  <p style="color:red">'."\n";
-if(isset($_GET['error']))
-  if($_GET['error']==1)
-    echo 'Login Failed.';
-echo '  </p>'."\n".
-     '  <form action="scripts/login-script.php" method="post" name="login">'."\n".
-     '    <label>Username</label><input name="WA_Login_Username" type="text" class="input" size="30" /><br />'."\n".
-     '    <label>Password</label><input name="WA_Login_Password" type="password" class="input" size="30" /><br />'."\n".
-     '    <label>&nbsp;</label><input name="Submit" type="submit" class="button" />'."\n".
-     '  </form>'."\n".
-     '</div>'."\n".
-     '</div>'."\n";
 
 ?>

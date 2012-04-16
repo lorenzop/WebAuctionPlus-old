@@ -1,6 +1,7 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 class userClass{
 
+
 protected $UserId        = 0;
 protected $Name          = '';
 public    $numMail       = 0;
@@ -11,26 +12,32 @@ public    $Earnt         = 0.0;
 public    $Spent         = 0.0;
 protected $permissions   = array();
 
+
 public function __construct($username=NULL, $password=NULL){global $config;
   $loginUrl = './?page=login';
   session_start();
   $query = '';
-  if($username===NULL || password===NULL){
+  if($username===NULL || $password===NULL){
     if(isset($_SESSION[$config['session name']])){
       $this->Name = trim($_SESSION[$config['session name']]);
       $query = "WHERE `name`='".mysql_san($this->Name)."'";
     }
+    if(empty($this->Name)) ForwardTo($loginUrl);
   }else{
+    $this->Name = $username;
     $query = "WHERE `name`='".   mysql_san($username)."'".
              " AND `password`='".mysql_san($password)."'";
   }
-  if($this->Name=='') ForwardTo($loginUrl);
   // validate player
   $query="SELECT `id`,`money`,`itemsSold`,`itemsBought`,`earnt`,`spent`,`permissions` ".
                    "FROM `".$config['table prefix']."Players` ".$query;
   $result=RunQuery($query, __file__, __line__);
   if($result){
-    if(mysql_num_rows($result)==0) ForwardTo($loginUrl);
+    if(mysql_num_rows($result)==0){
+      $_SESSION[$config['session name']] = '';
+      $_GET['error']='bad login';
+      return;
+    }
     $row=mysql_fetch_assoc($result);
     $this->UserId      = ((int)    $row['id']         );
     $this->Money       = ((double) $row['money']      );
@@ -41,23 +48,20 @@ public function __construct($username=NULL, $password=NULL){global $config;
     foreach(explode(',',$row['permissions']) as $perm){
       $permissions[$perm] = TRUE;
     }
-    $this->CanBuy      = ((boolean)$row['canBuy']     );
-    $this->CanSell     = ((boolean)$row['canSell']    );
-    $this->Admin       = ((boolean)$row['isAdmin']    );
     // get mail count
-    $result=RunQyery("SELECT COUNT(*) AS `count` FROM `".$config['table prefix']."Mail` WHERE `name`='".mysql_san($this->Name)."'");
+    $result=RunQuery("SELECT COUNT(*) AS `count` FROM `".$config['table prefix']."Mail` WHERE `name`='".mysql_san($this->Name)."'");
     $row=mysql_fetch_assoc($result);
     $this->numMail = ((int)$row['count']);
   }else{
     $_SESSION[$config['session name']] = '';
-    echo 'Error: '.mysql_error($db);
+    echo 'Error: '.mysql_error();
     exit();
   }
   // use iconomy table
   if ($config['iConomy']['use']===true || $config['iConomy']['use']==='auto'){
     global $db;
     $result=mysql_query("SELECT `balance` FROM `".mysql_san($config['iConomy']['table'])."` WHERE ".
-                        "`playername`='".mysql_san($this->Name)."' LIMIT 1", $db);
+                        "`username`='".mysql_san($this->Name)."' LIMIT 1", $db);
     if($result){
       $row=mysql_fetch_assoc($result);
       $this->Money=((double)$row['balance']);
@@ -73,32 +77,26 @@ public function __construct($username=NULL, $password=NULL){global $config;
 
 // user id
 public function getUserId(){
-  return(UserId);
+  return($this->UserId);
 }
 
 // player name
 public function getName(){
-  return($Name);
+  return($this->Name);
 }
 
 // permissions
 public function hasPerms($perms){
-  if(empty($perms)) return(false);
+  if(empty($perms) || count($this->permissions)==0) return(false);
   if(is_array($perms)){
     $hasPerms = true;
     foreach($perms as $perm){
-      if($this->hasPerms($perm)) $hasPerms = false;
+      if(!(boolean)@$this->permissions[$perm]) $hasPerms = false;
     }
     return($hasPerms);
   }
-  return((boolean)@$permissions[$perms]);
+  return((boolean)@$this->permissions[$perms]);
 }
-
-
-
-
-
-
 
 // money
 public function saveMoney($useMySQLiConomy, $iConTableName){
@@ -131,13 +129,6 @@ public function earn($amount, $useMySQLiConomy, $iConTableName){
 //  $this->earnt = $this->earnt + $amount;
 //  $query = mysql_query("UPDATE WA_Players SET earnt='$this->earnt' WHERE name='$this->name'");
 }
-
-
-
-
-
-
-
 
 
 }
