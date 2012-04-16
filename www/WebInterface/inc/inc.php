@@ -1,6 +1,11 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 
 
+includeItems();
+function includeItems(){global $lpaths;
+  if(!defined('DEFINE_ITEMS'))
+    require($lpaths['includes'].'defines.items.php');
+}
 
 
 
@@ -54,23 +59,6 @@ function mysql_san($text){global $db;
 //    return(@$row['value']);
 //  }
 //}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // trim / from path
@@ -130,6 +118,33 @@ function fromSeconds($seconds){$output='';
   if($seconds>0){
     $output.=' '.$seconds.' Second'; if($seconds>1){$output.='s';}}
   return(trim($output));}
+
+
+// to roman numerals
+function numberToRoman($num){
+  $num = ((int)$num);
+  $result = '';
+  $lookup=array(
+    'M' => 1000,
+    'CM'=> 900,
+    'D' => 500,
+    'CD'=> 400,
+    'C' => 100,
+    'XC'=> 90,
+    'L' => 50,
+    'XL'=> 40,
+    'X' => 10,
+    'IX'=> 9,
+    'V' => 5,
+    'IV'=> 4,
+    'I' => 1);
+  foreach($lookup as $roman=>$value){
+    $matches = intval($num / $value);
+    $result .= str_repeat($roman, $matches);
+    $num=$num % $value;
+  }
+  return $result;
+}
 
 
 // send email

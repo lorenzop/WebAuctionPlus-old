@@ -45,7 +45,7 @@ $user   = &$config['user'];
 // local paths
 $lpaths['config']   = 'config.php';
 $lpaths['includes'] = 'inc/';
-$lpaths['classes']  = 'inc/';
+$lpaths['classes']  = 'inc/classes/';
 $lpaths['pages']    = 'inc/pages/';
 $lpaths['theme']    = 'html/{theme}/';
 // http paths
@@ -56,7 +56,7 @@ require($lpaths['config']);
 require($lpaths['includes'].'inc.php');
 
 // load template engine
-require($lpaths['includes'].'html.class.php');
+require($lpaths['classes'].'html.class.php');
 $page_outputs = array();
 $tags         = array();
 $html = new RenderHtml($page_outputs, $tags);

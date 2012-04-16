@@ -1,10 +1,13 @@
 <?php
-	session_start();
-	$past = time() - 100;
-	unset($_SESSION['User']);
-	unset($_SESSION['canBuy']);
-	unset($_SESSION['canSell']);
-	unset($_SESSION['Admin']);
-	//setcookie(User, gone, $past);
-	header("Location: index.php");
+
+
+global $config;
+session_start();
+unset($_SESSION[$config['session name']]);
+$lastpage=getVar('lastpage');
+if(empty($lastpage)) ForwardTo('./');
+else                 ForwardTo($lastpage);
+exit();
+
+
 ?>
