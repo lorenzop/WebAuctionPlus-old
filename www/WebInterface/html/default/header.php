@@ -5,10 +5,10 @@ $output='';
 
 // page header
 $output.=
-  '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">'."\n".
-  '<html>'."\n".
+  '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'."\n".
+  '<html xmlns="http://www.w3.org/1999/xhtml">'."\n".
   '<head>'."\n".
-  '  <meta http-equiv="content-type" content="text/html; charset=utf-8" />'."\n".
+  '  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />'."\n".
   '  <title>WebAuction</title>'."\n".
   '  <link rel="icon" type="image/x-icon" href="images/favicon.ico" />'."\n".
   '  <style type="text/css" title="currentStyle">'."\n".
@@ -27,7 +27,7 @@ $output.=
   '  <script type="text/javascript" language="javascript" src="js/jquery-1.7.2.min.js"></script>'."\n".
   '  <script type="text/javascript" language="javascript" src="js/jquery.dataTables-1.9.0.min.js"></script>'."\n".
   '  <script type="text/javascript" language="javascript" src="js/inputfunc.js"></script>'."\n".
-  '  <script type="text/javascript" charset="utf-8">'."\n".
+  '  <script type="text/javascript" language="javascript" charset="utf-8">'."\n".
   '    $(document).ready(function() {'."\n".
   '      oTable = $(\'#mainTable\').dataTable({'."\n".
 //  '        "bProcessing"     : true,'."\n".
@@ -43,18 +43,21 @@ $output.=
 switch($html->getPageFrame()){
 case 'default':
   $output.=
-    '<body bgcolor="#53568B">'."\n".
+    '<body>'."\n".
     '<div id="holder">'."\n".
     '<table border="0" cellspacing="0" cellpadding="0" id="profile-box">'."\n".
     "<tr>\n".
-    '  <td rowspan="4"><img src="./?page=mcface&username='.$user->getName().'" alt="" width="64" width="64" align="center" valign="middle" id="mcface" /></td>'."\n".
-    '  <td>Name:</td><td>'. $user->getName().($user->hasPerms('isAdmin')?'&nbsp;<font size="-1"><b>[ADMIN]</b></font>':'').'</td>'."\n".
+    '  <td rowspan="4"><img src="./?page=mcface&amp;username='.$user->getName().'" '.
+         'alt="" width="64" height="64" id="mcface" /></td>'."\n".
+    '  <td>Name:</td><td>'. $user->getName().
+      ($user->hasPerms('isAdmin')?'&nbsp;<span style="font-size: small;"><b>[ADMIN]</b></span>':'').'</td>'."\n".
     "</tr>\n".
     '<tr><td>Money:</td><td>'.$user->Money.'</td></tr>'."\n".
     '<tr><td>Mail:</td><td>'. $user->numMail.'</td></tr>'."\n".
     '<tr><td colspan="2">'.date('jS M Y H:i:s').'</td></tr>'."\n".
-    "</tr>\n</table>\n".
-    '<div id="menu-box">'.'
+    "</table>\n".
+    '<div id="menu-box">'.
+    '
 
 
 <a href="./">Home</a><br />
@@ -67,11 +70,12 @@ case 'default':
 
 
 </div>'."\n".
-    '<div id="title-box"><h1 style="margin-bottom: 30px;">WebAuction Plus</h1></div>'."\n";
+    '<div id="title-box"><h1 style="margin-bottom: 30px;">WebAuction Plus</h1></div>'."\n".
+    "\n\n\n";
   break;
 case 'basic':
   $output.=
-    '<body bgcolor="#53568B">'."\n".
+    '<body>'."\n".
     '<div id="holder">'."\n".
     '<h1 style="margin-bottom: 30px;">WebAuction Plus</h1>'."\n";
   break;

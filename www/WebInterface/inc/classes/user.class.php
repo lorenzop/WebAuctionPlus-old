@@ -46,7 +46,7 @@ public function __construct($username=NULL, $password=NULL){global $config;
     $this->Earnt       = ((double) $row['earnt']      );
     $this->Spent       = ((double) $row['spent']      );
     foreach(explode(',',$row['permissions']) as $perm){
-      $permissions[$perm] = TRUE;
+      $this->permissions[$perm] = TRUE;
     }
     // get mail count
     $result=RunQuery("SELECT COUNT(*) AS `count` FROM `".$config['table prefix']."Mail` WHERE `name`='".mysql_san($this->Name)."'");
