@@ -20,9 +20,16 @@ function getVar($name,$type='',$order=array('get','post')){$output='';
   return($output);
 }
 
+// get page name
+$page=getVar('page');
+if(empty($page)) $page='home';
+
+// mcface
+if($page=='mcface'){require('inc/mcface.php'); exit();}
+
 // set defaults
 $config=array(
-  'page'         => '',
+  'page'         => &$page,
   'paths' => array(
     'local' => array(),
     'http'  => array()
@@ -37,7 +44,6 @@ $config=array(
   ),
   'session name' => 'WebAuctionPlus User',
 );
-$page   = &$config['page'];
 $paths  = &$config['paths'];
 $lpaths = &$config['paths']['local'];
 $wpaths = &$config['paths']['http'];
@@ -54,14 +60,13 @@ $wpaths['images']   = 'html/{theme}/images/';
 require($lpaths['config']);
 // includes
 require($lpaths['includes'].'inc.php');
+$page=SanFilename($page);
 
 // load template engine
 require($lpaths['classes'].'html.class.php');
 $page_outputs = array();
 $tags         = array();
 $html = new RenderHtml($page_outputs, $tags);
-$page=SanFilename(getVar('page'));
-if(empty($page)) $page='home';
 
 // init login system
 include($lpaths['classes'].'user.class.php');

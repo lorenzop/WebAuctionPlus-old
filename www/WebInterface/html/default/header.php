@@ -1,5 +1,5 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
-global $html;
+global $html,$user;
 $output='';
 
 
@@ -44,7 +44,30 @@ switch($html->getPageFrame()){
 case 'default':
   $output.=
     '<body bgcolor="#53568B">'."\n".
-    '';
+    '<div id="holder">'."\n".
+    '<table border="0" cellspacing="0" cellpadding="0" id="profile-box">'."\n".
+    "<tr>\n".
+    '  <td rowspan="4"><img src="./?page=mcface&username='.$user->getName().'" alt="" width="64" width="64" align="center" valign="middle" id="mcface" /></td>'."\n".
+    '  <td>Name:</td><td>'. $user->getName().($user->hasPerms('isAdmin')?'&nbsp;<font size="-1"><b>[ADMIN]</b></font>':'').'</td>'."\n".
+    "</tr>\n".
+    '<tr><td>Money:</td><td>'.$user->Money.'</td></tr>'."\n".
+    '<tr><td>Mail:</td><td>'. $user->numMail.'</td></tr>'."\n".
+    '<tr><td colspan="2">'.date('jS M Y H:i:s').'</td></tr>'."\n".
+    "</tr>\n</table>\n".
+    '<div id="menu-box">'.'
+
+
+<a href="./">Home</a><br />
+<a href="./?page=myitems">My Items</a><br />
+<a href="./?page=myauctions">My Auctions</a><br />
+<a href="./?page=playerstats">Player Stats</a><br />
+<a href="./?page=info">Item Info</a><br />
+<a href="./?page=transactionLog">Transaction Log</a><br />
+<a href="./?page=logout">Logout</a>
+
+
+</div>'."\n".
+    '<div id="title-box"><h1 style="margin-bottom: 30px;">WebAuction Plus</h1></div>'."\n";
   break;
 case 'basic':
   $output.=
