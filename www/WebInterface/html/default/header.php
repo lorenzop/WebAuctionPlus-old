@@ -9,7 +9,7 @@ $output.=
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-  <title>WebAuction</title>
+  <title>{sitepage title}</title>
   <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
   <style type="text/css" title="currentStyle">
   </style>
@@ -48,7 +48,7 @@ case 'default':
 <table border="0" cellspacing="0" cellpadding="0" id="profile-box">
 <tr>
   <td rowspan="4"><img src="./?page=mcface&amp;username='.$user->getName().'" alt="" width="64" height="64" id="mcface" /></td>
-  <td>Name:</td><td>'. $user->getName().
+  <td>Name:</td><td>'.$user->getName().
       ($user->hasPerms('isAdmin')?'&nbsp;<span style="font-size: small;"><b>[ADMIN]</b></span>':'').'</td>
 </tr>
 <tr><td>Money:</td><td>'.$user->Money.'</td></tr>
@@ -68,7 +68,10 @@ case 'default':
 
 
 </div>
-<div id="title-box"><h1 style="margin-bottom: 30px;">WebAuction Plus</h1></div>
+<div id="title-box">
+  <h1>{site title}</h1>
+  <h2>{page title}</h2>
+</div>
 ';
   break;
 case 'basic':

@@ -1,14 +1,13 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 
 
-includeItems();
-function includeItems(){global $lpaths;
-  if(!defined('DEFINE_ITEMS'))
-    require($lpaths['includes'].'defines.items.php');
+// load items class (when needed)
+if(!isset($Items)) $Items=NULL;
+function LoadItemsClass(){global $config,$items;
+  if(defined('DEFINE_ITEMS_CLASS')) return;
+  require($config['paths']['local']['classes'].'items.class.php');
+  $items = new ItemsClass();
 }
-
-
-
 
 
 // render time

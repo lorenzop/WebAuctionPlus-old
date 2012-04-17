@@ -6,7 +6,7 @@ protected $tags    = array();
 protected $Frame   = '';
 
 
-public function __construct(&$outputs, &$tags){global $config;
+function __construct(&$outputs, &$tags){global $config;
   $this->outputs = &$outputs;
   $this->tags    = &$tags;
   if(!is_array(@$outputs) || count(@$outputs)==0)
@@ -28,12 +28,15 @@ public function Display(){global $config,$lpaths;
   // insert css
   $this->outputs['header']=str_replace('{css}', "\n".$this->outputs['css']."\n", $this->outputs['header']);
   // render tags
+  $this->tags['site title']     = $config['site title'];
+  $this->tags['page title']     = $config['title'];
+  $this->tags['sitepage title'] = $config['site title'].(empty($config['title'])?'':' - '.$config['title']);
   $this->RenderTags($this->outputs['header']);
   $this->RenderTags($this->outputs['body']);
   $this->RenderTags($this->outputs['footer']);
   // output page
   echo $this->outputs['header']."\n";
-  echo $this->outputs['body']."\n";
+  echo $this->outputs['body']  ."\n";
   echo $this->outputs['footer']."\n";
 }
 
@@ -94,7 +97,7 @@ function RenderTags(&$html){global $config,$tags;
   unset($pathName, $path);
   // tags
   foreach($tags as $tagName=>$tag){
-    $html=str_replace('{'.tagName.'}',tag,$html);
+    $html=str_replace('{'.$tagName.'}',$tag,$html);
   }
   unset($tagName, $tag);
 }

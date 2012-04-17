@@ -1,88 +1,79 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 
 
-function RenderPage_auctions(){global $config,$html; $output='';
-  include($config['paths']['local']['classes'].'auctions.class.php');
-  $config['title'] = 'Login';
-
-$output.='sdfgjkdfhgkdnhlndshkldnlgh';
-return($output);
-
-}
-
-
-/*
-echo $user->Money;
-echo '<br />';
-echo 'has permissions: ';
-echo $user->hasPerms('canBuy')?'canBuy':'';
-echo $user->hasPerms('canSell')?'canSell':'';
-echo $user->hasPerms('isAdmin')?'isAdmin':'';
-exit();
+LoadItemsClass();
 
 
 
 
+function RenderPage_auctions(){global $config,$html,$user,$items; $output='';
+//  require($config['paths']['local']['classes'].'auctions.class.php');
+  $config['title'] = 'Current Auctions';
+
+  // get auctions
+  $query="SELECT `id`,`itemId`,`itemDamage`,`playerName`,`qty`,`price`,UNIX_TIMESTAMP(`created`) ".
+         "FROM `".$config['table prefix']."Auctions`";
+  $result=RunQuery($query, __file__, __line__);
 
 
-$queryAuctions = mysql_query("SELECT * FROM WA_Auctions");
-
-
-
-
-
-      <?php include("topBoxes.php"); ?>
-      <h1>Web Auction</h1>
-      <br />
-      <h2>Current Auctions</h2>
-      <p style="color:red">
-< ?php
+$output.='
+<p style="color:red">
+';
 if(isset($_SESSION['error'])) {
   echo  $_SESSION['error'];
   unset($_SESSION['error']);
 }
-echo "</p>\n<p style=\"color: green;\">\n";
+$output.='
+</p>
+<p style="color: green;">
+';
 if(isset($_SESSION['success'])) {
   echo  $_SESSION['success'];
   unset($_SESSION['success']);
 }
-echo "</p>\n";
+$output.='
+</p>
+';
 
-exit();
-echo '<div class="demo_jui">'."\n".
-     '<!-- mainTable example -->'."\n".
-     '<table cellpadding="0" cellspacing="0" border="0" class="display" id="mainTable">'."\n".
-     '  <thead>'."\n".
-     '    <tr>'."\n".
-     '      <th>Item</th>'."\n".
-     '      <th>Seller</th>'."\n".
-     '      <th>Expires</th>'."\n".
-     '      <th>Quantity</th>'."\n".
-     '      <th>Price (Each)</th>'."\n".
-     '      <th>Price (Total)</th>'."\n".
-     '      <th>% of Market Price</th>'."\n".
-     '      <th>Buy</th>'."\n";
-
-
-if ($isAdmin == true) {
-  print("<th>Cancel</th>");
+$output.='
+<div class="demo_jui">
+<!-- mainTable example -->
+<table cellpadding="0" cellspacing="0" border="0" class="display" id="mainTable">
+  <thead>
+    <tr valign="bottom">
+      <th>Item</th>
+      <th>Seller</th>
+      <th>Expires</th>
+      <th>Quantity</th>
+      <th>Price (Each)</th>
+      <th>Price (Total)</th>
+      <th>Percent of<br />Market Price</th>
+      <th>Buy</th>
+';
+if($user->hasPerms('isAdmin')){
+$output.='
+      <th>Cancel</th>
+';
 }
-echo '    </tr>'."\n".
-     '  </thead>'."\n".
-     '  <tbody>'."\n";
+$output.='
+    </tr>
+  </thead>
+  <tbody>
+';
 
 
-require('scripts/server_processing.php');
+require($config['paths']['local']['classes'].'auctions.class.php');
 
 
-echo '</tbody>'."\n".
-     '</table>'."\n".
-     '</div>'."\n".
-     '<div class="spacer"></div>'."\n";
-include('footer.php');
-echo '</div>'."\n".
-     '</body>'."\n".
-     '</html>'."\n";
-*/
+$output.='
+</tbody>
+</table>
+</div>
+';
+
+
+  return($output);
+}
+
 
 ?>

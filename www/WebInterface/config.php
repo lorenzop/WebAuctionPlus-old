@@ -15,6 +15,8 @@ function ConnectDB(){global $db,$config;
   mysql_query("SET names UTF8");
 }
 
+$config['site title'] = 'WebAuctionPlus'; // website title
+
 // Market Price config
 $maxSellPrice  = 10000; //this is per item
 $marketDaysMin = 30;    //number of past days to take the average of the sales for to work out market price (bigger number for smaller servers)
@@ -26,7 +28,8 @@ $cssFile = 'main'; //will be collecting a list of cool css files, but "main" is 
 
 // Auction fees and config
 $auctionLength = 14; //days before auction is ended, and items returned to owner
-$auctionDurationSec = $auctionLength * 86400;
+// will move this setting to the database
+$config['auction duration'] = $auctionLength * 86400;
 $auctionFee = 0; //% of the market price you are charged to auction the item
 $chargeAdmins = false; //whether web admins get charged fees
 

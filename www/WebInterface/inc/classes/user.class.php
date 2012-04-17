@@ -1,5 +1,5 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
-class userClass{
+class UserClass{
 
 
 protected $UserId        = 0;
@@ -13,24 +13,24 @@ public    $Spent         = 0.0;
 protected $permissions   = array();
 
 
-public function __construct($username=NULL, $password=NULL){global $config;
+function __construct($username=NULL, $password=NULL){global $config;
   $loginUrl = './?page=login';
   session_start();
   $query = '';
   if($username===NULL || $password===NULL){
     if(isset($_SESSION[$config['session name']])){
       $this->Name = trim($_SESSION[$config['session name']]);
-      $query = "WHERE `name`='".mysql_san($this->Name)."'";
+      $query = "WHERE `playerName`='".mysql_san($this->Name)."'";
     }
     if(empty($this->Name)) ForwardTo($loginUrl);
   }else{
     $this->Name = $username;
-    $query = "WHERE `name`='".   mysql_san($username)."'".
+    $query = "WHERE `playerName`='".   mysql_san($username)."'".
              " AND `password`='".mysql_san($password)."'";
   }
   // validate player
-  $query="SELECT `id`,`money`,`itemsSold`,`itemsBought`,`earnt`,`spent`,`permissions` ".
-                   "FROM `".$config['table prefix']."Players` ".$query;
+  $query="SELECT `id`,`money`,`itemsSold`,`itemsBought`,`earnt`,`spent`,`Permissions` ".
+                   "FROM `".$config['table prefix']."Players` ".$query." LIMIT 1";
   $result=RunQuery($query, __file__, __line__);
   if($result){
     if(mysql_num_rows($result)==0){
@@ -45,11 +45,11 @@ public function __construct($username=NULL, $password=NULL){global $config;
     $this->ItemsBought = ((int)    $row['itemsBought']);
     $this->Earnt       = ((double) $row['earnt']      );
     $this->Spent       = ((double) $row['spent']      );
-    foreach(explode(',',$row['permissions']) as $perm){
+    foreach(explode(',',$row['Permissions']) as $perm){
       $this->permissions[$perm] = TRUE;
     }
     // get mail count
-    $result=RunQuery("SELECT COUNT(*) AS `count` FROM `".$config['table prefix']."Mail` WHERE `name`='".mysql_san($this->Name)."'");
+    $result=RunQuery("SELECT COUNT(*) AS `count` FROM `".$config['table prefix']."Mail` WHERE `playerName`='".mysql_san($this->Name)."'", __file__, __line__);
     $row=mysql_fetch_assoc($result);
     $this->numMail = ((int)$row['count']);
   }else{

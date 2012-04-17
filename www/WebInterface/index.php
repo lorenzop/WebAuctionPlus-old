@@ -60,6 +60,7 @@ $wpaths['images']   = 'html/{theme}/images/';
 require($lpaths['config']);
 // includes
 require($lpaths['includes'].'inc.php');
+$qtime = GetTimestamp();
 $page=SanFilename($page);
 
 // load template engine

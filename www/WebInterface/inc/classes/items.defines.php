@@ -1,5 +1,6 @@
-<?php
-define('DEFINE_ITEMS',TRUE);
+<?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
+function LoadItemsArray(&$Items){
+
 
 $Items=array(
   1=>array(
@@ -1440,6 +1441,8 @@ $Items=array(
 );
 
 
+}
+
 
 
 
@@ -1553,98 +1556,11 @@ function isTrueDamage ($itemId, $itemDamage){global $DamageValues;
 }
 
 
-function getMarketPrice($itemTableId, $tableId){
-  $table = '';
-  switch ($tableId){
-    case 0:
-      $table = 'WA_Items';
-      break;
-    case 1:
-      $table = 'WA_Auctions';
-      break;
-    case 2:
-      $table = 'WA_Mail';
-      break;
-    case 3:
-      $table = 'WA_SellPrice';
-      break;
-  }
-  $queryItem = mysql_query("SELECT * FROM $table WHERE id='$itemTableId'");
-  $itemRow = mysql_fetch_row($queryItem);
-  $itemId = $itemRow[1];
-  $itemDamage = $itemRow[2];
-  $foundIt = false;
-  $queryMarket = '';
-  //return $itemId;
-  $queryEnchantLinks = mysql_query("SELECT * FROM WA_EnchantLinks WHERE itemId = '$itemTableId' AND itemTableId = '$tableId'");
-  //return mysql_num_rows($queryEnchantLinks);
-  $itemEnchantsArray = array();
-  while(list($idt, $enchIdt, $itemTableIdt, $itemIdt)= mysql_fetch_row($queryEnchantLinks)){  
-    $itemEnchantsArray[] = $enchIdt;
-  }
-  $queryEnchantLinksMarket = mysql_query("SELECT * FROM WA_EnchantLinks WHERE itemTableId = '4'");
-  $base = isTrueDamage($itemId, $itemDamage);
-  if ($base > 0){
-    if (mysql_num_rows($queryEnchantLinks) == 0){
-      $queryMarket1=mysql_query("SELECT * FROM WA_MarketPrices WHERE name='$itemId' AND damage='0' ORDER BY id DESC");
-      $maxId = -1;
-      $foundIt = false;
-      //echo 'first';
-      while(list($idm, $namem, $damagem, $timem, $pricem, $refm)= mysql_fetch_row($queryMarket1)){
-        $queryMarket2 = mysql_query("SELECT * FROM WA_EnchantLinks WHERE itemId = '$idm' AND itemTableId = '4'");
-        if (mysql_num_rows($queryMarket2)== 0){
-          if ($idm > $maxId){
-            $maxId = $idm;
-            $foundIt = true;
-          }
-        }
-      }
-      if ($foundIt){
-        $queryMarket=mysql_query("SELECT * FROM WA_MarketPrices WHERE id = '$maxId' ORDER BY id DESC");
-        $foundIt = true;
-      }
-    }else{
-      $queryMarket1=mysql_query("SELECT * FROM WA_MarketPrices WHERE name='$itemId' AND damage='0' ORDER BY id DESC");
-      $maxId = -1;
-      $foundIt = false;
-      //echo 'second';
-      while(list($idm, $namem, $damagem, $timem, $pricem, $refm)= mysql_fetch_row($queryMarket1)){
-        $marketEnchantsArray = array ();
-        $queryMarket2 = mysql_query("SELECT enchId FROM WA_EnchantLinks WHERE itemId = '$idm' AND itemTableId = '4'");
-        while(list($enchIdt)= mysql_fetch_row($queryMarket2)){
-          if ($idm > $maxId){
-            $marketEnchantsArray[] = $enchIdt;
-            
-          }
-        }
-        if((array_diff($itemEnchantsArray, $marketEnchantsArray) == null)&&(array_diff($marketEnchantsArray, $itemEnchantsArray) == null)){
-          $maxId = $idm;
-          $foundIt = true;
-        }
-        //print_r($itemEnchantsArray);
-      }
-      if ($foundIt){
-        $queryMarket=mysql_query("SELECT * FROM WA_MarketPrices WHERE id = '$maxId' ORDER BY id DESC");
-        $foundIt = true;
-      }
-    }
-  }else{
-    $queryMarket=mysql_query("SELECT * FROM WA_MarketPrices WHERE name='$itemId' AND damage='$itemDamage' ORDER BY id DESC");
-    $foundIt = true;
-  }
-  if ($foundIt==false){
-    //market price not found
-    //echo 'cant find';
-    return 0;
-  }else{
-    //found get first item
-    $rowMarket = mysql_fetch_row($queryMarket);
-    $marketId = $rowMarket[0];
-    if ($base > 0){$marketPrice = ($rowMarket[4]/$base)*($base - $itemDamage);
-    }else{         $marketPrice = $rowMarket[4];}
-    return round($marketPrice, 2);
-  }
-}
+
+
+//function getMarketPrice($itemTableId, $tableId){
+
+
 
 
 
@@ -1722,41 +1638,5 @@ function getItemImage($itemId, $itemDamage){global $ItemImages;
     return('images/'.@$ItemImages[-1]);
   }
 }
-
-
-
-
-
-
-
-
-
-
-);
-
-
-$ItemImages=array(
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // TODO=> Add a default image for unknown blocks?
 */
-
 ?>
