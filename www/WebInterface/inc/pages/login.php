@@ -27,28 +27,35 @@ function RenderPage_login(){global $config,$html; $output='';
   $html->loadCss('login.css');
   if(getVar('error')!='')    $output.='<h2 style="color: #ff0000;">Login Failed</h2>'."\n";
   if($config['demo']===TRUE){$username='demo'; $password='demo';}
-  $output.=
-    '<div id="login-box">'."\n".
-    '<div id="login-background"><img src="{path=images}wa_bg_login.png" alt="" /></div>'."\n".
-    '<form action="./" name="login" method="post">'."\n".
-    '<input type="hidden" name="page"     value="login" />'."\n".
-    '<input type="hidden" name="lastpage" value="'.getVar('lastpage').'" />'."\n".
-    '<table border="0" cellspacing="0" cellpadding="0" align="center" id="login-table">'."\n".
-    "  <tr>\n".
-    '    <td align="right"><label name="WA_Login_Username">Username:</label></td>'."\n".
-    '    <td><input type="text"   name="WA_Login_Username" value="'.$username.'" class="input" size="30" tabindex="1" autofocus="autofocus" /></td>'."\n".
-    "  </tr>\n".
-    '  <tr><td style="height: 10px;"></td></tr>'."\n".
-    "  <tr>\n".
-    '    <td align="right"><label   name="WA_Login_Password">Password:</label></td>'."\n".
-    '    <td><input type="password" name="WA_Login_Password" value="'.$password.'" class="input" size="30" tabindex="2" /></td>'."\n".
-    "  </tr>\n".
-    '  <tr><td style="height: 0px;"></td></tr>'."\n".
-    '  <tr><td colspan="2"><input type="submit" name="Submit" value="Submit" class="button" tabindex="3" /></td>'."\n".
-    "  </tr>\n".
-    "</table>\n".
-    "</div>\n";
-    "</form>\n";
+  $output.='
+<div id="login-box">
+<div id="login-background"><img src="{path=images}wa_bg_login.png" alt="" /></div>
+<form action="./" name="login" method="post">
+<input type="hidden" name="page"     value="login" />
+<input type="hidden" name="lastpage" value="'.getVar('lastpage').'" />
+<table border="0" cellspacing="0" cellpadding="0" align="center" id="login-table">
+  <tr>
+    <td align="right"><label for="WA_Login_Username">Username:&nbsp;</label></td>
+    <td><input type="text"  name="WA_Login_Username" value="'.$username.'" class="input" size="30" tabindex="1" id="WA_Login_Username" /></td>
+  </tr>
+  <tr><td style="height: 10px;"></td></tr>
+  <tr>
+    <td align="right"><label    for="WA_Login_Password">Password:&nbsp;</label></td>
+    <td><input type="password" name="WA_Login_Password" value="'.$password.'" class="input" size="30" tabindex="2" id="WA_Login_Password" /></td>
+  </tr>
+  <tr><td style="height: 0px;"></td></tr>
+  <tr><td colspan="2" align="center"><input type="submit" name="Submit" value="Submit" class="button" tabindex="3" /></td>
+  </tr>
+</table>
+</form>
+<script type="text/javascript">
+function formfocus() {
+  document.getElementById(\'WA_Login_Username\').focus();
+}
+window.onload = formfocus;
+</script>
+</div>
+';
   return($output);
 }
 
