@@ -41,24 +41,21 @@ public function getNext(){
   if($tempRow==FALSE) return(FALSE);
   $currentAuctionId = $tempRow['auctionId'];
   $output['auctionId']  = $currentAuctionId;
-  $output['itemId']     = $tempRow['itemId'];
-  $output['itemDamage'] = $tempRow['itemDamage'];
   $output['playerName'] = $tempRow['playerName'];
-  $output['qty']        = $tempRow['qty'];
   $output['price']      = $tempRow['price'];
   $output['created']    = $tempRow['created'];
+  // create item object
+  $output['Item']       = new ItemClass(array(
+    'itemId'     => $tempRow['itemId'],
+    'itemDamage' => $tempRow['itemDamage'],
+    'qty'        => $tempRow['qty'] ));
+  // get first enchantment
   if(!empty($tempRow['enchName']))
-    $output['enchantments'] = array(array(
-      'enchName' => $tempRow['enchName'],
-      'enchId'   => $tempRow['enchId'],
-      'level'    => $tempRow['level'] ));
+    $output['Item']->addEnchantment($tempRow['enchName'], $tempRow['enchId'], $tempRow['level'] );
   // get more rows (enchantments)
   while($tempRow = mysql_fetch_assoc($this->result)){
     if($tempRow['auctionId'] != $currentAuctionId) break;
-    $output['enchantments'][] = array(
-      'enchName' => $tempRow['enchName'],
-      'enchId'   => $tempRow['enchId'],
-      'level'    => $tempRow['level'] );
+    $output['Item']->addEnchantment($tempRow['enchName'], $tempRow['enchId'], $tempRow['level']);
   }
   if(count($output)==0) $output=FALSE;
   return($output);

@@ -58,8 +58,13 @@ $lpaths['theme']    = 'html/{theme}/';
 $wpaths['images']   = 'html/{theme}/images/';
 // load config
 require($lpaths['config']);
+
 // includes
 require($lpaths['includes'].'inc.php');
+// load item classes
+require($lpaths['classes'].'item.class.php');
+require($lpaths['classes'].'items.class.php');
+$items = new ItemsClass();
 $qtime = GetTimestamp();
 $page=SanFilename($page);
 
