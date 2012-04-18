@@ -1,4 +1,88 @@
 <?php
+class AuctionsClass{
+
+public $currentAuctionId = 0;
+protected $result  = FALSE;
+private   $tempRow = FALSE;
+
+function __construct(){
+}
+
+// get auctions
+public function QueryAuctions(){global $config;
+  $currentAuctionId = 0;
+  $tempRow = FALSE;
+  $query="SELECT ".
+         "Auctions.`id`         AS `auctionId`, ".
+         "Auctions.`itemId`     AS `itemId`, ".
+         "Auctions.`itemDamage` AS `itemDamage`, ".
+         "Auctions.`playerName` AS `playerName`, ".
+         "Auctions.`qty`        AS `qty`, ".
+         "Auctions.`price`      AS `price`, ".
+         "UNIX_TIMESTAMP(Auctions.`created`) AS `created`, ".
+         "ItemEnch.`enchName`   AS `enchName`, ".
+         "ItemEnch.`enchId`     AS `enchId`, ".
+         "ItemEnch.`level`      AS `level` ".
+         "FROM `".     $config['table prefix']."Auctions` `Auctions` ".
+         "LEFT JOIN `".$config['table prefix']."ItemEnchantments` `ItemEnch` ".
+         "ON  Auctions.`id`       = ItemEnch.`ItemTableId` ".
+         "AND ItemEnch.`ItemTable`='Auctions' ".
+         "ORDER BY Auctions.`id` ASC";
+//echo '<pre><font color="white">'.$query."</font></pre>";
+  $this->result=RunQuery($query, __file__, __line__);
+}
+
+// get next auction row
+public function getNext(){
+  $tempRow = &$this->tempRow;
+  $output  = array();
+  // get first row
+  if($tempRow==FALSE) $tempRow = mysql_fetch_assoc($this->result);
+  if($tempRow==FALSE) return(FALSE);
+  $currentAuctionId = $tempRow['auctionId'];
+  $output['auctionId']  = $currentAuctionId;
+  $output['itemId']     = $tempRow['itemId'];
+  $output['itemDamage'] = $tempRow['itemDamage'];
+  $output['playerName'] = $tempRow['playerName'];
+  $output['qty']        = $tempRow['qty'];
+  $output['price']      = $tempRow['price'];
+  $output['created']    = $tempRow['created'];
+  if(!empty($tempRow['enchName']))
+    $output['enchantments'] = array(array(
+      'enchName' => $tempRow['enchName'],
+      'enchId'   => $tempRow['enchId'],
+      'level'    => $tempRow['level'] ));
+  // get more rows (enchantments)
+  while($tempRow = mysql_fetch_assoc($this->result)){
+    if($tempRow['auctionId'] != $currentAuctionId) break;
+    $output['enchantments'][] = array(
+      'enchName' => $tempRow['enchName'],
+      'enchId'   => $tempRow['enchId'],
+      'level'    => $tempRow['level'] );
+  }
+  if(count($output)==0) $output=FALSE;
+  return($output);
+}
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 global $config,$user,$items;
 if(@$config['auction duration']==0) $config['auction duration']=86400 * 7; // default 1 week
 $isAdmin=$user->hasPerms('isAdmin');
@@ -31,24 +115,6 @@ function getMarketPrice($itemTableId, $tableId){
   $foundIt = false;
   $queryMarket = '';
   //return $itemId;
-
-
-
-
-
-
-
-
-
-return;
-
-
-
-
-
-
-
-
 
   $queryEnchantLinks = RunQuery("SELECT * FROM WA_EnchantLinks WHERE itemId = '$itemTableId' AND itemTableId = '$tableId'", __file__, __line__);
   //return mysql_num_rows($queryEnchantLinks);
@@ -393,6 +459,7 @@ exit();
   }
 
 }
+*/
 
 
 ?>

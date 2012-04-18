@@ -7,14 +7,11 @@ LoadItemsClass();
 
 
 function RenderPage_auctions(){global $config,$html,$user,$items; $output='';
-//  require($config['paths']['local']['classes'].'auctions.class.php');
+  require($config['paths']['local']['classes'].'auctions.class.php');
+  $auctions=new AuctionsClass();
   $config['title'] = 'Current Auctions';
-
   // get auctions
-  $query="SELECT `id`,`itemId`,`itemDamage`,`playerName`,`qty`,`price`,UNIX_TIMESTAMP(`created`) ".
-         "FROM `".$config['table prefix']."Auctions`";
-  $result=RunQuery($query, __file__, __line__);
-
+  $auctions->QueryAuctions();
 
 $output.='
 <p style="color:red">
@@ -62,8 +59,15 @@ $output.='
 ';
 
 
-require($config['paths']['local']['classes'].'auctions.class.php');
 
+while($auction = $auctions->getNext()){
+
+$output.=
+//echo
+'<pre>'.
+print_r($auction,TRUE)
+.'</pre>';
+}
 
 $output.='
 </tbody>
