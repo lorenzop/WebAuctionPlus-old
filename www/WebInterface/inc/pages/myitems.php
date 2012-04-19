@@ -1,4 +1,12 @@
-<?php
+<?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
+// my items page
+
+
+function RenderPage_myitems(){global $config; $output='';
+  $config['title'] = 'My Items';
+  $output.='<h1 style="text-align: center;">** Under Construction **</h1>';
+  return($output);
+
 
 session_start();
 if(!isset($_SESSION['User'])){
@@ -106,5 +114,9 @@ include('footer.php');
 echo '</div>'."\n";
 echo '</body>'."\n";
 echo '</html>'."\n";
+
+
+}
+
 
 ?>

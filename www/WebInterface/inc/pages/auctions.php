@@ -2,7 +2,7 @@
 // current auctions page
 
 
-function RenderPage_auctions(){global $config,$html,$user,$items; $output='';
+function RenderPage_auctions(){global $config,$html,$user; $output='';
   $UseAjaxSource = FALSE;
   require($config['paths']['local']['classes'].'auctions.class.php');
   $auctions=new AuctionsClass();
@@ -89,7 +89,7 @@ while($auction = $auctions->getNext()){
     <tr class="'.$rowClass.'" style="height: 120px;">
 ';
 // add enchantments to this link!
-  $output.='<td style="padding-bottom: 10px; text-align: center;"><a href="graph.php?name='.$Item->itemId.'&damage='.$Item->itemDamage.'">'.
+  $output.='<td style="padding-bottom: 10px; text-align: center;"><a href="./?page=graph&name='.$Item->itemId.'&damage='.$Item->itemDamage.'">'.
            '<img src="images/item_icons/'.$Item->getItemImage().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
            '<br /><b>'.$Item->getItemName().'</b>';
   if($Item->itemType=='tool'){

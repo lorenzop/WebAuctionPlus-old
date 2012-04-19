@@ -53,7 +53,7 @@ case 'default':
 <a href="./?page=myauctions">My Auctions</a><br />
 <a href="./?page=playerstats">Player Stats</a><br />
 <a href="./?page=info">Item Info</a><br />
-<a href="./?page=transactionLog">Transaction Log</a><br />
+<a href="./?page=transactionlog">Transaction Log</a><br />
 <a href="./?page=logout">Logout</a>
 
 

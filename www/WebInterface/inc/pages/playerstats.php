@@ -1,4 +1,13 @@
-<?php
+<?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
+// player stats page
+
+
+function RenderPage_playerstats(){global $config; $output='';
+  $config['title'] = 'Player Stats';
+  $output.='<h1 style="text-align: center;">** Under Construction **</h1>';
+  return($output);
+
+
 // TODO: Fix HTML
 session_start();
 if(!isset($_SESSION['User'])){
@@ -88,5 +97,9 @@ include("footer.php");
 echo "</div>\n";
 echo "</body>\n";
 echo "</html>\n";
+
+
+}
+
 
 ?>
