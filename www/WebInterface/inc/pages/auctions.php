@@ -31,13 +31,13 @@ $output.='
 $output.='
 <div class="demo_jui">
 <!-- mainTable example -->
-<table cellpadding="0" cellspacing="0" border="0" class="display" id="mainTable">
+<table border="0" cellpadding="0" cellspacing="0" class="display" id="mainTable">
   <thead>
-    <tr valign="bottom">
+    <tr style="text-align: center; vertical-align: bottom;">
       <th>Item</th>
       <th>Seller</th>
       <th>Expires</th>
-      <th>Quantity</th>
+      <th>Qty</th>
       <th>Price (Each)</th>
       <th>Price (Total)</th>
       <th>Percent of<br />Market Price</th>
@@ -53,25 +53,47 @@ $output.='
   </thead>
   <tbody>
 ';
-
-
-
+// list auctions
 while($auction = $auctions->getNext()){
-
-$output.=
-//echo
-'<pre>'.
-print_r($auction,TRUE)
-.'</pre>';
+  $Item = &$auction['Item'];
+  $output.='
+    <tr style="height: 120px;">
+';
+// add enchantments to this link!
+  $output.='<td style="padding-bottom: 10px; text-align: center;"><a href="graph.php?name='.$Item->itemId.'&damage='.$Item->itemDamage.'">'.
+           '<img src="images/item_icons/'.$Item->getItemImage().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
+           '<br /><b>'.$Item->getItemName().'</b>';
+  if($Item->itemType=='tool'){
+    $output.='<br />'.$Item->getPercentDamaged().' % damaged';
+    foreach($Item->getEnchantmentsArray() as $ench){
+      $output.='<br /><span style="font-size: smaller;"><i>'.$ench['enchName'].' '.numberToRoman($ench['level']).'</i></span>';
+    }
+  }
+  $output.='</a></td>
+      <td style="text-align: center;"><img src="./?page=mcface&username='.$auction['playerName'].'" width="32" alt="" /><br />'.$auction['playerName'].'</td>
+      <td style="text-align: center;">expires</td>
+      <td style="text-align: center;">'.((int)$Item->qty).'</td>
+      <td style="text-align: center;">'.number_format((double)$auction['price'],2).'</td>
+      <td style="text-align: center;">'.number_format((double)($auction['price'] * $Item->qty),2).'</td>
+      <td style="text-align: center;">market price<br />goes here</td>
+      <td style="text-align: center;">'.
+      ($user->hasPerms('canBuy')?
+        '<form action="./" method="post">'.
+        '<input type="hidden" name="page" value="purchaseItem" />'.
+        '<input type="hidden" name="itemId" value="'.$Item->itemId.'" />'.
+        '<input type="text" name="qty" value="1" onKeyPress="return numbersonly(this, event);" class="input" style="width: 60px; text-align: center;" /><br />'.
+        '<input type="submit" value="Buy" class="button" /></form>'
+      :$output.="Can't Buy").'</td>
+      '.($user->hasPerms('isAdmin')?
+        '<td style="text-align: center;"><a href="scripts/cancelAuctionAdmin.php?id='.$Item->itemId.'" class="button">Cancel</a></td>':'').'
+    </tr>
+';
 }
-
 $output.='
 </tbody>
 </table>
 </div>
 ';
-
-
   return($output);
 }
 
