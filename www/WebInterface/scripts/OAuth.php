@@ -909,3 +909,5 @@ public static function get_headers() {
 		return implode('&', $pairs);
 	}
 }
+
+?>
