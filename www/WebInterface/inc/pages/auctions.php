@@ -3,11 +3,39 @@
 
 
 function RenderPage_auctions(){global $config,$html,$user,$items; $output='';
+  $UseAjaxSource = FALSE;
   require($config['paths']['local']['classes'].'auctions.class.php');
   $auctions=new AuctionsClass();
   $config['title'] = 'Current Auctions';
   // get auctions
   $auctions->QueryAuctions();
+
+
+$html->addToHeader('
+  <script type="text/javascript" language="javascript" charset="utf-8">
+  $(document).ready(function() {
+    oTable = $(\'#mainTable\').dataTable({
+      "sZeroRecords"      : "No auctions to display",
+      "bJQueryUI"         : true,
+      "bStateSave"        : true,
+      "iDisplayLength"    : 5,
+      "aLengthMenu"       : [[5, 10, 30, 100, -1], [5, 10, 30, 100, "All"]],
+      "sPaginationType"   : "full_numbers",
+      "sPagePrevEnabled"  : true,
+      "sPageNextEnabled"  : true,
+'.($UseAjaxSource?'
+      "bProcessing"       : true,
+      "sAjaxSource"       : "scripts/server_processing.php",
+':'').'
+    });
+  } );
+  var info = $(\'.dataTables_info\')
+  $(\'tfoot\').append(info);
+  </script>
+');
+
+
+
 
 $output.='
 <p style="color:red">
@@ -56,8 +84,9 @@ $output.='
 // list auctions
 while($auction = $auctions->getNext()){
   $Item = &$auction['Item'];
+  $rowClass = 'gradeU';
   $output.='
-    <tr style="height: 120px;">
+    <tr class="'.$rowClass.'" style="height: 120px;">
 ';
 // add enchantments to this link!
   $output.='<td style="padding-bottom: 10px; text-align: center;"><a href="graph.php?name='.$Item->itemId.'&damage='.$Item->itemDamage.'">'.
@@ -71,7 +100,7 @@ while($auction = $auctions->getNext()){
   }
   $output.='</a></td>
       <td style="text-align: center;"><img src="./?page=mcface&username='.$auction['playerName'].'" width="32" alt="" /><br />'.$auction['playerName'].'</td>
-      <td style="text-align: center;">expires</td>
+      <td style="text-align: center;">expires date<br />goes here</td>
       <td style="text-align: center;">'.((int)$Item->qty).'</td>
       <td style="text-align: center;">'.number_format((double)$auction['price'],2).'</td>
       <td style="text-align: center;">'.number_format((double)($auction['price'] * $Item->qty),2).'</td>

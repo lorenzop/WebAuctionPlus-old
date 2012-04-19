@@ -1,5 +1,5 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
-global $html,$user;
+global $config,$html,$user;
 $output='';
 
 
@@ -17,7 +17,7 @@ $output.=
 // css
 $html->loadCss('main.css');
 $html->loadCss('table_jui.css');
-//$html->loadCss($uiPack.'/jquery-ui-1.8.18.custom.css');
+$html->loadCss('css/'.SanFilename($config['ui Pack']).'/jquery-ui-1.8.19.custom.css');
 //$html->loadCss('jquery-ui-1.8.16.custom.css');
 //$html->loadCss($cssFile.'.css');
 $output.="  <style type=\"text/css\">\n{css}\n  </style>\n";
@@ -26,17 +26,7 @@ $output.='
   <script type="text/javascript" language="javascript" src="js/jquery-1.7.2.min.js"></script>
   <script type="text/javascript" language="javascript" src="js/jquery.dataTables-1.9.0.min.js"></script>
   <script type="text/javascript" language="javascript" src="js/inputfunc.js"></script>
-  <script type="text/javascript" language="javascript" charset="utf-8">
-    $(document).ready(function() {
-      oTable = $(\'#mainTable\').dataTable({
-//        "bProcessing"     : true,
-        "bJQueryUI": true,
-//        "bStateSave"      : true,
-        "sPaginationType": "full_numbers"
-//        "sAjaxSource"     : "scripts/server_processing.php"
-      });
-    } );
-  </script>
+{AddToHeader}
 </head>
 <body>
 <div id="holder">

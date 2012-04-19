@@ -37,6 +37,7 @@ $config=array(
   'demo'         => FALSE,
   'title'        => '',
   'theme'        => 'default',
+  'ui Pack'      => 'redmond',
   'table prefix' => 'WA_',
   'iConomy' => array(
     'use'        => 'auto',

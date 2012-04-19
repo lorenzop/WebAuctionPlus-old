@@ -4,6 +4,7 @@ class RenderHTML{
 protected $outputs = array();
 protected $tags    = array();
 protected $Frame   = '';
+private   $tempHeader = '';
 
 
 function __construct(&$outputs, &$tags){global $config;
@@ -25,6 +26,7 @@ public function Display(){global $config,$lpaths;
   // render header/footer
   $this->outputs['header'] = include($this->getLocalThemePath().'header.php');
   $this->outputs['footer'] = include($this->getLocalThemePath().'footer.php');
+  $this->outputs['header'] = str_replace('{AddToHeader}',$this->tempHeader,$this->outputs['header']);
   // insert css
   $this->outputs['header']=str_replace('{css}', "\n".$this->outputs['css']."\n", $this->outputs['header']);
   // render tags
@@ -48,7 +50,10 @@ public function getPageFrame(){
   return($this->Frame);
 }
 
-
+// add to html header
+public function addToHeader($text){
+  $this->tempHeader.="\n".$text."\n";
+}
 
 
 
@@ -112,7 +117,7 @@ public function getLocalThemePath($theme=''){global $config;
 
 // load a .css file
 public function loadCss($file){global $config,$paths;
-  $file=SanFilename($file);
+//  $file=SanFilename($file);
   if(substr($file,-4)!='.css'){$file.='.css';}
   // current theme
   $file2=$this->getLocalThemePath().$file;
@@ -124,6 +129,10 @@ public function loadCss($file){global $config,$paths;
   $file2=$this->getLocalThemePath('default').$file;
   if(file_exists($file2)){
     $this->outputs['css'].="\n".file_get_contents($file2)."\n";
+    return;
+  }
+  if(file_exists($file)){
+    $this->outputs['css'].="\n".file_get_contents($file)."\n";
     return;
   }
   echo '<p>File not found: '.$file."</p>\n";
