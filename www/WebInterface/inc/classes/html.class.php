@@ -118,24 +118,22 @@ public function getLocalThemePath($theme=''){global $config;
 // load a .css file
 public function loadCss($file){global $config,$paths;
 //  $file=SanFilename($file);
+  $output = '';
   if(substr($file,-4)!='.css'){$file.='.css';}
   // current theme
-  $file2=$this->getLocalThemePath().$file;
-  if(file_exists($file2)){
-    $this->outputs['css'].="\n".file_get_contents($file2)."\n";
-    return;
-  }
+  if(file_exists(               $this->getLocalThemePath().$file)){
+    $output = file_get_contents($this->getLocalThemePath().$file);
   // default theme
-  $file2=$this->getLocalThemePath('default').$file;
-  if(file_exists($file2)){
-    $this->outputs['css'].="\n".file_get_contents($file2)."\n";
-    return;
+  }elseif(file_exists(          $this->getLocalThemePath('default').$file)){
+    $output = file_get_contents($this->getLocalThemePath('default').$file);
+  // website root
+  }elseif(file_exists(          $file)){
+    $output = file_get_contents($file);
   }
-  if(file_exists($file)){
-    $this->outputs['css'].="\n".file_get_contents($file)."\n";
-    return;
-  }
-  echo '<p>File not found: '.$file."</p>\n";
+  if(empty($output)){echo '<p>File not found: '.$file."</p>\n"; return;}
+  // remove comments
+  $output=preg_replace('/\/\*(.*?)\*\//s','',$output);
+  $this->outputs['css'] .= "\n".$output."\n";
 }
 
 

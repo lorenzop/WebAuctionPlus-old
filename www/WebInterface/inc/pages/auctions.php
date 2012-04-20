@@ -89,7 +89,7 @@ while($auction = $auctions->getNext()){
     <tr class="'.$rowClass.'" style="height: 120px;">
 ';
 // add enchantments to this link!
-  $output.='<td style="padding-bottom: 10px; text-align: center;"><a href="./?page=graph&name='.$Item->itemId.'&damage='.$Item->itemDamage.'">'.
+  $output.='<td style="padding-bottom: 10px; text-align: center;"><a href="./?page=graph&amp;name='.$Item->itemId.'&amp;damage='.$Item->itemDamage.'">'.
            '<img src="images/item_icons/'.$Item->getItemImage().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
            '<br /><b>'.$Item->getItemName().'</b>';
   if($Item->itemType=='tool'){
@@ -99,7 +99,7 @@ while($auction = $auctions->getNext()){
     }
   }
   $output.='</a></td>
-      <td style="text-align: center;"><img src="./?page=mcface&username='.$auction['playerName'].'" width="32" alt="" /><br />'.$auction['playerName'].'</td>
+      <td style="text-align: center;"><img src="./?page=mcface&amp;username='.$auction['playerName'].'" width="32" alt="" /><br />'.$auction['playerName'].'</td>
       <td style="text-align: center;">expires date<br />goes here</td>
       <td style="text-align: center;">'.((int)$Item->qty).'</td>
       <td style="text-align: center;">'.number_format((double)$auction['price'],2).'</td>
@@ -110,7 +110,7 @@ while($auction = $auctions->getNext()){
         '<form action="./" method="post">'.
         '<input type="hidden" name="page" value="purchaseItem" />'.
         '<input type="hidden" name="itemId" value="'.$Item->itemId.'" />'.
-        '<input type="text" name="qty" value="1" onKeyPress="return numbersonly(this, event);" class="input" style="width: 60px; text-align: center;" /><br />'.
+        '<input type="text" name="qty" value="1" onkeypress="return numbersonly(this, event);" class="input" style="width: 60px; text-align: center;" /><br />'.
         '<input type="submit" value="Buy" class="button" /></form>'
       :$output.="Can't Buy").'</td>
       '.($user->hasPerms('isAdmin')?
