@@ -7,9 +7,6 @@ function RenderPage_auctions(){global $config,$html,$user; $output='';
   require($config['paths']['local']['classes'].'auctions.class.php');
   $auctions=new AuctionsClass();
   $config['title'] = 'Current Auctions';
-  // get auctions
-  $auctions->QueryAuctions();
-
 
 $html->addToHeader('
   <script type="text/javascript" language="javascript" charset="utf-8">
@@ -29,32 +26,19 @@ $html->addToHeader('
 ':'').'
     });
   } );
-  var info = $(\'.dataTables_info\')
-  $(\'tfoot\').append(info);
+//  var info = $(\'.dataTables_info\')
+//  $(\'tfoot\').append(info);
   </script>
 ');
 
-
-
-
-$output.='
-<p style="color:red">
-';
 if(isset($_SESSION['error'])) {
-  echo  $_SESSION['error'];
+  $output.='<p style="color:red">'.$_SESSION['error'].'</p>';
   unset($_SESSION['error']);
 }
-$output.='
-</p>
-<p style="color: green;">
-';
 if(isset($_SESSION['success'])) {
-  echo  $_SESSION['success'];
+  $output.='<p style="color: green;">'.$_SESSION['success'].'</p>';
   unset($_SESSION['success']);
 }
-$output.='
-</p>
-';
 
 $output.='
 <div class="demo_jui">
@@ -81,23 +65,28 @@ $output.='
   </thead>
   <tbody>
 ';
+
+
+// get auctions
+$auctions->QueryAuctions();
 // list auctions
 while($auction = $auctions->getNext()){
   $Item = &$auction['Item'];
   $rowClass = 'gradeU';
   $output.='
     <tr class="'.$rowClass.'" style="height: 120px;">
-';
+      <td style="padding-bottom: 10px; text-align: center;">'.
 // add enchantments to this link!
-  $output.='<td style="padding-bottom: 10px; text-align: center;"><a href="./?page=graph&amp;name='.$Item->itemId.'&amp;damage='.$Item->itemDamage.'">'.
-           '<img src="images/item_icons/'.$Item->getItemImage().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
-           '<br /><b>'.$Item->getItemName().'</b>';
+//        '<a href="./?page=graph&amp;name='.$Item->itemId.'&amp;damage='.$Item->itemDamage.'">'.
+        '<img src="images/item_icons/'.$Item->getItemImage().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
+        '<br /><b>'.$Item->getItemName().'</b>';
   if($Item->itemType=='tool'){
     $output.='<br />'.$Item->getPercentDamaged().' % damaged';
     foreach($Item->getEnchantmentsArray() as $ench){
       $output.='<br /><span style="font-size: smaller;"><i>'.$ench['enchName'].' '.numberToRoman($ench['level']).'</i></span>';
     }
   }
+//print_r($auction);
   $output.='</a></td>
       <td style="text-align: center;"><img src="./?page=mcface&amp;username='.$auction['playerName'].'" width="32" alt="" /><br />'.$auction['playerName'].'</td>
       <td style="text-align: center;">expires date<br />goes here</td>
@@ -109,12 +98,12 @@ while($auction = $auctions->getNext()){
       ($user->hasPerms('canBuy')?
         '<form action="./" method="post">'.
         '<input type="hidden" name="page" value="purchaseItem" />'.
-        '<input type="hidden" name="itemId" value="'.$Item->itemId.'" />'.
+        '<input type="hidden" name="auctionid" value="'.((int)$auction['auctionId']).'" />'.
         '<input type="text" name="qty" value="1" onkeypress="return numbersonly(this, event);" class="input" style="width: 60px; text-align: center;" /><br />'.
         '<input type="submit" value="Buy" class="button" /></form>'
       :$output.="Can't Buy").'</td>
       '.($user->hasPerms('isAdmin')?
-        '<td style="text-align: center;"><a href="scripts/cancelAuctionAdmin.php?id='.$Item->itemId.'" class="button">Cancel</a></td>':'').'
+        '<td style="text-align: center;"><a href="scripts/cancelAuctionAdmin.php?id='.((int)$Item->itemId).'" class="button">Cancel</a></td>':'').'
     </tr>
 ';
 }

@@ -123,10 +123,12 @@ a:visited{
   -moz-border-radius: 6px;
   font-family:   "Trebuchet MS", Arial, Helvetica, sans-serif;
   font-size:     18px;
+  text-decoration: none;
 }
 .button:hover {
   background-color: #CFD3FD;
 //  border-color: #CD9D3F; #D2A454;
+  text-decoration: none;
 }
 
 label {

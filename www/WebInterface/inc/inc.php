@@ -43,7 +43,7 @@ function mysql_san($text){global $db;
     if(!$db){echo '<p>Database not connected..</p>'; exit();}}
   // san an array
   if(is_array($text)){return(array_map(__METHOD__,$text));}
-  if($text==''){return('');}
+  if(empty($text)){return('');}
   return(mysql_real_escape_string($text));}
 //function getConfig($name,$default=''){global $config;
 //  $result=QueryDB("SELECT `value` FROM `".$config['table prefix']."Data` WHERE `name`='".mysql_real_escape_string($name)."'",__file__,__line__);
@@ -67,7 +67,7 @@ function trimPath($path){
 function SanFilename($filename){
   if(is_array($filename)){return(array_map(__METHOD__,$filename));}
   $filename=trim($filename);
-  if($filename==''){return('');}
+  if(empty($filename)){return('');}
   // shouldn't contain /
   if(strpos($filename,'/')!==FALSE){die('stop SanFilename() '.$filename);}
   // remove dots from front and end
@@ -90,13 +90,14 @@ function fromBytes($size){
 // string to seconds
 function toSeconds($text){
   $a=substr($text,-1);
-  if($a=='m'){      return( ((int)$text)*60);
-  }else if($a=='h'){return( ((int)$text)*3600);
-  }else if($a=='d'){return( ((int)$text)*86400);
-  }else if($a=='w'){return( ((int)$text)*604800);
-  }else if($a=='n'){return( ((int)$text)*2592000);
-  }else if($a=='y'){return( ((int)$text)*31536000);
-  }else{            return( (int)$text);}}
+  if     ($a=='m') return( ((int)$text)*60       );
+  else if($a=='h') return( ((int)$text)*3600     );
+  else if($a=='d') return( ((int)$text)*86400    );
+  else if($a=='w') return( ((int)$text)*604800   );
+  else if($a=='n') return( ((int)$text)*2592000  );
+  else if($a=='y') return( ((int)$text)*31536000 );
+  else             return(  (int)$text           );
+}
 // seconds to string
 function fromSeconds($seconds){$output='';
   if($seconds>31536000){
@@ -120,7 +121,7 @@ function fromSeconds($seconds){$output='';
 function numberToRoman($num){
   $num = ((int)$num);
   $result = '';
-  $lookup=array(
+  $lookup = array(
     'M' => 1000,
     'CM'=> 900,
     'D' => 500,
@@ -137,7 +138,7 @@ function numberToRoman($num){
   foreach($lookup as $roman=>$value){
     $matches = intval($num / $value);
     $result .= str_repeat($roman, $matches);
-    $num=$num % $value;
+    $num = $num % $value;
   }
   return $result;
 }
@@ -159,7 +160,8 @@ function send_mail($to_email,$body,$subject,$from_email,$from_name=''){$headers=
   ini_set('sendmail_from',$from_email); // force the from address
   $mail_sent=mail($to_email,$subject,"\r\n".$body,$headers);
   ini_restore('sendmail_from');
-  return($mail_sent);}
+  return($mail_sent);
+}
 
 
 // get root domain for cookies
@@ -171,8 +173,9 @@ function GetCookieDomain(){
   $a=explode('.',$cookie_domain);
   if(count($a)>2){$cookie_domain=$a[count($a)-2].'.'.$a[count($a)-1];
   }else{          $cookie_domain=implode('.',$a);} $a='';
-  if($cookie_domain==''){return('');
-  }else{                 return('.'.$cookie_domain);}}
+  if(empty($cookie_domain)) return('');
+  else                      return('.'.$cookie_domain);
+}
 
 
 ?>
