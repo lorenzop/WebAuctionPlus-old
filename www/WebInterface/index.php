@@ -21,7 +21,8 @@ function getVar($name,$type='',$order=array('get','post')){$output='';
 }
 
 // get page name
-$page=getVar('page');
+$page   = getVar('page');
+$action = getVar('action');
 if(empty($page)) $page='home';
 
 // mcface
@@ -29,10 +30,12 @@ if($page=='mcface'){require('inc/mcface.php'); exit();}
 
 // set defaults
 $config=array(
+  'settings'     => array(),
   'page'         => &$page,
+  'action'       => &$action,
   'paths' => array(
-    'local' => array(),
-    'http'  => array()
+    'local'      => array(),
+    'http'       => array()
   ),
   'demo'         => FALSE,
   'title'        => '',
@@ -41,14 +44,15 @@ $config=array(
   'table prefix' => 'WA_',
   'iConomy' => array(
     'use'        => 'auto',
-    'Table'      => 'iConomy',
+    'Table'      => 'iConomy'
   ),
-  'session name' => 'WebAuctionPlus User',
+  'session name' => 'WebAuctionPlus User'
 );
-$paths  = &$config['paths'];
-$lpaths = &$config['paths']['local'];
-$wpaths = &$config['paths']['http'];
-$user   = &$config['user'];
+$settings = &$config['settings'];
+$paths    = &$config['paths'];
+$lpaths   = &$config['paths']['local'];
+$wpaths   = &$config['paths']['http'];
+$user     = &$config['user'];
 // local paths
 $lpaths['config']   = 'config.php';
 $lpaths['includes'] = 'inc/';
@@ -64,6 +68,10 @@ require($lpaths['config']);
 require($lpaths['includes'].'inc.php');
 $qtime = GetTimestamp();
 $page=SanFilename($page);
+
+// load settings
+require($lpaths['classes'].'settings.class.php');
+SettingsClass::LoadSettings();
 
 // load template engine
 require($lpaths['classes'].'html.class.php');

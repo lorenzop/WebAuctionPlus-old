@@ -1,7 +1,7 @@
 <?php
 class AuctionsClass{
 
-public $currentId = 0;
+public $currentId  = 0;
 protected $result  = FALSE;
 private   $tempRow = FALSE;
 
@@ -25,8 +25,8 @@ public function QueryAuctions($args=array()){global $config;
          "ItemEnch.`level`      AS `level` ".
          "FROM `".     $config['table prefix']."Auctions` `Auctions` ".
          "LEFT JOIN `".$config['table prefix']."ItemEnchantments` `ItemEnch` ".
-         "ON  Auctions.`id`        = ItemEnch.`ItemTableId` ".
-         "AND ItemEnch.`ItemTable` = 'Auctions'".
+         "ON  Auctions.`id`          = ItemEnch.`ItemTableId` ".
+         "WHERE ItemEnch.`ItemTable` = 'Auctions'".
          @$args['WHERE'].' '.
          "ORDER BY Auctions.`id` ASC";
 //echo '<pre><font color="white">'.$query."</font></pre>";

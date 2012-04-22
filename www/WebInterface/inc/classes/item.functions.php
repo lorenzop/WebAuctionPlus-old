@@ -98,6 +98,19 @@ public static function getPercentDamaged($itemDamage, $maxDamage){
   return(round(($itemDamage/$maxDamage)*100, 1));
 }
 
+// get max stack size
+public static function getMaxStack($itemId=0, $itemDamage=0){
+  $item = self::getItemArray($itemId, $itemDamage);
+  if(is_array($item) && count($item)>0){
+    if(isset($item['stack'])) $stacksize = $item['stack'];
+    else                      $stacksize = 64;
+    if($stacksize < 1)  $stacksize = 1;
+    if($stacksize > 64) $stacksize = 64;
+    return($stacksize);
+  }else
+    return(64);
+}
+
 
 }
 ?>

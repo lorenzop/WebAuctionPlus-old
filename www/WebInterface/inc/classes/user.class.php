@@ -49,7 +49,8 @@ function __construct($username=NULL, $password=NULL){global $config;
       $this->permissions[$perm] = TRUE;
     }
     // get mail count
-    $result=RunQuery("SELECT COUNT(*) AS `count` FROM `".$config['table prefix']."Mail` WHERE `playerName`='".mysql_san($this->Name)."'", __file__, __line__);
+    $result=RunQuery("SELECT COUNT(*) AS `count` FROM `".$config['table prefix']."Items` WHERE ".
+                     "`ItemTable`='Mail' AND `playerName`='".mysql_san($this->Name)."'", __file__, __line__);
     $row=mysql_fetch_assoc($result);
     $this->numMail = ((int)$row['count']);
   }else{
