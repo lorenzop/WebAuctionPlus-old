@@ -14,7 +14,7 @@ function __construct($Item=array()){global $config;
     if(isset($Item['itemDamage'])) $this->itemDamage = $Item['itemDamage'];
     if(isset($Item['qty']))        $this->qty        = $Item['qty'];
     if($this->itemId>0 && empty($this->itemType))
-      $this->itemType = @ItemsClass::$ItemsArray[$this->itemId]['type'];
+      $this->itemType = @ItemFuncs::$Items[$this->itemId]['type'];
     if(isset($Item['enchantments']) && is_array($Item['enchantments'])){
 echo '** set enchantments here **';
       foreach($Item['enchantments'] as $ench){
@@ -28,27 +28,27 @@ echo '** set enchantments here **';
 // get item name
 public function getItemName(){
   if($this->itemId<=0) return('');
-  return(ItemsClass::getItemName($this->itemId));
+  return(ItemFuncs::getItemName($this->itemId));
 }
 
 // get item title
 public function getItemTitle(){
   if($this->itemId<=0) return('');
-  return(ItemsClass::getItemTitle($this->itemId, $this->itemDamage));
+  return(ItemFuncs::getItemTitle($this->itemId, $this->itemDamage));
 }
 
 // get item icon file
 public function getItemImage(){
   if($this->itemId<=0) return('');
-  return(ItemsClass::getItemImage($this->itemId, $this->itemDamage));
+  return(ItemFuncs::getItemImage($this->itemId, $this->itemDamage));
 }
 
 // get percent damaged
 public function getPercentDamaged(){
   if($this->itemId<=0) return('');
-  $item = ItemsClass::getItemArray($this->itemId);
+  $item = ItemFuncs::getItemArray($this->itemId);
   if(!isset($item['damage'])) return('');
-  return(ItemsClass::getPercentDamaged($this->itemDamage,$item['damage']));
+  return(ItemFuncs::getPercentDamaged($this->itemDamage,$item['damage']));
 }
 
 // add enchantment

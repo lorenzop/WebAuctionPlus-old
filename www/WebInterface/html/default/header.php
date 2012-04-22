@@ -11,8 +11,6 @@ $output.=
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
   <title>{sitepage title}</title>
   <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
-  <style type="text/css" title="currentStyle">
-  </style>
 ';
 // css
 $html->loadCss('main.css');
@@ -51,9 +49,11 @@ case 'default':
 <a href="./">Home</a><br />
 <a href="./?page=myitems">My Items</a><br />
 <a href="./?page=myauctions">My Auctions</a><br />
+<!--
 <a href="./?page=playerstats">Player Stats</a><br />
 <a href="./?page=info">Item Info</a><br />
 <a href="./?page=transactionlog">Transaction Log</a><br />
+-->
 <a href="./?page=logout">Logout</a>
 
 

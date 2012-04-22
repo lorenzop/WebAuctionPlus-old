@@ -2,9 +2,10 @@
 
 
 // load item classes
+require($lpaths['classes'].'item.functions.php');
+require($lpaths['classes'].'item.defines.php');
 require($lpaths['classes'].'item.class.php');
 require($lpaths['classes'].'items.class.php');
-require($lpaths['classes'].'items.defines.php');
 
 
 // render time

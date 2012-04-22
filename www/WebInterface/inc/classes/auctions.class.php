@@ -1,7 +1,7 @@
 <?php
 class AuctionsClass{
 
-public $currentAuctionId = 0;
+public $currentId = 0;
 protected $result  = FALSE;
 private   $tempRow = FALSE;
 
@@ -10,13 +10,13 @@ function __construct(){
 
 // get auctions
 public function QueryAuctions($args=array()){global $config;
-  $currentAuctionId = 0;
+  $this->currentId = 0;
   $tempRow = FALSE;
   $query="SELECT ".
-         "Auctions.`id`         AS `auctionId`, ".
+         "Auctions.`id`         AS `id`, ".
+         "Auctions.`playerName` AS `playerName`, ".
          "Auctions.`itemId`     AS `itemId`, ".
          "Auctions.`itemDamage` AS `itemDamage`, ".
-         "Auctions.`playerName` AS `playerName`, ".
          "Auctions.`qty`        AS `qty`, ".
          "Auctions.`price`      AS `price`, ".
          "UNIX_TIMESTAMP(Auctions.`created`) AS `created`, ".
@@ -25,8 +25,8 @@ public function QueryAuctions($args=array()){global $config;
          "ItemEnch.`level`      AS `level` ".
          "FROM `".     $config['table prefix']."Auctions` `Auctions` ".
          "LEFT JOIN `".$config['table prefix']."ItemEnchantments` `ItemEnch` ".
-         "ON  Auctions.`id`       = ItemEnch.`ItemTableId` ".
-         "AND ItemEnch.`ItemTable`='Auctions'".
+         "ON  Auctions.`id`        = ItemEnch.`ItemTableId` ".
+         "AND ItemEnch.`ItemTable` = 'Auctions'".
          @$args['WHERE'].' '.
          "ORDER BY Auctions.`id` ASC";
 //echo '<pre><font color="white">'.$query."</font></pre>";
@@ -40,13 +40,13 @@ public function getNext(){
   // get first row
   if($tempRow==FALSE) $tempRow = mysql_fetch_assoc($this->result);
   if($tempRow==FALSE) return(FALSE);
-  $currentAuctionId = $tempRow['auctionId'];
-  $output['auctionId']  = $currentAuctionId;
+  $this->currentId      = $tempRow['id'];
+  $output['id']         = $tempRow['id'];
   $output['playerName'] = $tempRow['playerName'];
   $output['price']      = $tempRow['price'];
   $output['created']    = $tempRow['created'];
   // create item object
-  $output['Item']       = new ItemClass(array(
+  $output['Item'] = new ItemClass(array(
     'itemId'     => $tempRow['itemId'],
     'itemDamage' => $tempRow['itemDamage'],
     'qty'        => $tempRow['qty'] ));
@@ -55,7 +55,7 @@ public function getNext(){
     $output['Item']->addEnchantment($tempRow['enchName'], $tempRow['enchId'], $tempRow['level'] );
   // get more rows (enchantments)
   while($tempRow = mysql_fetch_assoc($this->result)){
-    if($tempRow['auctionId'] != $currentAuctionId) break;
+    if($tempRow['id'] != $this->currentId) break;
     $output['Item']->addEnchantment($tempRow['enchName'], $tempRow['enchId'], $tempRow['level']);
   }
   if(count($output)==0) $output=FALSE;

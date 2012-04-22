@@ -1,11 +1,12 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 
 
+// item tables enum
 class ItemTables{
-  public $value = NULL;
   const Items    = 1;
   const Auctions = 2;
   const Mail     = 3;
+  public $value = NULL;
   public function toString(){
     if(func_num_args() == 0) return($this->toString($value));
     $ItemTable = ((int)$func_get_arg(0));
@@ -24,14 +25,15 @@ class ItemTables{
 }
 
 
-class ItemsClass{
+// item functions
+class ItemFuncs{
 
-static $ItemsArray=array();
+static $Items=array();
 
 // get item array
 public static function getItemArray($itemId=0, $itemDamage=0){
-  if(isset(ItemsClass::$ItemsArray[$itemId])){
-    $item = ItemsClass::$ItemsArray[$itemId];
+  if(isset(self::$Items[$itemId])){
+    $item = self::$Items[$itemId];
     if(isset($item[-1])){
       if(isset($item[$itemDamage]))
         return($item[$itemDamage]);
@@ -45,7 +47,7 @@ public static function getItemArray($itemId=0, $itemDamage=0){
 
 // get item type
 public static function getItemType($itemId=0){
-  $item = ItemsClass::getItemArray($itemId);
+  $item = self::getItemArray($itemId);
   if(isset($item['type']))
     return($item['type']);
   else
@@ -54,7 +56,7 @@ public static function getItemType($itemId=0){
 
 // get item name
 public static function getItemName($itemId=0, $itemDamage=0){
-  $item = ItemsClass::getItemArray($itemId, $itemDamage);
+  $item = self::getItemArray($itemId, $itemDamage);
   if(is_array($item) && count($item)>0){
     $name = $item['name'];
     if(isset($item['type']) && $item['type']=='map')
@@ -66,12 +68,12 @@ public static function getItemName($itemId=0, $itemDamage=0){
 
 // get item title
 public static function getItemTitle($itemId=0, $itemDamage=0){
-  $item = ItemsClass::getItemArray($itemId, $itemDamage);
+  $item = self::getItemArray($itemId, $itemDamage);
   if(is_array($item) && count($item)>0){
     if(isset($item['title'])) $title=$item['title'];
     else                      $title=$item['name'];
     if(isset($item['damage'])){
-      $title=str_replace('%damaged%',ItemsClass::getPercentDamaged($itemDamage,$item['damage']).'% damaged',$title);
+      $title=str_replace('%damaged%',self::getPercentDamaged($itemDamage,$item['damage']).'% damaged',$title);
       $title=str_replace('#map#',' '.$itemDamage,$title);
     }
     return($title);
@@ -81,7 +83,7 @@ public static function getItemTitle($itemId=0, $itemDamage=0){
 
 // get item icon file
 public static function getItemImage($itemId=0, $itemDamage=0){
-  $item = ItemsClass::getItemArray($itemId, $itemDamage);
+  $item = self::getItemArray($itemId, $itemDamage);
   if(is_array($item) && count($item)>0){
     if(isset($item['icon']))
       return($item['icon']);

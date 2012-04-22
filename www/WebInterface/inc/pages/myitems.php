@@ -2,120 +2,102 @@
 // my items page
 
 
-function RenderPage_myitems(){global $config; $output='';
+function RenderPage_myitems(){global $config,$html,$user; $output='';
+  $UseAjaxSource = FALSE;
+  $items = new ItemsClass();
   $config['title'] = 'My Items';
-  $output.='<h1 style="text-align: center;">** Under Construction **</h1>';
-  return($output);
 
+$html->addToHeader('
+  <script type="text/javascript" language="javascript" charset="utf-8">
+  $(document).ready(function() {
+    oTable = $(\'#mainTable\').dataTable({
+      "sZeroRecords"      : "No auctions to display",
+      "bJQueryUI"         : true,
+      "bStateSave"        : true,
+      "iDisplayLength"    : 5,
+      "aLengthMenu"       : [[5, 10, 30, 100, -1], [5, 10, 30, 100, "All"]],
+      "sPaginationType"   : "full_numbers",
+      "sPagePrevEnabled"  : true,
+      "sPageNextEnabled"  : true,
+'.($UseAjaxSource?'
+      "bProcessing"       : true,
+      "sAjaxSource"       : "scripts/server_processing.php",
+':'').'
+    });
+  } );
+//  var info = $(\'.dataTables_info\')
+//  $(\'tfoot\').append(info);
+  </script>
+');
 
-session_start();
-if(!isset($_SESSION['User'])){
-  header("Location: login.php");
+if(isset($_SESSION['error'])) {
+  $output.='<p style="color:red">'.$_SESSION['error'].'</p>';
+  unset($_SESSION['error']);
 }
-$user=$_SESSION['User'];
-require('scripts/config.php');
-require('scripts/itemInfo.php');
-$isAdmin=$_SESSION['Admin'];
-$queryAuctions=mysql_query("SELECT * FROM WA_Auctions");
-if($useMySQLiConomy){
-  $queryiConomy=mysql_query("SELECT `balance` FROM $iConTableName WHERE username='$user'");
-  $iConRow = mysql_fetch_assoc($queryiConomy);
+if(isset($_SESSION['success'])) {
+  $output.='<p style="color: green;">'.$_SESSION['success'].'</p>';
+  unset($_SESSION['success']);
 }
-$queryItems=mysql_query("SELECT * FROM WA_Items WHERE player='$user'"); 
 
-$playerQuery=mysql_query("SELECT * FROM WA_Players WHERE name='$user'");
-$playerRow=mysql_fetch_row($playerQuery);
-$mailQuery=mysql_query("SELECT * FROM WA_Mail WHERE player='$user'");
-$mailCount=mysql_num_rows($mailQuery);
-?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />  
-    <title>WebAuction</title>
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
-    <style type="text/css" title="currentStyle">
-      @import "css/table_jui.css";
-      @import "css/<?php echo $uiPack?>/jquery-ui-1.8.18.custom.css";
-    </style>
-    <link rel="stylesheet" type="text/css" href="css/<?php echo $cssFile?>.css" />
-    <script type="text/javascript" language="javascript" src="js/jquery-1.7.2.min.js"></script>
-    <script type="text/javascript" language="javascript" src="js/jquery.dataTables-1.9.0.min.js"></script>
-    <script type="text/javascript" charset="utf-8">
-      $(document).ready(function() {
-        oTable = $('#example').dataTable({
-          "bJQueryUI": true,
-          "sPaginationType": "full_numbers"
-        });
-      } );
-    </script>
-  </head>
-  <div id="holder">
-
-<?php
-include('topBoxes.php');
-echo '<h1>Web Auction</h1><br />'."\n";
-echo '<h2>My Items</h2>'."\n";
-echo '<p style="color: red;">'."\n";
-if(isset($_GET['error'])){
-  if($_GET['error']==1){
-    echo 'You do not own that item.';
-  }
-}
-echo '</p>'."\n";
-
-echo '
+$output.='
 <div class="demo_jui">
-<table cellpadding="0" cellspacing="0" border="0" class="display" id="example">
+<!-- mainTable example -->
+<table border="0" cellpadding="0" cellspacing="0" class="display" id="mainTable">
   <thead>
-    <tr>
+    <tr style="text-align: center; vertical-align: bottom;">
       <th>Item</th>
-      <th>Quantity</th>
-            <th>Market Price (Each)</th>
+      <th>Qty</th>
+      <th>Market Price (Each)</th>
       <th>Market Price (Total)</th>
-            <th>Mail me item</th>
-            
+      <th>Mail Item</th>
     </tr>
   </thead>
   <tbody>
 ';
 
-while(list($id, $name, $damage, $player, $quantity)= mysql_fetch_row($queryItems)){ 
-  $marketPrice=getMarketPrice($id, 0);
-  $marketTotal=$marketPrice*$quantity;
-  if($marketPrice==0){
-    $marketPrice='0';
-    $marketTotal='0';
-  }
-  echo '  <tr class="gradeC">'."\n";
-  // alt="'.getItemName($name, $damage).'"
-  echo '    <td><a href="graph.php?name='.$name.'&damage='.$damage.'">'.
-           '<img src="'.getItemImage($name, $damage).'" /><br />';
-  echo getItemName($name, $damage);
-  $queryEnchantLinks=mysql_query("SELECT enchId FROM WA_EnchantLinks WHERE itemId='".$id."' AND itemTableId=0"); 
-  while(list($enchId)=mysql_fetch_row($queryEnchantLinks)){ 
-    $queryEnchants=mysql_query("SELECT * FROM WA_Enchantments WHERE id='".$enchId."'"); 
-    while(list($idj, $enchName, $enchantId, $level)=mysql_fetch_row($queryEnchants)){ 
-      echo '<br />'.getEnchName($enchantId).' '.numberToRoman($level);
+
+// get items
+$items->QueryItems();
+// list items
+while($itemRow = $items->getNext()){
+  $Item = &$itemRow['Item'];
+  $rowClass = 'gradeU';
+  $output.='
+    <tr class="'.$rowClass.'" style="height: 120px;">
+      <td style="padding-bottom: 10px; text-align: center;">'.
+// add enchantments to this link!
+//        '<a href="./?page=graph&amp;name='.$Item->itemId.'&amp;damage='.$Item->itemDamage.'">'.
+        '<img src="images/item_icons/'.$Item->getItemImage().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
+        '<br /><b>'.$Item->getItemName().'</b>';
+  if($Item->itemType=='tool'){
+    $output.='<br />'.$Item->getPercentDamaged().' % damaged';
+    foreach($Item->getEnchantmentsArray() as $ench){
+      $output.='<br /><span style="font-size: smaller;"><i>'.$ench['enchName'].' '.numberToRoman($ench['level']).'</i></span>';
     }
   }
-  echo '</a></td>'."\n";
-  echo '    <td>'.number_format($quantity,0).'</td>'."\n";
-  echo '    <td>$ '.number_format($marketPrice,2).'</td>'."\n";
-  echo '    <td>$ '.number_format($marketTotal,2).'</td>'."\n";
-  echo '    <td><a href="scripts/mailItem.php?id='.$id.'">Mail it</a></td>'."\n";
-  echo '  </tr>'."\n";
+//      <td style="text-align: center;">'.number_format((double)$auction['price'],2).'</td>
+//      <td style="text-align: center;">'.number_format((double)($auction['price'] * $Item->qty),2).'</td>
+  $output.='</a></td>
+      <td style="text-align: center;"><b>'.((int)$Item->qty).'</b></td>
+      <td style="text-align: center;">market price<br />goes here</td>
+      <td style="text-align: center;">market price<br />goes here</td>
+      <td style="text-align: center;"><a href="./?page='.$config['page'].'&amp;action=cancel&amp;auctionid='.((int)$itemRow['id']).'" class="button">Mail it</a></td>
+    </tr>
+';
+//  $marketPrice=getMarketPrice($id, 0);
+//  $marketTotal=$marketPrice*$quantity;
+//  if($marketPrice==0){
+//    $marketPrice='0';
+//    $marketTotal='0';
+//  }
+//  echo '  <tr class="gradeC">'."\n";
 }
-echo '</tbody>'."\n";
-echo '</table>'."\n";
-echo '</div>'."\n";
-echo '<div class="spacer"></div>'."\n";
-include('footer.php');
-echo '</div>'."\n";
-echo '</body>'."\n";
-echo '</html>'."\n";
-
-
+$output.='
+</tbody>
+</table>
+</div>
+';
+  return($output);
 }
 
 

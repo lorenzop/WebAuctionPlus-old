@@ -86,11 +86,10 @@ while($auction = $auctions->getNext()){
       $output.='<br /><span style="font-size: smaller;"><i>'.$ench['enchName'].' '.numberToRoman($ench['level']).'</i></span>';
     }
   }
-//print_r($auction);
   $output.='</a></td>
       <td style="text-align: center;"><img src="./?page=mcface&amp;username='.$auction['playerName'].'" width="32" alt="" /><br />'.$auction['playerName'].'</td>
       <td style="text-align: center;">expires date<br />goes here</td>
-      <td style="text-align: center;">'.((int)$Item->qty).'</td>
+      <td style="text-align: center;"><b>'.((int)$Item->qty).'</b></td>
       <td style="text-align: center;">'.number_format((double)$auction['price'],2).'</td>
       <td style="text-align: center;">'.number_format((double)($auction['price'] * $Item->qty),2).'</td>
       <td style="text-align: center;">market price<br />goes here</td>
@@ -98,8 +97,8 @@ while($auction = $auctions->getNext()){
       ($user->hasPerms('canBuy')?
         '<form action="./" method="post">'.
         '<input type="hidden" name="page" value="purchaseItem" />'.
-        '<input type="hidden" name="auctionid" value="'.((int)$auction['auctionId']).'" />'.
-        '<input type="text" name="qty" value="1" onkeypress="return numbersonly(this, event);" class="input" style="width: 60px; text-align: center;" /><br />'.
+        '<input type="hidden" name="auctionid" value="'.((int)$auction['id']).'" />'.
+        '<input type="text" name="qty" value="1" onkeypress="return numbersonly(this, event);" class="input" style="width: 60px; margin-bottom: 5px; text-align: center;" /><br />'.
         '<input type="submit" value="Buy" class="button" /></form>'
       :$output.="Can't Buy").'</td>
       '.($user->hasPerms('isAdmin')?

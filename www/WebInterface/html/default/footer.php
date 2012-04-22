@@ -13,16 +13,16 @@ $output.="</div>\n";
   <!-- Paste advert code here -->
 
   <!-- ====================== -->
-  <p style="margin-bottom: 10px; font-size: large; color: #FFFFFF;"><span style="background-color: #000000;">
-    &nbsp;<a href="http://dev.bukkit.org/server-mods/webauctionplus/"      target="_blank" style="color: #FFFFFF;"><u>WebAuctionPlus</u> '.$config['version'].'</a> By lorenzop&nbsp;<br />
-    &nbsp;Based on <a href="http://dev.bukkit.org/server-mods/webauction/" target="_blank" style="color: #FFFFFF;"><u>WebAuction</u></a> By Exote&nbsp;
-  </span></p>
-  <p style="margin-bottom: 10px; font-size: smaller; color: #FFFFFF;"><span style="background-color: #000000;">
-    <b>&nbsp;Executed '.((int)@$num_queries).' Queries in '.GetRenderTime().' Seconds&nbsp;</b>
-  </span></p>
-  <p style="font-size: smaller; color: #FFFFFF;"><span style="background-color: #000000;">
-    <a href="http://validator.w3.org/check?uri=referer" target="_blank"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0 Transitional" width="88" height="31" /></a>
-  </span></p>
+  <p style="margin-bottom: 10px; font-size: large; color: #FFFFFF;"><span style="background-color: #000000;">&nbsp;'.
+    '<a href="http://dev.bukkit.org/server-mods/webauctionplus/" '.
+    'target="_blank" style="color: #FFFFFF;"><u>WebAuctionPlus</u> '.$config['version'].'</a> By lorenzop&nbsp;<br />'.
+    '<span style="font-size: medium;">&nbsp;Based on <a href="http://dev.bukkit.org/server-mods/webauction/" '.
+    'target="_blank" style="color: #FFFFFF;"><u>WebAuction</u></a> By Exote&nbsp;</span></span></p>
+  <p style="margin-bottom: 10px; font-size: smaller; color: #FFFFFF;"><span style="background-color: #000000;">'.
+    '<b>&nbsp;Rendered page in '.GetRenderTime().' Seconds with '.((int)@$num_queries).' Queries&nbsp;</b></span></p>
+  <p style="font-size: smaller; color: #FFFFFF;"><span style="background-color: #000000;">'.
+    '<a href="http://validator.w3.org/check?uri=referer" target="_blank">'.
+    '<img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0 Transitional" width="88" height="31" /></a></span></p>
 </div>
 ';
 //  break;

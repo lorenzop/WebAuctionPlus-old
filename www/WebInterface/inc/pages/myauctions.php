@@ -67,7 +67,6 @@ $output.='
 ';
 
 
-
 if($user->hasPerms('canSell')){
 //$queryItems=mysql_query("SELECT * FROM WA_Items WHERE player='$user'");
 //$output.='
@@ -113,7 +112,6 @@ if($user->hasPerms('canSell')){
 }
 
 
-
 // get my auctions
 $auctions->QueryAuctions(array('WHERE'=>" AND `playerName`='".mysql_san($user->getName())."'"));
 // list auctions
@@ -151,11 +149,11 @@ while($auction = $auctions->getNext()){
   }
   $output.='</a></td>
       <td style="text-align: center;">expires date<br />goes here</td>
-      <td style="text-align: center;">'.((int)$Item->qty).'</td>
+      <td style="text-align: center;"><b>'.((int)$Item->qty).'</b></td>
       <td style="text-align: center;">'.number_format((double)$auction['price'],2).'</td>
       <td style="text-align: center;">'.number_format((double)($auction['price'] * $Item->qty),2).'</td>
       <td style="text-align: center;">market price<br />goes here</td>
-      <td style="text-align: center;"><a href="./?page='.$config['page'].'&amp;action=cancel&amp;auctionid='.((int)$auction['auctionId']).'" class="button">Cancel</a></td>
+      <td style="text-align: center;"><a href="./?page='.$config['page'].'&amp;action=cancel&amp;auctionid='.((int)$auction['id']).'" class="button">Cancel</a></td>
     </tr>
 ';
 }
