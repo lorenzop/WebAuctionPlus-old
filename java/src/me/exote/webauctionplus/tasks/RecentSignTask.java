@@ -69,7 +69,7 @@ public class RecentSignTask implements Runnable {
 					if (key.getBlock().getType() == Material.SIGN_POST || key.getBlock().getType() == Material.WALL_SIGN) {
 						Sign thisSign = (Sign)key.getBlock().getState();
 						thisSign.setLine(1, stack.getType().toString());
-						thisSign.setLine(2, Integer.toString(qty));
+						thisSign.setLine(2, "qty: " + Integer.toString(qty));
 						thisSign.setLine(3, formattedPrice);
 						thisSign.update();
 					} else {

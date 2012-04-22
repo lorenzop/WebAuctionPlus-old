@@ -99,7 +99,7 @@ public class WebAuctionBlockListener implements Listener {
 					int qty = stack.getAmount();
 					String formattedPrice = plugin.economy.format(offsetAuction.getPrice());
 					event.setLine(1, stack.getType().toString());
-					event.setLine(2, Integer.toString(qty));
+					event.setLine(2, "qty: " + Integer.toString(qty));
 					event.setLine(3, formattedPrice);
 				} else {
 					event.setLine(1, "Recent");
