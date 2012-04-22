@@ -45,6 +45,7 @@ if($action == 'mailitem'){
   $result = RunQuery($query, __file__, __line__);
   if(!$result){
     echo '<p style="color: red;">Error mailing items! '.__line__.'</p>'; exit();}
+  ForwardTo('./?page='.$config['page']);
 }
 
 

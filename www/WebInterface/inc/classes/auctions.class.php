@@ -26,10 +26,9 @@ public function QueryAuctions($args=array()){global $config;
          "FROM `".     $config['table prefix']."Auctions` `Auctions` ".
          "LEFT JOIN `".$config['table prefix']."ItemEnchantments` `ItemEnch` ".
          "ON  Auctions.`id`          = ItemEnch.`ItemTableId` ".
-         "WHERE ItemEnch.`ItemTable` = 'Auctions'".
-         @$args['WHERE'].' '.
+         "AND ItemEnch.`ItemTable` = 'Auctions' ".
+         (@$args['WHERE']==''?'':'WHERE '.$args['WHERE'].' ').
          "ORDER BY Auctions.`id` ASC";
-//echo '<pre><font color="white">'.$query."</font></pre>";
   $this->result=RunQuery($query, __file__, __line__);
 }
 

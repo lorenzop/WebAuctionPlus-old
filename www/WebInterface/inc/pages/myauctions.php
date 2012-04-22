@@ -113,7 +113,7 @@ if($user->hasPerms('canSell')){
 
 
 // get my auctions
-$auctions->QueryAuctions(array('WHERE'=>" AND `playerName`='".mysql_san($user->getName())."'"));
+$auctions->QueryAuctions(array('WHERE'=>"`playerName`='".mysql_san($user->getName())."'"));
 // list auctions
 while($auction = $auctions->getNext()){
 //  $marketPrice=getMarketPrice($id, 1);
