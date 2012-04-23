@@ -315,12 +315,14 @@ public class MySQLDataQueries extends MySQLConnPool {
 						"`ItemTable`, `ItemTableId`, `enchName`, `enchId`, `level`) VALUES (" +
 						"?, ?, ?, ?, ? )");
 					// ItemTable Enum
-					if (rs.getInt("itemTableId") == 0) {
+					if        (rs.getInt("itemTableId") == 0) {
 						stNew.setString(1, "Items");
 					} else if (rs.getInt("itemTableId") == 1) {
 						stNew.setString(1, "Auctions");
 					} else if (rs.getInt("itemTableId") == 2) {
 						stNew.setString(1, "Mail");
+					} else {
+						stNew.setString(1, "Items");
 					}
 					// ItemTableId
 					stNew.setInt(2, rs.getInt("itemId"));
