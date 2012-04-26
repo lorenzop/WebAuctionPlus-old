@@ -4,7 +4,7 @@ $output='';
 
 
 //<div class="spacer"></div>
-$output.="</div>\n";
+$output.="<br /><br /><br /><br /><br /><br /></div>\n";
 //switch($html->getPageFrame()){
 //case 'default':
 //case 'basic':

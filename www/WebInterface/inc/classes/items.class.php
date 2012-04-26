@@ -8,24 +8,25 @@ private   $tempRow = FALSE;
 function __construct(){
 }
 
-// get auctions
-public function QueryItems($args=array()){global $config;
+// get items
+public function QueryItems($playerName,$WHERE=''){global $config;
   $this->currentId = 0;
   $tempRow = FALSE;
   $query="SELECT ".
-         "Items.`id`         AS `id`, ".
-         "Items.`itemId`     AS `itemId`, ".
-         "Items.`itemDamage` AS `itemDamage`, ".
-         "Items.`qty`        AS `qty`, ".
-         "ItemEnch.`enchName`   AS `enchName`, ".
-         "ItemEnch.`enchId`     AS `enchId`, ".
-         "ItemEnch.`level`      AS `level` ".
+         "Items.`id`          AS `id`, ".
+         "Items.`itemId`      AS `itemId`, ".
+         "Items.`itemDamage`  AS `itemDamage`, ".
+         "Items.`qty`         AS `qty`, ".
+         "ItemEnch.`enchName` AS `enchName`, ".
+         "ItemEnch.`enchId`   AS `enchId`, ".
+         "ItemEnch.`level`    AS `level` ".
          "FROM `".     $config['table prefix']."Items` `Items` ".
          "LEFT JOIN `".$config['table prefix']."ItemEnchantments` `ItemEnch` ".
          "ON  Items.`id`           = ItemEnch.`ItemTableId` ".
-         "WHERE Items.`ItemTable`  = 'Items' ".
          "AND ItemEnch.`ItemTable` = 'Items' ".
-         @$args['WHERE'].' '.
+         "WHERE Items.`ItemTable`  = 'Items' ".
+         "AND `playerName` = '".mysql_san($playerName)."' ".
+         (empty($WHERE)?'':'AND '.$WHERE.' ').
          "ORDER BY Items.`id` ASC";
 //echo '<pre><font color="white">'.$query."</font></pre>";
   $this->result=RunQuery($query, __file__, __line__);

@@ -41,7 +41,6 @@ if(isset($_SESSION['success'])) {
 }
 
 $output.='
-<div class="demo_jui">
 <!-- mainTable example -->
 <table border="0" cellpadding="0" cellspacing="0" class="display" id="mainTable">
   <thead>
@@ -106,10 +105,10 @@ while($auction = $auctions->getNext()){
     </tr>
 ';
 }
+unset($auctions);
 $output.='
 </tbody>
 </table>
-</div>
 ';
   return($output);
 }

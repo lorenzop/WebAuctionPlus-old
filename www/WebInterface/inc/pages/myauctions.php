@@ -49,7 +49,6 @@ if(isset($_SESSION['success'])) {
 }
 
 $output.='
-<div class="demo_jui">
 <!-- mainTable example -->
 <table border="0" cellpadding="0" cellspacing="0" class="display" id="mainTable">
   <thead>
@@ -113,7 +112,7 @@ if($user->hasPerms('canSell')){
 
 
 // get my auctions
-$auctions->QueryAuctions(array('WHERE'=>"`playerName`='".mysql_san($user->getName())."'"));
+$auctions->QueryAuctions( "`playerName`='".mysql_san($user->getName())."'" );
 // list auctions
 while($auction = $auctions->getNext()){
 //  $marketPrice=getMarketPrice($id, 1);
@@ -157,10 +156,10 @@ while($auction = $auctions->getNext()){
     </tr>
 ';
 }
+unset($auctions);
 $output.='
 </tbody>
 </table>
-</div>
 ';
   return($output);
 }

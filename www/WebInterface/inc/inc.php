@@ -35,7 +35,7 @@ function RunQuery($query,$_file='',$_line=0){global $db,$num_queries;
   if(!$db){ConnectDB();
     if(!$db){echo '<p>Database not connected..</p>'; exit();}}
   $result=mysql_query($query,$db); $num_queries++;
-  if(!$result){echo '<p>MySQL ERROR - File: '.$_file.' Line: '.$_line.' '.mysql_error().'</p>'; exit();}
+  if(!$result){echo '<p>MySQL ERROR - File: '.$_file.' Line: '.$_line.' '.mysql_error().'</p><p>'.$query.'</p>'; exit();}
   return($result);
 }
 // sanitize for mysql

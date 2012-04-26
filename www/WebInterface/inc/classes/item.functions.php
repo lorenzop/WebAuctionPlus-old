@@ -111,6 +111,16 @@ public static function getMaxStack($itemId=0, $itemDamage=0){
     return(64);
 }
 
+// query single stack
+public static function QueryItem($playerName,$id){global $user;
+  if($id<1) return(FALSE);
+  $items = new ItemsClass();
+  $items->QueryItems($user->getName(),"`playerName`='".mysql_san($playerName)."'");
+  $itemRow = $items->getNext();
+  unset($items);
+  return($itemRow);
+}
+
 
 }
 ?>

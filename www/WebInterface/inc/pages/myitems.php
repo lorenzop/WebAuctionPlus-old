@@ -87,7 +87,6 @@ if(isset($_SESSION['success'])) {
 }
 
 $output.='
-<div class="demo_jui">
 <!-- mainTable example -->
 <table border="0" cellpadding="0" cellspacing="0" class="display" id="mainTable">
   <thead>
@@ -96,6 +95,7 @@ $output.='
       <th>Qty</th>
       <th>Market Price (Each)</th>
       <th>Market Price (Total)</th>
+      <th>Sell Item</th>
       <th>Mail Item</th>
     </tr>
   </thead>
@@ -104,7 +104,7 @@ $output.='
 
 
 // get items
-$items->QueryItems();
+$items->QueryItems($user->getName(),'');
 // list items
 while($itemRow = $items->getNext()){
   $Item = &$itemRow['Item'];
@@ -128,6 +128,7 @@ while($itemRow = $items->getNext()){
       <td style="text-align: center;"><b>'.((int)$Item->qty).'</b></td>
       <td style="text-align: center;">market price<br />goes here</td>
       <td style="text-align: center;">market price<br />goes here</td>
+      <td style="text-align: center;"><a href="./?page=createauction&amp;id='.((int)$itemRow['id']).'" class="button">Sell it</a></td>
       <td style="text-align: center;"><a href="./?page='.$config['page'].'&amp;action=mailitem&amp;id='.((int)$itemRow['id']).'" class="button">Mail it</a></td>
     </tr>
 ';
@@ -139,10 +140,10 @@ while($itemRow = $items->getNext()){
 //  }
 //  echo '  <tr class="gradeC">'."\n";
 }
+unset($items);
 $output.='
 </tbody>
 </table>
-</div>
 ';
   return($output);
 }

@@ -9,7 +9,7 @@ function __construct(){
 }
 
 // get auctions
-public function QueryAuctions($args=array()){global $config;
+public function QueryAuctions($WHERE=''){global $config;
   $this->currentId = 0;
   $tempRow = FALSE;
   $query="SELECT ".
@@ -27,7 +27,7 @@ public function QueryAuctions($args=array()){global $config;
          "LEFT JOIN `".$config['table prefix']."ItemEnchantments` `ItemEnch` ".
          "ON  Auctions.`id`          = ItemEnch.`ItemTableId` ".
          "AND ItemEnch.`ItemTable` = 'Auctions' ".
-         (@$args['WHERE']==''?'':'WHERE '.$args['WHERE'].' ').
+         (empty($WHERE)?'':'WHERE '.$WHERE.' ').
          "ORDER BY Auctions.`id` ASC";
   $this->result=RunQuery($query, __file__, __line__);
 }

@@ -83,6 +83,19 @@ a:visited{
   font-size:     18px;
 }
 
+#createauctionTable{
+  margin-top: -50px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 550px;
+  border-width:   medium;
+  border-style:   solid;
+  border-color:   #333333;
+  border-radius:  11px;
+  -moz-border-radius: 11px;
+  background-color: #EBEDFF;
+}
+
 .input {
   padding-left:   10px;
   padding-right:  10px;
