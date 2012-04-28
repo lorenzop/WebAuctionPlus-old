@@ -92,8 +92,7 @@ public class WebAuctionBlockListener implements Listener {
 					offset = 1;
 				}
 				// display auction
-				int totalAuctionCount = plugin.dataQueries.getTotalAuctionCount();
-				if (offset <= totalAuctionCount) {
+				if (offset <= plugin.dataQueries.getTotalAuctionCount()) {
 					Auction offsetAuction = plugin.dataQueries.getAuctionForOffset(offset - 1);
 					ItemStack stack = offsetAuction.getItemStack();
 					int qty = stack.getAmount();

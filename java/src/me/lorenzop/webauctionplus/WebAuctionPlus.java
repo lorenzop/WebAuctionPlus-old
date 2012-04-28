@@ -1,5 +1,6 @@
 package me.lorenzop.webauctionplus;
 
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -32,6 +33,8 @@ public class WebAuctionPlus extends JavaPlugin {
 	public static String chatPrefix = ChatColor.DARK_GREEN+"["+ChatColor.WHITE+"WebAuction+"+ChatColor.DARK_GREEN+"] ";
 	public static Logger log = Logger.getLogger("Minecraft");
 
+	public Metrics metrics;
+
 	public Double currentVersion;
 	public Double newVersion;
 
@@ -39,31 +42,34 @@ public class WebAuctionPlus extends JavaPlugin {
 	public WebAuctionCommands WebAuctionCommandsListener = new WebAuctionCommands(this);
 	public PlayerActions waPlayerActions = new PlayerActions(this);
 
+	public waSettings settings;
+
 	public Map<String,   Long>    lastSignUse = new HashMap<String , Long>();
 	public Map<Location, Integer> recentSigns = new HashMap<Location, Integer>();
 	public Map<Location, Integer> shoutSigns  = new HashMap<Location, Integer>();
 
-	public int signDelay             = 0;
-	public int numberOfRecentLink    = 0;
+//	public int totalAuctionCount	= 0;
+	public int signDelay			= 0;
+	public int numberOfRecentLink	= 0;
 
 	// sign link
-	public Boolean useSignLink       = false;
+	public Boolean useSignLink		= false;
 
 	// tim the enchanter
-	public boolean timEnabled        = false;
+	public boolean timEnabled		= false;
 
-	public Boolean useOriginalRecent = false;
-	public Boolean showSalesOnJoin   = false;
+	public Boolean useOriginalRecent= false;
+	public Boolean showSalesOnJoin	= false;
 
 	// cron executor
 	public CronExecutorTask waCronExecutorTask;
-	boolean cronExecutorEnabled      = false;
+	boolean cronExecutorEnabled		= false;
 
 	// announcer
 	public AnnouncerTask waAnnouncerTask;
-	public boolean announceEnabled   = false;
+	public boolean announceEnabled	= false;
 
-	public Economy    economy        = null;
+	public Economy economy			= null;
 
 	public WebAuctionPlus() {
 	}
@@ -83,6 +89,17 @@ public class WebAuctionPlus extends JavaPlugin {
 		// Command listener
 		getCommand("wa").setExecutor(WebAuctionCommandsListener);
 
+		// connect MySQL
+		if (!ConnectDB()) {
+			log.severe(logPrefix + "*** Failed to load WebAuctionPlus. Please check your config.");
+			return;
+		}
+
+		// load settings from db
+		settings = new waSettings(this);
+		settings.LoadSettings();
+		mcstatus();
+
 		// load config.yml
 		onLoadConfig();
 
@@ -101,9 +118,6 @@ public class WebAuctionPlus extends JavaPlugin {
 		timEnabled         = Config.getBoolean("Misc.UnsafeEnchantments");
 		useSignLink        = Config.getBoolean("SignLink.Enabled");
 		numberOfRecentLink = Config.getInt    ("SignLink.NumberOfLatestAuctionsToTrack");
-
-		// connect MySQL
-		ConnectDB();
 
 		// scheduled tasks
 		BukkitScheduler scheduler = getServer().getScheduler();
@@ -195,10 +209,12 @@ public class WebAuctionPlus extends JavaPlugin {
 		dataQueries.forceCloseConnections();
 	}
 
+	// Init database
 	public boolean ConnectDB() {
-		// Init database
-		log.info(logPrefix + "MySQL Initializing.");
 		FileConfiguration Config = getConfig();
+		if ( ((String)Config.getString("MySQL.Password")).equals("password123") )
+			return false;
+		log.info(logPrefix + "MySQL Initializing.");
 		try {
 			dataQueries = new MySQLDataQueries(this,
 				Config.getString("MySQL.Host"),
@@ -321,6 +337,47 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 	public static void PrintProgress(int count, int total) {
 		PrintProgress(count, total, 20);
+	}
+
+	public void mcstatus() {
+		log.info(logPrefix + "mcstatus.org Initializing.");
+		dataQueries.getTotalAuctionCount();
+		// usage stats
+		try {
+			metrics = new Metrics(this);
+		    // Create a line graph
+		    Metrics.Graph lineGraph = metrics.createGraph("Auctions");
+			// Add total auctions plotter
+			lineGraph.addPlotter(new Metrics.Plotter("Total") {
+				@Override
+				public int getValue() {
+					return dataQueries.getTotalAuctionCount();
+				}
+			});
+
+//			// Create a pie graph for individual protections
+//			Metrics.Graph pieGraph = metrics.createGraph("Protection percentages");
+//			for (final Protection.Type type : Protection.Type.values()) {
+//				if (type == Protection.Type.RESERVED1 || type == Protection.Type.RESERVED2) {
+//					continue;
+//				}
+//				// Create the plotter
+//				Metrics.Plotter plotter = new Metrics.Plotter(StringUtil.capitalizeFirstLetter(type.toString()) + " Protections") {
+//					@Override
+//					public int getValue() {
+//						return physicalDatabase.getProtectionCount(type);
+//					}
+//				};
+//				// Add it to both graphs
+//				lineGraph.addPlotter(plotter);
+//				pieGraph.addPlotter(plotter);
+//			}
+			metrics.start();
+		} catch (IOException e) {
+			// Failed to submit the stats :-(
+			log.severe(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 //	public static double updateCheck(double currentVersion) throws Exception {
