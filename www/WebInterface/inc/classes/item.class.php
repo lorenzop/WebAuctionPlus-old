@@ -52,13 +52,16 @@ public function getPercentDamaged(){
 }
 
 // add enchantment
-public function addEnchantment($enchName, $enchId, $level){
+public function addEnchantment($enchName, $enchId, $level, $enchTableId=0){
 // check for existing enchantment
 ////////////////////////////////////////////////////////////////////// <-- to do
-  $this->enchantments[] = array(
+  $a = array(
     'enchName' => $enchName,
     'enchId'   => $enchId,
-    'level'    => $level );
+    'level'    => $level
+  );
+  if($enchTableId == 0) $this->enchantments[]             = $a;
+  else                  $this->enchantments[$enchTableId] = $a;
 }
 
 // get enchantments array

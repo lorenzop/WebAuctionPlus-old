@@ -17,6 +17,7 @@ public function QueryItems($playerName,$WHERE=''){global $config;
          "Items.`itemId`      AS `itemId`, ".
          "Items.`itemDamage`  AS `itemDamage`, ".
          "Items.`qty`         AS `qty`, ".
+         "ItemEnch.`id`       AS `eid`, ".
          "ItemEnch.`enchName` AS `enchName`, ".
          "ItemEnch.`enchId`   AS `enchId`, ".
          "ItemEnch.`level`    AS `level` ".
@@ -34,6 +35,7 @@ public function QueryItems($playerName,$WHERE=''){global $config;
 
 // get next auction row
 public function getNext(){
+  if($this->result == FALSE) return(FALSE);
   $tempRow = &$this->tempRow;
   $output  = array();
   // get first row
@@ -48,11 +50,11 @@ public function getNext(){
     'qty'        => $tempRow['qty'] ));
   // get first enchantment
   if(!empty($tempRow['enchName']))
-    $output['Item']->addEnchantment($tempRow['enchName'], $tempRow['enchId'], $tempRow['level'] );
+    $output['Item']->addEnchantment($tempRow['enchName'], $tempRow['enchId'], $tempRow['level'], $tempRow['eid']);
   // get more rows (enchantments)
   while($tempRow = mysql_fetch_assoc($this->result)){
     if($tempRow['id'] != $this->currentId) break;
-    $output['Item']->addEnchantment($tempRow['enchName'], $tempRow['enchId'], $tempRow['level']);
+    $output['Item']->addEnchantment($tempRow['enchName'], $tempRow['enchId'], $tempRow['level'], $tempRow['eid']);
   }
   if(count($output)==0) $output=FALSE;
   return($output);

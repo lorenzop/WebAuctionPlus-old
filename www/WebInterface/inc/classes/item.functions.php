@@ -115,7 +115,7 @@ public static function getMaxStack($itemId=0, $itemDamage=0){
 public static function QueryItem($playerName,$id){global $user;
   if($id<1) return(FALSE);
   $items = new ItemsClass();
-  $items->QueryItems($user->getName(),"`playerName`='".mysql_san($playerName)."'");
+  $items->QueryItems($user->getName(),"`Items`.`playerName`='".mysql_san($playerName)."' AND `Items`.`id`=".((int)$id));
   $itemRow = $items->getNext();
   unset($items);
   return($itemRow);
