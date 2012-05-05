@@ -1,4 +1,5 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
+// this class is an item stack object
 class ItemClass{
 
 public $itemType   = '';
@@ -49,6 +50,11 @@ public function getPercentDamaged(){
   $item = ItemFuncs::getItemArray($this->itemId);
   if(!isset($item['damage'])) return('');
   return(ItemFuncs::getPercentDamaged($this->itemDamage,$item['damage']));
+}
+public function getPercentDamagedString(){
+  $damaged = $this->getPercentDamaged();
+  if( ((string)$damaged) == '0') return('Brand New!');
+  else                           return(((string)$damaged).' % damaged');
 }
 
 // add enchantment

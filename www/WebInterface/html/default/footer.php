@@ -21,8 +21,8 @@ $output.="<br /><br /><br /><br /><br /><br /></div>\n";
   <p style="margin-bottom: 10px; font-size: smaller; color: #FFFFFF;"><span style="background-color: #000000;">'.
     '<b>&nbsp;Rendered page in '.GetRenderTime().' Seconds with '.((int)@$num_queries).' Queries&nbsp;</b></span></p>
   <p style="font-size: smaller; color: #FFFFFF;"><span style="background-color: #000000;">'.
-    '<a href="http://validator.w3.org/check?uri=referer" target="_blank">'.
-    '<img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0 Transitional" width="88" height="31" /></a></span></p>
+    '<a href="http://validator.w3.org/#validate_by_input" target="_blank">'.
+    '<img src="images/valid-xhtml10.png" alt="Valid XHTML 1.0 Transitional" width="88" height="31" /></a></span></p>
 </div>
 ';
 //  break;

@@ -18,6 +18,7 @@ if($action == 'mailitem'){
   $stacksize = ItemFuncs::getMaxStack($itemId,$itemDamage);
   $sql = FALSE;
   // stack size to big
+// TODO: need to handle enchantments here!
   while($qty > $stacksize){
   $query = "INSERT INTO `".$config['table prefix']."Items` ".
            "(`ItemTable`,`playerName`,`itemId`,`itemDamage`,`qty`) VALUES ".
@@ -35,13 +36,13 @@ if($action == 'mailitem'){
       echo '<p>You don\'t own that item!</p>'; exit();}}
   // move item
   $query = "UPDATE `".$config['table prefix']."Items` SET ".$sql.
-           "`ItemTable`='Mail' WHERE `id`=".((int)$id)." LIMIT 1";
+           "`ItemTable`='Mail' WHERE `ItemTable`='Items' AND `id`=".((int)$id)." LIMIT 1";
   $result = RunQuery($query, __file__, __line__);
   if(!$result || mysql_affected_rows()!=1){
     echo '<p style="color: red;">Error mailing items! '.__line__.'</p>'; exit();}
   // move enchantments
   $query = "UPDATE `".$config['table prefix']."ItemEnchantments` SET ".
-           "`ItemTable`='Mail' WHERE `ItemTableId`=".((int)$id);
+           "`ItemTable`='Mail' WHERE `ItemTable`='Items' AND `ItemTableId`=".((int)$id);
   $result = RunQuery($query, __file__, __line__);
   if(!$result){
     echo '<p style="color: red;">Error mailing items! '.__line__.'</p>'; exit();}

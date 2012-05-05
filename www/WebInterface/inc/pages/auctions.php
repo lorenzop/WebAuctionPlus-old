@@ -4,7 +4,6 @@
 
 function RenderPage_auctions(){global $config,$html,$user,$settings; $output='';
   $UseAjaxSource = FALSE;
-  require($config['paths']['local']['classes'].'auctions.class.php');
   $auctions=new AuctionsClass();
   $config['title'] = 'Current Auctions';
 
@@ -76,16 +75,16 @@ while($auction = $auctions->getNext()){
     <tr class="'.$rowClass.'" style="height: 120px;">
       <td style="padding-bottom: 10px; text-align: center;">'.
 // add enchantments to this link!
-//        '<a href="./?page=graph&amp;name='.$Item->itemId.'&amp;damage='.$Item->itemDamage.'">'.
+//        '<a href="./?page=graph&amp;name='.$Item->itemId.'&amp;damage='.$Item->itemDamage.'"></a>'.
         '<img src="images/item_icons/'.$Item->getItemImage().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
         '<br /><b>'.$Item->getItemName().'</b>';
   if($Item->itemType=='tool'){
-    $output.='<br />'.$Item->getPercentDamaged().' % damaged';
+    $output.='<br />'.$Item->getPercentDamagedString();
     foreach($Item->getEnchantmentsArray() as $ench){
       $output.='<br /><span style="font-size: smaller;"><i>'.$ench['enchName'].' '.numberToRoman($ench['level']).'</i></span>';
     }
   }
-  $output.='</a></td>
+  $output.='</td>
       <td style="text-align: center;"><img src="./?page=mcface&amp;username='.$auction['playerName'].'" width="32" alt="" /><br />'.$auction['playerName'].'</td>
       <td style="text-align: center;">expires date<br />goes here</td>
       <td style="text-align: center;"><b>'.((int)$Item->qty).'</b></td>
@@ -95,13 +94,16 @@ while($auction = $auctions->getNext()){
       <td style="text-align: center;">'.
       ($user->hasPerms('canBuy')?
         '<form action="./" method="post">'.
-        '<input type="hidden" name="page" value="purchaseItem" />'.
+        '<input type="hidden" name="page" value="buyauction" />'.
         '<input type="hidden" name="auctionid" value="'.((int)$auction['id']).'" />'.
-        '<input type="text" name="qty" value="1" onkeypress="return numbersonly(this, event);" class="input" style="width: 60px; margin-bottom: 5px; text-align: center;" /><br />'.
-        '<input type="submit" value="Buy" class="button" /></form>'
+        '<input type="text" name="qty" value="'.((int)$Item->qty).'" onkeypress="return numbersonly(this, event);" '.
+          'class="input" style="width: 60px; margin-bottom: 5px; text-align: center;" /><br />'.
+        '<input type="submit" value="Buy" class="button" />'.
+        '</form>'
       :$output.="Can't Buy").'</td>
       '.($user->hasPerms('isAdmin')?
-        '<td style="text-align: center;"><a href="scripts/cancelAuctionAdmin.php?id='.((int)$Item->itemId).'" class="button">Cancel</a></td>':'').'
+//        '<td style="text-align: center;"><a href="./?id='.((int)$Item->itemId).'" class="button">Cancel</a></td>':'').'
+        '<td style="text-align: center;"><input type="button" value="Cancel" class="button" onclick="alert(\'Im sorry, this feature has been temporarily left out to get other things working. This button will be working again in the next update.\');" /></td>':'').'
     </tr>
 ';
 }

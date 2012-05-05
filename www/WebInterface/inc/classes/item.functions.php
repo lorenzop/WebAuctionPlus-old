@@ -1,4 +1,5 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
+// general functions to handle items
 
 
 // item tables enum
@@ -95,7 +96,7 @@ public static function getItemImage($itemId=0, $itemDamage=0){
 
 // get percent damaged
 public static function getPercentDamaged($itemDamage, $maxDamage){
-  return(round(($itemDamage/$maxDamage)*100, 1));
+  return(round(( ((float)$itemDamage)/((float)$maxDamage) )*100.0, 1));
 }
 
 // get max stack size

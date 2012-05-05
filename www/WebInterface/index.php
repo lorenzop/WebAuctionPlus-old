@@ -5,19 +5,27 @@ define('DEFINE_INDEX_FILE',TRUE);
 // get,post,cookie (highest priority last)
 function getVar($name,$type='',$order=array('get','post')){$output='';
   if(!is_array($order)){$order=@explode(',',$order);}
-  if(@count($order)==0 || $order==''){
-    if($order!=''){$order=array($order);
-    }else{$order=array('get','post');}}
+  if(@count($order)==0 || $order=='')
+    if($order!='') $order = array($order);
+    else           $order = array('get','post');
   # get vars
   foreach($order as $v){
-    if(     $v=='get'    && isset($_GET[$name])   ){$output=@$_GET[$name];
-    }elseif($v=='post'   && isset($_POST[$name])  ){$output=@$_POST[$name];
-    }elseif($v=='cookie' && isset($_COOKIE[$name])){$output=@$_COOKIE[$name];}}
+    if(    $v=='get'    && isset($_GET[$name])   ) $output=@$_GET[$name];
+    elseif($v=='post'   && isset($_POST[$name])  ) $output=@$_POST[$name];
+    elseif($v=='cookie' && isset($_COOKIE[$name])) $output=@$_COOKIE[$name];
+  }
   // convert type if set
-  if(     $type=='str'  || $type=='string' ){return( (string) $output );
-  }elseif($type=='int'  || $type=='integer'){return( (integer)$output );
-  }elseif($type=='bool' || $type=='boolean'){return( (boolean)$output );}
+  if(    $type=='str'   || $type=='string' ) return( (string)  $output  );
+  elseif($type=='int'   || $type=='integer') return( (integer) $output  );
+  elseif($type=='float' || $type=='double' ) return( (float)   $output  );
+  elseif($type=='bool'  || $type=='boolean') return( toBoolean($output) );
   return($output);
+}
+function toBoolean($value){
+  $tempValue = strtolower($value);
+  if($tempValue=='t' || $tempValue=='true' ) return(TRUE);
+  if($tempValue=='f' || $tempValue=='false') return(FALSE);
+  return( (boolean)$value );
 }
 
 // get page name
@@ -72,6 +80,8 @@ $page=SanFilename($page);
 // load settings
 require($lpaths['classes'].'settings.class.php');
 SettingsClass::LoadSettings();
+// default settings
+SettingsClass::setDefault('Custom Descriptions', FALSE);
 
 // load template engine
 require($lpaths['classes'].'html.class.php');
