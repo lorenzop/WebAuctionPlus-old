@@ -75,6 +75,12 @@ public function getEnchantmentsArray(){
   return($this->enchantments);
 }
 
+// item has enchantments
+public function hasEnchantments(){
+echo 'hasEnchantments function not finished yet!!!';
+exit();
+}
+
 
 }
 ?>

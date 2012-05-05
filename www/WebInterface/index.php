@@ -81,7 +81,11 @@ $page=SanFilename($page);
 require($lpaths['classes'].'settings.class.php');
 SettingsClass::LoadSettings();
 // default settings
-SettingsClass::setDefault('Custom Descriptions', FALSE);
+//SettingsClass::setDefault('Default Language'		, 'en');
+SettingsClass::setDefault('Currency Prefix'		, '$ ');
+SettingsClass::setDefault('Currency Postfix'		, '');
+SettingsClass::setDefault('Custom Descriptions'		, FALSE);
+//SettingsClass::setDefault('Allow Enchanted Items'	, TRUE);
 
 // load template engine
 require($lpaths['classes'].'html.class.php');

@@ -9,6 +9,14 @@ require($lpaths['classes'].'items.class.php');
 require($lpaths['classes'].'auctions.class.php');
 
 
+// format price
+function FormatPrice($price){global $config;
+  return( getSetting('Currency Prefix').
+          number_format((double)$price,2).
+          getSetting('Currency Postfix') );
+}
+
+
 // render time
 function GetTimestamp(){
   $qtime=explode(' ',microtime()); return($qtime[0]+$qtime[1]);}

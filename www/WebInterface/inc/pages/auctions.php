@@ -88,8 +88,8 @@ while($auction = $auctions->getNext()){
       <td style="text-align: center;"><img src="./?page=mcface&amp;username='.$auction['playerName'].'" width="32" alt="" /><br />'.$auction['playerName'].'</td>
       <td style="text-align: center;">expires date<br />goes here</td>
       <td style="text-align: center;"><b>'.((int)$Item->qty).'</b></td>
-      <td style="text-align: center;">'.@$settings['Currency Prefix'].number_format((double)$auction['price'],2).@$settings['Currency Postfix'].'</td>
-      <td style="text-align: center;">'.@$settings['Currency Prefix'].number_format((double)($auction['price'] * $Item->qty),2).@$settings['Currency Postfix'].'</td>
+      <td style="text-align: center;">'.FormatPrice($auction['price']             ).'</td>
+      <td style="text-align: center;">'.FormatPrice($auction['price'] * $Item->qty).'</td>
       <td style="text-align: center;">market price<br />goes here</td>
       <td style="text-align: center;">'.
       ($user->hasPerms('canBuy')?

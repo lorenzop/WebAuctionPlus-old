@@ -4,7 +4,6 @@
 
 function RenderPage_myauctions(){global $config,$html,$user; $output='';
   $UseAjaxSource = FALSE;
-  require($config['paths']['local']['classes'].'auctions.class.php');
   $auctions=new AuctionsClass();
   $config['title'] = 'My Auctions';
 
@@ -149,8 +148,8 @@ while($auction = $auctions->getNext()){
   $output.='</a></td>
       <td style="text-align: center;">expires date<br />goes here</td>
       <td style="text-align: center;"><b>'.((int)$Item->qty).'</b></td>
-      <td style="text-align: center;">'.number_format((double)$auction['price'],2).'</td>
-      <td style="text-align: center;">'.number_format((double)($auction['price'] * $Item->qty),2).'</td>
+      <td style="text-align: center;">'.FormatPrice($auction['price']             ).'</td>
+      <td style="text-align: center;">'.FormatPrice($auction['price'] * $Item->qty).'</td>
       <td style="text-align: center;">market price<br />goes here</td>
       <td style="text-align: center;"><a href="./?page='.$config['page'].'&amp;action=cancel&amp;auctionid='.((int)$auction['id']).'" class="button">Cancel</a></td>
     </tr>

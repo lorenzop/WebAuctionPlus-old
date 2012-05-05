@@ -37,11 +37,11 @@ case 'default':
 <tr>
   <td rowspan="4"><img src="./?page=mcface&amp;username='.$user->getName().'" alt="" width="64" height="64" id="mcface" /></td>
   <td>Name:</td><td>'.$user->getName().
-      ($user->hasPerms('isAdmin')?'&nbsp;<span style="font-size: small;"><b>[ADMIN]</b></span>':'').'</td>
+      ($user->hasPerms('isAdmin')?'&nbsp;<a href="admin/" style="font-size: small; font-weight: bold; color: #000000;">[ADMIN]</a>':'').'</td>
 </tr>
-<tr><td>Money:</td><td>'.$user->Money.'</td></tr>
-<tr><td>Mail:</td><td>'. $user->numMail.'</td></tr>
-<tr><td colspan="2">'.date('jS M Y H:i:s').'</td></tr>
+<tr><td>Money:&nbsp;&nbsp;</td><td>'.FormatPrice($user->Money).'</td></tr>
+<tr><td>Mail: &nbsp;&nbsp;</td><td>'. $user->numMail.'</td></tr>
+<tr><td colspan="2" style="font-size: 100%; font-weight: bold; text-align: center;">'.date('jS M Y H:i:s').'</td></tr>
 </table>
 <div id="menu-box">
 

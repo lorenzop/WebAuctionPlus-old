@@ -2,79 +2,22 @@
 // current auctions page
 
 
-function CreateAuction($id,$qty,$price){global $config,$user;
-  if(!$user->hasPerms('canSell'))
-    $config['error'] = 'You don\'t have permission to sell.';
-  if($id <= 0) return;
-//  if (!itemAllowed($item->name, $item->damage)){
-//    $_SESSION['error'] = $item->fullname.' is not allowed to be sold.';
-//    header("Location: ../myauctions.php");
-//  }
-  $qty = floor($qty);
-  if($qty   <= 0){$config['error'] = 'Invalid qty!';   return;}
-  if($price <= 0){$config['error'] = 'Invalid price!'; return;}
-global $maxSellPrice;
-  if($price > $maxSellPrice){$config['error'] = 'Over max sell price of $ '.$maxSellPrice.' !'; return;}
-  // get item row
-  $itemRow = ItemFuncs::QueryItem($user->getName(),$id);
-  if($itemRow === FALSE){ $config['error'] = 'Item not found!'; return;}
-  $Item = &$itemRow['Item'];
-  if($qty > $Item->qty){$config['error'] = 'You don\'t have that many!'; return;}
-  // split item stack
-  $splitStack = ($qty < $Item->qty);
-
-  // create auction
-  $query = "INSERT INTO `".$config['table prefix']."Auctions` (".
-           "`playerName`,`itemId`,`itemDamage`,`qty`,`price`,`created` )VALUES( ".
-           "'".mysql_san($user->getName())."',".((int)$Item->itemId).",".((int)$Item->itemDamage).",".
-           ((int)$qty).",".((double)$price).",NOW() )";
-//echo '<p>'.$query.'</p>';$auctionId=0;
-  $result = RunQuery($query, __file__, __line__);
-  if(!$result){echo '<p style="color: red;">Error creating auction!</p>'; exit();}
-  $auctionId = mysql_insert_id();
-  // subtract qty
-  if($splitStack){
-    $query = "UPDATE `".$config['table prefix']."Items` SET `qty`=`qty` - ".((int)$qty)." WHERE `id` = ".((int)$itemRow['id'])." LIMIT 1";
-//echo '<p>'.$query.'</p>';
-    $result = RunQuery($query, __file__, __line__);
-    if(!$result){echo '<p style="color: red;">Error updating item stack quantity!</p>'; exit();}
-  // remove item stack
-  }else{
-    $query = "DELETE FROM `".$config['table prefix']."Items` WHERE `id` = ".((int)$itemRow['id'])." LIMIT 1";
-//echo '<p>'.$query.'</p>';
-    $result = RunQuery($query, __file__, __line__);
-    if(!$result){echo '<p style="color: red;">Error removing item stack!</p>'; exit();}
-  }
-  // copy enchantments
-  if($splitStack){
-    foreach($Item->getEnchantmentsArray() as $v){
-      $query = "INSERT INTO `".$config['table prefix']."ItemEnchantments` (".
-               "`ItemTable`,`ItemTableId`,`enchName`,`enchId`,`level`) VALUES(".
-               "'Auctions',".((int)$auctionId).",".
-               "'".mysql_san($v['enchName'])."','".mysql_san($v['enchId'])."',".((int)$v['level']).")";
-//echo '<p>'.$query.'</p>';
-      $result = RunQuery($query, __file__, __line__);
-      if(!$result){echo '<p style="color: red;">Error creating enchantment!</p>'; exit();}
-    }
-  // move enchantments
-  }else{
-    $query = "UPDATE `".$config['table prefix']."ItemEnchantments` SET ".
-             "`ItemTable` = 'Auctions', `ItemTableId` = ".((int)$auctionId).
-             " WHERE `ItemTable` = 'Items' AND `ItemTableId` = ".((int)$itemRow['id']);
-//echo '<p>'.$query.'</p>';
-    $result = RunQuery($query, __file__, __line__);
-    if(!$result){echo '<p style="color: red;">Error moving enchantment!</p>'; exit();}
-  }
-
+if($config['action']=='newauction'){
+  if(AuctionsClass::CreateAuction(
+    getVar('id','int'),
+    getVar('qty','int'),
+    getVar('price','double'),
+    getVar('desc','string')
+  )){
+///////////////////////////////////////
+//TODO: create a function getLastPage()
+///////////////////////////////////////
 $lastpage = getVar('lastpage');
 if(empty($lastpage)) $lastpage = './';
-echo '<center>Auction created successfully!<br /><a href="'.$lastpage.'">Back to last page</a></center>';
-exit();
-
+echo '<center><h2>Auction created successfully!</h2><br /><a href="'.$lastpage.'">Back to last page</a></center>';
+    exit();
+  }
 }
-if($config['action']=='newauction')
-  CreateAuction( getVar('id'), getVar('qty'), getVar('price') );
-
 
 
 ////	$minBid = mysql_real_escape_string(stripslashes(round($_POST['MinBid'], 2)));
@@ -204,15 +147,15 @@ function RenderPage_createauction(){global $config,$html,$user,$settings; $outpu
   }else{
     $priceTotal = (double)($priceEach * ((double)$qty));
   }
-//$html->addToHeader('
-//<script type="text/javascript" language="javascript">
-//function updateTotal(thisfield,otherfieldid){
-//  otherfield = document.getElementById(otherfieldid);
-//  document.getElementById("temp").innerHTML = (thisfield.value * otherfield.value);
-////  $("temp").update( thisfield.value * otherfield.value );
-//}
-//</script>
-//');
+$html->addToHeader('
+<script type="text/javascript" language="javascript">
+function updateTotal(thisfield,otherfieldid){
+  otherfield = document.getElementById(otherfieldid);
+  document.getElementById("temp").innerHTML = (thisfield.value * otherfield.value);
+//  $("temp").update( thisfield.value * otherfield.value );
+}
+</script>
+');
 //if(isset($_SESSION['error'])) {
 //  $output.='<p style="color:red">'.$_SESSION['error'].'</p>';
 //  unset($_SESSION['error']);
@@ -274,12 +217,18 @@ $output.='</b></font></div></td></tr>
   <td><font size="+2"><b><div style="position: absolute;">$</div><div id="temp" class="temp" style="width: 185px; text-align: center;">&nbsp;'.$priceTotal.'&nbsp;</div></b></font></td>
 </tr>
 </table></td></tr>
-
 <tr><td height="20"></td></tr>
+';
+
+// custom descriptions
+if(getSetting('Custom Descriptions')) $output.='
 <tr><td colspan="2" align="center">&nbsp;&nbsp;<b>Description:</b> (optional)</td></tr>
 <tr><td height="10"></td></tr>
-<tr><td colspan="2" align="center"><textarea name="" class="input" style="width: 80%; height: 55px;" readonly>Coming soon!</textarea></td></tr>
+<tr><td colspan="2" align="center"><textarea name="desc" class="input" style="width: 80%; height: 55px;" readonly>Coming soon!</textarea></td></tr>
 <tr><td height="30"></td></tr>
+';
+
+$output.='
 <tr><td colspan="2" align="center"><input type="submit" value="Create Auction" class="input" /></td></tr>
 <tr><td height="30"></td></tr>
 </table>

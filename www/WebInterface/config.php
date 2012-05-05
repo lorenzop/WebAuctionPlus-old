@@ -2,19 +2,6 @@
 $config['version']='1.0.3';
 
 
-// Database config
-function ConnectDB(){global $db,$config;
-  $host     = 'localhost';
-  $port     = 3306;
-  $username = 'minecraft';
-  $password = 'password123';
-  $database = 'minecraft';
-  $config['table prefix'] = 'WA_';
-  $db=@mysql_pconnect($host.($port==0?'':':'.((int)$port)),$username,$password);
-  if(!$db || !@mysql_select_db($database,$db)){echo '<p>MySQL Error: '.mysql_error().'</p>'; exit();}
-  mysql_query("SET names UTF8");
-}
-
 $config['site title'] = 'WebAuctionPlus'; // website title
 
 // Market Price config
@@ -37,8 +24,7 @@ $chargeAdmins = false; //whether web admins get charged fees
 //$numberOfChecksPerDay = 4; //checks take a while, for whoever happens to open the page when a check is needed, but more checks make it harder to avoid the cost.
 
 // Currency config
-$currencyPrefix = '$ '; //appears in front of cost values eg. "$" would make $10
-$currencyPostfix = ''; //appears after the cost values eg. "Pounds" would make 10 Pounds
+// moved this to the database. check in the Settings table
 
 // iConomy config
 $config['iConomy']['use']   = 'auto';    // ( true / false / 'auto' )  you you have iConomy data in another table in the same database?
@@ -55,4 +41,5 @@ $accessToken = '';
 $accessTokenSecret = '';
 
 
+require('.htdb.config.php');
 ?>

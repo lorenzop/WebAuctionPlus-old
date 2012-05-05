@@ -1,4 +1,5 @@
-<?php
+<?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
+// this class is a group of functions to handle auctions
 class AuctionsClass{
 
 public $currentId  = 0;
@@ -7,6 +8,7 @@ private   $tempRow = FALSE;
 
 function __construct(){
 }
+
 
 // get auctions
 public function QueryAuctions($WHERE=''){global $config;
@@ -31,6 +33,7 @@ public function QueryAuctions($WHERE=''){global $config;
          "ORDER BY Auctions.`id` ASC";
   $this->result=RunQuery($query, __file__, __line__);
 }
+
 
 // get next auction row
 public function getNext(){
@@ -59,6 +62,76 @@ public function getNext(){
   }
   if(count($output)==0) $output=FALSE;
   return($output);
+}
+
+
+// create new auction
+public static function CreateAuction($id, $qty, $price, $desc){global $config,$user;
+  if($id < 1) return(FALSE);
+  // has canSell permissions
+  if(!$user->hasPerms('canSell')){$config['error'] = 'You don\'t have permission to sell.'; return(FALSE);}
+  // validate args
+  $qty = floor($qty);
+  if($qty   <= 0){$config['error'] = 'Invalid qty!';   return(FALSE);}
+  if($price <= 0){$config['error'] = 'Invalid price!'; return(FALSE);}
+  if(!empty($desc)) $desc = preg_replace('/\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i', '', strip_tags($desc) );
+//  if (!itemAllowed($item->name, $item->damage)){
+//    $_SESSION['error'] = $item->fullname.' is not allowed to be sold.';
+//    header("Location: ../myauctions.php");
+//  }
+global $maxSellPrice;
+  if($price > $maxSellPrice){$config['error'] = 'Over max sell price of $ '.$maxSellPrice.' !'; return(FALSE);}
+  // get item from db
+  $itemRow = ItemFuncs::QueryItem($user->getName(),$id);
+  if($itemRow === FALSE){$config['error'] = 'Item not found!'; return(FALSE);}
+  $Item = &$itemRow['Item'];
+  if($qty > $Item->qty){$qty = $Item->qty; $config['error'] = 'You don\'t have that many!'; return(FALSE);}
+  // merge with existing auction
+///////////////////////////////////////////////////////////
+//TODO: will have a function to check for existing auctions
+///////////////////////////////////////////////////////////
+  // split item stack
+  $splitStack = ($qty < $Item->qty);
+  // create auction
+  $query = "INSERT INTO `".$config['table prefix']."Auctions` (".
+           "`playerName`,`itemId`,`itemDamage`,`qty`,`price`,`created` )VALUES( ".
+           "'".mysql_san($user->getName())."',".((int)$Item->itemId).",".((int)$Item->itemDamage).",".
+           ((int)$qty).",".((float)$price).",NOW() )";
+//echo '<p>'.$query.'</p>';$auctionId=0;
+  $result = RunQuery($query, __file__, __line__);
+  if(!$result){echo '<p style="color: red;">Error creating auction!</p>'; exit();}
+  $auctionId = mysql_insert_id();
+  // subtract qty
+  if($splitStack){
+    $result = ItemFuncs::UpdateQty($id, 0-$qty, FALSE);
+    if(!$result || mysql_affected_rows()==0){echo '<p style="color: red;">Error updating item stack quantity!</p>'; exit();}
+  // remove item stack
+  }else{
+    $result = ItemFuncs::DeleteItem($itemRow['id']);
+    if(!$result || mysql_affected_rows()==0){echo '<p style="color: red;">Error removing item stack quantity!</p>'; exit();}
+  }
+  // copy enchantments
+  if($splitStack){
+    ItemFuncs::CreateEnchantments($Item->getEnchantmentsArray(), 'Auctions', $auctionId);
+  // move enchantments
+  }else{
+    $query = "UPDATE `".$config['table prefix']."ItemEnchantments` SET ".
+             "`ItemTable` = 'Auctions', `ItemTableId` = ".((int)$auctionId).
+             " WHERE `ItemTable` = 'Items' AND `ItemTableId` = ".((int)$itemRow['id']);
+//echo '<p>'.$query.'</p>';
+    $result = RunQuery($query, __file__, __line__);
+    if(!$result){echo '<p style="color: red;">Error moving enchantment!</p>'; exit();}
+  }
+  return(TRUE);
+}
+
+
+// buy/cancel auction
+public static function RemoveAuction($auctionId, $buying=FALSE){
+
+
+
+
 }
 
 
@@ -335,7 +408,7 @@ public function getNext(){
 //    }
 //    $row[]=number_format($aRow['quantity'],0);
 //    $row[]='$ '.number_format($aRow['price'],2);
-//    $row[]='$ '.number_format( ((double)$aRow['quantity']) * ((double)$aRow['price']) ,2);
+//    $row[]='$ '.number_format( ((float)$aRow['quantity']) * ((float)$aRow['price']) ,2);
 //    if($marketPercent=='N/A'){
 //      $row[]='N/A';
 //    }else{

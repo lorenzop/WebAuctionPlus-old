@@ -8,19 +8,42 @@ class ItemTables{
   const Auctions = 2;
   const Mail     = 3;
   public $value = NULL;
-  public function toString(){
-    if(func_num_args() == 0) return($this->toString($value));
-    $ItemTable = ((int)$func_get_arg(0));
-    if($ItemTable == ItemTables::Items)    return("Items");
-    if($ItemTable == ItemTables::Auctions) return("Auctions");
-    if($ItemTable == ItemTables::Mail)     return("Mail");
+  public function setValue($ItemTable){
+    $type = gettype($ItemTable);
+    if(    $type == 'string' ) $this->value = self::fromString(   $ItemTable);
+    elseif($type == 'integer') $this->value = self::Validate((int)$ItemTable);
+    return($this->value);
   }
-  public function fromString(){
-    if(func_num_args() == 0) return($this->fromString($value));
-    $ItemTable = lcase(func_get_arg(0));
-    if($ItemTable == 'items')    return($this->Items);
-    if($ItemTable == 'auctions') return($this->Auctions);
-    if($ItemTable == 'mail')     return($this->Mail);
+  public function getValue($type='string'){
+    if(    $type=='str'   || $type=='string' ) return( self::toString($this->value) );
+    elseif($type=='int'   || $type=='integer') return(           (int)$this->value  );
+    return($this->value);
+  }
+  public static function toString($value){
+    if($value == self::Items)    return("Items"   );
+    if($value == self::Auctions) return("Auctions");
+    if($value == self::Mail)     return("Mail"    );
+    return(NULL);
+  }
+  public static function fromString($str){
+    $str = strtolower(func_get_arg(0));
+    if($str == 'items')    return(self::Items   );
+    if($str == 'auctions') return(self::Auctions);
+    if($str == 'mail')     return(self::Mail    );
+    return(-1);
+  }
+  public static function Validate($ItemTable){
+    $type = gettype($ItemTable);
+    if(    $type == 'string' ) return( self::toString(self::fromString($ItemTable)) );
+    elseif($type == 'integer') return( self::fromString(self::toString($ItemTable)) );
+    elseif($type == 'object' ) return( self::toString($ItemTable->value)            );
+    return(NULL);
+  }
+  public static function ValidateStr($ItemTable){
+    $type = gettype($ItemTable);
+    if(    $type == 'string' ) return( self::Validate($ItemTable)        );
+    elseif($type == 'integer') return( self::toString($ItemTable)        );
+    elseif($type == 'object' ) return( self::toString($ItemTable->value) );
     return(NULL);
   }
 }
@@ -29,7 +52,8 @@ class ItemTables{
 // item functions
 class ItemFuncs{
 
-static $Items=array();
+// all items info
+static $Items = array();
 
 // get item array
 public static function getItemArray($itemId=0, $itemDamage=0){
@@ -49,10 +73,8 @@ public static function getItemArray($itemId=0, $itemDamage=0){
 // get item type
 public static function getItemType($itemId=0){
   $item = self::getItemArray($itemId);
-  if(isset($item['type']))
-    return($item['type']);
-  else
-    return('');
+  if(isset($item['type'])) return($item['type']);
+  else                     return('');
 }
 
 // get item name
@@ -120,6 +142,45 @@ public static function QueryItem($playerName,$id){global $user;
   $itemRow = $items->getNext();
   unset($items);
   return($itemRow);
+}
+
+// update qty
+public static function UpdateQty($itemId, $qty, $fixed=TRUE){global $config;
+  // set qty
+  if($fixed) $query = "`qty` = ".((int)$qty);
+  // add/subtract
+  else $query = "`qty` = `qty` + ".((int)$qty);
+  $query = "UPDATE `".$config['table prefix']."Items` SET ".$query." WHERE `id`=".((int)$itemId)." LIMIT 1";
+//echo '<p>'.$query.'</p>';
+  $result = RunQuery($query, __file__, __line__);
+  if(!$result){echo '<p style="color: red;">Error updating item stack!</p>'; exit();}
+  return($result);
+}
+
+// delete item
+public static function DeleteItem($itemId){global $config;
+  $query = "DELETE FROM `".$config['table prefix']."Items` WHERE `id` = ".((int)$itemId)." LIMIT 1";
+//echo '<p>'.$query.'</p>';
+  $result = RunQuery($query, __file__, __line__);
+  if(!$result){echo '<p style="color: red;">Error removing item stack!</p>'; exit();}
+  return($result);
+}
+
+// create new enchantments
+public static function CreateEnchantments($ench, $ItemTable, $ItemTableId){global $config;
+  if(!is_array($ench)) return(FALSE);
+  $newEnch = array();
+  foreach($ench as $v){
+    $query = "INSERT INTO `".$config['table prefix']."ItemEnchantments` (".
+             "`ItemTable`,`ItemTableId`,`enchName`,`enchId`,`level`) VALUES(".
+             "'".mysql_san(ItemTables::ValidateStr($ItemTable))."',".((int)$ItemTableId).",".
+             "'".mysql_san($v['enchName'])."',".((int)$v['enchId']).",".((int)$v['level']).")";
+//echo '<p>'.$query.'</p>';
+    $result = RunQuery($query, __file__, __line__);
+    if(!$result){echo '<p style="color: red;">Error creating enchantment!</p>'; exit();}
+    $newEnch[mysql_insert_id()] = $v;
+  }
+  return($newEnch);
 }
 
 
