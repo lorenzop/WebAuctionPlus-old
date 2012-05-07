@@ -42,23 +42,24 @@ public function getNext(){
   // get first row
   if($tempRow==FALSE) $tempRow = mysql_fetch_assoc($this->result);
   if($tempRow==FALSE) return(FALSE);
-  $this->currentId      = $tempRow['id'];
-  $output['id']         = $tempRow['id'];
+  $this->currentId      = ((int)  $tempRow['id']);
+  $output['id']         = ((int)  $tempRow['id']);
   $output['playerName'] = $tempRow['playerName'];
-  $output['price']      = $tempRow['price'];
-  $output['created']    = $tempRow['created'];
+  $output['price']      = ((float)$tempRow['price']);
+  $output['price total']= ((float)$tempRow['price']) * ((float)$tempRow['qty']);
+  $output['created']    = ((int)  $tempRow['created']);
   // create item object
   $output['Item'] = new ItemClass(array(
-    'itemId'     => $tempRow['itemId'],
-    'itemDamage' => $tempRow['itemDamage'],
-    'qty'        => $tempRow['qty'] ));
+    'itemId'     => ((int)$tempRow['itemId']),
+    'itemDamage' => ((int)$tempRow['itemDamage']),
+    'qty'        => ((int)$tempRow['qty']) ));
   // get first enchantment
   if(!empty($tempRow['enchName']))
-    $output['Item']->addEnchantment($tempRow['enchName'], $tempRow['enchId'], $tempRow['level'] );
+    $output['Item']->addEnchantment($tempRow['enchName'], ((int)$tempRow['enchId']), ((int)$tempRow['level']) );
   // get more rows (enchantments)
   while($tempRow = mysql_fetch_assoc($this->result)){
     if($tempRow['id'] != $this->currentId) break;
-    $output['Item']->addEnchantment($tempRow['enchName'], $tempRow['enchId'], $tempRow['level']);
+    $output['Item']->addEnchantment($tempRow['enchName'], ((int)$tempRow['enchId']), ((int)$tempRow['level']) );
   }
   if(count($output)==0) $output=FALSE;
   return($output);
@@ -71,7 +72,7 @@ public static function CreateAuction($id, $qty, $price, $desc){global $config,$u
   // has canSell permissions
   if(!$user->hasPerms('canSell')){$config['error'] = 'You don\'t have permission to sell.'; return(FALSE);}
   // validate args
-  $qty = floor($qty);
+  $qty = floor((int)$qty);
   if($qty   <= 0){$config['error'] = 'Invalid qty!';   return(FALSE);}
   if($price <= 0){$config['error'] = 'Invalid price!'; return(FALSE);}
   if(!empty($desc)) $desc = preg_replace('/\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i', '', strip_tags($desc) );
@@ -129,10 +130,21 @@ global $maxSellPrice;
 // buy/cancel auction
 public static function RemoveAuction($auctionId, $qty, $isBuying=TRUE){global $config,$user;
   if($auctionId < 1) return(FALSE);
-  // has canSell permissions
-  if(!$user->hasPerms('canBuy')){$config['error'] = 'You don\'t have permission to buy.'; return(FALSE);}
+  // is buying
+  if($isBuying){
+    // has canBuy permissions
+    if(!$user->hasPerms('canBuy')){
+      $config['error'] = 'You don\'t have permission to buy.'; return(FALSE);}
+  // is canceling
+  }else{
+    // is owner or has isAdmin permissions
+    if(FALSE || !$user->hasPerms('isAdmin') ){
+      $config['error'] = 'You don\'t have permission to cancel this auction.'; return(FALSE);}
+echo 'canceling auctions is not finished!!';
+exit();
+  }
   // validate args
-  $qty = floor($qty);
+  $qty = floor((int)$qty);
   if($qty <= 0){$config['error'] = 'Invalid qty!'; return(FALSE);}
 //  if($price <= 0){$config['error'] = 'Invalid price!'; return(FALSE);}
 //  if (!itemAllowed($item->name, $item->damage)){
@@ -149,6 +161,9 @@ public static function RemoveAuction($auctionId, $qty, $isBuying=TRUE){global $c
   if($auctionRow === FALSE){$config['error'] = 'Auction not found!'; return(FALSE);}
   $Item = &$auctionRow['Item'];
   if($qty > $Item->qty){$qty = $Item->qty; $config['error'] = 'Not that many for sale!'; return(FALSE);}
+
+  // make payment from buyer to seller
+  UserClass::MakePayment($user->getName(), $auctionRow['playerName'], ((float)$auctionRow['price']) * ((float)$qty), 'Bought auction '.((int)$auctionRow['id']).' '.$Item->getItemTitle().' x'.((int)$Item->qty) );
 
   // split auction stack
   $splitStack = ($qty < $Item->qty);

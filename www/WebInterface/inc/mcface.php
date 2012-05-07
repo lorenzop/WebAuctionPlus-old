@@ -9,7 +9,7 @@ image_cache_control(substr(@$_SERVER['SCRIPT_NAME'],strrpos(@$_SERVER['SCRIPT_NA
 $image=@file_get_contents('http://minotar.net/avatar/'.$username);
 // load default face
 if($image==FALSE){
-  $image=file_get_contents('../images/default_face.png');}
+  $image=file_get_contents('images/default_face.png');}
 header('Content-type: image/png');
 echo $image;
 exit();

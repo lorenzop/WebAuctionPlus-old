@@ -54,7 +54,7 @@ public function getPercentDamaged(){
 public function getPercentDamagedString(){
   $damaged = $this->getPercentDamaged();
   if( ((string)$damaged) == '0') return('Brand New!');
-  else                           return(((string)$damaged).' % damaged');
+  else                           return((string)$damaged);
 }
 
 // add enchantment

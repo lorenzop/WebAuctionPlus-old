@@ -60,17 +60,18 @@ function __construct($username=NULL, $password=NULL){global $config;
     exit();
   }
   // use iconomy table
-  if ($config['iConomy']['use']===true || $config['iConomy']['use']==='auto'){
+  if ($config['iConomy']['use']===TRUE || $config['iConomy']['use']==='auto'){
     global $db;
-    $result=mysql_query("SELECT `balance` FROM `".mysql_san($config['iConomy']['table'])."` WHERE ".
-                        "`username`='".mysql_san($this->Name)."' LIMIT 1", $db);
+    $result = mysql_query("SELECT `balance` FROM `".mysql_san($config['iConomy']['table'])."` WHERE ".
+                          "`username`='".mysql_san($this->Name)."' LIMIT 1", $db);
     if($result){
-      $row=mysql_fetch_assoc($result);
-      $this->Money=((double)$row['balance']);
+      $row = mysql_fetch_assoc($result);
+      $this->Money = ((double)$row['balance']);
+      $config['iConomy']['use'] = TRUE;
     }else{
       // table not found
-      if(mysql_errno($db)==1146){
-        $config['iConomy']['use']=false;
+      if(mysql_errno($db) == 1146){
+        $config['iConomy']['use'] = FALSE;
       }else echo mysql_error($db);
     }
     unset($result, $row);
@@ -130,6 +131,26 @@ public function earn($amount, $useMySQLiConomy, $iConTableName){
 //  $this->saveMoney($useMySQLiConomy, $iConTableName);
 //  $this->earnt = $this->earnt + $amount;
 //  $query = mysql_query("UPDATE WA_Players SET earnt='$this->earnt' WHERE name='$this->name'");
+}
+
+public static function MakePayment($fromPlayer, $toPlayer, $amount, $desc=''){
+  if(empty($fromPlayer) || empty($toPlayer) || $amount<=0){echo 'Invalid payment amount!'; exit();}
+  self::PaymentQuery($toPlayer,     $amount);
+  self::PaymentQuery($fromPlayer, 0-$amount);
+  // TODO: log transaction
+}
+
+public static function PaymentQuery($playerName, $amount){global $config;
+  if($config['iConomy']['use'] === TRUE){
+    $query = "UPDATE `".mysql_san($config['iConomy']['table'])."` SET ".
+             "`balance` = `balance` + ".((float)$amount)." ".
+             "WHERE `username`='".mysql_san($playerName)."' LIMIT 1";
+  }else{
+    $query = "UPDATE `".$config['table prefix']."Players` SET ".
+             "`money` = `money` + ".((float)$amount)." ".
+             "WHERE `username`='".mysql_san($playerName)."' LIMIT 1";
+  }
+  $result = RunQuery($query, __file__, __line__);
 }
 
 
