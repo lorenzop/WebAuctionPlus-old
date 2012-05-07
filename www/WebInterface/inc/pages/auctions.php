@@ -93,8 +93,9 @@ while($auction = $auctions->getNext()){
       <td style="text-align: center;">market price<br />goes here</td>
       <td style="text-align: center;">'.
       ($user->hasPerms('canBuy')?
-        '<form action="./" method="post">'.
+        '<form action="./" method="get">'.
         '<input type="hidden" name="page" value="buyauction" />'.
+        '<input type="hidden" name="action" value="buy" />'.
         '<input type="hidden" name="auctionid" value="'.((int)$auction['id']).'" />'.
         '<input type="text" name="qty" value="'.((int)$Item->qty).'" onkeypress="return numbersonly(this, event);" '.
           'class="input" style="width: 60px; margin-bottom: 5px; text-align: center;" /><br />'.
@@ -103,7 +104,8 @@ while($auction = $auctions->getNext()){
       :$output.="Can't Buy").'</td>
       '.($user->hasPerms('isAdmin')?
 //        '<td style="text-align: center;"><a href="./?id='.((int)$Item->itemId).'" class="button">Cancel</a></td>':'').'
-        '<td style="text-align: center;"><input type="button" value="Cancel" class="button" onclick="alert(\'Im sorry, this feature has been temporarily left out to get other things working. This button will be working again in the next update.\');" /></td>':'').'
+        '<td style="text-align: center;"><input type="button" value="Cancel" class="button"'.
+        ' onclick="alert(\'Im sorry, this feature has been temporarily left out to get other things working. This button will be working again in the next update.\');" /></td>':'').'
     </tr>
 ';
 }

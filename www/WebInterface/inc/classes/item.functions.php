@@ -96,7 +96,7 @@ public static function getItemTitle($itemId=0, $itemDamage=0){
     if(isset($item['title'])) $title=$item['title'];
     else                      $title=$item['name'];
     if(isset($item['damage'])){
-      $title=str_replace('%damaged%',self::getPercentDamaged($itemDamage,$item['damage']).'% damaged',$title);
+      $title=str_replace('%damaged%',self::getPercentDamagedStr($itemDamage,$item['damage']).'% damaged',$title);
       $title=str_replace('#map#',' '.$itemDamage,$title);
     }
     return($title);
@@ -118,7 +118,15 @@ public static function getItemImage($itemId=0, $itemDamage=0){
 
 // get percent damaged
 public static function getPercentDamaged($itemDamage, $maxDamage){
-  return(round(( ((float)$itemDamage)/((float)$maxDamage) )*100.0, 1));
+  $damaged = ( ((float)$itemDamage)/((float)$maxDamage) )*100.0;
+  if($damaged>0 && (string)round($damaged,1) == '0') return( (string)round($damaged,2) );
+  else                                               return( (string)round($damaged,1) );
+}
+public static function getPercentDamagedStr($itemDamage, $maxDamage){
+  $damaged = self::getPercentDamaged($itemDamage, $maxDamage);
+  if( ((string)$damaged) == '0') return('Brand New!');
+  else                           return(((string)$damaged).' % damaged');
+  return;
 }
 
 // get max stack size
@@ -142,6 +150,23 @@ public static function QueryItem($playerName,$id){global $user;
   $itemRow = $items->getNext();
   unset($items);
   return($itemRow);
+}
+
+// create item
+public static function CreateItem($ItemTable, $playerName, $itemId, $itemDamage, $qty, $ench=array()){global $config;
+  $query = "INSERT INTO `".$config['table prefix']."Items` (".
+           "`ItemTable`,`playerName`,`itemId`,`itemDamage`,`qty`) VALUES (".
+           "'".mysql_san(ItemTables::ValidateStr($ItemTable))."',".
+           "'".mysql_san($playerName)."',".
+           ((int)$itemId).",".
+           ((int)$itemDamage).",".
+           ((int)$qty).")";
+//echo '<p>'.$query.'</p>';
+  $result = RunQuery($query, __file__, __line__);
+  if(!$result){echo '<p style="color: red;">Error creating item stack!</p>'; exit();}
+  $ItemTableId = mysql_insert_id();
+  self::CreateEnchantments($ench, 'Items', $ItemTableId);
+  return($ItemTableId);
 }
 
 // update qty

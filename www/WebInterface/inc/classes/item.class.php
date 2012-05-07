@@ -49,7 +49,7 @@ public function getPercentDamaged(){
   if($this->itemId<=0) return('');
   $item = ItemFuncs::getItemArray($this->itemId);
   if(!isset($item['damage'])) return('');
-  return(ItemFuncs::getPercentDamaged($this->itemDamage,$item['damage']));
+  return(ItemFuncs::getPercentDamagedStr($this->itemDamage,$item['damage']));
 }
 public function getPercentDamagedString(){
   $damaged = $this->getPercentDamaged();

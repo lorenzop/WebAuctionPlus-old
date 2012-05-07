@@ -4,10 +4,10 @@
 
 if($config['action']=='newauction'){
   if(AuctionsClass::CreateAuction(
-    getVar('id','int'),
-    getVar('qty','int'),
+    getVar('id',   'int'),
+    getVar('qty',  'int'),
     getVar('price','double'),
-    getVar('desc','string')
+    getVar('desc', 'string')
   )){
 ///////////////////////////////////////
 //TODO: create a function getLastPage()

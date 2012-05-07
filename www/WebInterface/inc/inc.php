@@ -129,6 +129,7 @@ function fromSeconds($seconds){$output='';
 
 // to roman numerals
 function numberToRoman($num){
+  if($num > 15) return((string)$num);
   $num = ((int)$num);
   $result = '';
   $lookup = array(

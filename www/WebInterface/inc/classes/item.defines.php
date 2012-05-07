@@ -1048,6 +1048,7 @@ ItemFuncs::$Items=array(
     'name'=>'Compass',
     'icon'=>'Compass.png'),
   346=>array(
+    'type' =>'tool',
     'name'=>'Fishing Rod',
     'icon'=>'Fishing_Rod.png',
     'damage'=>65,
