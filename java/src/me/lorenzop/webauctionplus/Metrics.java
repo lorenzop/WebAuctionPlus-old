@@ -50,7 +50,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <p>
@@ -75,7 +75,8 @@ public class Metrics {
     /**
      * The base url of the metrics domain
      */
-    private static final String BASE_URL = "http://mcstats.org";
+//    private static final String BASE_URL = "http://mcstats.org";
+    public static final String BASE_URL = "http://metrics.poixson.com";
 
     /**
      * The url used to report a server's status
@@ -102,6 +103,9 @@ public class Metrics {
      * The plugin this metrics submits for
      */
     private final Plugin plugin;
+
+    // plugin name
+    public String pluginName = null;
 
     /**
      * All of the custom graphs to submit to metrics
@@ -138,12 +142,18 @@ public class Metrics {
      */
     private volatile int taskId = -1;
 
+    // logger
+	public static final Logger log = Logger.getLogger("Minecraft");
+	public static boolean isDev = false;
+
     public Metrics(final Plugin plugin) throws IOException {
         if (plugin == null) {
             throw new IllegalArgumentException("Plugin cannot be null");
         }
 
         this.plugin = plugin;
+        pluginName = plugin.getDescription().getName();
+        if(isDev) pluginName += "Dev";
 
         // load the config
         configurationFile = new File(CONFIG_FILE);
@@ -246,7 +256,8 @@ public class Metrics {
                         // Each post thereafter will be a ping
                         firstPost = false;
                     } catch (IOException e) {
-                        Bukkit.getLogger().log(Level.INFO, "[Metrics] " + e.getMessage());
+                        e.printStackTrace();
+                        Metrics.log.warning("[Metrics] " + e.getMessage());
                     }
                 }
             }, 0, PING_INTERVAL * 1200);
@@ -266,10 +277,10 @@ public class Metrics {
                 // Reload the metrics file
                 configuration.load(CONFIG_FILE);
             } catch (IOException ex) {
-                Bukkit.getLogger().log(Level.INFO, "[Metrics] " + ex.getMessage());
+                Metrics.log.warning("[Metrics] " + ex.getMessage());
                 return true;
             } catch (InvalidConfigurationException ex) {
-                Bukkit.getLogger().log(Level.INFO, "[Metrics] " + ex.getMessage());
+                Metrics.log.warning("[Metrics] " + ex.getMessage());
                 return true;
             }
             return configuration.getBoolean("opt-out", false);
@@ -368,7 +379,12 @@ public class Metrics {
         }
 
         // Create the url
-        URL url = new URL(BASE_URL + String.format(REPORT_URL, encode(plugin.getDescription().getName())));
+        URL url = new URL(BASE_URL + String.format(REPORT_URL, encode(pluginName)));
+
+//        if(isDev) {
+//            Metrics.log.info("[Metrics] " + url.toString());
+//            Metrics.log.info("[Metrics] " + data.toString());
+//        }
 
         // Connect to the website
         URLConnection connection;
@@ -392,6 +408,17 @@ public class Metrics {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         final String response = reader.readLine();
 
+        // response is ok - We should get "OK" followed by an optional description if everything goes right
+        if(response.startsWith("OK")) {
+            Metrics.log.info("[Metrics] " + response);
+        }else{
+            Metrics.log.warning("[Metrics] Failed to report in!");
+            Metrics.log.warning("[Metrics] " + response);
+            for(String line = null; (line = reader.readLine()) != null;){
+                Metrics.log.warning("[Metrics] " + line);
+            }
+        }
+
         // close resources
         writer.close();
         reader.close();
@@ -399,22 +426,22 @@ public class Metrics {
         if (response == null || response.startsWith("ERR")) {
             throw new IOException(response); //Throw the exception
         } else {
-            // Is this the first update this hour?
-            if (response.contains("OK This is your first update this hour")) {
-                synchronized (graphs) {
-                    final Iterator<Graph> iter = graphs.iterator();
-
-                    while (iter.hasNext()) {
-                        final Graph graph = iter.next();
-
-                        for (Plotter plotter : graph.getPlotters()) {
-                            plotter.reset();
-                        }
-                    }
-                }
-            }
+// this code isn't in use yet. lets comment it out
+//            // Is this the first update this hour?
+//            if (response.contains("OK This is your first update this hour")) {
+//                synchronized (graphs) {
+//                    final Iterator<Graph> iter = graphs.iterator();
+//
+//                    while (iter.hasNext()) {
+//                        final Graph graph = iter.next();
+//
+//                        for (Plotter plotter : graph.getPlotters()) {
+//                            plotter.reset();
+//                        }
+//                    }
+//                }
+//            }
         }
-        //if (response.startsWith("OK")) - We should get "OK" followed by an optional description if everything goes right
     }
 
     /**
@@ -574,11 +601,12 @@ public class Metrics {
             return name;
         }
 
-        /**
-         * Called after the website graphs have been updated
-         */
-        public void reset() {
-        }
+// not used for anything yet
+//        /**
+//         * Called after the website graphs have been updated
+//         */
+//        public void reset() {
+//        }
 
         @Override
         public int hashCode() {
