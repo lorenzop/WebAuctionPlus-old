@@ -3,6 +3,9 @@ package me.lorenzop.webauctionplus;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +19,8 @@ import me.exote.webauctionplus.listeners.WebAuctionServerListener;
 import me.exote.webauctionplus.tasks.RecentSignTask;
 import me.exote.webauctionplus.tasks.SaleAlertTask;
 import me.exote.webauctionplus.tasks.ShoutSignTask;
+import me.lorenzop.webauctionplus.mysql.MySQLDataQueries;
+import me.lorenzop.webauctionplus.mysql.MySQLTables;
 import me.lorenzop.webauctionplus.tasks.AnnouncerTask;
 import me.lorenzop.webauctionplus.tasks.CronExecutorTask;
 import net.milkbowl.vault.economy.Economy;
@@ -29,14 +34,19 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 public class WebAuctionPlus extends JavaPlugin {
 
+	public final boolean isDev = true;
+
 	public static String logPrefix  = "[WebAuction+] ";
 	public static String chatPrefix = ChatColor.DARK_GREEN+"["+ChatColor.WHITE+"WebAuction+"+ChatColor.DARK_GREEN+"] ";
-	public static Logger log = Logger.getLogger("Minecraft");
+	public static final Logger log = Logger.getLogger("Minecraft");
 
 	public Metrics metrics;
 
 	public Double currentVersion;
 	public Double newVersion;
+
+	// config
+	public static FileConfiguration Config;
 
 	public MySQLDataQueries dataQueries;
 	public WebAuctionCommands WebAuctionCommandsListener = new WebAuctionCommands(this);
@@ -84,10 +94,20 @@ public class WebAuctionPlus extends JavaPlugin {
 		//log.info("CURRENT: " + currentVersion.toString());
 		//log.info("NEW" + newVersion.toString());
 
+		if(isDev) {
+			log.info("******************************");
+			log.info("*** Running in dev mode!!! ***");
+			log.info("******************************");
+		}
+
 		log.info(logPrefix + "WebAuctionPlus is initializing.");
 
 		// Command listener
 		getCommand("wa").setExecutor(WebAuctionCommandsListener);
+
+		// init configs
+		Config = getConfig();
+		initConfig();
 
 		// connect MySQL
 		if (!ConnectDB()) {
@@ -98,10 +118,17 @@ public class WebAuctionPlus extends JavaPlugin {
 		// load settings from db
 		settings = new waSettings(this);
 		settings.LoadSettings();
-		mcstatus();
 
 		// load config.yml
-		onLoadConfig();
+		try {
+			onLoadConfig();
+		} catch (Exception e) {
+			log.severe("Unable to load config");
+			e.printStackTrace();
+			return;
+		}
+
+		onLoadMetrics();
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new WebAuctionPlayerListener(this), this);
@@ -110,9 +137,7 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	public void onLoadConfig() {
-		// Init configs
-		initConfig();
-		FileConfiguration Config = getConfig();
+//		addComment("debug_mode", Arrays.asList("# This is where you enable debug mode"))
 		showSalesOnJoin    = Config.getBoolean("Misc.ShowSalesOnJoin");
 		signDelay          = Config.getInt    ("Misc.SignClickDelay");
 		timEnabled         = Config.getBoolean("Misc.UnsafeEnchantments");
@@ -127,30 +152,30 @@ public class WebAuctionPlus extends JavaPlugin {
 
 		// cron executor
 		cronExecutorEnabled      = Config.getBoolean("CronExecutor.Enabled");
-		long cronExecutorSeconds = 20 * Config.getLong("Tasks.CronExecutorSeconds");
-		if (cronExecutorEnabled && cronExecutorSeconds>0) {
+		long cronExecutorMinutes = 20 * 60 * Config.getLong("Tasks.CronExecutorMinutes");
+		if (cronExecutorEnabled && cronExecutorMinutes>0) {
 			waCronExecutorTask = new CronExecutorTask();
 			waCronExecutorTask.setCronUrl(Config.getString("CronExecutor.Url"));
 			// cron executor task (always multi-threaded)
 			scheduler.scheduleAsyncRepeatingTask(this, waCronExecutorTask,
-				(cronExecutorSeconds*2), cronExecutorSeconds);
+				(cronExecutorMinutes/2), cronExecutorMinutes);
 			log.info(logPrefix + "Enabled Task: Cron Executor");
 		}
 
 		// announcer
 		announceEnabled       = Config.getBoolean("Announcer.Enabled");
-		long announcerSeconds = 20 * Config.getLong("Tasks.AnnouncerSeconds");
-		if (announceEnabled && announcerSeconds>0) {
+		long announcerMinutes = 20 * 60 * Config.getLong("Tasks.AnnouncerMinutes");
+		if (announceEnabled && announcerMinutes>0) {
 			waAnnouncerTask = new AnnouncerTask(this);
 			waAnnouncerTask.chatPrefix     = Config.getString ("Announcer.Prefix");
 			waAnnouncerTask.announceRandom = Config.getBoolean("Announcer.Random");
 			waAnnouncerTask.addMessages(     Config.getStringList("Announcements"));
 			if (UseMultithreads)
 				scheduler.scheduleAsyncRepeatingTask(this, waAnnouncerTask,
-					announcerSeconds-(announcerSeconds/2), announcerSeconds);
+					announcerMinutes-(announcerMinutes/2), announcerMinutes);
 			else
 				scheduler.scheduleSyncRepeatingTask (this, waAnnouncerTask,
-					announcerSeconds-(announcerSeconds/2), announcerSeconds);
+					announcerMinutes-(announcerMinutes/2), announcerMinutes);
 			log.info(logPrefix + "Enabled Task: Announcer");
 		}
 
@@ -200,25 +225,25 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	public void onSaveConfig() {
-//		FileConfiguration Config = getConfig();
 	}
 
 	public void onDisable() {
 		getServer().getScheduler().cancelTasks(this);
-		log.info(logPrefix + "Disabled. Bye :D");
+		log.info(logPrefix + "Disabled, bye for now :-)");
 		dataQueries.forceCloseConnections();
 	}
 
 	// Init database
 	public boolean ConnectDB() {
-		FileConfiguration Config = getConfig();
 		if ( ((String)Config.getString("MySQL.Password")).equals("password123") )
 			return false;
 		log.info(logPrefix + "MySQL Initializing.");
 		try {
+			int port = Config.getInt("MySQL.Port");
+			if(port == 0) port = Integer.valueOf(Config.getString("MySQL.Port"));
 			dataQueries = new MySQLDataQueries(this,
 				Config.getString("MySQL.Host"),
-				Config.getString("MySQL.Port"),
+				port,
 				Config.getString("MySQL.Username"),
 				Config.getString("MySQL.Password"),
 				Config.getString("MySQL.Database"),
@@ -227,6 +252,11 @@ public class WebAuctionPlus extends JavaPlugin {
 			dataQueries.ConnPoolSizeWarn = Config.getInt("MySQL.ConnectionPoolSizeWarn");
 			dataQueries.ConnPoolSizeHard = Config.getInt("MySQL.ConnectionPoolSizeHard");
 			dataQueries.debugSQL         = Config.getBoolean("Development.DebugSQL");
+			if(isDev) dataQueries.debugSQL = true;
+			// create/update tables
+			@SuppressWarnings("unused")
+			MySQLTables dbTables = new MySQLTables(this);
+			dbTables = null;
 		} catch (Exception e) {
 			if (e.getCause() instanceof SQLException) {
 				log.severe(logPrefix + "Unable to connect to MySQL database.");
@@ -234,20 +264,18 @@ public class WebAuctionPlus extends JavaPlugin {
 			e.printStackTrace();
 			return false;
 		}
-		dataQueries.initTables();
 		return true;
 	}
 
 	private void initConfig() {
-		FileConfiguration Config = getConfig();
 		Config.addDefault("MySQL.Host", "localhost");
 		Config.addDefault("MySQL.Username", "minecraft");
 		Config.addDefault("MySQL.Password", "password123");
-		Config.addDefault("MySQL.Port", "3306");
+		Config.addDefault("MySQL.Port", 3306);
 		Config.addDefault("MySQL.Database", "minecraft");
 		Config.addDefault("MySQL.TablePrefix", "WA_");
-		Config.addDefault("MySQL.ConnectionPoolSizeWarn", 6);
-		Config.addDefault("MySQL.ConnectionPoolSizeHard", 20);
+		Config.addDefault("MySQL.ConnectionPoolSizeWarn", 5);
+		Config.addDefault("MySQL.ConnectionPoolSizeHard", 10);
 		Config.addDefault("Misc.ReportSales", true);
 		Config.addDefault("Misc.UseOriginalRecentSigns", true);
 		Config.addDefault("Misc.ShowSalesOnJoin", true);
@@ -256,8 +284,8 @@ public class WebAuctionPlus extends JavaPlugin {
 		Config.addDefault("Tasks.SaleAlertSeconds", 20L);
 		Config.addDefault("Tasks.ShoutSignUpdateSeconds", 20L);
 		Config.addDefault("Tasks.RecentSignUpdateSeconds", 60L);
-		Config.addDefault("Tasks.CronExecutorSeconds", 3600L);
-		Config.addDefault("Tasks.AnnouncerSeconds", 3600L);
+		Config.addDefault("Tasks.CronExecutorMinutes", 60L);
+		Config.addDefault("Tasks.AnnouncerMinutes", 60L);
 		Config.addDefault("SignLink.Enabled", false);
 		Config.addDefault("SignLink.NumberOfLatestAuctionsToTrack", 10);
 		Config.addDefault("Development.UseMultithreads", false);
@@ -272,9 +300,25 @@ public class WebAuctionPlus extends JavaPlugin {
 		saveConfig();
 	}
 
+	// format chat colors
 	public static String ReplaceColors(String text){
 		return text.replaceAll("&([0-9a-fA-F])", "\247$1");
 	}
+
+	// add strings with delimiter
+	public static String addStringSet(String baseString, String addThis, String Delim) {
+		if (addThis.isEmpty())    return baseString;
+		if (baseString.isEmpty()) return addThis;
+		return baseString + Delim + addThis;
+	}
+
+//	public static String format(double amount) {
+//		DecimalFormat formatter = new DecimalFormat("#,##0.00");
+//		String formatted = formatter.format(amount);
+//		if (formatted.endsWith("."))
+//			formatted = formatted.substring(0, formatted.length() - 1);
+//		return Common.formatted(formatted, Constants.Nodes.Major.getStringList(), Constants.Nodes.Minor.getStringList());
+//	}
 
 	public static int getNewRandom(int oldNumber, int maxNumber) {
 		if (maxNumber == 0) return maxNumber;
@@ -339,39 +383,68 @@ public class WebAuctionPlus extends JavaPlugin {
 		PrintProgress(count, total, 20);
 	}
 
-	public void mcstatus() {
-		log.info(logPrefix + "mcstatus.org Initializing.");
-		dataQueries.getTotalAuctionCount();
+	public void onLoadMetrics() {
+		log.info(logPrefix + Metrics.BASE_URL + " Initializing.");
 		// usage stats
 		try {
+			Metrics.isDev = isDev;
 			metrics = new Metrics(this);
-		    // Create a line graph
-		    Metrics.Graph lineGraph = metrics.createGraph("Auctions");
-			// Add total auctions plotter
-			lineGraph.addPlotter(new Metrics.Plotter("Total") {
+			// Create graphs for total Buy Nows / Auctions
+			Metrics.Graph lineGraph = metrics.createGraph("Stacks For Sale");
+			Metrics.Graph pieGraph  = metrics.createGraph("Selling Method");
+			// buy now count
+			Metrics.Plotter plotterBuyNows = new Metrics.Plotter("Buy Nows") {
 				@Override
-				public int getValue() {
-					return dataQueries.getTotalAuctionCount();
+				public int getValue(){
+					int totalBuyNowCount = 0;
+					Connection conn = dataQueries.getConnection();
+					PreparedStatement st = null;
+					ResultSet rs = null;
+					try {
+						if (dataQueries.debugSQL) log.info("WA Metrics Query: count buy nows");
+						st = conn.prepareStatement("SELECT COUNT(*) FROM `"+dataQueries.dbPrefix+"Auctions` WHERE `allowBids` = 0");
+						rs = st.executeQuery();
+						if (rs.next())
+							totalBuyNowCount = rs.getInt(1);
+					} catch (SQLException e) {
+						log.warning(logPrefix + "Unable to get total auction count");
+						e.printStackTrace();
+					} finally {
+						dataQueries.closeResources(conn, st, rs);
+					}
+					return totalBuyNowCount;
 				}
-			});
+			};
+			// auction count
+			Metrics.Plotter plotterAuctions = new Metrics.Plotter("Auctions") {
+				@Override
+				public int getValue(){
+					int totalAuctionCount = 0;
+					Connection conn = dataQueries.getConnection();
+					PreparedStatement st = null;
+					ResultSet rs = null;
+					try {
+						if (dataQueries.debugSQL) log.info("WA Metrics Query: count auctions");
+						st = conn.prepareStatement("SELECT COUNT(*) FROM `"+dataQueries.dbPrefix+"Auctions` WHERE `allowBids` != 0");
+						rs = st.executeQuery();
+						if (rs.next())
+							totalAuctionCount = rs.getInt(1);
+					} catch (SQLException e) {
+						log.warning(logPrefix + "Unable to get total auction count");
+						e.printStackTrace();
+					} finally {
+						dataQueries.closeResources(conn, st, rs);
+					}
+					return totalAuctionCount;
+				}
+			};
+			// total selling
+			lineGraph.addPlotter(plotterBuyNows);
+			lineGraph.addPlotter(plotterAuctions);
+			// selling ratio
+			pieGraph.addPlotter(plotterBuyNows);
+			pieGraph.addPlotter(plotterAuctions);
 
-//			// Create a pie graph for individual protections
-//			Metrics.Graph pieGraph = metrics.createGraph("Protection percentages");
-//			for (final Protection.Type type : Protection.Type.values()) {
-//				if (type == Protection.Type.RESERVED1 || type == Protection.Type.RESERVED2) {
-//					continue;
-//				}
-//				// Create the plotter
-//				Metrics.Plotter plotter = new Metrics.Plotter(StringUtil.capitalizeFirstLetter(type.toString()) + " Protections") {
-//					@Override
-//					public int getValue() {
-//						return physicalDatabase.getProtectionCount(type);
-//					}
-//				};
-//				// Add it to both graphs
-//				lineGraph.addPlotter(plotter);
-//				pieGraph.addPlotter(plotter);
-//			}
 			metrics.start();
 		} catch (IOException e) {
 			// Failed to submit the stats :-(

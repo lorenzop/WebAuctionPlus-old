@@ -51,7 +51,7 @@ public class waSettings {
 				
 				countSettings++;
 			}
-			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Loaded " + Integer.toString(countSettings) + " Settings");
+			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Loaded " + Integer.toString(countSettings) + " Settings from db");
 		} catch (SQLException e) {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to load settings!");
 			e.printStackTrace();

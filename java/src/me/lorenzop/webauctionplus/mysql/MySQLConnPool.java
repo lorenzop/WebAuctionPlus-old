@@ -1,4 +1,4 @@
-package me.lorenzop.webauctionplus;
+package me.lorenzop.webauctionplus.mysql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,21 +12,23 @@ import java.util.logging.Logger;
 
 public class MySQLConnPool {
 
-	protected String dbHost;
-	protected String dbPort;
-	protected String dbUser;
-	protected String dbPass;
-	protected String dbName;
-	protected String dbPrefix = "";
-	public int ConnPoolSizeWarn = 6;
-	public int ConnPoolSizeHard = 20;
+	protected String dbHost		= "localhost";
+	protected int    dbPort		= 3306;
+	protected String dbUser		= "";
+	protected String dbPass		= "";
+	protected String dbName		= "";
+	public    String dbPrefix	= "";
+	public int ConnPoolSizeWarn	= 5;
+	public int ConnPoolSizeHard	= 10;
 
+	public boolean debugSQL = false;
 	private List<Boolean> inuse = new ArrayList<Boolean> (4);
 	private List<Connection> connections = new ArrayList<Connection> (4);
 
-	public static Logger log = Logger.getLogger("Minecraft");
-	public static String logPrefix = "";
+	protected Logger log = Logger.getLogger("Minecraft");
+	protected String logPrefix = "";
 
+	// get a db connection from pool
 	public Connection getConnection() {
 		synchronized (inuse) {
 			for(int i = 0; i != inuse.size(); i++) {
@@ -54,7 +56,7 @@ public class MySQLConnPool {
 		}
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			Connection conn = DriverManager.getConnection("jdbc:mysql://"+dbHost+":"+dbPort+"/"+dbName, dbUser, dbPass);
+			Connection conn = DriverManager.getConnection("jdbc:mysql://"+dbHost+":"+Integer.toString(dbPort)+"/"+dbName, dbUser, dbPass);
 			connections.add(conn);
 			inuse.add(true);
 			return conn;
@@ -71,7 +73,12 @@ public class MySQLConnPool {
 		return null;
 	}
 
-	public void releaseConnection(Connection conn) {
+	// close resources
+	public void closeResources(Connection conn, Statement st, ResultSet rs) {
+		closeResources(conn);
+		closeResources(st, rs);
+	}
+	public void closeResources(Connection conn) {
 		boolean valid = false;
 		try {
 			valid = conn.isValid(1);
@@ -87,11 +94,6 @@ public class MySQLConnPool {
 			}
 		}
 	}
-
-	public void closeResources(Connection conn, Statement st, ResultSet rs) {
-		releaseConnection(conn);
-		closeResources(st, rs);
-	}
 	public void closeResources(Statement st, ResultSet rs) {
 		if (rs != null) {
 			try {
@@ -104,20 +106,14 @@ public class MySQLConnPool {
 			} catch (SQLException e) {}
 		}
 	}
-
 	public void forceCloseConnections() {
-		for(int i = 0; i != inuse.size(); i++) {
+		for(int i=0; i!=inuse.size(); i++) {
 			try {
 				connections.get(i).close();
 			} catch (SQLException e) {}
 		}
 	}
 
-	public String addStringSet(String baseString, String addThis, String Delim) {
-		if (addThis.isEmpty())    return baseString;
-		if (baseString.isEmpty()) return addThis;
-		return baseString + Delim + addThis;
-	}
 
 	public void executeRawSQL(String sql) {
 		Connection conn = getConnection();

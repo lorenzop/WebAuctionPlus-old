@@ -30,6 +30,11 @@ public class WebAuctionCommands implements CommandExecutor {
 		} else if (params == 1) {
 			// /wa reload
 			if (args[0].equalsIgnoreCase("reload")){
+boolean temp=true;
+if(temp) {
+sender.sendMessage("/wa reload is currently broken. it will be fixed soon.");
+return true;
+}
 				if (sender instanceof Player) {
 					if (!sender.hasPermission("wa.reload")){
 						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + "You do not have permission");
