@@ -72,8 +72,8 @@ public class WebAuctionPlayerListener implements Listener {
 
 		// Alert player of new mail
 		int mailCount = plugin.dataQueries.hasMail(player);
-		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Player " + player + " has " + Integer.toString(mailCount) + " items in mailbox.");
 		if (mailCount > 0) {
+			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Player " + player + " has " + Integer.toString(mailCount) + " items in mailbox.");
 			p.sendMessage(WebAuctionPlus.chatPrefix + "You have [ " + Integer.toString(mailCount) + " ] new items in your mail!");
 		}
 	}

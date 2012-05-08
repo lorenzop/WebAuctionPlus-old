@@ -100,7 +100,7 @@ public class WebAuctionPlus extends JavaPlugin {
 			log.info("******************************");
 		}
 
-		log.info(logPrefix + "WebAuctionPlus is initializing.");
+//		log.info(logPrefix + "WebAuctionPlus is initializing.");
 
 		// Command listener
 		getCommand("wa").setExecutor(WebAuctionCommandsListener);
@@ -172,10 +172,10 @@ public class WebAuctionPlus extends JavaPlugin {
 			waAnnouncerTask.addMessages(     Config.getStringList("Announcements"));
 			if (UseMultithreads)
 				scheduler.scheduleAsyncRepeatingTask(this, waAnnouncerTask,
-					announcerMinutes-(announcerMinutes/2), announcerMinutes);
+					(announcerMinutes/2), announcerMinutes);
 			else
 				scheduler.scheduleSyncRepeatingTask (this, waAnnouncerTask,
-					announcerMinutes-(announcerMinutes/2), announcerMinutes);
+					(announcerMinutes/2), announcerMinutes);
 			log.info(logPrefix + "Enabled Task: Announcer");
 		}
 
@@ -291,9 +291,9 @@ public class WebAuctionPlus extends JavaPlugin {
 		Config.addDefault("Development.UseMultithreads", false);
 		Config.addDefault("Development.DebugSQL", false);
 		Config.addDefault("CronExecutor.Enabled", false);
-		Config.addDefault("CronExecutor.Url", "http://yourminecraftserver.com/webauction/cron.php");
+		Config.addDefault("CronExecutor.Url", "http://yourminecraftserver.com/webauctionplus/cron.php");
 		Config.addDefault("Announcer.Enabled", false);
-		Config.addDefault("Announcer.Prefix", "&c[Auto] ");
+		Config.addDefault("Announcer.Prefix", "&c[Info] ");
 		Config.addDefault("Announcer.Random", false);
 		Config.addDefault("Announcements", new String[]{"This server is running WebAuctionPlus!"} );
 		Config.options().copyDefaults(true);

@@ -79,6 +79,7 @@ public class MySQLConnPool {
 		closeResources(st, rs);
 	}
 	public void closeResources(Connection conn) {
+		if (conn == null) return;
 		boolean valid = false;
 		try {
 			valid = conn.isValid(1);
@@ -107,11 +108,10 @@ public class MySQLConnPool {
 		}
 	}
 	public void forceCloseConnections() {
-		for(int i=0; i!=inuse.size(); i++) {
-			try {
+		try {
+			for(int i=0; i<inuse.size(); i++)
 				connections.get(i).close();
-			} catch (SQLException e) {}
-		}
+		} catch (SQLException e) {}
 	}
 
 

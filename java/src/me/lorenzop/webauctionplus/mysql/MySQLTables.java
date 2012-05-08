@@ -27,7 +27,9 @@ public class MySQLTables {
 			// update existing tables
 			if (!tableExists("ItemEnchantments")) {
 				// convert database tables to Plus
-				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Converting database to Plus...");
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "**************************************");
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "*** Converting database to Plus... ***");
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "**************************************");
 				ConvertDatabase();
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Finished converting database to Plus!");
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "*** You can delete these tables from the database: EnchantLinks, Enchantments, Mail ***");
@@ -53,6 +55,7 @@ public class MySQLTables {
 		sqlTables(false, tableName);
 	}
 	private void sqlTables(boolean alter, String tableName) {
+		if (debugSQL) WebAuctionPlus.log.info("WA Query: sqlTables " + (alter?"Alter":"Create") + " " + tableName);
 		// auctions
 		if (tableName.equals("Auctions"))
 			if (alter) {
@@ -305,7 +308,7 @@ public class MySQLTables {
 					stNew.setInt   (2, rs.getInt("id"));
 					stNew.executeUpdate();
 					countPlayers++;
-					WebAuctionPlus.PrintProgress(countPlayers, totalPlayers);
+					if(totalPlayers > 500) WebAuctionPlus.PrintProgress(countPlayers, totalPlayers);
 				}
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Converted " + Integer.toString(countPlayers) + " player accounts");
 			} catch (SQLException e) {
@@ -347,7 +350,7 @@ public class MySQLTables {
 					stNew.setInt   (4, rs.getInt   ("quantity"));
 					stNew.executeUpdate();
 					countMail++;
-					WebAuctionPlus.PrintProgress(countMail, totalMail);
+					if(totalMail > 500) WebAuctionPlus.PrintProgress(countMail, totalMail);
 				}
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Converted " + Integer.toString(countMail) + " mail stacks");
 			} catch (SQLException e) {
@@ -418,7 +421,7 @@ public class MySQLTables {
 					}
 					stNew.executeUpdate();
 					countEnchantments++;
-					WebAuctionPlus.PrintProgress(countEnchantments, totalEnchantments);
+					if(totalEnchantments > 500) WebAuctionPlus.PrintProgress(countEnchantments, totalEnchantments);
 				}
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Converted " + Integer.toString(countEnchantments) + " enchantments");
 			} catch (SQLException e) {
@@ -432,7 +435,7 @@ public class MySQLTables {
 
 
 	public Connection getConnection() {
-		return getConnection();
+		return dataQueries.getConnection();
 	}
 	public void closeResources(Connection conn, Statement st, ResultSet rs) {
 		dataQueries.closeResources(conn, st, rs);
