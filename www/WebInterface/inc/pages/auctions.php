@@ -85,7 +85,7 @@ while($auction = $auctions->getNext()){
     }
   }
   $output.='</td>
-      <td style="text-align: center;"><img src="./?page=mcface&amp;username='.$auction['playerName'].'" width="32" alt="" /><br />'.$auction['playerName'].'</td>
+      <td style="text-align: center;"><img src="http://minotar.net/avatar/'.$auction['playerName'].'" width="32" alt="" /><br />'.$auction['playerName'].'</td>
       <td style="text-align: center;">expires date<br />goes here</td>
       <td style="text-align: center;"><b>'.((int)$Item->qty).'</b></td>
       <td style="text-align: center;">'.FormatPrice($auction['price']             ).'</td>

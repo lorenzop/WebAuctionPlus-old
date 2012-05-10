@@ -35,7 +35,7 @@ case 'default':
   $output.='
 <table border="0" cellspacing="0" cellpadding="0" id="profile-box">
 <tr>
-  <td rowspan="4"><img src="./?page=mcface&amp;username='.$user->getName().'" alt="" width="64" height="64" id="mcface" /></td>
+  <td rowspan="4"><img src="http://minotar.net/avatar/'.$user->getName().'" alt="" width="64" height="64" id="mcface" /></td>
   <td>Name:</td><td>'.$user->getName().
       ($user->hasPerms('isAdmin')?'&nbsp;<a href="admin/" style="font-size: small; font-weight: bold; color: #000000;">[ADMIN]</a>':'').'</td>
 </tr>
