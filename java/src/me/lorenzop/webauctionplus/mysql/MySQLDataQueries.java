@@ -271,12 +271,12 @@ public class MySQLDataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if (debugSQL) log.info("WA Query: deleteMail " + player + " " + delMail.toString());
+			if (debugSQL) log.info("WA Query: deleteMail " + player + " " + delMail.size());
 			String sql  = "";
 			String sql2 = "";
 			int i = 0;
-			for (int mailId : delMail) {
-				i++; if (i!=1) {
+			for (int mailId : delMail) { i++;
+				if (i!=1) {
 					sql  += " OR ";
 					sql2 += " OR ";
 				}
@@ -310,7 +310,7 @@ public class MySQLDataQueries extends MySQLConnPool {
 			st.setInt   (1, itemId);
 			rs = st.executeQuery();
 			while (rs.next()) {
-				log.info(rs.getString("enchName") + " " + rs.getInt("level"));
+				if(debugSQL) log.info(rs.getString("enchName") + " " + rs.getInt("level"));
 				mail.addEnchantments(mail.getItemStack(), rs.getString("enchName"), rs.getInt("level"));
 			}
 		} catch (SQLException e) {

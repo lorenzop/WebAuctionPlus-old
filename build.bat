@@ -24,7 +24,7 @@ mkdir %tempdir%
 echo Making copy to %tempdir% ..
 echo.
 mkdir %tempdir%\webauctionplus
-xcopy .\www\WebInterface %tempdir%\webauctionplus /s /e
+xcopy .\www\WebInterface %tempdir%\webauctionplus /s /e /H
 copy .\WebAuctionPlus*.jar %tempdir%
 
 

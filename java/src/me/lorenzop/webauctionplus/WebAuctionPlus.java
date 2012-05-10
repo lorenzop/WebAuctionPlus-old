@@ -412,7 +412,7 @@ public class WebAuctionPlus extends JavaPlugin {
 					PreparedStatement st = null;
 					ResultSet rs = null;
 					try {
-						if (dataQueries.debugSQL) log.info("WA Metrics Query: count buy nows");
+						if (dataQueries.debugSQL) log.info("WA Query Metrics: count buy nows");
 						st = conn.prepareStatement("SELECT COUNT(*) FROM `"+dataQueries.dbPrefix+"Auctions` WHERE `allowBids` = 0");
 						rs = st.executeQuery();
 						if (rs.next())
@@ -435,7 +435,7 @@ public class WebAuctionPlus extends JavaPlugin {
 					PreparedStatement st = null;
 					ResultSet rs = null;
 					try {
-						if (dataQueries.debugSQL) log.info("WA Metrics Query: count auctions");
+						if (dataQueries.debugSQL) log.info("WA Query Metrics: count auctions");
 						st = conn.prepareStatement("SELECT COUNT(*) FROM `"+dataQueries.dbPrefix+"Auctions` WHERE `allowBids` != 0");
 						rs = st.executeQuery();
 						if (rs.next())

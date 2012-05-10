@@ -40,6 +40,7 @@ public class waSettings {
 		addDefault("Version",			plugin.getDescription().getVersion().toString());
 		addDefault("Currency Prefix",	"$ ");
 		addDefault("Currency Postfix",	"");
+		addDefault("Custom Description","false");
 	}
 
 	public void addDefault(String name, String value) {

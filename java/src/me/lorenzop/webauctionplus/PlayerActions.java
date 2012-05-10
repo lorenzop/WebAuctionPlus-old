@@ -7,6 +7,7 @@ import java.util.Map;
 import me.lorenzop.webauctionplus.dao.AuctionItem;
 import me.lorenzop.webauctionplus.dao.MailItem;
 
+import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -96,6 +97,7 @@ public class PlayerActions {
 			if (invFull)
 				p.sendMessage(WebAuctionPlus.chatPrefix + "Your inventory is full");
 		} catch(Exception e) {
+			p.sendMessage(WebAuctionPlus.chatPrefix + ChatColor.RED + "Error getting items!");
 			e.printStackTrace();
 		}
 		return false;
