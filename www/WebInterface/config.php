@@ -40,5 +40,7 @@ $consumerSecret = '';
 $accessToken = '';
 $accessTokenSecret = '';
 
+date_default_timezone_set('America/New_York');
+
 
 ?>
