@@ -104,7 +104,7 @@ if($page_outputs['body']==TRUE){
   $page_outputs['body']=$a();
 }
 if    ($page_outputs['body'] === TRUE ) $page_outputs['body']='';
-elseif($page_outputs['body'] === FALSE) $page_outputs['body']='Page render returned FALSE';
+elseif($page_outputs['body'] === FALSE) $page_outputs['body']='Unable to load page, render returned FALSE';
 $html->Display();
 
 

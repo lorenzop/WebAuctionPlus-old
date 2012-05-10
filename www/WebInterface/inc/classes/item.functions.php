@@ -206,6 +206,42 @@ public static function CreateEnchantments($ench, $ItemTable, $ItemTableId){globa
   return($newEnch);
 }
 
+// mail item stack to player
+public static function MailStack($id){global $config,$user;
+  if($id <= 0){$config['error'] = 'Invalid item id!'; return(FALSE);}
+  // get item from db
+  $itemRow = ItemFuncs::QueryItem($user->getName(),$id);
+  if($itemRow === FALSE){$config['error'] = 'Item not found!'; return(FALSE);}
+  $Item = &$itemRow['Item'];
+  $stacksize = ItemFuncs::getMaxStack($Item->itemId,$Item->itemDamage);
+  // check is owner
+  if(!$user->hasPerms("isAdmin")){
+    if($row['playerName'] != $user->getName()){
+      $config['error'] = 'You don\'t own that item!'; return(FALSE);}}
+  // stack size to big
+  $didSplit = FALSE;
+  $sql = '';
+  while($Item->qty > $stacksize){
+    // split stack
+    ItemFuncs::CreateItem('Mail', $user->getName(), $Item->itemId, $Item->itemDamage, $stacksize, $Item->getEnchantmentsArray());
+    $Item->qty -= $stacksize;
+    $didSplit = TRUE;
+  }
+  if($didSplit) $sql = "`qty`=".((int)$qty).", ";
+  // move item
+  $query = "UPDATE `".$config['table prefix']."Items` SET ".$sql.
+           "`ItemTable`='Mail' WHERE `ItemTable`='Items' AND `id`=".((int)$id)." LIMIT 1";
+  $result = RunQuery($query, __file__, __line__);
+  if(!$result || mysql_affected_rows()!=1){
+    $config['error'] = 'Error mailing items! '.__line__; return(FALSE);}
+  // move enchantments
+  $query = "UPDATE `".$config['table prefix']."ItemEnchantments` SET ".
+           "`ItemTable`='Mail' WHERE `ItemTable`='Items' AND `ItemTableId`=".((int)$id);
+  $result = RunQuery($query, __file__, __line__);
+  if(!$result){$config['error'] = 'Error mailing items! '.__line__; return(FALSE);}
+  ForwardTo('./?page=myitems');
+}
+
 
 }
 ?>

@@ -75,7 +75,10 @@ public static function CreateAuction($id, $qty, $price, $desc){global $config,$u
   $qty = floor((int)$qty);
   if($qty   <= 0){$config['error'] = 'Invalid qty!';   return(FALSE);}
   if($price <= 0){$config['error'] = 'Invalid price!'; return(FALSE);}
-  if(!empty($desc)) $desc = preg_replace('/\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i', '', strip_tags($desc) );
+  if(!empty($desc)){
+    $desc = preg_replace('/<[^>]*>/', '', $desc);
+    $desc = preg_replace('/\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i', '', strip_tags($desc) );
+  }
 //  if (!itemAllowed($item->name, $item->damage)){
 //    $_SESSION['error'] = $item->fullname.' is not allowed to be sold.';
 //    header("Location: ../myauctions.php");

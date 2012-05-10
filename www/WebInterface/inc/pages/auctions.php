@@ -94,7 +94,7 @@ while($auction = $auctions->getNext()){
       <td style="text-align: center;">'.
       ($user->hasPerms('canBuy')?
         '<form action="./" method="get">'.
-        '<input type="hidden" name="page" value="buyauction" />'.
+        '<input type="hidden" name="page" value="auctionactions" />'.
         '<input type="hidden" name="action" value="buy" />'.
         '<input type="hidden" name="auctionid" value="'.((int)$auction['id']).'" />'.
         '<input type="text" name="qty" value="'.((int)$Item->qty).'" onkeypress="return numbersonly(this, event);" '.

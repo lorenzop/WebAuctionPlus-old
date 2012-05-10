@@ -2,51 +2,13 @@
 // my items page
 
 
-// mail item
-if($action == 'mailitem'){
-  $id = ((int)getVar('id'));
-  if($id <= 0){              echo '<p style="color: red;">Error: Invalid id!</p>'; exit();}
-  if($user->getName() == ''){echo '<p>Error, not logged in!</p>'; exit();}
-  $result = RunQuery("SELECT `playerName`,`itemId`,`itemDamage`,`qty` FROM `".$config['table prefix']."Items` WHERE ".
-                     "`id`=".$id." AND `ItemTable`='Items' LIMIT 1", __file__, __line__);
-  if(!$result){                    echo '<p>Error finding item!</p>'; exit();}
-  if(mysql_num_rows($result) == 0){echo '<p>Item not found!</p>'; exit();}
-  $row = mysql_fetch_assoc($result);
-  $itemId     = $row['itemId'];
-  $itemDamage = $row['itemDamage'];
-  $qty        = $row['qty'];
-  $stacksize = ItemFuncs::getMaxStack($itemId,$itemDamage);
-  $sql = FALSE;
-  // stack size to big
-// TODO: need to handle enchantments here!
-  while($qty > $stacksize){
-  $query = "INSERT INTO `".$config['table prefix']."Items` ".
-           "(`ItemTable`,`playerName`,`itemId`,`itemDamage`,`qty`) VALUES ".
-           "('Mail','".mysql_san($user->getName())."',".((int)$itemId).",".((int)$itemDamage).",".((int)$stacksize).")";
-    $result = RunQuery($query, __file__, __line__);
-    if(!$result || mysql_affected_rows()==0){echo '<p>Error splitting stack!</p>'; exit();}
-    $qty -= $stacksize;
-    $sql = TRUE;
+// mail item stack
+if($config['action'] == 'mailitem'){
+  ItemFuncs::MailStack( getVar('id',  'int') );
+  if(!empty($config['error'])){
+    echo '<p style="color: red;">'.$config['error'].'</font>';
+    exit();
   }
-  if($sql === TRUE) $sql = "`qty`=".((int)$qty).", ";
-  else              $sql = '';
-  // check is owner
-  if(!$user->hasPerms("isAdmin")){
-    if($row['playerName'] != $user->getName()){
-      echo '<p>You don\'t own that item!</p>'; exit();}}
-  // move item
-  $query = "UPDATE `".$config['table prefix']."Items` SET ".$sql.
-           "`ItemTable`='Mail' WHERE `ItemTable`='Items' AND `id`=".((int)$id)." LIMIT 1";
-  $result = RunQuery($query, __file__, __line__);
-  if(!$result || mysql_affected_rows()!=1){
-    echo '<p style="color: red;">Error mailing items! '.__line__.'</p>'; exit();}
-  // move enchantments
-  $query = "UPDATE `".$config['table prefix']."ItemEnchantments` SET ".
-           "`ItemTable`='Mail' WHERE `ItemTable`='Items' AND `ItemTableId`=".((int)$id);
-  $result = RunQuery($query, __file__, __line__);
-  if(!$result){
-    echo '<p style="color: red;">Error mailing items! '.__line__.'</p>'; exit();}
-  ForwardTo('./?page='.$config['page']);
 }
 
 
@@ -78,14 +40,14 @@ $html->addToHeader('
   </script>
 ');
 
-if(isset($_SESSION['error'])) {
-  $output.='<p style="color:red">'.$_SESSION['error'].'</p>';
-  unset($_SESSION['error']);
-}
-if(isset($_SESSION['success'])) {
-  $output.='<p style="color: green;">'.$_SESSION['success'].'</p>';
-  unset($_SESSION['success']);
-}
+//if(isset($_SESSION['error'])) {
+//  $output.='<p style="color:red">'.$_SESSION['error'].'</p>';
+//  unset($_SESSION['error']);
+//}
+//if(isset($_SESSION['success'])) {
+//  $output.='<p style="color: green;">'.$_SESSION['success'].'</p>';
+//  unset($_SESSION['success']);
+//}
 
 $output.='
 <!-- mainTable example -->
