@@ -25,9 +25,9 @@ public function QueryItems($playerName,$WHERE=''){global $config;
          "FROM `".     $config['table prefix']."Items` `Items` ".
          "LEFT JOIN `".$config['table prefix']."ItemEnchantments` `ItemEnch` ".
          "ON  Items.`id`           = ItemEnch.`ItemTableId` ".
-         "AND ItemEnch.`ItemTable` = 'Items' ".
+         "AND ItemEnch.`ItemTable` = Items.`ItemTable` ".
          "WHERE Items.`ItemTable`  = 'Items' ".
-         "AND `playerName` = '".mysql_san($playerName)."' ".
+         "AND LOWER(`playerName`) = '".mysql_san(strtolower($playerName))."' ".
          (empty($WHERE)?'':'AND '.$WHERE.' ').
          "ORDER BY Items.`id` ASC";
 //echo '<pre><font color="white">'.$query."</font></pre>";

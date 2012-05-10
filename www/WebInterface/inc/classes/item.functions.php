@@ -144,7 +144,7 @@ public static function getMaxStack($itemId=0, $itemDamage=0){
 public static function QueryItem($playerName,$id){global $user;
   if($id<1) return(FALSE);
   $items = new ItemsClass();
-  $items->QueryItems($user->getName(),"`Items`.`playerName`='".mysql_san($playerName)."' AND `Items`.`id`=".((int)$id));
+  $items->QueryItems($user->getName(),"LOWER(`Items`.`playerName`)='".mysql_san(strtolower($playerName))."' AND `Items`.`id`=".((int)$id));
   $itemRow = $items->getNext();
   unset($items);
   return($itemRow);
@@ -216,7 +216,7 @@ public static function MailStack($id){global $config,$user;
   $stacksize = ItemFuncs::getMaxStack($Item->itemId,$Item->itemDamage);
   // check is owner
   if(!$user->hasPerms("isAdmin")){
-    if($row['playerName'] != $user->getName()){
+    if(!$user->nameEquals($itemRow['playerName'])){
       $config['error'] = 'You don\'t own that item!'; return(FALSE);}}
   // stack size to big
   $didSplit = FALSE;
