@@ -118,7 +118,7 @@ while($itemRow = $items->getNext()){
         '<img src="images/item_icons/'.$Item->getItemImage().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
         '<br /><b>'.$Item->getItemName().'</b>';
   if($Item->itemType=='tool'){
-    $output.='<br />'.$Item->getPercentDamaged().' % damaged';
+    $output.='<br />'.$Item->getPercentDamaged();
     foreach($Item->getEnchantmentsArray() as $ench){
       $output.='<br /><span style="font-size: smaller;"><i>'.$ench['enchName'].' '.numberToRoman($ench['level']).'</i></span>';
     }

@@ -93,12 +93,10 @@ public static function getItemName($itemId=0, $itemDamage=0){
 public static function getItemTitle($itemId=0, $itemDamage=0){
   $item = self::getItemArray($itemId, $itemDamage);
   if(is_array($item) && count($item)>0){
-    if(isset($item['title'])) $title=$item['title'];
-    else                      $title=$item['name'];
-    if(isset($item['damage'])){
-      $title=str_replace('%damaged%',self::getPercentDamagedStr($itemDamage,$item['damage']).'% damaged',$title);
-      $title=str_replace('#map#',' '.$itemDamage,$title);
-    }
+    if(isset($item['title'])) $title = $item['title'];
+    else                      $title = $item['name'];
+    if(@$item['damage'] == 'tool') $title=str_replace('%damaged%', self::getPercentDamagedStr($itemDamage,$item['damage']).'% damaged', $title);
+    if(@$item['damage'] == 'map' ) $title=str_replace('#map#'    , ' '.$itemDamage, $title);
     return($title);
   }else
     return('');

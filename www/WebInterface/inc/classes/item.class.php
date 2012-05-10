@@ -29,7 +29,7 @@ echo '** set enchantments here **';
 // get item name
 public function getItemName(){
   if($this->itemId<=0) return('');
-  return(ItemFuncs::getItemName($this->itemId));
+  return(ItemFuncs::getItemName($this->itemId, $this->itemDamage));
 }
 
 // get item title

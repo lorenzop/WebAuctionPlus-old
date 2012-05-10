@@ -148,7 +148,7 @@ public static function PaymentQuery($playerName, $amount){global $config;
   }else{
     $query = "UPDATE `".$config['table prefix']."Players` SET ".
              "`money` = `money` + ".((float)$amount)." ".
-             "WHERE `username`='".mysql_san($playerName)."' LIMIT 1";
+             "WHERE `playerName`='".mysql_san($playerName)."' LIMIT 1";
   }
   $result = RunQuery($query, __file__, __line__);
 }
