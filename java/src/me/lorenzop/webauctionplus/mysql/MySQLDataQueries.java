@@ -310,7 +310,7 @@ public class MySQLDataQueries extends MySQLConnPool {
 			st.setInt   (1, itemId);
 			rs = st.executeQuery();
 			while (rs.next()) {
-				if(debugSQL) log.info(rs.getString("enchName") + " " + rs.getInt("level"));
+				if(debugSQL) log.info("WA Query: found ench: " + rs.getString("enchName") + " " + rs.getInt("level"));
 				mail.addEnchantments(mail.getItemStack(), rs.getString("enchName"), rs.getInt("level"));
 			}
 		} catch (SQLException e) {

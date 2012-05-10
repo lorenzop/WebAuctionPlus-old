@@ -2,6 +2,8 @@ package me.lorenzop.webauctionplus.dao;
 
 import java.util.Map;
 
+import me.lorenzop.webauctionplus.WebAuctionPlus;
+
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
@@ -52,13 +54,20 @@ public class MailItem {
 	public void addEnchantments(ItemStack stack, String enchantment, int level) {
 		if (stack == null || enchantment.isEmpty()) return;
 		Enchantment ench = Enchantment.getByName(enchantment);
-		if (!ench.canEnchantItem(stack)) return;
-		if (level < 1)   level = 1;
-		if (level > 127) level = 127;
+		if (!timEnabled && !ench.canEnchantItem(stack)) {
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Removed unsafe enchantment: "+ench.toString());
+			return;
+		}
+		if (level < 1) level = 1;
 		if (timEnabled) {
+			if (level > 127) level = 127;
 			stack.addUnsafeEnchantment(ench, level);
 		} else {
-//			if (level > ench.getMaxLevel()) level = ench.getMaxLevel();
+			if (level > ench.getMaxLevel()) {
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Lowering unsafe enchantment from level "+
+						level+" to "+ench.getMaxLevel()+" "+ench.toString());
+				level = ench.getMaxLevel();
+			}
 			stack.addEnchantment(ench, level);
 		}
 	}

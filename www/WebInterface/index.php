@@ -71,6 +71,7 @@ $lpaths['theme']    = 'html/{theme}/';
 $wpaths['images']   = 'html/{theme}/images/';
 // load config
 require($lpaths['config']);
+require('db.config.php');
 
 // includes
 require($lpaths['includes'].'inc.php');
