@@ -1,6 +1,7 @@
 package me.lorenzop.webauctionplus;
 
 import java.io.IOException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -11,6 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import me.exote.webauctionplus.WebAuctionCommands;
 import me.exote.webauctionplus.listeners.WebAuctionBlockListener;
@@ -28,9 +32,14 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class WebAuctionPlus extends JavaPlugin {
 
@@ -40,19 +49,19 @@ public class WebAuctionPlus extends JavaPlugin {
 	public static String chatPrefix = ChatColor.DARK_GREEN+"["+ChatColor.WHITE+"WebAuction+"+ChatColor.DARK_GREEN+"] ";
 	public static final Logger log = Logger.getLogger("Minecraft");
 
-	public Metrics metrics;
+	public static Metrics metrics;
 
-	public Double currentVersion;
-	public Double newVersion;
+	// plugin version
+	public static String currentVersion;
+	public static String newVersion;
 
 	// config
 	public static FileConfiguration Config;
+	public static waSettings settings;
 
 	public MySQLDataQueries dataQueries;
 	public WebAuctionCommands WebAuctionCommandsListener = new WebAuctionCommands(this);
 	public PlayerActions waPlayerActions = new PlayerActions(this);
-
-	public waSettings settings;
 
 	public Map<String,   Long>    lastSignUse = new HashMap<String , Long>();
 	public Map<Location, Integer> recentSigns = new HashMap<Location, Integer>();
@@ -89,10 +98,7 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	public void onEnable() {
-		//currentVersion = Double.valueOf(getDescription().getVersion().split("-")[0].replaceFirst("\\.", ""));
-		//newVersion = updateCheck(0.64D);
-		//log.info("CURRENT: " + currentVersion.toString());
-		//log.info("NEW" + newVersion.toString());
+		currentVersion = getDescription().getVersion();
 
 		if(isDev) {
 			log.info("******************************");
@@ -129,6 +135,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		}
 
 		onLoadMetrics();
+		checkUpdateAvailable(this);
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new WebAuctionPlayerListener(this), this);
@@ -228,9 +235,12 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	public void onDisable() {
-		getServer().getScheduler().cancelTasks(this);
-		log.info(logPrefix + "Disabled, bye for now :-)");
-		dataQueries.forceCloseConnections();
+		try {
+			getServer().getScheduler().cancelTasks(this);
+			if(dataQueries != null)
+				dataQueries.forceCloseConnections();
+			log.info(logPrefix + "Disabled, bye for now :-)");
+		} catch (Exception ignore) {}
 	}
 
 	// Init database
@@ -240,7 +250,8 @@ public class WebAuctionPlus extends JavaPlugin {
 		log.info(logPrefix + "MySQL Initializing.");
 		try {
 			int port = Config.getInt("MySQL.Port");
-			if(port == 0) port = Integer.valueOf(Config.getString("MySQL.Port"));
+			if(port < 1) port = Integer.valueOf(Config.getString("MySQL.Port"));
+			if(port < 1) port = 3306;
 			dataQueries = new MySQLDataQueries(this,
 				Config.getString("MySQL.Host"),
 				port,
@@ -384,7 +395,7 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	public void onLoadMetrics() {
-		log.info(logPrefix + Metrics.BASE_URL + " Initializing.");
+		log.info(logPrefix+"Starting metrics");
 		// usage stats
 		try {
 			Metrics.isDev = isDev;
@@ -448,31 +459,72 @@ public class WebAuctionPlus extends JavaPlugin {
 			metrics.start();
 		} catch (IOException e) {
 			// Failed to submit the stats :-(
-			log.severe(e.getMessage());
-			e.printStackTrace();
+			if(isDev) {
+				log.severe(e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}
 
-//	public static double updateCheck(double currentVersion) throws Exception {
-//	String pluginUrlString = "http://dev.bukkit.org/server-mods/webauctionplus/files.rss";
-//	try {
-//		URL url = new URL(pluginUrlString);
-//		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url.openConnection().getInputStream());
-//		doc.getDocumentElement().normalize();
-//		NodeList nodes = doc.getElementsByTagName("item");
-//		Node firstNode = nodes.item(0);
-//		if (firstNode.getNodeType() == 1) {
-//			Element firstElement = (Element)firstNode;
-//			NodeList firstElementTagName = firstElement.getElementsByTagName("title");
-//			Element firstNameElement = (Element) firstElementTagName.item(0);
-//			NodeList firstNodes = firstNameElement.getChildNodes();
-//log.info("=============" +  firstNodes.item(0).getNodeValue().replace("WebAuctionPlus", "").replaceFirst(".", "").trim() );
-//			return Double.valueOf(firstNodes.item(0).getNodeValue().replace("WebAuctionPlus", "").replaceFirst(".", "").trim());
-//		}
-//	} catch (Exception e) {
-//		e.printStackTrace();
-//	}
-//	return currentVersion;
-//}
+	// updateCheck() from MilkBowl's Vault
+	// modified for my compareVersions() function
+	public static String updateCheck() throws Exception {
+		String pluginUrlString = "http://dev.bukkit.org/server-mods/webauctionplus/files.rss";
+		try {
+			URL url = new URL(pluginUrlString);
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url.openConnection().getInputStream());
+			doc.getDocumentElement().normalize();
+			NodeList nodes = doc.getElementsByTagName("item");
+			Node firstNode = nodes.item(0);
+			if (firstNode.getNodeType() == 1) {
+				Element firstElement = (Element) firstNode;
+				NodeList firstElementTagName = firstElement.getElementsByTagName("title");
+				Element firstNameElement = (Element) firstElementTagName.item(0);
+				NodeList firstNodes = firstNameElement.getChildNodes();
+				String version = firstNodes.item(0).getNodeValue();
+				return version.substring(version.lastIndexOf(" ")+1);
+			}
+		} catch (Exception ignored) {}
+		return null;
+	}
+
+	// compare versions
+	public static String compareVersions(String oldVersion, String newVersion) {
+		if(oldVersion == null || newVersion == null) return null;
+		oldVersion = normalisedVersion(oldVersion);
+		newVersion = normalisedVersion(newVersion);
+		int cmp = oldVersion.compareTo(newVersion);
+		return cmp<0 ? "<" : cmp>0 ? ">" : "=";
+	}
+	public static String normalisedVersion(String version) {
+		String delim = ".";
+		int maxWidth = 5;
+		String[] split = Pattern.compile(delim, Pattern.LITERAL).split(version);
+		String output = "";
+		for(String s : split) {
+			output += String.format("%"+maxWidth+'s', s);
+		}
+		return output;
+	}
+
+	// check for an updated version
+	public static boolean checkUpdateAvailable(Plugin plugin) {
+		plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+			@Override
+			public void run() {
+				try {
+					newVersion = updateCheck();
+					String cmp = compareVersions(currentVersion, newVersion);
+					if(cmp == "<") {
+						log.warning(logPrefix+"An update is available!");
+						log.warning(logPrefix+"You're running "+currentVersion+" new version available is "+newVersion);
+						log.warning(logPrefix+"http://dev.bukkit.org/server-mods/webauctionplus");
+					}
+				} catch (Exception ignored) {}
+			}
+		}, 100);
+		return false;
+	}
+
 
 }

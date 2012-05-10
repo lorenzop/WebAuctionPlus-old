@@ -1,6 +1,6 @@
 name: WebAuctionPlus
 main: me.lorenzop.webauctionplus.WebAuctionPlus
-version: 1.0.3
+version: 1.0.4
 author: lorenzop
 depend: [Vault]
 softdepend: [SignLink]

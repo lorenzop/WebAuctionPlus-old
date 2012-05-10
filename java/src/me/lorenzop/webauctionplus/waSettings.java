@@ -4,10 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 public class waSettings {
 
 	WebAuctionPlus plugin;
+
+	HashMap<String, String> Settings = new HashMap<String, String>();
 
 	public waSettings(WebAuctionPlus plugin) {
 		this.plugin = plugin;
@@ -17,46 +20,46 @@ public class waSettings {
 		Connection conn = plugin.dataQueries.getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-		int countSettings = 0;
-
-
-// temp code until Settings class is finished
 		try {
-			st = conn.prepareStatement("SELECT COUNT(*) AS `count` FROM `"+plugin.dataQueries.dbPrefix+"Settings` WHERE `name`='Version'");
+			if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: LoadSettings");
+			st = conn.prepareStatement("SELECT `name`, `value` FROM `"+plugin.dataQueries.dbPrefix+"Settings`");
 			rs = st.executeQuery();
-			if (!rs.next()) {
-				WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix + "Could not get settings!");
-				return;
-			}
-			if (rs.getInt(1) == 0) {
-				if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: Insert Version Setting");
-				st = conn.prepareStatement("INSERT INTO `"+plugin.dataQueries.dbPrefix+"Settings` (`name`,`value`) VALUES ('Version',?)");
-				st.setString(1, plugin.getDescription().getVersion().toString());
-				st.executeUpdate();
+			while (rs.next()) {
+				if(rs.getString(1) != null)
+					Settings.put(rs.getString(1), rs.getString(2));
 			}
 		} catch (SQLException e) {
-			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to update Players table!");
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to get settings");
 			e.printStackTrace();
+			return;
 		} finally {
 			plugin.dataQueries.closeResources(conn, st, rs);
 		}
-		conn = plugin.dataQueries.getConnection();
+		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Loaded " + Integer.toString(Settings.size()) + " settings from db");
+		// set default settings
+		addDefault("Version",			plugin.getDescription().getVersion().toString());
+		addDefault("Currency Prefix",	"$ ");
+		addDefault("Currency Postfix",	"");
+	}
 
-
-		try {
-			if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: Settings::LoadSettings ");
-			st = conn.prepareStatement("SELECT `name`,`value` FROM `"+plugin.dataQueries.dbPrefix+"Settings`");
-			rs = st.executeQuery();
-			while (rs.next()) {
-				
-				countSettings++;
+	public void addDefault(String name, String value) {
+		if(!Settings.containsKey(name)) {
+//			if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: Insert setting: " + name);
+			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Adding default setting for " + name);
+			Connection conn = plugin.dataQueries.getConnection();
+			PreparedStatement st = null;
+			ResultSet rs = null;
+			try {
+				st = conn.prepareStatement("INSERT INTO `"+plugin.dataQueries.dbPrefix+"Settings` (`name`,`value`) VALUES (?, ?)");
+				st.setString(1, name);
+				st.setString(2, value);
+				st.executeUpdate();
+			} catch (SQLException e) {
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to add setting " + name);
+				e.printStackTrace();
+			} finally {
+				plugin.dataQueries.closeResources(conn, st, rs);
 			}
-			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Loaded " + Integer.toString(countSettings) + " Settings from db");
-		} catch (SQLException e) {
-			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to load settings!");
-			e.printStackTrace();
-		} finally {
-			plugin.dataQueries.closeResources(conn, st, rs);
 		}
 	}
 

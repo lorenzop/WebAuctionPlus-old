@@ -256,8 +256,7 @@ public class Metrics {
                         // Each post thereafter will be a ping
                         firstPost = false;
                     } catch (IOException e) {
-                        e.printStackTrace();
-                        Metrics.log.warning("[Metrics] " + e.getMessage());
+                        Metrics.log.warning("[Metrics] failed");
                     }
                 }
             }, 0, PING_INTERVAL * 1200);
@@ -358,10 +357,6 @@ public class Metrics {
             while (iter.hasNext()) {
                 final Graph graph = iter.next();
 
-                // Because we have a lock on the graphs set already, it is reasonable to assume
-                // that our lock transcends down to the individual plotters in the graphs also.
-                // Because our methods are private, no one but us can reasonably access this list
-                // without reflection so this is a safe assumption without adding more code.
                 for (Plotter plotter : graph.getPlotters()) {
                     // The key name to send to the metrics server
                     // The format is C-GRAPHNAME-PLOTTERNAME where separator - is defined at the top
@@ -380,11 +375,6 @@ public class Metrics {
 
         // Create the url
         URL url = new URL(BASE_URL + String.format(REPORT_URL, encode(pluginName)));
-
-//        if(isDev) {
-//            Metrics.log.info("[Metrics] " + url.toString());
-//            Metrics.log.info("[Metrics] " + data.toString());
-//        }
 
         // Connect to the website
         URLConnection connection;
@@ -409,14 +399,15 @@ public class Metrics {
         final String response = reader.readLine();
 
         // response is ok - We should get "OK" followed by an optional description if everything goes right
-        if(response.startsWith("OK")) {
-            Metrics.log.info("[Metrics] " + response);
-        }else{
-            Metrics.log.warning("[Metrics] Failed to report in!");
-            Metrics.log.warning("[Metrics] " + response);
-            for(String line = null; (line = reader.readLine()) != null;){
-                Metrics.log.warning("[Metrics] " + line);
-            }
+        if(isDev) {
+        	if(!response.startsWith("OK")) {
+        		Metrics.log.info("[Metrics] " + response);
+        		Metrics.log.warning("[Metrics]["+pluginName+"] Failed to report in!");
+        		Metrics.log.warning("[Metrics]["+pluginName+"] " + response);
+        		for(String line = null; (line = reader.readLine()) != null;){
+        			Metrics.log.warning("[Metrics] " + line);
+        		}
+        	}
         }
 
         // close resources
@@ -431,10 +422,8 @@ public class Metrics {
 //            if (response.contains("OK This is your first update this hour")) {
 //                synchronized (graphs) {
 //                    final Iterator<Graph> iter = graphs.iterator();
-//
 //                    while (iter.hasNext()) {
 //                        final Graph graph = iter.next();
-//
 //                        for (Plotter plotter : graph.getPlotters()) {
 //                            plotter.reset();
 //                        }
