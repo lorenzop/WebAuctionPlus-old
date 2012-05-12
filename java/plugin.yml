@@ -1,13 +1,13 @@
 name: WebAuctionPlus
 main: me.lorenzop.webauctionplus.WebAuctionPlus
-version: 1.0.4
+version: 1.0.5
 author: lorenzop
 depend: [Vault]
 softdepend: [SignLink]
 commands:
-  wa:
-    description: WebAuctionPlus
-    usage: Use "/wa password [apassword]" to set your password, then log into the WebAuction on the website.
+    wa:
+        description: WebAuctionPlus
+        usage: Use "/wa password [apassword]" to set your password, then log into the WebAuction on the website.
 permissions:
     wa.*:
         description: Gives access to all WebAuction commands

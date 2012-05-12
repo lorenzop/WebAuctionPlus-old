@@ -99,19 +99,19 @@ public class MySQLConnPool {
 		if (rs != null) {
 			try {
 				rs.close();
-			} catch (SQLException e) {}
+			} catch (SQLException ignore) {}
 		}
 		if (st != null) {
 			try {
 				st.close();
-			} catch (SQLException e) {}
+			} catch (SQLException ignore) {}
 		}
 	}
 	public void forceCloseConnections() {
 		try {
 			for(int i=0; i<inuse.size(); i++)
 				connections.get(i).close();
-		} catch (SQLException e) {}
+		} catch (SQLException ignore) {}
 	}
 
 

@@ -61,6 +61,7 @@ public class WebAuctionPlayerListener implements Listener {
 		if (plugin.showSalesOnJoin == true) {
 			List<SaleAlert> saleAlerts = plugin.dataQueries.getNewSaleAlertsForSeller(player);
 			for (SaleAlert saleAlert : saleAlerts) {
+// TODO: language here
 				p.sendMessage(WebAuctionPlus.chatPrefix + "You sold " +
 					saleAlert.getQty() + " " +
 					saleAlert.getItemName() + " to " +
@@ -72,6 +73,7 @@ public class WebAuctionPlayerListener implements Listener {
 
 		// Alert player of new mail
 		int mailCount = plugin.dataQueries.hasMail(player);
+// TODO: language here
 		if (mailCount > 0) {
 			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Player " + player + " has " + Integer.toString(mailCount) + " items in mailbox.");
 			p.sendMessage(WebAuctionPlus.chatPrefix + "You have [ " + Integer.toString(mailCount) + " ] new items in your mail!");
@@ -178,11 +180,12 @@ public class WebAuctionPlayerListener implements Listener {
 				p.sendMessage(WebAuctionPlus.chatPrefix + "FUS RO DAH!");
 				break;
 			}
+			return;
 
 		// Deposit sign (money)
 		} else if (lines[1].equals("Deposit")) {
 			if (!p.hasPermission("wa.use.deposit.money")) {
-				p.sendMessage(WebAuctionPlus.chatPrefix + "You do not have enough money in your pocket.");
+				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("not_enough_money"));
 			} else {
 				double amount = 0.0D;
 				if (!lines[2].equals("All")) {
@@ -202,7 +205,7 @@ public class WebAuctionPlayerListener implements Listener {
 						plugin.dataQueries.updatePlayerMoney(player, currentMoney);
 						plugin.economy.withdrawPlayer(player, amount);
 					} else {
-						p.sendMessage(WebAuctionPlus.chatPrefix + "No WebAuction account found, try logging off and back on again");
+						p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_not_found"));
 					}
 				}
 			}
@@ -210,7 +213,7 @@ public class WebAuctionPlayerListener implements Listener {
 		// Withdraw sign (money)
 		} else if (lines[1].equals("Withdraw")) {
 			if (!p.hasPermission("wa.use.withdraw.money")) {
-				p.sendMessage(WebAuctionPlus.chatPrefix + "You do not have permission to withdraw money");
+				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
 				event.setCancelled(true);
 			} else {
 				double amount = 0.0D;
@@ -219,7 +222,7 @@ public class WebAuctionPlayerListener implements Listener {
 				} try {
 					AuctionPlayer auctionPlayer = plugin.dataQueries.getPlayer(player);
 					if (null == auctionPlayer) {
-						p.sendMessage(WebAuctionPlus.chatPrefix + "No WebAuction account found, try logging off and back on again");
+						p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_not_found"));
 					} else {
 						// Match found!
 						double currentMoney = auctionPlayer.getMoney();
@@ -234,7 +237,7 @@ public class WebAuctionPlayerListener implements Listener {
 							plugin.dataQueries.updatePlayerMoney(player, currentMoney);
 							plugin.economy.depositPlayer(player, amount);
 						} else {
-							p.sendMessage(WebAuctionPlus.chatPrefix + "You do not have enough money in your WebAuction account.");
+							p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_not_found"));
 						}
 					}
 				} catch (Exception e) {
@@ -245,13 +248,12 @@ public class WebAuctionPlayerListener implements Listener {
 		// MailBox Deposit (items)
 		} else if (lines[1].equals("MailBox") && lines[2].equals("Deposit")) {
 			if (!p.hasPermission("wa.use.deposit.items")) {
-				p.sendMessage(WebAuctionPlus.chatPrefix +
-					"You do not have permission to use the mailbox");
+				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
 				event.setCancelled(true);
 				return;
 			// disallow creative
 			} else if (p.getGameMode() != GameMode.SURVIVAL) {
-				p.sendMessage(WebAuctionPlus.chatPrefix + "Hey, no cheating!");
+				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_cheating"));
 				event.setCancelled(true);
 				return;
 			}
@@ -262,7 +264,7 @@ public class WebAuctionPlayerListener implements Listener {
 		// MailBox Withdraw (items)
 		} else if (lines[1].equals("MailBox") && lines[2].equals("Withdraw")) {
 			if (!p.hasPermission("wa.use.withdraw.items")) {
-				p.sendMessage(WebAuctionPlus.chatPrefix + "You do not have permission to use the mailbox");
+				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
 				event.setCancelled(true);
 				return;
 			}

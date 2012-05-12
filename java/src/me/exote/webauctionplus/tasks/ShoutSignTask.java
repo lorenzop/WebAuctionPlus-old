@@ -41,6 +41,7 @@ public class ShoutSignTask implements Runnable {
 			ItemStack stack = latestAuction.getItemStack();
 			String formattedPrice = plugin.economy.format(latestAuction.getPrice());
 
+// TODO: language here
 			WebAuctionPlus.log.info(
 				WebAuctionPlus.logPrefix + "New Auction: " +
 				stack.getAmount() + " " + stack.getType() + " selling for " +
@@ -72,6 +73,7 @@ public class ShoutSignTask implements Runnable {
 				}
 			}
 		}
+
 		for (Location signLoc : toRemove) {
 			plugin.shoutSigns.remove(signLoc);
 			plugin.dataQueries.removeShoutSign(signLoc);

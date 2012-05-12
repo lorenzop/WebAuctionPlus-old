@@ -56,8 +56,11 @@ public class WebAuctionPlus extends JavaPlugin {
 	public static String newVersion;
 
 	// config
-	public static FileConfiguration Config;
+	public FileConfiguration Config;
 	public static waSettings settings;
+
+	// language
+	public static Language Lang;
 
 	public MySQLDataQueries dataQueries;
 	public WebAuctionCommands WebAuctionCommandsListener = new WebAuctionCommands(this);
@@ -93,10 +96,6 @@ public class WebAuctionPlus extends JavaPlugin {
 	public WebAuctionPlus() {
 	}
 
-	public long getCurrentMilli() {
-		return System.currentTimeMillis();
-	}
-
 	public void onEnable() {
 		currentVersion = getDescription().getVersion();
 
@@ -124,6 +123,12 @@ public class WebAuctionPlus extends JavaPlugin {
 		// load settings from db
 		settings = new waSettings(this);
 		settings.LoadSettings();
+		// set default settings
+		settings.addDefault("Version",				getDescription().getVersion().toString());
+		settings.addDefault("Currency Prefix",		"$ ");
+		settings.addDefault("Currency Postfix",		"");
+		settings.addDefault("Custom Description",	"false");
+		settings.addDefault("Language",				"en");
 
 		// load config.yml
 		try {
@@ -133,6 +138,10 @@ public class WebAuctionPlus extends JavaPlugin {
 			e.printStackTrace();
 			return;
 		}
+
+		// load language file
+		Lang = new Language(this);
+		Lang.loadLanguage(settings.getString("Language"));
 
 		onLoadMetrics();
 		checkUpdateAvailable(this);
@@ -279,36 +288,40 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	private void initConfig() {
-		Config.addDefault("MySQL.Host", "localhost");
-		Config.addDefault("MySQL.Username", "minecraft");
-		Config.addDefault("MySQL.Password", "password123");
-		Config.addDefault("MySQL.Port", 3306);
-		Config.addDefault("MySQL.Database", "minecraft");
-		Config.addDefault("MySQL.TablePrefix", "WA_");
-		Config.addDefault("MySQL.ConnectionPoolSizeWarn", 5);
-		Config.addDefault("MySQL.ConnectionPoolSizeHard", 10);
-		Config.addDefault("Misc.ReportSales", true);
-		Config.addDefault("Misc.UseOriginalRecentSigns", true);
-		Config.addDefault("Misc.ShowSalesOnJoin", true);
-		Config.addDefault("Misc.SignClickDelay", 500);
-		Config.addDefault("Misc.UnsafeEnchantments", false);
-		Config.addDefault("Tasks.SaleAlertSeconds", 20L);
-		Config.addDefault("Tasks.ShoutSignUpdateSeconds", 20L);
-		Config.addDefault("Tasks.RecentSignUpdateSeconds", 60L);
-		Config.addDefault("Tasks.CronExecutorMinutes", 60L);
-		Config.addDefault("Tasks.AnnouncerMinutes", 60L);
-		Config.addDefault("SignLink.Enabled", false);
+		Config.addDefault("MySQL.Host",						"localhost");
+		Config.addDefault("MySQL.Username",					"minecraft");
+		Config.addDefault("MySQL.Password",					"password123");
+		Config.addDefault("MySQL.Port",						3306);
+		Config.addDefault("MySQL.Database",					"minecraft");
+		Config.addDefault("MySQL.TablePrefix",				"WA_");
+		Config.addDefault("MySQL.ConnectionPoolSizeWarn",	5);
+		Config.addDefault("MySQL.ConnectionPoolSizeHard",	10);
+		Config.addDefault("Misc.ReportSales",				true);
+		Config.addDefault("Misc.UseOriginalRecentSigns",	true);
+		Config.addDefault("Misc.ShowSalesOnJoin",			true);
+		Config.addDefault("Misc.SignClickDelay",			500);
+		Config.addDefault("Misc.UnsafeEnchantments",		false);
+		Config.addDefault("Tasks.SaleAlertSeconds",			20L);
+		Config.addDefault("Tasks.ShoutSignUpdateSeconds",	20L);
+		Config.addDefault("Tasks.RecentSignUpdateSeconds",	60L);
+		Config.addDefault("Tasks.CronExecutorMinutes",		60L);
+		Config.addDefault("Tasks.AnnouncerMinutes",			60L);
+		Config.addDefault("SignLink.Enabled",				false);
 		Config.addDefault("SignLink.NumberOfLatestAuctionsToTrack", 10);
-		Config.addDefault("Development.UseMultithreads", false);
-		Config.addDefault("Development.DebugSQL", false);
-		Config.addDefault("CronExecutor.Enabled", false);
+		Config.addDefault("Development.UseMultithreads",	false);
+		Config.addDefault("Development.DebugSQL",			false);
+		Config.addDefault("CronExecutor.Enabled",			false);
 		Config.addDefault("CronExecutor.Url", "http://yourminecraftserver.com/webauctionplus/cron.php");
-		Config.addDefault("Announcer.Enabled", false);
-		Config.addDefault("Announcer.Prefix", "&c[Info] ");
-		Config.addDefault("Announcer.Random", false);
+		Config.addDefault("Announcer.Enabled",				false);
+		Config.addDefault("Announcer.Prefix",				"&c[Info] ");
+		Config.addDefault("Announcer.Random",				false);
 		Config.addDefault("Announcements", new String[]{"This server is running WebAuctionPlus!"} );
 		Config.options().copyDefaults(true);
 		saveConfig();
+	}
+
+	public long getCurrentMilli() {
+		return System.currentTimeMillis();
 	}
 
 	// format chat colors
@@ -378,14 +391,13 @@ public class WebAuctionPlus extends JavaPlugin {
 	public static void PrintProgress(int count, int total, int width) {
 		try {
 			// finished 100%
-			if (count == total) {
+			if (count == total)
 				PrintProgress( 1D, width);
-			// total to few
-			} else if (total < (width / 2) ) {
+			// total to small - skip
+			else if (total < (width / 2) ) {}
 			// print only when adding a .
-			} else if ( (int)(count % (total / width)) == 0) {
+			else if ( (int)(count % (total / width)) == 0)
 				PrintProgress( (double)count / (double)total, width);
-			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

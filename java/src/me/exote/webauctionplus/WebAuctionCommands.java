@@ -37,12 +37,12 @@ return true;
 }
 				if (sender instanceof Player) {
 					if (!sender.hasPermission("wa.reload")){
-						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + "You do not have permission");
+						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
 						return false;
 					}
-					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + "Reloading..");
+					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("reloading"));
 				}
-				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Reloading..");
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("reloading"));
 				plugin.getServer().getScheduler().cancelTasks(plugin);
 				plugin.waCronExecutorTask.clearCronUrls();
 				plugin.waAnnouncerTask.clearMessages();
@@ -51,23 +51,28 @@ return true;
 				plugin.dataQueries.forceCloseConnections();
 				plugin.reloadConfig();
 				plugin.onLoadConfig();
-				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Finished reloading");
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("finished_reloading"));
 				if (sender instanceof Player)
-					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + "Reloaded");
+					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("finished_reloading"));
 				return true;
 			// save config
 			} else if (args[0].equalsIgnoreCase("save")){
 				if (sender instanceof Player) {
 					if (!sender.hasPermission("wa.save")){
-						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + "You do not have permission");
+						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
 						return false;
 					}
 				}
-				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Saving config..");
-				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + ChatColor.RED + "This feature is incomplete");
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("saving"));
+sender.sendMessage("This feature is incomplete");
+WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + ChatColor.RED + "This feature is incomplete");
+boolean temp=true;
+if(temp)
+return true;
 				plugin.saveConfig();
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("finished_saving"));
 				if (sender instanceof Player)
-					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + "Config Saved");
+					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("finished_saving"));
 			}
 			return false;
 		// 2 args
@@ -93,24 +98,21 @@ return true;
 				// create that person in database
 				if (waPlayer == null) {
 					waPlayer = new AuctionPlayer(player);
-WebAuctionPlus.log.warning("canbuy:  " + sender.hasPermission("wa.canbuy"));
-WebAuctionPlus.log.warning("cansell: " + sender.hasPermission("wa.cansell"));
-WebAuctionPlus.log.warning("isadmin: " + sender.hasPermission("wa.webadmin"));
 					waPlayer.setPerms(
 						sender.hasPermission("wa.canbuy"),
 						sender.hasPermission("wa.cansell"),
 						sender.hasPermission("wa.webadmin")
 					);
-					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Creating a new account for " + player +
-						" with perms: " + waPlayer.getPermsString());
 					plugin.dataQueries.createPlayer(waPlayer, pass);
+					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("created_account") + " " + player +
+							" with perms: " + waPlayer.getPermsString());
+					if (sender instanceof Player)
+						sender.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_account"));
 				} else {
 					plugin.dataQueries.updatePlayerPassword(player, pass);
-				}
-				if (sender instanceof Player) {
-					sender.sendMessage(WebAuctionPlus.chatPrefix + "Password changed");
-				} else {
-					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Password changed");
+					if (sender instanceof Player)
+						sender.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("password_changed"));
+					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("password_changed") + " " + player);
 				}
 				return true;
 			}

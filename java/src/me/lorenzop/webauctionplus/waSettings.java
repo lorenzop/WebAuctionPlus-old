@@ -10,7 +10,7 @@ public class waSettings {
 
 	WebAuctionPlus plugin;
 
-	HashMap<String, String> Settings = new HashMap<String, String>();
+	protected HashMap<String, String> settingsMap = new HashMap<String, String>();
 
 	public waSettings(WebAuctionPlus plugin) {
 		this.plugin = plugin;
@@ -26,7 +26,7 @@ public class waSettings {
 			rs = st.executeQuery();
 			while (rs.next()) {
 				if(rs.getString(1) != null)
-					Settings.put(rs.getString(1), rs.getString(2));
+					settingsMap.put(rs.getString(1), rs.getString(2));
 			}
 		} catch (SQLException e) {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to get settings");
@@ -35,16 +35,11 @@ public class waSettings {
 		} finally {
 			plugin.dataQueries.closeResources(conn, st, rs);
 		}
-		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Loaded " + Integer.toString(Settings.size()) + " settings from db");
-		// set default settings
-		addDefault("Version",			plugin.getDescription().getVersion().toString());
-		addDefault("Currency Prefix",	"$ ");
-		addDefault("Currency Postfix",	"");
-		addDefault("Custom Description","false");
+		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Loaded " + Integer.toString(settingsMap.size()) + " settings from db");
 	}
 
 	public void addDefault(String name, String value) {
-		if(!Settings.containsKey(name)) {
+		if(!settingsMap.containsKey(name)) {
 //			if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: Insert setting: " + name);
 			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Adding default setting for " + name);
 			Connection conn = plugin.dataQueries.getConnection();
@@ -63,5 +58,27 @@ public class waSettings {
 			}
 		}
 	}
+
+	// get setting
+	public String getString(String name) {
+		if(settingsMap.containsKey(name))
+			return settingsMap.get(name);
+		else
+			return null;
+	}
+	public int getInteger(String name) {
+		return Integer.valueOf(this.getString(name));
+	}
+	public boolean getBoolean(String name) {
+		String value = this.getString(name);
+		if(     value.equalsIgnoreCase("true"))		return true;
+		else if(value.equalsIgnoreCase("false"))	return false;
+		else if(value.equalsIgnoreCase("on"))		return true;
+		else if(value.equalsIgnoreCase("off"))		return false;
+		else										return Boolean.valueOf(value);
+	}
+
+
+
 
 }
