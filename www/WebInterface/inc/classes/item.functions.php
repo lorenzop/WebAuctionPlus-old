@@ -142,7 +142,7 @@ public static function getMaxStack($itemId=0, $itemDamage=0){
 
 // query single stack
 public static function QueryItem($playerName,$id){global $user;
-  if($id<1) return(FALSE);
+  if(empty($playerName) || $id<1) return(FALSE);
   $items = new ItemsClass();
   $items->QueryItems($user->getName(),"LOWER(`Items`.`playerName`)='".mysql_san(strtolower($playerName))."' AND `Items`.`id`=".((int)$id));
   $itemRow = $items->getNext();
@@ -214,10 +214,12 @@ public static function MailStack($id){global $config,$user;
   if($itemRow === FALSE){$config['error'] = 'Item not found!'; return(FALSE);}
   $Item = &$itemRow['Item'];
   $stacksize = ItemFuncs::getMaxStack($Item->itemId,$Item->itemDamage);
-  // check is owner
-  if(!$user->hasPerms("isAdmin")){
-    if(!$user->nameEquals($itemRow['playerName'])){
-      $config['error'] = 'You don\'t own that item!'; return(FALSE);}}
+// this isn't even needed right now!
+// QueryItem above already searches for items only owned by that player
+//  // check is owner
+//  if(!$user->hasPerms("isAdmin")){
+//    if(!$user->nameEquals($itemRow['playerName'])){
+//      $config['error'] = 'You don\'t own that item!'; return(FALSE);}}
   // stack size to big
   $didSplit = FALSE;
   $sql = '';

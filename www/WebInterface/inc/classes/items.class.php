@@ -11,6 +11,7 @@ function __construct(){
 
 // get items
 public function QueryItems($playerName,$WHERE=''){global $config;
+  if(empty($playerName)) {$this->result=FALSE; return;}
   $this->currentId = 0;
   $tempRow = FALSE;
   $query="SELECT ".

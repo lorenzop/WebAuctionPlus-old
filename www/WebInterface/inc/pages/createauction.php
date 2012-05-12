@@ -201,19 +201,19 @@ $output.='</b></font></div></td></tr>
 <tr><td align="center"><b>You have <font size="+2">'.((int)$Item->qty).'</font> items</b></td></tr>
 <tr><td><table border="0" cellpadding="0" cellspacing="10" align="center">
 <tr>
-  <td align="right" ><b>Quantity:</b></td>
+  <td align="right"><b>Quantity:</b></td>
   <td><div style="position: absolute; margin-top: 10px; margin-left: 8px; font-size: larger; font-weight: bold;">x</div>'.
     '<input type="text" name="qty" value="'.((int)$qty).'" id="qty" class="input" style="width: 160px; text-align: center;" '.
     'onkeypress="return numbersonly(this, event);" onchange="updateTotal(this,\'price\');" /></td>
 </tr>
 <tr>
-  <td align="right" ><b>Price Each:</b></td>
+  <td align="right"><b>Price Each:</b></td>
   <td><div style="position: absolute; margin-top: 8px; margin-left: 8px; font-size: larger; font-weight: bold;">$</div>'.
     '<input type="text" name="price" value="'.$priceEach.'" id="price" class="input" style="width: 160px; text-align: center;" '.
     'onkeypress="return numbersonly(this, event);" onchange="updateTotal(this,\'qty\');" /></td>
 </tr>
 <tr>
-  <td align="right" ><b>Price Total:</b></td>
+  <td align="right"><b>Price Total:</b></td>
   <td><font size="+2"><b><div style="position: absolute;">$</div><div id="temp" class="temp" style="width: 185px; text-align: center;">&nbsp;'.$priceTotal.'&nbsp;</div></b></font></td>
 </tr>
 </table></td></tr>
@@ -221,7 +221,7 @@ $output.='</b></font></div></td></tr>
 ';
 
 // custom descriptions
-if(getSetting('Custom Descriptions')) $output.='
+if(SettingsClass::getString('Custom Descriptions')) $output.='
 <tr><td colspan="2" align="center">&nbsp;&nbsp;<b>Description:</b> (optional)</td></tr>
 <tr><td height="10"></td></tr>
 <tr><td colspan="2" align="center"><textarea name="desc" class="input" style="width: 80%; height: 55px;" readonly>Coming soon!</textarea></td></tr>

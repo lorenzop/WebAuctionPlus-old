@@ -34,18 +34,11 @@ public static function setDefault($name, $default='', $type=''){global $config;
 }
 
 // get setting
-public static function getSetting($name){global $config;
+public static function getString($name){global $config;
   if(isset($config['settings'][$name])) return($config['settings'][$name]);
   else                                  return(NULL);
 }
 
 
 }
-
-
-function getSetting($name){global $config;
-  return(SettingsClass::getSetting($name));
-}
-
-
 ?>

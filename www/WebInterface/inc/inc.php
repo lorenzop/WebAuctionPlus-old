@@ -11,9 +11,9 @@ require($lpaths['classes'].'auctions.class.php');
 
 // format price
 function FormatPrice($price){global $config;
-  return( getSetting('Currency Prefix').
+  return( SettingsClass::getString('Currency Prefix').
           number_format((double)$price,2).
-          getSetting('Currency Postfix') );
+          SettingsClass::getString('Currency Postfix') );
 }
 
 

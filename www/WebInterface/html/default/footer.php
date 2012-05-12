@@ -15,7 +15,7 @@ $output.="<br /><br /><br /><br /><br /><br /></div>\n";
   <!-- ====================== -->
   <p style="margin-bottom: 10px; font-size: large; color: #FFFFFF;"><span style="background-color: #000000;">&nbsp;'.
     '<a href="http://dev.bukkit.org/server-mods/webauctionplus/" '.
-    'target="_blank" style="color: #FFFFFF;"><u>WebAuctionPlus</u> '.$config['version'].'</a> By lorenzop&nbsp;<br />'.
+    'target="_blank" style="color: #FFFFFF;"><u>WebAuctionPlus</u> '.SettingsClass::getString('Version').'</a> By lorenzop&nbsp;<br />'.
     '<span style="font-size: medium;">&nbsp;Based on <a href="http://dev.bukkit.org/server-mods/webauction/" '.
     'target="_blank" style="color: #FFFFFF;"><u>WebAuction</u></a> By Exote&nbsp;</span></span></p>
   <p style="margin-bottom: 10px; font-size: smaller; color: #FFFFFF;"><span style="background-color: #000000;">'.
