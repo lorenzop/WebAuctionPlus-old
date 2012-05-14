@@ -1,23 +1,23 @@
-no_permission             : Nao tens permissoes para fazeres isso.
-no_cheating               : Desliga la os cheats!
-no_item_in_hand           : Coloca um stack de items na tua mao e clica na sign com o lado direito para deposita-los.
-item_stack_stored         : Items Depositados com sucesso.
-got_mail                  : Mail recebido.
-no_mail                   : Nao existe mails.
-inventory_full            : Tens o inventario cheio.
-not_enough_money_pocket   : Nao tens dinheiro suficiente no teu bolso.
-not_enough_money_account  : Nao tens dinheiro suficiente na tua conta de WebAuctionPlus.
-reloading                 : Reloading..
-finished_reloading        : Reloading concluido com sucesso.
-saving                    : A salvar a config..
-finished_saving           : Saving concluido com sucesso.
-account_created           : Conta criada!
-password_changed          : Password Modificada com sucesso!
-account_not_found         : Nao existe essa conta de WebAuctionPlus.
-created_shout_sign        : Shout sign criada com sucesso.
-created_recent_sign       : Recent auction sign criada com sucesso.
-created_deposit_sign      : Deposit sign criada com sucesso.
-created_withdraw_sign     : Withdraw sign criada com sucesso.
-created_deposit_mail_sign : Deposit mailbox criada com sucesso.
-created_withdraw_mail_sign: Withdraw mailbox criada com sucesso.
-sign_removed              : WebAuctionPlus sign removida.
+no_permission             : "Nao tens permissoes para fazeres isso."
+no_cheating               : "Desliga la os cheats!"
+no_item_in_hand           : "Coloca um stack de items na tua mao e clica na sign com o lado direito para deposita-los."
+item_stack_stored         : "Items Depositados com sucesso."
+got_mail                  : "Mail recebido."
+no_mail                   : "Nao existe mails."
+inventory_full            : "Tens o inventario cheio."
+not_enough_money_pocket   : "Nao tens dinheiro suficiente no teu bolso."
+not_enough_money_account  : "Nao tens dinheiro suficiente na tua conta de WebAuctionPlus."
+reloading                 : "Reloading.."
+finished_reloading        : "Reloading concluido com sucesso."
+saving                    : "A salvar a config.."
+finished_saving           : "Saving concluido com sucesso."
+account_created           : "Conta criada!"
+password_changed          : "Password Modificada com sucesso!"
+account_not_found         : "Nao existe essa conta de WebAuctionPlus."
+created_shout_sign        : "Shout sign criada com sucesso."
+created_recent_sign       : "Recent auction sign criada com sucesso."
+created_deposit_sign      : "Deposit sign criada com sucesso."
+created_withdraw_sign     : "Withdraw sign criada com sucesso."
+created_deposit_mail_sign : "Deposit mailbox criada com sucesso."
+created_withdraw_mail_sign: "Withdraw mailbox criada com sucesso."
+sign_removed              : "WebAuctionPlus sign removida."

@@ -104,10 +104,10 @@ return true;
 						sender.hasPermission("wa.webadmin")
 					);
 					plugin.dataQueries.createPlayer(waPlayer, pass);
-					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("created_account") + " " + player +
+					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("account_created") + " " + player +
 							" with perms: " + waPlayer.getPermsString());
 					if (sender instanceof Player)
-						sender.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_account"));
+						sender.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_created"));
 				} else {
 					plugin.dataQueries.updatePlayerPassword(player, pass);
 					if (sender instanceof Player)

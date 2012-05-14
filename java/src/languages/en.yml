@@ -1,23 +1,23 @@
-no_permission             : You don't have permission to do that.
-no_cheating               : Hey, no cheating!
-no_item_in_hand           : Please hold a stack of items in your hand and  right click to deposit them.
-item_stack_stored         : Item stack stored.
-got_mail                  : Mail retrieved
-no_mail                   : No mail
-inventory_full            : Your inventory is full
-not_enough_money_pocket   : You do not have enough money in your pocket.
-not_enough_money_account  : You do not have enough money in your WebAuctionPlus account.
-reloading                 : Reloading..
-finished_reloading        : Finished reloading
-saving                    : Saving config..
-finished_saving           : Finished saving
-account_created           : Account created!
-password_changed          : Password changed!
-account_not_found         : No WebAuctionPlus account found.
-created_shout_sign        : Shout sign created.
-created_recent_sign       : Recent auction sign created.
-created_deposit_sign      : Deposit sign created.
-created_withdraw_sign     : Withdraw sign created.
-created_deposit_mail_sign : Deposit mailbox created.
-created_withdraw_mail_sign: Withdraw mailbox created.
-sign_removed              : WebAuctionPlus sign removed.
+no_permission             : "You don't have permission to do that."
+no_cheating               : "Hey, no cheating!"
+no_item_in_hand           : "Please hold a stack of items in your hand and  right click to deposit them."
+item_stack_stored         : "Item stack stored."
+got_mail                  : "Mail retrieved"
+no_mail                   : "No mail"
+inventory_full            : "Your inventory is full"
+not_enough_money_pocket   : "You do not have enough money in your pocket."
+not_enough_money_account  : "You do not have enough money in your WebAuctionPlus account."
+reloading                 : "Reloading.."
+finished_reloading        : "Finished reloading"
+saving                    : "Saving config.."
+finished_saving           : "Finished saving"
+account_created           : "Account created!"
+password_changed          : "Password changed!"
+account_not_found         : "No WebAuctionPlus account found."
+created_shout_sign        : "Shout sign created."
+created_recent_sign       : "Recent auction sign created."
+created_deposit_sign      : "Deposit sign created."
+created_withdraw_sign     : "Withdraw sign created."
+created_deposit_mail_sign : "Deposit mailbox created."
+created_withdraw_mail_sign: "Withdraw mailbox created."
+sign_removed              : "WebAuctionPlus sign removed."
