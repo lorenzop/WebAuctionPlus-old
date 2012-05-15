@@ -271,7 +271,7 @@ public class MySQLDataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if (debugSQL) log.info("WA Query: deleteMail " + player + " " + delMail.size());
+			if (debugSQL) log.info("WA Query: deleteMail "+player+" "+delMail.size()+" "+delMail.toString());
 			String sql  = "";
 			String sql2 = "";
 			int i = 0;
@@ -304,7 +304,7 @@ public class MySQLDataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if (debugSQL) log.info("WA Query: getItemEnchantments - Items Table" + Integer.toString(itemId));
+			if (debugSQL) log.info("WA Query: getItemEnchantments - Items Table " + Integer.toString(itemId));
 			st = conn.prepareStatement("SELECT `enchName`, `enchId`, `level` FROM `"+dbPrefix+"ItemEnchantments` " +
 				"WHERE `ItemTable` = 'Mail' AND `ItemTableId` = ? ORDER BY `enchId` DESC");
 			st.setInt   (1, itemId);

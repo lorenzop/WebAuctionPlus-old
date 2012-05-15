@@ -19,7 +19,8 @@ public class PlayerActions {
 		this.plugin = plugin;
 	}
 
-	public boolean DepositStack(Player p) {
+	// deposit items
+	public synchronized boolean DepositStack(Player p) {
 		String player = p.getName();
 		// get item/stack in hand
 		ItemStack stack = p.getItemInHand();
@@ -65,8 +66,13 @@ public class PlayerActions {
 		return false;
 	}
 
+	// withdraw items
 	public boolean WithdrawStacks(Player p) {
+		return WithdrawStacks(p, 0);
+	}
+	public synchronized boolean WithdrawStacks(Player p, int qty) {
 		String player = p.getName();
+		if(qty<1 || qty>36) qty = 36;
 		List<Integer> delMail = new ArrayList<Integer>();
 		int nextId = 0;
 		try {
@@ -74,7 +80,7 @@ public class PlayerActions {
 			boolean invFull = false;
 			boolean gotMail = false;
 			// get items from mailbox
-			for (int i=0; i<36; i++) {
+			for (int i=0; i<qty; i++) {
 				mail = plugin.dataQueries.getMail(player, nextId);
 				if (mail == null) break;
 				int firstEmpty = p.getInventory().firstEmpty();
@@ -84,7 +90,7 @@ public class PlayerActions {
 					break;
 				}
 				p.getInventory().addItem(new ItemStack[] { mail.getItemStack() });
-				doUpdateInventory(p);
+				plugin.doUpdateInventory(p);
 				delMail.add(mail.getMailId());
 				nextId = mail.getMailId();
 				gotMail = true;
@@ -101,11 +107,6 @@ public class PlayerActions {
 			e.printStackTrace();
 		}
 		return false;
-	}
-
-	@SuppressWarnings("deprecation")
-	public void doUpdateInventory(Player p) {
-		p.updateInventory();
 	}
 
 }

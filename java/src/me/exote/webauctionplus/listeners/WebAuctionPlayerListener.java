@@ -189,7 +189,9 @@ public class WebAuctionPlayerListener implements Listener {
 			} else {
 				double amount = 0.0D;
 				if (!lines[2].equals("All")) {
-					amount = Double.parseDouble(lines[2]);
+					try {
+						amount = Double.parseDouble(lines[2]);
+					} catch(NumberFormatException ignore) {}
 				}
 				if (plugin.economy.has(player, amount)) {
 					AuctionPlayer auctionPlayer = plugin.dataQueries.getPlayer(player);
@@ -217,17 +219,19 @@ public class WebAuctionPlayerListener implements Listener {
 				event.setCancelled(true);
 			} else {
 				double amount = 0.0D;
-				if (!lines[2].equals("All")) {
-					amount = Double.parseDouble(lines[2]);
-				} try {
+				try {
 					AuctionPlayer auctionPlayer = plugin.dataQueries.getPlayer(player);
-					if (null == auctionPlayer) {
+					if (auctionPlayer == null) {
 						p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_not_found"));
 					} else {
 						// Match found!
 						double currentMoney = auctionPlayer.getMoney();
-						if (lines[2].equals("All")) {
+						if (lines[2].equals("All"))
 							amount = currentMoney;
+						else {
+							try {
+								amount = Double.parseDouble(lines[2]);
+							} catch(NumberFormatException ignore) {}
 						}
 						if (currentMoney >= amount) {
 							currentMoney -= amount;
@@ -268,7 +272,11 @@ public class WebAuctionPlayerListener implements Listener {
 				event.setCancelled(true);
 				return;
 			}
-			if (!plugin.waPlayerActions.WithdrawStacks(p))
+			int qty = 0;
+			try {
+				qty = Integer.parseInt(lines[3].replace("qty: ", ""));
+			} catch(NumberFormatException ignore) {}
+			if (!plugin.waPlayerActions.WithdrawStacks(p, qty))
 				event.setCancelled(true);
 			return;
 		}

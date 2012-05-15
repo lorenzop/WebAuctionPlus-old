@@ -22,32 +22,29 @@ public class MySQLTables {
 		dbPrefix = dataQueries.dbPrefix;
 		debugSQL = dataQueries.debugSQL;
 
-		// init tables
-		if (tableExists("Auctions")) {
-			// update existing tables
-			if (!tableExists("ItemEnchantments")) {
-				// convert database tables to Plus
-				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "**************************************");
-				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "*** Converting database to Plus... ***");
-				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "**************************************");
-				ConvertDatabase();
-				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Finished converting database to Plus!");
-				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "*** You can delete these tables from the database: EnchantLinks, Enchantments, Mail ***");
-			}
-		} else {
-			// create new tables
-			sqlTables("Auctions");
-			sqlTables("Items");
-			sqlTables("MarketPrices");
-			sqlTables("Players");
-			sqlTables("RecentSigns");
-			sqlTables("SaleAlerts");
-			sqlTables("SellPrice");
-			sqlTables("ShoutSigns");
-			// new tables in plus
+		// create new tables
+		sqlTables("Auctions");
+		sqlTables("Items");
+		sqlTables("MarketPrices");
+		sqlTables("Players");
+		sqlTables("RecentSigns");
+		sqlTables("SaleAlerts");
+		sqlTables("SellPrice");
+		sqlTables("ShoutSigns");
+		// update existing tables
+		if (!tableExists("ItemEnchantments") && tableExists("EnchantLinks")) {
 			sqlTables("ItemEnchantments");
-			sqlTables("Settings");
+			// convert database tables to Plus
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "**************************************");
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "*** Converting database to Plus... ***");
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "**************************************");
+			ConvertDatabase();
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Finished converting database to Plus!");
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "*** You can delete these tables from the database: EnchantLinks, Enchantments, Mail ***");
 		}
+		// new tables in plus
+		//sqlTables("ItemEnchantments");
+		sqlTables("Settings");
 	}
 
 	// table queries
@@ -55,7 +52,8 @@ public class MySQLTables {
 		sqlTables(false, tableName);
 	}
 	private void sqlTables(boolean alter, String tableName) {
-		if (debugSQL) WebAuctionPlus.log.info("WA Query: sqlTables " + (alter?"Alter":"Create") + " " + tableName);
+		if(alter)
+			if (debugSQL) WebAuctionPlus.log.info("WA Query: sqlTables " + (alter?"Alter":"Create") + " " + tableName);
 		// auctions
 		if (tableName.equals("Auctions"))
 			if (alter) {
@@ -238,9 +236,6 @@ public class MySQLTables {
 		sqlTables(true, "SaleAlerts");
 		sqlTables(true, "SellPrice");
 		sqlTables(true, "ShoutSigns");
-		// new tables in plus
-		sqlTables(false, "ItemEnchantments");
-		sqlTables(false, "Settings");
 
 		Connection conn			= null;
 		PreparedStatement st	= null;

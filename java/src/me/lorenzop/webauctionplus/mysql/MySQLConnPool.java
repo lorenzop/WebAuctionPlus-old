@@ -130,6 +130,7 @@ public class MySQLConnPool {
 		}
 	}
 
+// TODO: cache the tables list so it only needs to load once
 	protected boolean tableExists(String tableName) {
 		boolean exists = false;
 		Connection conn = getConnection();
@@ -139,12 +140,12 @@ public class MySQLConnPool {
 			st = conn.prepareStatement("SHOW TABLES LIKE ?");
 			st.setString(1, dbPrefix + tableName);
 			rs = st.executeQuery();
-			while (rs.next()) {
+			while (rs.next())
 				exists = true;
-			}
 		} catch (SQLException e) {
 			log.warning(logPrefix + "Unable to check if table exists: " + tableName);
 			e.printStackTrace();
+			return false;
 		} finally {
 			closeResources(conn, st, rs);
 		}
@@ -152,7 +153,7 @@ public class MySQLConnPool {
 	}
 
 	protected void setTableExists(String tableName, String Sql) {
-		if (tableExists(tableName)) {return;}
+		if (tableExists(tableName)) return;
 		log.info(logPrefix + "Creating table " + tableName);
 		executeRawSQL("CREATE TABLE `" + dbPrefix + tableName + "` ( "+Sql+" );");
 	}

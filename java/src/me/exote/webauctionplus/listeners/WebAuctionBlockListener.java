@@ -54,23 +54,22 @@ public class WebAuctionBlockListener implements Listener {
 		}
 		if (!lines[0].equals("[WebAuction+]"))
 			event.setLine(0, "[WebAuction+]");
-		Boolean allowEvent = false;
+		boolean allowEvent = false;
 
 		// Shout sign
 		if (lines[1].equalsIgnoreCase("Shout")) {
 			if (player.hasPermission("wa.create.sign.shout")) {
 				allowEvent = true;
 				player.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_shout_sign"));
-				if (!lines[1].equals("Shout")) {
+				if (!lines[1].equals("Shout"))
 					event.setLine(1, "Shout");
-				}
 				// line 2: radius
 				int radius = 20;
 				try {
 					radius = Integer.parseInt(lines[2]);
-				} catch (NumberFormatException e) {
-					event.setLine(2, Integer.toString(radius));
-				}
+				} catch (NumberFormatException ignore) {}
+				event.setLine(2, Integer.toString(radius));
+				if (!lines[3].isEmpty()) event.setLine(3, "");
 				plugin.shoutSigns.put(sign.getLocation(), radius);
 				plugin.dataQueries.createShoutSign(world, radius, sign.getX(), sign.getY(), sign.getZ());
 			}
@@ -85,11 +84,9 @@ public class WebAuctionBlockListener implements Listener {
 				int offset = 1;
 				try {
 					offset = Integer.parseInt(lines[2]);
-					if (offset<1) offset = 1;
-					if (offset>1) offset = 10;
-				} catch (NumberFormatException nfe) {
-					offset = 1;
-				}
+				} catch (NumberFormatException ignore) {}
+				if (offset<1)  offset = 1;
+				if (offset>10) offset = 10;
 				// display auction
 				if (offset <= plugin.dataQueries.getTotalAuctionCount()) {
 					Auction offsetAuction = plugin.dataQueries.getAuctionForOffset(offset - 1);
@@ -114,9 +111,16 @@ public class WebAuctionBlockListener implements Listener {
 			if (player.hasPermission("wa.create.sign.deposit")) {
 				allowEvent = true;
 				player.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_deposit_sign"));
-				if (!lines[1].equals("Deposit")) {
+				if(!lines[1].equals("Deposit"))
 					event.setLine(1, "Deposit");
-				}
+				// line 2: amount
+				double amount = 100;
+				try {
+					amount = Double.parseDouble(lines[2]);
+					if(amount <= 0D) amount = 100D;
+				} catch(NumberFormatException ignore) {}
+				event.setLine(2, WebAuctionPlus.settings.getString("Currency Prefix") + Double.toString(amount) + WebAuctionPlus.settings.getString("Currency Postfix"));
+				if (!lines[3].isEmpty()) event.setLine(3, "");
 			}
 		} else
 
@@ -125,9 +129,21 @@ public class WebAuctionBlockListener implements Listener {
 			if (player.hasPermission("wa.create.sign.withdraw")) {
 				allowEvent = true;
 				player.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_withdraw_sign"));
-				if (!lines[1].equals("Withdraw")) {
+				if(!lines[1].equals("Withdraw"))
 					event.setLine(1,"Withdraw");
+				// line 2: amount
+				double amount = 0;
+				if(!lines[2].equalsIgnoreCase("all")) {
+					try {
+						amount = Double.parseDouble(lines[2]);
+						if(amount < 0D) amount = 0D;
+					} catch(NumberFormatException ignore) {}
 				}
+				if(amount == 0)
+					event.setLine(2, "All");
+				else
+					event.setLine(2, WebAuctionPlus.settings.getString("Currency Prefix") + Double.toString(amount) + WebAuctionPlus.settings.getString("Currency Postfix"));
+				if (!lines[3].isEmpty()) event.setLine(3, "");
 			}
 		} else
 
@@ -135,28 +151,37 @@ public class WebAuctionBlockListener implements Listener {
 		if (lines[1].equalsIgnoreCase("MailBox") ||
 			lines[1].equalsIgnoreCase("Mail Box") ||
 			lines[1].equalsIgnoreCase("Mail")) {
-			if (!lines[1].equals("MailBox")) {
+			if (!lines[1].equals("MailBox"))
 				event.setLine(1, "MailBox");
-			}
 			// Deposit sign (items)
 			if (lines[2].equalsIgnoreCase("Deposit")) {
 				if (player.hasPermission("wa.create.sign.mailbox.deposit")) {
 					allowEvent = true;
 					player.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_deposit_mail_sign"));
-					if (!lines[2].equals("Deposit")) {
+					if (!lines[2].equals("Deposit"))
 						event.setLine(2, "Deposit");
-					}
 				}
+				if (!lines[3].isEmpty()) event.setLine(3, "");
 			} else
 			// Withdraw sign (items)
 			if (lines[2].equalsIgnoreCase("Withdraw")) {
 				if (player.hasPermission("wa.create.sign.mailbox.withdraw")) {
 					allowEvent = true;
 					player.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_withdraw_mail_sign"));
-					if (!lines[2].equals("Withdraw")) {
+					if (!lines[2].equals("Withdraw"))
 						event.setLine(2, "Withdraw");
-					}
 				}
+				// line 3: qty
+				int amount = 0;
+				if(!lines[3].isEmpty()) {
+					try {
+						amount = Integer.parseInt(lines[3]);
+					} catch(NumberFormatException ignore) {}
+				}
+				if(amount == 0)
+					event.setLine(3, "");
+				else
+					event.setLine(3, "qty: " + Integer.toString(amount));
 			}
 		}
 
@@ -165,6 +190,7 @@ public class WebAuctionBlockListener implements Listener {
 			sign.setTypeId(0);
 			ItemStack stack = new ItemStack(323, 1);
 			player.getInventory().addItem(stack);
+			plugin.doUpdateInventory(player);
 			player.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
 		}
 	}

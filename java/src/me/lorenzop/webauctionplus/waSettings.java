@@ -16,7 +16,7 @@ public class waSettings {
 		this.plugin = plugin;
 	}
 
-	public void LoadSettings(){
+	public synchronized void LoadSettings(){
 		Connection conn = plugin.dataQueries.getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
@@ -35,10 +35,19 @@ public class waSettings {
 		} finally {
 			plugin.dataQueries.closeResources(conn, st, rs);
 		}
+		addDefaults();
 		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Loaded " + Integer.toString(settingsMap.size()) + " settings from db");
 	}
 
-	public void addDefault(String name, String value) {
+	// set default settings
+	private void addDefaults() {
+		addDefault("Version",				plugin.getDescription().getVersion().toString());
+		addDefault("Currency Prefix",		"$ ");
+		addDefault("Currency Postfix",		"");
+		addDefault("Custom Description",	"false");
+		addDefault("Language",				"en");
+	}
+	private void addDefault(String name, String value) {
 		if(!settingsMap.containsKey(name)) {
 //			if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: Insert setting: " + name);
 			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Adding default setting for " + name);
@@ -60,7 +69,7 @@ public class waSettings {
 	}
 
 	// get setting
-	public String getString(String name) {
+	public synchronized String getString(String name) {
 		if(settingsMap.containsKey(name))
 			return settingsMap.get(name);
 		else
@@ -78,7 +87,38 @@ public class waSettings {
 		else										return Boolean.valueOf(value);
 	}
 
-
-
+	// change setting
+	public synchronized void setString(String name, String value) {
+		if(!settingsMap.containsKey(name)) {
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Setting not found! "+name);
+			return;
+		}
+		if(settingsMap.get(name).equals(value)) {
+			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Setting unchanged, matches existing. "+name);
+			return;
+		}
+		settingsMap.put(name, value);
+		Connection conn = plugin.dataQueries.getConnection();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: Update setting: " + name);
+		try {
+			st = conn.prepareStatement("UPDATE `"+plugin.dataQueries.dbPrefix+"Settings` SET `value` = ? WHERE `name` = ? LIMIT 1");
+			st.setString(1, value);
+			st.setString(2, name);
+			st.executeUpdate();
+		} catch(SQLException e) {
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to update setting " + name);
+			e.printStackTrace();
+		} finally {
+			plugin.dataQueries.closeResources(conn, st, rs);
+		}
+	}
+	public void setInteger(String name, int value) {
+		this.setString(name, Integer.toString(value));
+	}
+	public void setBoolean(String name, boolean value) {
+		this.setString(name, Boolean.toString(value));
+	}
 
 }

@@ -32,6 +32,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -99,13 +100,12 @@ public class WebAuctionPlus extends JavaPlugin {
 	public void onEnable() {
 		currentVersion = getDescription().getVersion();
 
-		if(isDev) {
-			log.info("******************************");
-			log.info("*** Running in dev mode!!! ***");
-			log.info("******************************");
-		}
-
 //		log.info(logPrefix + "WebAuctionPlus is initializing.");
+		if(isDev) {
+			getServer().getConsoleSender().sendMessage(ChatColor.RED+"******************************");
+			getServer().getConsoleSender().sendMessage(ChatColor.RED+"*** Running in dev mode!!! ***");
+			getServer().getConsoleSender().sendMessage(ChatColor.RED+"******************************");
+		}
 
 		// Command listener
 		getCommand("wa").setExecutor(WebAuctionCommandsListener);
@@ -123,12 +123,9 @@ public class WebAuctionPlus extends JavaPlugin {
 		// load settings from db
 		settings = new waSettings(this);
 		settings.LoadSettings();
-		// set default settings
-		settings.addDefault("Version",				getDescription().getVersion().toString());
-		settings.addDefault("Currency Prefix",		"$ ");
-		settings.addDefault("Currency Postfix",		"");
-		settings.addDefault("Custom Description",	"false");
-		settings.addDefault("Language",				"en");
+		if(!settings.getString("Version").equals(currentVersion))
+			settings.setString("Version", currentVersion);
+		
 
 		// load config.yml
 		try {
@@ -318,6 +315,11 @@ public class WebAuctionPlus extends JavaPlugin {
 		Config.addDefault("Announcements", new String[]{"This server is running WebAuctionPlus!"} );
 		Config.options().copyDefaults(true);
 		saveConfig();
+	}
+
+	@SuppressWarnings("deprecation")
+	public void doUpdateInventory(Player p) {
+		p.updateInventory();
 	}
 
 	public long getCurrentMilli() {
