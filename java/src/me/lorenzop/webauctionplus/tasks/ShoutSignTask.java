@@ -1,4 +1,4 @@
-package me.exote.webauctionplus.tasks;
+package me.lorenzop.webauctionplus.tasks;
 
 import java.util.ArrayList;
 import java.util.List;

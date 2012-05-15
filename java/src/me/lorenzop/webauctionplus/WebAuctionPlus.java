@@ -16,17 +16,17 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import me.exote.webauctionplus.WebAuctionCommands;
-import me.exote.webauctionplus.listeners.WebAuctionBlockListener;
-import me.exote.webauctionplus.listeners.WebAuctionPlayerListener;
-import me.exote.webauctionplus.listeners.WebAuctionServerListener;
-import me.exote.webauctionplus.tasks.RecentSignTask;
-import me.exote.webauctionplus.tasks.SaleAlertTask;
-import me.exote.webauctionplus.tasks.ShoutSignTask;
+import me.lorenzop.webauctionplus.listeners.WebAuctionBlockListener;
+import me.lorenzop.webauctionplus.listeners.WebAuctionCommands;
+import me.lorenzop.webauctionplus.listeners.WebAuctionPlayerListener;
+import me.lorenzop.webauctionplus.listeners.WebAuctionServerListener;
 import me.lorenzop.webauctionplus.mysql.MySQLDataQueries;
 import me.lorenzop.webauctionplus.mysql.MySQLTables;
 import me.lorenzop.webauctionplus.tasks.AnnouncerTask;
 import me.lorenzop.webauctionplus.tasks.CronExecutorTask;
+import me.lorenzop.webauctionplus.tasks.RecentSignTask;
+import me.lorenzop.webauctionplus.tasks.SaleAlertTask;
+import me.lorenzop.webauctionplus.tasks.ShoutSignTask;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.ChatColor;

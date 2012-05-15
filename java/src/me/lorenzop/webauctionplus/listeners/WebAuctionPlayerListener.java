@@ -1,4 +1,4 @@
-package me.exote.webauctionplus.listeners;
+package me.lorenzop.webauctionplus.listeners;
 
 import java.math.BigDecimal;
 import java.util.List;

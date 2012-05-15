@@ -1,4 +1,4 @@
-package me.exote.webauctionplus.listeners;
+package me.lorenzop.webauctionplus.listeners;
 
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 import me.lorenzop.webauctionplus.dao.Auction;
