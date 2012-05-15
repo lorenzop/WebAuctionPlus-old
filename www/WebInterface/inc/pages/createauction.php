@@ -15,6 +15,7 @@ if($config['action']=='newauction'){
 $lastpage = getVar('lastpage');
 if(empty($lastpage)) $lastpage = './';
 echo '<center><h2>Auction created successfully!</h2><br /><a href="'.$lastpage.'">Back to last page</a></center>';
+ForwardTo($lastpage,2);
     exit();
   }
 }

@@ -133,6 +133,7 @@ global $maxSellPrice;
 // buy/cancel auction
 public static function RemoveAuction($auctionId, $qty, $isBuying=TRUE){global $config,$user;
   if($auctionId < 1) return(FALSE);
+  // permissions
   // is buying
   if($isBuying){
     // has canBuy permissions
@@ -141,6 +142,7 @@ public static function RemoveAuction($auctionId, $qty, $isBuying=TRUE){global $c
   // is canceling
   }else{
     // is owner or has isAdmin permissions
+// todo: is owner?
     if(FALSE || !$user->hasPerms('isAdmin') ){
       $config['error'] = 'You don\'t have permission to cancel this auction.'; return(FALSE);}
 echo 'canceling auctions is not finished!!';
@@ -148,7 +150,7 @@ exit();
   }
   // validate args
   $qty = floor((int)$qty);
-  if($qty <= 0){$config['error'] = 'Invalid qty!'; return(FALSE);}
+  if($qty <= 0) {$config['error'] = 'Invalid qty!'; return(FALSE);}
 //  if($price <= 0){$config['error'] = 'Invalid price!'; return(FALSE);}
 //  if (!itemAllowed($item->name, $item->damage)){
 //    $_SESSION['error'] = $item->fullname.' is not allowed to be sold.';
@@ -161,15 +163,18 @@ exit();
   $auctionsClass = new AuctionsClass();
   $auctionsClass->QueryAuctions("Auctions.`id`=".((int)$auctionId));
   $auctionRow = $auctionsClass->getNext();
-  if($auctionRow === FALSE){$config['error'] = 'Auction not found!'; return(FALSE);}
+  if($auctionRow === FALSE) {$config['error'] = 'Auction not found!'; return(FALSE);}
   $Item = &$auctionRow['Item'];
   if($qty > $Item->qty){$qty = $Item->qty; $config['error'] = 'Not that many for sale!'; return(FALSE);}
+  $priceTotal = ((float)$auctionRow['price']) * ((float)$qty);
+  if($priceTotal > $user->Money) {$config['error'] = 'You don\'t have enough money'; return(FALSE);}
 
   // make payment from buyer to seller
-  UserClass::MakePayment($user->getName(), $auctionRow['playerName'], ((float)$auctionRow['price']) * ((float)$qty), 'Bought auction '.((int)$auctionRow['id']).' '.$Item->getItemTitle().' x'.((int)$Item->qty) );
+  UserClass::MakePayment($user->getName(), $auctionRow['playerName'], $priceTotal, 'Bought auction '.((int)$auctionRow['id']).' '.$Item->getItemTitle().' x'.((int)$Item->qty) );
 
   // split auction stack
   $splitStack = ($qty < $Item->qty);
+// TODO: check for existing stack in inventory
   // create item
   $ItemTableId = ItemFuncs::CreateItem('Items', $user->getName(), $Item->itemId, $Item->itemDamage, $qty,$Item->getEnchantmentsArray() );
   // subtract qty

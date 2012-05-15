@@ -213,7 +213,6 @@ public static function MailStack($id){global $config,$user;
   $itemRow = ItemFuncs::QueryItem($user->getName(),$id);
   if($itemRow === FALSE){$config['error'] = 'Item not found!'; return(FALSE);}
   $Item = &$itemRow['Item'];
-  $stacksize = ItemFuncs::getMaxStack($Item->itemId,$Item->itemDamage);
 // this isn't even needed right now!
 // QueryItem above already searches for items only owned by that player
 //  // check is owner
@@ -221,17 +220,17 @@ public static function MailStack($id){global $config,$user;
 //    if(!$user->nameEquals($itemRow['playerName'])){
 //      $config['error'] = 'You don\'t own that item!'; return(FALSE);}}
   // stack size to big
+  $stacksize = ItemFuncs::getMaxStack($Item->itemId,$Item->itemDamage);
   $didSplit = FALSE;
-  $sql = '';
   while($Item->qty > $stacksize){
     // split stack
     ItemFuncs::CreateItem('Mail', $user->getName(), $Item->itemId, $Item->itemDamage, $stacksize, $Item->getEnchantmentsArray());
     $Item->qty -= $stacksize;
     $didSplit = TRUE;
   }
-  if($didSplit) $sql = "`qty`=".((int)$qty).", ";
   // move item
-  $query = "UPDATE `".$config['table prefix']."Items` SET ".$sql.
+  $query = "UPDATE `".$config['table prefix']."Items` SET ".
+           ($didSplit?"`qty`=".((int)$Item->qty).",":'').
            "`ItemTable`='Mail' WHERE `ItemTable`='Items' AND `id`=".((int)$id)." LIMIT 1";
   $result = RunQuery($query, __file__, __line__);
   if(!$result || mysql_affected_rows()!=1){

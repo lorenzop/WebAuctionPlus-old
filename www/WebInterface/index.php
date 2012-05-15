@@ -24,7 +24,9 @@ function getVar($name,$type='',$order=array('get','post')){$output='';
 function toBoolean($value){
   $tempValue = strtolower($value);
   if($tempValue=='t' || $tempValue=='true' ) return(TRUE);
+  if($tempValue=='y' || $tempValue=='yes'  ) return(TRUE);
   if($tempValue=='f' || $tempValue=='false') return(FALSE);
+  if($tempValue=='n' || $tempValue=='no'   ) return(FALSE);
   return( (boolean)$value );
 }
 

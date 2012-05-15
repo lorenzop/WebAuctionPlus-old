@@ -151,9 +151,10 @@ while($auction = $auctions->getNext()){
       <td style="text-align: center;">'.FormatPrice($auction['price']             ).'</td>
       <td style="text-align: center;">'.FormatPrice($auction['price'] * $Item->qty).'</td>
       <td style="text-align: center;">market price<br />goes here</td>
-      <td style="text-align: center;"><a href="./?page='.$config['page'].'&amp;action=cancel&amp;auctionid='.((int)$auction['id']).'" class="button">Cancel</a></td>
+      <td style="text-align: center;"><input type="button" value="Cancel" class="button" onclick="alert(\'Im sorry, this feature has been temporarily left out to get other things working. This button will be working again in the next update.\');"></td>
     </tr>
 ';
+//      <td style="text-align: center;"><a href="./?page='.$config['page'].'&amp;action=cancel&amp;auctionid='.((int)$auction['id']).'" class="button">Cancel</a></td>
 }
 unset($auctions);
 $output.='

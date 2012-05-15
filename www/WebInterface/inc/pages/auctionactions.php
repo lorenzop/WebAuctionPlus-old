@@ -16,6 +16,7 @@ if($config['action']=='buy'){
 $lastpage = getVar('lastpage');
 if(empty($lastpage)) $lastpage = './';
 echo '<center><h2>Auction purchased successfully!</h2><br /><a href="'.$lastpage.'">Back to last page</a></center>';
+ForwardTo('./',2);
     exit();
   }
 }
