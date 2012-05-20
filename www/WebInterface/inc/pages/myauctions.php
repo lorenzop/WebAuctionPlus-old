@@ -137,7 +137,7 @@ while($auction = $auctions->getNext()){
 //    <td class="center">'.($marketPercent=='N/A'?'N/A':number_format($marketPercent,1).' %').'</td>
 // add enchantments to this link!
 //        '<a href="./?page=graph&amp;name='.$Item->itemId.'&amp;damage='.$Item->itemDamage.'">'.
-        '<img src="images/item_icons/'.$Item->getItemImage().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
+        '<img src="'.$Item->getItemImageUrl().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
         '<br /><b>'.$Item->getItemName().'</b>';
   if($Item->itemType=='tool'){
     $output.='<br />'.$Item->getPercentDamaged().' % damaged';

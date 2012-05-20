@@ -77,7 +77,7 @@ while($itemRow = $items->getNext()){
       <td style="padding-bottom: 10px; text-align: center;">'.
 // add enchantments to this link!
 //        '<a href="./?page=graph&amp;name='.$Item->itemId.'&amp;damage='.$Item->itemDamage.'">'.
-        '<img src="images/item_icons/'.$Item->getItemImage().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
+        '<img src="'.$Item->getItemImageUrl().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
         '<br /><b>'.$Item->getItemName().'</b>';
   if($Item->itemType=='tool'){
     $output.='<br />'.$Item->getPercentDamaged();

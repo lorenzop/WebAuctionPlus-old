@@ -62,12 +62,9 @@ public static function getItemArray($itemId=0, $itemDamage=0){
     if(isset($item[-1])){
       if(isset($item[$itemDamage]))
         return($item[$itemDamage]);
-      else
-        return($item[-1]);
-    }else
-      return($item);
-  }else
-    return(FALSE);
+      else return($item[-1]);
+    }else return($item);
+  }else return(FALSE);
 }
 
 // get item type
@@ -85,8 +82,7 @@ public static function getItemName($itemId=0, $itemDamage=0){
     if(isset($item['type']) && $item['type']=='map')
       $name=str_replace('#map#',$itemDamage,$name);
     return($name);
-  }else
-    return('');
+  }else return('');
 }
 
 // get item title
@@ -98,20 +94,27 @@ public static function getItemTitle($itemId=0, $itemDamage=0){
     if(@$item['damage'] == 'tool') $title=str_replace('%damaged%', self::getPercentDamagedStr($itemDamage,$item['damage']).'% damaged', $title);
     if(@$item['damage'] == 'map' ) $title=str_replace('#map#'    , ' '.$itemDamage, $title);
     return($title);
-  }else
-    return('');
+  }else return('');
 }
 
 // get item icon file
-public static function getItemImage($itemId=0, $itemDamage=0){
+//public static function getItemImage($itemId=0, $itemDamage=0){
+//  $item = self::getItemArray($itemId, $itemDamage);
+//  if(is_array($item) && count($item)>0){
+//    if(isset($item['icon'])) return($item['icon']);
+//    else                     return($item['name']);
+//  }else return('');
+//}
+public static function getItemImageUrl($itemId=0, $itemDamage=0){global $config;
   $item = self::getItemArray($itemId, $itemDamage);
   if(is_array($item) && count($item)>0){
-    if(isset($item['icon']))
-      return($item['icon']);
-    else
-      return($item['name']);
-  }else
-    return('');
+    if(isset($item['icon'])) $icon = $item['icon'];
+    else                     $icon = $item['name'].'.png';
+  }else return('');
+  $pack = '';
+  if(isset($item['pack'])) $pack = $item['pack'];
+  if(empty($pack))         $pack = 'default';
+  return(str_replace('{pack}',$pack,$config['paths']['http']['item packs']).'/'.$icon);
 }
 
 // get percent damaged
@@ -124,7 +127,6 @@ public static function getPercentDamagedStr($itemDamage, $maxDamage){
   $damaged = self::getPercentDamaged($itemDamage, $maxDamage);
   if( ((string)$damaged) == '0') return('Brand New!');
   else                           return(((string)$damaged).' % damaged');
-  return;
 }
 
 // get max stack size
@@ -136,8 +138,7 @@ public static function getMaxStack($itemId=0, $itemDamage=0){
     if($stacksize < 1)  $stacksize = 1;
     if($stacksize > 64) $stacksize = 64;
     return($stacksize);
-  }else
-    return(64);
+  }else return(64);
 }
 
 // query single stack

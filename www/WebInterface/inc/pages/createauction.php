@@ -191,7 +191,7 @@ $output.='
 '.
 // add enchantments to this link!
 //  '<a href="./?page=graph&amp;name='.$Item->itemId.'&amp;damage='.$Item->itemDamage.'">'.
-  '<img src="images/item_icons/'.$Item->getItemImage().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
+  '<img src="'.$Item->getItemImageUrl().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
   '<br /><b>'.$Item->getItemName().'</b><font size="-2"><b>';
 foreach($itemRow['Item']->getEnchantmentsArray() as $v){
   $output.='<br />'.$v['enchName'].' '.$v['level'];

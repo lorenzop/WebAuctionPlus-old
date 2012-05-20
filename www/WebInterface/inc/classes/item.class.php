@@ -39,9 +39,13 @@ public function getItemTitle(){
 }
 
 // get item icon file
-public function getItemImage(){
+//public function getItemImage(){
+//  if($this->itemId<=0) return('');
+//  return(ItemFuncs::getItemImage($this->itemId, $this->itemDamage));
+//}
+public function getItemImageUrl(){
   if($this->itemId<=0) return('');
-  return(ItemFuncs::getItemImage($this->itemId, $this->itemDamage));
+  return(ItemFuncs::getItemImageUrl($this->itemId, $this->itemDamage));
 }
 
 // get percent damaged

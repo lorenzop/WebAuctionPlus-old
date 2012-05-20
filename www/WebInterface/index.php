@@ -64,13 +64,15 @@ $lpaths   = &$config['paths']['local'];
 $wpaths   = &$config['paths']['http'];
 $user     = &$config['user'];
 // local paths
-$lpaths['config']   = 'config.php';
-$lpaths['includes'] = 'inc/';
-$lpaths['classes']  = 'inc/classes/';
-$lpaths['pages']    = 'inc/pages/';
-$lpaths['theme']    = 'html/{theme}/';
+$lpaths['config']     = 'config.php';
+$lpaths['includes']   = 'inc/';
+$lpaths['classes']    = 'inc/classes/';
+$lpaths['pages']      = 'inc/pages/';
+$lpaths['theme']      = 'html/{theme}/';
+$lpaths['item packs'] = 'inc/ItemPacks/';
 // http paths
-$wpaths['images']   = 'html/{theme}/images/';
+$wpaths['images']     = 'html/{theme}/images/';
+$wpaths['item packs'] = 'inc/ItemPacks/{pack}/icons/';
 // load config
 require($lpaths['config']);
 require('db.config.php');
@@ -89,6 +91,13 @@ SettingsClass::setDefault('Currency Prefix'		, '$ ');
 SettingsClass::setDefault('Currency Postfix'		, '');
 SettingsClass::setDefault('Custom Descriptions'		, FALSE);
 //SettingsClass::setDefault('Allow Enchanted Items'	, TRUE);
+
+// load item packs
+require($lpaths['item packs'].'default/item.defines.php');
+foreach(explode(',',SettingsClass::getString('Item Packs')) as $v){
+  $t=trim($v); if(empty($v)) continue;
+  require($lpaths['item packs'].SanFilename($v).'/item.defines.php');
+}
 
 // load template engine
 require($lpaths['classes'].'html.class.php');
