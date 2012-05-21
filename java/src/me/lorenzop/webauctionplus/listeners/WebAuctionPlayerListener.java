@@ -82,36 +82,25 @@ public class WebAuctionPlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
-			return;
-		}
-
+		// right click only
+		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 		Block block = event.getClickedBlock();
-		if (block == null || block.getType() != Material.SIGN_POST) {
-			if (block.getType() != Material.WALL_SIGN) {
-				return;
-			}
-		}
-
+		// not a sign
+		if (block == null || block.getType() != Material.SIGN_POST)
+			if (block.getType() != Material.WALL_SIGN) return;
 		// it's a sign
 		Sign sign = (Sign) block.getState();
 		String[] lines = sign.getLines();
-		if (!lines[0].equals("[WebAuction+]")) {
-			return;
-		}
+		if (!lines[0].equals("[WebAuction+]")) return;
 
 		Player p = event.getPlayer();
 		String player = p.getName();
 		event.setCancelled(true);
 
 		// Make sure we can use the sign
-		if (plugin.lastSignUse.containsKey(player)) {
-			long lastSignUse = plugin.lastSignUse.get(player);
-			if (lastSignUse + (long)plugin.signDelay > plugin.getCurrentMilli()) {
-//				p.sendMessage(plugin.chatPrefix + "Please wait a bit before using that again");
-				return;
-			}
-		}
+		if (plugin.lastSignUse.containsKey(player))
+			if( plugin.lastSignUse.get(player)+(long)plugin.signDelay > plugin.getCurrentMilli() ) return;
+		//p.sendMessage(plugin.chatPrefix + "Please wait a bit before using that again");
 		plugin.lastSignUse.put(player, plugin.getCurrentMilli());
 
 		// Shout sign
@@ -185,7 +174,7 @@ public class WebAuctionPlayerListener implements Listener {
 		// Deposit sign (money)
 		} else if (lines[1].equals("Deposit")) {
 			if (!p.hasPermission("wa.use.deposit.money")) {
-				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("not_enough_money"));
+				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("not_enough_money_pocket"));
 			} else {
 				double amount = 0.0D;
 				if (!lines[2].equals("All")) {
@@ -195,11 +184,10 @@ public class WebAuctionPlayerListener implements Listener {
 				}
 				if (plugin.economy.has(player, amount)) {
 					AuctionPlayer auctionPlayer = plugin.dataQueries.getPlayer(player);
-					if (null != auctionPlayer) {
+					if (auctionPlayer != null) {
 						double currentMoney = auctionPlayer.getMoney();
-						if (lines[2].equals("All")) {
+						if (lines[2].equals("All"))
 							amount = plugin.economy.getBalance(player);
-						}
 						currentMoney += amount;
 						currentMoney = round(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
 						p.sendMessage(WebAuctionPlus.chatPrefix + "Added " + amount +

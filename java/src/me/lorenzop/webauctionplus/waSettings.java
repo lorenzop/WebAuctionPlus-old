@@ -8,15 +8,18 @@ import java.util.HashMap;
 
 public class waSettings {
 
+	private boolean isOk = false;
 	WebAuctionPlus plugin;
 
 	protected HashMap<String, String> settingsMap = new HashMap<String, String>();
 
 	public waSettings(WebAuctionPlus plugin) {
 		this.plugin = plugin;
+		isOk = false;
 	}
 
 	public synchronized void LoadSettings(){
+		isOk = false;
 		Connection conn = plugin.dataQueries.getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
@@ -37,7 +40,9 @@ public class waSettings {
 		}
 		addDefaults();
 		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Loaded " + Integer.toString(settingsMap.size()) + " settings from db");
+		isOk = (settingsMap.size()!=0);
 	}
+	public boolean isOk() {return this.isOk;}
 
 	// set default settings
 	private void addDefaults() {
@@ -46,6 +51,7 @@ public class waSettings {
 		addDefault("Currency Postfix",		"");
 		addDefault("Custom Description",	"false");
 		addDefault("Language",				"en");
+		addDefault("Item Packs",			"");
 	}
 	private void addDefault(String name, String value) {
 		if(!settingsMap.containsKey(name)) {

@@ -304,7 +304,7 @@ public class MySQLDataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if (debugSQL) log.info("WA Query: getItemEnchantments - Items Table " + Integer.toString(itemId));
+			if (debugSQL) log.info("WA Query: getMailItemEnchantments - Items table " + Integer.toString(itemId));
 			st = conn.prepareStatement("SELECT `enchName`, `enchId`, `level` FROM `"+dbPrefix+"ItemEnchantments` " +
 				"WHERE `ItemTable` = 'Mail' AND `ItemTableId` = ? ORDER BY `enchId` DESC");
 			st.setInt   (1, itemId);
@@ -320,26 +320,6 @@ public class MySQLDataQueries extends MySQLConnPool {
 			closeResources(conn, st, rs);
 		}
 		return;
-	}
-
-	public int getMaxAuctionID() {
-		int maxAuctionID = -1;
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if (debugSQL) WebAuctionPlus.log.info("WA Query: getMaxAuctionID");
-			st = conn.prepareStatement("SELECT MAX(`id`) FROM `"+dbPrefix+"Auctions`");
-			rs = st.executeQuery();
-			if (rs.next())
-				maxAuctionID = rs.getInt(1);
-		} catch (SQLException e) {
-			log.warning(logPrefix + "Unable to query for max Auction ID");
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-		return maxAuctionID;
 	}
 
 	public Map<Location, Integer> getShoutSignLocations() {

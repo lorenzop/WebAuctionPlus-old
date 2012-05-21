@@ -3,55 +3,87 @@ package me.lorenzop.webauctionplus;
 import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
-
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class Language {
 
-	protected WebAuctionPlus plugin;
-	protected FileConfiguration langConfig;
-
+	private boolean isOk = false;
 	protected HashMap<String, String> langMap = new HashMap<String, String>();
-	protected String lang = "";
+
+	protected FileConfiguration langConfig;
+	protected WebAuctionPlus plugin;
 
 	public Language(WebAuctionPlus plugin) {
 		this.plugin = plugin;
+		isOk = false;
+		loadKeys();
 	}
 
-	public synchronized void loadLanguage(String setLang) {
-		if(setLang.isEmpty()) lang = "en";
-		else                  lang = setLang;
-		loadKeys();
+	// load language yml
+	public synchronized void loadLanguage(String lang) {
+		isOk = false;
+		if(lang==null || lang.isEmpty()) lang = "en";
+		if(lang.length() != 2) {
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Language should only be 2 letters! "+lang);
+			return;
+		}
+		// try loading language file
+		loadLanguageFile(lang);
+		if(isOk) return;
+		// failed to load, so load default en.yml
+		WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Defaulting to en.yml");
+		loadLanguageFile("en");
+		if(isOk) return;
+		WebAuctionPlus.log.severe("Failed to load language! "+lang);
+	}
+	public boolean isOk() {return this.isOk;}
+
+	private void loadLanguageFile(String lang) {
 		try {
+			// load from plugins folder
 			File langFile = new File(plugin.getDataFolder().toString()+File.separator+"languages"+File.separator+lang+".yml");
+			if(langFile.exists() && !langFile.canWrite())
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"File is not writable! "+langFile.toString());
 			langConfig = YamlConfiguration.loadConfiguration(langFile);
 			// look for defaults in the jar
 			InputStream defaultLangStream = plugin.getResource("languages"+File.separator+lang+".yml");
-			if(defaultLangStream != null) {
-				YamlConfiguration defaultLang = YamlConfiguration.loadConfiguration(defaultLangStream);
-				langConfig.setDefaults(defaultLang);
+			if(defaultLangStream == null) {
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Language file not found in jar: "+lang+".yml");
+				if(!langFile.exists()) return;
+			} else {
+				YamlConfiguration defaultLangConfig = YamlConfiguration.loadConfiguration(defaultLangStream);
+				// copy defaults
+				langConfig.setDefaults(defaultLangConfig);
 			}
 			// load language messages
 			for(String key : langMap.keySet()) {
 				langMap.put(key, langConfig.getString(key));
 			}
+			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Loaded language file "+lang+".yml");
 			// save defaults
 			langConfig.options().copyDefaults(true);
 			langConfig.save(langFile);
-			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Loaded language file "+lang+".yml");
 		} catch(Exception e) {
-			WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Failed to load language file "+lang+".yml");
+//			WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Failed to load language file "+lang+".yml");
 			e.printStackTrace();
+			return;
 		}
+		isOk = true;
 	}
 
 	public synchronized String getString(String key) {
-		if(langMap.containsKey(key))
-			if(!langMap.get(key).isEmpty())
-				return langMap.get(key);
+		if(!isOk) {
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"No language file has been loaded!");
+		} else {
+			if(langMap.containsKey(key)) {
+				String value = langMap.get(key);
+				if(value!=null && !value.isEmpty())
+					return value;
+			}
+		}
 		WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Language message not found: " + key);
-		return null;
+		return "Message not found!";
 	}
 
 	private void loadKeys() {

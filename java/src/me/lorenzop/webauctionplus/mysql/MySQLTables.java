@@ -10,6 +10,8 @@ import me.lorenzop.webauctionplus.WebAuctionPlus;
 
 public class MySQLTables {
 
+	private boolean isOk = false;
+
 	protected String dbPrefix = "";
 	protected boolean debugSQL = false;
 
@@ -21,6 +23,7 @@ public class MySQLTables {
 		this.dataQueries = plugin.dataQueries;
 		dbPrefix = dataQueries.dbPrefix;
 		debugSQL = dataQueries.debugSQL;
+		isOk = false;
 
 		// create new tables
 		sqlTables("Auctions");
@@ -31,7 +34,8 @@ public class MySQLTables {
 		sqlTables("SaleAlerts");
 		sqlTables("SellPrice");
 		sqlTables("ShoutSigns");
-		// update existing tables
+		sqlTables("Settings");
+		// update existing tables from original web auction
 		if (!tableExists("ItemEnchantments") && tableExists("EnchantLinks")) {
 			sqlTables("ItemEnchantments");
 			// convert database tables to Plus
@@ -41,11 +45,11 @@ public class MySQLTables {
 			ConvertDatabase();
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Finished converting database to Plus!");
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "*** You can delete these tables from the database: EnchantLinks, Enchantments, Mail ***");
-		}
-		// new tables in plus
-		//sqlTables("ItemEnchantments");
-		sqlTables("Settings");
+		} else
+			sqlTables("ItemEnchantments");
+		isOk = true;
 	}
+	public boolean isOk() {return this.isOk;}
 
 	// table queries
 	private void sqlTables(String tableName) {

@@ -79,7 +79,8 @@ return true;
 		} else if (params == 2 || params == 3) {
 			// /wa password
 			if (args[0].equalsIgnoreCase("password") ||
-				args[0].equalsIgnoreCase("pass")   ) {
+				args[0].equalsIgnoreCase("pass")     ||
+				args[0].equalsIgnoreCase("pw")       ) {
 				String pass = "";
 				// is player
 				if (sender instanceof Player) {
