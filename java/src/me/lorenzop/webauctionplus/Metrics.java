@@ -275,11 +275,13 @@ public class Metrics {
             try {
                 // Reload the metrics file
                 configuration.load(CONFIG_FILE);
-            } catch (IOException ex) {
-                Metrics.log.warning("[Metrics] " + ex.getMessage());
+            } catch (IOException e) {
+                //Metrics.log.warning("[Metrics] " + ex.getMessage());
+                e.printStackTrace();
                 return true;
-            } catch (InvalidConfigurationException ex) {
-                Metrics.log.warning("[Metrics] " + ex.getMessage());
+            } catch (InvalidConfigurationException e) {
+                //Metrics.log.warning("[Metrics] " + ex.getMessage());
+                e.printStackTrace();
                 return true;
             }
             return configuration.getBoolean("opt-out", false);
