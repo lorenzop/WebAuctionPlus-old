@@ -116,10 +116,10 @@ public class WebAuctionBlockListener implements Listener {
 				// line 2: amount
 				double amount = 100;
 				try {
-					amount = Double.parseDouble(lines[2]);
+					amount = WebAuctionPlus.ParseDouble(lines[2]);
 					if(amount <= 0D) amount = 100D;
 				} catch(NumberFormatException ignore) {}
-				event.setLine(2, WebAuctionPlus.settings.getString("Currency Prefix") + Double.toString(amount) + WebAuctionPlus.settings.getString("Currency Postfix"));
+				event.setLine(2, WebAuctionPlus.settings.getString("Currency Prefix") + WebAuctionPlus.FormatDouble(amount) + WebAuctionPlus.settings.getString("Currency Postfix"));
 				if (!lines[3].isEmpty()) event.setLine(3, "");
 			}
 		} else
@@ -135,14 +135,14 @@ public class WebAuctionBlockListener implements Listener {
 				double amount = 0;
 				if(!lines[2].equalsIgnoreCase("all")) {
 					try {
-						amount = Double.parseDouble(lines[2]);
+						amount = WebAuctionPlus.ParseDouble(lines[2]);
 						if(amount < 0D) amount = 0D;
 					} catch(NumberFormatException ignore) {}
 				}
 				if(amount == 0)
 					event.setLine(2, "All");
 				else
-					event.setLine(2, WebAuctionPlus.settings.getString("Currency Prefix") + Double.toString(amount) + WebAuctionPlus.settings.getString("Currency Postfix"));
+					event.setLine(2, WebAuctionPlus.settings.getString("Currency Prefix") + WebAuctionPlus.FormatDouble(amount) + WebAuctionPlus.settings.getString("Currency Postfix"));
 				if (!lines[3].isEmpty()) event.setLine(3, "");
 			}
 		} else

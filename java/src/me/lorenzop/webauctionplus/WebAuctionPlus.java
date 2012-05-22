@@ -5,6 +5,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -358,6 +359,15 @@ public class WebAuctionPlus extends JavaPlugin {
 //			formatted = formatted.substring(0, formatted.length() - 1);
 //		return Common.formatted(formatted, Constants.Nodes.Major.getStringList(), Constants.Nodes.Minor.getStringList());
 //	}
+
+	// work with doubles
+	public static String FormatDouble(double value) {
+		DecimalFormat decim = new DecimalFormat("0.00");
+		return decim.format(value);
+	}
+	public static double ParseDouble(String value) {
+		return Double.parseDouble( value.replaceAll("[^0-9.]+","") );
+	}
 
 	public static int getNewRandom(int oldNumber, int maxNumber) {
 		if (maxNumber == 0) return maxNumber;

@@ -174,12 +174,14 @@ public class WebAuctionPlayerListener implements Listener {
 		// Deposit sign (money)
 		} else if (lines[1].equals("Deposit")) {
 			if (!p.hasPermission("wa.use.deposit.money")) {
-				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("not_enough_money_pocket"));
+				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
+				event.setCancelled(true);
+				return;
 			} else {
 				double amount = 0.0D;
 				if (!lines[2].equals("All")) {
 					try {
-						amount = Double.parseDouble(lines[2]);
+						amount = WebAuctionPlus.ParseDouble(lines[2]);
 					} catch(NumberFormatException ignore) {}
 				}
 				if (plugin.economy.has(player, amount)) {
@@ -197,6 +199,8 @@ public class WebAuctionPlayerListener implements Listener {
 					} else {
 						p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_not_found"));
 					}
+				} else {
+					p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("not_enough_money_pocket"));
 				}
 			}
 
@@ -205,6 +209,7 @@ public class WebAuctionPlayerListener implements Listener {
 			if (!p.hasPermission("wa.use.withdraw.money")) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
 				event.setCancelled(true);
+				return;
 			} else {
 				double amount = 0.0D;
 				try {
@@ -218,7 +223,7 @@ public class WebAuctionPlayerListener implements Listener {
 							amount = currentMoney;
 						else {
 							try {
-								amount = Double.parseDouble(lines[2]);
+								amount = WebAuctionPlus.ParseDouble(lines[2]);
 							} catch(NumberFormatException ignore) {}
 						}
 						if (currentMoney >= amount) {
