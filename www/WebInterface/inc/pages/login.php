@@ -8,7 +8,6 @@ $user = NULL;
 if(!empty($username) && !empty($password)){
   $user = new userClass($username,md5($password));
   if($user!==NULL){
-    $_SESSION[$config['session name']] = $user->getName();
     if(getVar('error')==''){
       $lastpage = getVar('lastpage');
       if(empty($lastpage)) ForwardTo('./');
