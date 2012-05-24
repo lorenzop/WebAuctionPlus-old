@@ -1,6 +1,7 @@
 package me.lorenzop.webauctionplus;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -367,6 +368,11 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 	public static double ParseDouble(String value) {
 		return Double.parseDouble( value.replaceAll("[^0-9.]+","") );
+	}
+	public static double RoundDouble(double value, int precision, int roundingMode) {
+		BigDecimal bd = new BigDecimal(value);
+		BigDecimal rounded = bd.setScale(precision, roundingMode);
+		return rounded.doubleValue();
 	}
 
 	public static int getNewRandom(int oldNumber, int maxNumber) {

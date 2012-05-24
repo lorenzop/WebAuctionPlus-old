@@ -31,10 +31,12 @@ public class Language {
 		// try loading language file
 		loadLanguageFile(lang);
 		if(isOk) return;
-		// failed to load, so load default en.yml
-		WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Defaulting to en.yml");
-		loadLanguageFile("en");
-		if(isOk) return;
+		if(!lang.equals("en")) {
+			// failed to load, so load default en.yml
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Defaulting to en.yml");
+			loadLanguageFile("en");
+			if(isOk) return;
+		}
 		WebAuctionPlus.log.severe("Failed to load language! "+lang);
 	}
 	public boolean isOk() {return this.isOk;}
@@ -47,7 +49,7 @@ public class Language {
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"File is not writable! "+langFile.toString());
 			langConfig = YamlConfiguration.loadConfiguration(langFile);
 			// look for defaults in the jar
-			InputStream defaultLangStream = plugin.getResource("languages"+File.separator+lang+".yml");
+			InputStream defaultLangStream = plugin.getClass().getClassLoader().getResourceAsStream("languages/"+lang+".yml");
 			if(defaultLangStream == null) {
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Language file not found in jar: "+lang+".yml");
 				if(!langFile.exists()) return;
@@ -63,7 +65,7 @@ public class Language {
 			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Loaded language file "+lang+".yml");
 			// save defaults
 			langConfig.options().copyDefaults(true);
-			langConfig.save(langFile);
+//			langConfig.save(langFile);
 		} catch(Exception e) {
 //			WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Failed to load language file "+lang+".yml");
 			e.printStackTrace();

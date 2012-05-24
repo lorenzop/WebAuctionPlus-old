@@ -3,6 +3,7 @@ package me.lorenzop.webauctionplus.listeners;
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 import me.lorenzop.webauctionplus.dao.AuctionPlayer;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -38,7 +39,7 @@ return true;
 				if (sender instanceof Player) {
 					if (!sender.hasPermission("wa.reload")){
 						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
-						return false;
+						return true;
 					}
 					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("reloading"));
 				}
@@ -60,7 +61,7 @@ return true;
 				if (sender instanceof Player) {
 					if (!sender.hasPermission("wa.save")){
 						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
-						return false;
+						return true;
 					}
 				}
 				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("saving"));
@@ -73,6 +74,7 @@ return true;
 				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("finished_saving"));
 				if (sender instanceof Player)
 					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("finished_saving"));
+				return true;
 			}
 			return false;
 		// 2 args
@@ -83,33 +85,53 @@ return true;
 				args[0].equalsIgnoreCase("pw")       ) {
 				String pass = "";
 				// is player
-				if (sender instanceof Player) {
-					if (params != 2) return false;
-					if (args[1].isEmpty()) return false;
+				boolean isPlayer = (sender instanceof Player);
+				if (isPlayer) {
+					if (params != 2 || args[1].isEmpty()) return false;
 					pass = WebAuctionPlus.MD5(args[1]);
 				// is console
 				} else {
 					if (params != 3) return false;
 					if (args[1].isEmpty() || args[2].isEmpty()) return false;
 					player = args[1];
+					if(!Bukkit.getOfflinePlayer(player).hasPlayedBefore()) {
+						sender.sendMessage(WebAuctionPlus.logPrefix+"Player not found!");
+						sender.sendMessage(WebAuctionPlus.logPrefix+"Note: if you really need to, you can add a player to the database, just md5 the password.");
+						return true;
+					}
 					pass = WebAuctionPlus.MD5(args[2]);
 				}
 				if (player.isEmpty()) return false;
 				AuctionPlayer waPlayer = plugin.dataQueries.getPlayer(player);
 				// create that person in database
 				if (waPlayer == null) {
+					// permission to create an account
+					if (isPlayer) {
+						if (!sender.hasPermission("wa.password.create")){
+							((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
+							return true;
+						}
+					}
 					waPlayer = new AuctionPlayer(player);
 					waPlayer.setPerms(
-						sender.hasPermission("wa.canbuy"),
-						sender.hasPermission("wa.cansell"),
-						sender.hasPermission("wa.webadmin")
+						sender.hasPermission("wa.canbuy")   && isPlayer,
+						sender.hasPermission("wa.cansell")  && isPlayer,
+						sender.hasPermission("wa.webadmin") && isPlayer
 					);
 					plugin.dataQueries.createPlayer(waPlayer, pass);
 					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("account_created") + " " + player +
 							" with perms: " + waPlayer.getPermsString());
 					if (sender instanceof Player)
 						sender.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_created"));
+				// change password for an existing account
 				} else {
+					// permission to change password
+					if (sender instanceof Player) {
+						if (!sender.hasPermission("wa.password.change")){
+							((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
+							return true;
+						}
+					}
 					plugin.dataQueries.updatePlayerPassword(player, pass);
 					if (sender instanceof Player)
 						sender.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("password_changed"));

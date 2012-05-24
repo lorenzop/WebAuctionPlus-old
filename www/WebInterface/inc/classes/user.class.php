@@ -54,7 +54,7 @@ function __construct($username=NULL, $password=NULL){global $config;
                      "`ItemTable`='Mail' AND LOWER(`playerName`)='".mysql_san(strtolower($this->Name))."'", __file__, __line__);
     $row=mysql_fetch_assoc($result);
     $this->numMail = ((int)$row['count']);
-    $_SESSION[$config['session name']] = $user->getName();
+    $_SESSION[$config['session name']] = $this->Name;
   }else{
     $_SESSION[$config['session name']] = '';
     echo 'Error: '.mysql_error();

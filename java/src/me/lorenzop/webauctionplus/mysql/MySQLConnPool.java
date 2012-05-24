@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import me.lorenzop.webauctionplus.WebAuctionPlus;
+
 public class MySQLConnPool {
 
 	protected String dbHost		= "localhost";
@@ -60,16 +62,20 @@ public class MySQLConnPool {
 			connections.add(conn);
 			inuse.add(true);
 			return conn;
+		} catch (ClassNotFoundException e) {
+			WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Unable to load database driver!");
+			e.printStackTrace();
 		} catch (InstantiationException e) {
+			WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Unable to create database driver!");
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+			WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Unable to create database driver!");
 			e.printStackTrace();
 		} catch (SQLException e) {
+			WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"SQL Error!");
 			e.printStackTrace();
 		}
-		log.severe(logPrefix + "Exception getting mySQL Connection");
+		log.severe(logPrefix + "Exception getting MySQL Connection");
 		return null;
 	}
 

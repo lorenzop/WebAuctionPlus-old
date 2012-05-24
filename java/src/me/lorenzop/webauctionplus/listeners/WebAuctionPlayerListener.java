@@ -29,12 +29,6 @@ public class WebAuctionPlayerListener implements Listener {
 		this.plugin = plugin;
 	}
 
-	public static double round(double unrounded, int precision, int roundingMode) {
-		BigDecimal bd = new BigDecimal(unrounded);
-		BigDecimal rounded = bd.setScale(precision, roundingMode);
-		return rounded.doubleValue();
-	}
-
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		plugin.lastSignUse.remove(event.getPlayer().getName());
@@ -191,7 +185,7 @@ public class WebAuctionPlayerListener implements Listener {
 						if (lines[2].equals("All"))
 							amount = plugin.economy.getBalance(player);
 						currentMoney += amount;
-						currentMoney = round(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
+						currentMoney = WebAuctionPlus.RoundDouble(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
 						p.sendMessage(WebAuctionPlus.chatPrefix + "Added " + amount +
 							" to auction account, new auction balance: " + currentMoney);
 						plugin.dataQueries.updatePlayerMoney(player, currentMoney);
@@ -228,7 +222,7 @@ public class WebAuctionPlayerListener implements Listener {
 						}
 						if (currentMoney >= amount) {
 							currentMoney -= amount;
-							currentMoney = round(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
+							currentMoney = WebAuctionPlus.RoundDouble(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
 							p.sendMessage(WebAuctionPlus.chatPrefix + "Removed " +
 								amount + " from auction account, new auction balance: " + currentMoney);
 							plugin.dataQueries.updatePlayerMoney(player, currentMoney);

@@ -1,6 +1,6 @@
 name: WebAuctionPlus
 main: me.lorenzop.webauctionplus.WebAuctionPlus
-version: 1.0.7
+version: 1.0.8
 author: lorenzop
 depend: [Vault]
 softdepend: [SignLink]
@@ -23,6 +23,8 @@ permissions:
             wa.create.sign.mailbox.withdraw: true
             wa.create.sign.recent: true
             wa.create.sign.shout: true
+            wa.password.create: true
+            wa.password.change: true
             wa.canbuy: true
             wa.cansell: true
             wa.remove: true
@@ -37,6 +39,8 @@ permissions:
             wa.use.deposit.items: true
             wa.use.deposit.money: true
             wa.announcer.receive: true
+            wa.password.create: true
+            wa.password.change: true
             wa.canbuy: true
             wa.cansell: true
     wa.create.*:
@@ -63,6 +67,12 @@ permissions:
         default: true
     wa.announcer.receive:
         description: Let you see announcements in chat
+        default: true
+    wa.password.create:
+        description: Lets you create a new account for the website
+        default: true
+    wa.password.change:
+        description: Lets you change your password for the website
         default: true
     wa.canbuy:
         description: Lets you buy items on the website
