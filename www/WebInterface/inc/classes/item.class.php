@@ -48,18 +48,31 @@ public function getItemImageUrl(){
   return(ItemFuncs::getItemImageUrl($this->itemId, $this->itemDamage));
 }
 
+// get damage/charged percent string
+public function getDamagedChargedStr(){
+  return(ItemFuncs::getDamagedChargedStr($this->itemId, $this->itemDamage));
+}
+
 // get percent damaged
-public function getPercentDamaged(){
-  if($this->itemId<=0) return('');
-  $item = ItemFuncs::getItemArray($this->itemId);
-  if(!isset($item['damage'])) return('');
-  return(ItemFuncs::getPercentDamagedStr($this->itemDamage,$item['damage']));
-}
-public function getPercentDamagedString(){
-  $damaged = $this->getPercentDamaged();
-  if( ((string)$damaged) == '0') return('Brand New!');
-  else                           return((string)$damaged);
-}
+//public function getPercentDamaged(){
+//  if($this->itemId<=0) return('');
+//  $item = ItemFuncs::getItemArray($this->itemId);
+//  if(!isset($item['damage'])) return('');
+//  return(ItemFuncs::getPercentDamagedStr($this->itemDamage,$item['damage']));
+//}
+//public function getPercentDamageStr(){
+//  $damaged = $this->getPercentDamaged();
+//  if( ((string)$damaged) == '0') return('Brand New!');
+//  else                           return((string)$damaged);
+//}
+
+// get percent charged
+//public function getItemDamageStr(){
+//  return(ItemFuncs::getPercentChargedStr($this->itemId, $this->itemDamage));
+////  $damaged = $this->getPercentDamaged();
+//  if( ((string)$damaged) == '0') return('Fully Charged!');
+//  else                           return((string)$damaged);
+//}
 
 // add enchantment
 public function addEnchantment($enchName, $enchId, $level, $enchTableId=0){

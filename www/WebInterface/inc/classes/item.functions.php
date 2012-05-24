@@ -57,88 +57,132 @@ static $Items = array();
 
 // get item array
 public static function getItemArray($itemId=0, $itemDamage=0){
-  if(isset(self::$Items[$itemId])){
-    $item = self::$Items[$itemId];
-    if(isset($item[-1])){
-      if(isset($item[$itemDamage]))
-        return($item[$itemDamage]);
-      else return($item[-1]);
-    }else return($item);
-  }else return(FALSE);
+  // unknown item id
+  if(!isset(self::$Items[$itemId])){
+    $item = self::$Items[-1];
+    $item['name'] = str_replace('%itemid%', $itemId, $item['name']);
+    return($item);
+  }
+  // found item id
+  $item = self::$Items[$itemId];
+  // is single item
+  if(!isset($item[-1])) return($item);
+  // found item by damage id
+  if(isset($item[$itemDamage])) return($item[$itemDamage]);
+  // unknown damage id
+  return($item[-1]);
 }
 
 // get item type
 public static function getItemType($itemId=0){
   $item = self::getItemArray($itemId);
   if(isset($item['type'])) return($item['type']);
-  else                     return('');
+  return('');
 }
 
 // get item name
 public static function getItemName($itemId=0, $itemDamage=0){
   $item = self::getItemArray($itemId, $itemDamage);
-  if(is_array($item) && count($item)>0){
-    $name = $item['name'];
-    if(isset($item['type']) && $item['type']=='map')
-      $name=str_replace('#map#',$itemDamage,$name);
-    return($name);
-  }else return('');
+  if(!is_array($item) || count($item)<=0) return('');
+  $name = $item['name'];
+  if(isset($item['type']) && $item['type']=='map')
+    $name=str_replace('#map#',$itemDamage,$name);
+  return($name);
 }
 
 // get item title
 public static function getItemTitle($itemId=0, $itemDamage=0){
   $item = self::getItemArray($itemId, $itemDamage);
-  if(is_array($item) && count($item)>0){
-    if(isset($item['title'])) $title = $item['title'];
-    else                      $title = $item['name'];
-    if(@$item['damage'] == 'tool') $title=str_replace('%damaged%', self::getPercentDamagedStr($itemDamage,$item['damage']).'% damaged', $title);
-    if(@$item['damage'] == 'map' ) $title=str_replace('#map#'    , ' '.$itemDamage, $title);
-    return($title);
-  }else return('');
+  if(!is_array($item) || count($item)<=0) return('');
+  if(isset($item['title'])) $title = $item['title'];
+  else                      $title = $item['name'];
+  if(@$item['type'] == 'tool'){$title=str_replace('%damaged%', self::getPercentDamagedStr($itemDamage,$item['damage']), $title);
+                               $title=str_replace('%charged%', self::getPercentChargedStr($itemDamage,$item['damage']), $title);}
+  if(@$item['type'] == 'map' ) $title=str_replace('#map#'    , $itemDamage                                            , $title);
+  return($title);
 }
 
 // get item icon file
 //public static function getItemImage($itemId=0, $itemDamage=0){
 //  $item = self::getItemArray($itemId, $itemDamage);
-//  if(is_array($item) && count($item)>0){
-//    if(isset($item['icon'])) return($item['icon']);
-//    else                     return($item['name']);
-//  }else return('');
+//  if(!is_array($item) || count($item)<=0) return('');
+//  if(isset($item['icon'])) return($item['icon']);
+//  else                     return($item['name']);
 //}
 public static function getItemImageUrl($itemId=0, $itemDamage=0){global $config;
   $item = self::getItemArray($itemId, $itemDamage);
-  if(is_array($item) && count($item)>0){
-    if(isset($item['icon'])) $icon = $item['icon'];
-    else                     $icon = $item['name'].'.png';
-  }else return('');
+  if(!is_array($item) || count($item)<=0) return('');
+  if(isset($item['icon'])) $icon = $item['icon'];
+  else                     $icon = $item['name'].'.png';
   $pack = '';
   if(isset($item['pack'])) $pack = $item['pack'];
   if(empty($pack))         $pack = 'default';
-  return(str_replace('{pack}',$pack,$config['paths']['http']['item packs']).'/'.$icon);
+  return(str_replace('{pack}',$pack,$config['paths']['http']['item packs']).$icon);
+}
+
+// get full item title
+//public static function getItemDamageStr($itemId=0, $itemDamage=0){
+//  $item = self::getItemArray($itemId, $itemDamage);
+//  if(!is_array($item) || count($item)<=0) return('');
+//  if(isset($item['title'])) $title = $item['title'];
+//  else                      $title = $item['name'];
+//  if(@$item['damage'] == 'tool') {$title=str_replace('%damaged%', self::getPercentDamagedStr($itemDamage,$item['damage']), $title);
+//                                  $title=str_replace('%charged%', self::getPercentChargedStr($itemDamage,$item['damage']), $title);}
+//  if(@$item['damage'] == 'map' )  $title=str_replace('#map#'    , ' '.$itemDamage                                        , $title);
+//  return($title);
+//}
+
+// get damage/charged percent string
+public static function getDamagedChargedStr($itemId=0, $itemDamage=0){
+  $item = self::getItemArray($itemId, $itemDamage);
+  if(!is_array($item) || count($item)<=0) return('');
+  if(@$item['type']!='tool' && @$item['type']!='map') return('');
+  if(isset($item['title'])) $title = $item['title'];
+  else                      $title =@$item['name'];
+  if(empty($title)) return('');
+  $maxDamage = @$item['damage'];
+  if($maxDamage==0) return('');
+  if(strpos($title,'%damaged%')!==FALSE)
+    return(self::getPercentDamagedStr($itemDamage, $maxDamage));
+  elseif(strpos($title,'%charged%')!==FALSE)
+    return(self::getPercentChargedStr($itemDamage, $maxDamage));
+  //elseif(strpos($title,'#map#')!==FALSE)
+  return('');
 }
 
 // get percent damaged
-public static function getPercentDamaged($itemDamage, $maxDamage){
+private static function getPercentDamaged($itemDamage, $maxDamage){
   $damaged = ( ((float)$itemDamage)/((float)$maxDamage) )*100.0;
   if($damaged>0 && (string)round($damaged,1) == '0') return( (string)round($damaged,2) );
   else                                               return( (string)round($damaged,1) );
 }
-public static function getPercentDamagedStr($itemDamage, $maxDamage){
+private static function getPercentDamagedStr($itemDamage, $maxDamage){
   $damaged = self::getPercentDamaged($itemDamage, $maxDamage);
   if( ((string)$damaged) == '0') return('Brand New!');
   else                           return(((string)$damaged).' % damaged');
 }
 
+// get percent charged
+private static function getPercentCharged($itemDamage, $maxDamage){
+  $charged = ( ( ((float)$maxDamage)-((float)$itemDamage) )/((float)$maxDamage) )*100.0;
+  if($charged>0 && (string)round($charged,1) == '0') return( (string)round($charged,2) );
+  else                                               return( (string)round($charged,1) );
+}
+private static function getPercentChargedStr($itemDamage, $maxDamage){
+  $charged = self::getPercentCharged($itemDamage, $maxDamage);
+  if( ((string)$charged) == '0') return('Fully Charged!');
+  else                           return(((string)$charged).' % charged');
+}
+
 // get max stack size
 public static function getMaxStack($itemId=0, $itemDamage=0){
   $item = self::getItemArray($itemId, $itemDamage);
-  if(is_array($item) && count($item)>0){
-    if(isset($item['stack'])) $stacksize = $item['stack'];
-    else                      $stacksize = 64;
-    if($stacksize < 1)  $stacksize = 1;
-    if($stacksize > 64) $stacksize = 64;
-    return($stacksize);
-  }else return(64);
+  if(!is_array($item) || count($item)<=0) return(64);
+  if(isset($item['stack'])) $stacksize = $item['stack'];
+  else                      $stacksize = 64;
+  if($stacksize < 1)  $stacksize = 1;
+  if($stacksize > 64) $stacksize = 64;
+  return($stacksize);
 }
 
 // query single stack

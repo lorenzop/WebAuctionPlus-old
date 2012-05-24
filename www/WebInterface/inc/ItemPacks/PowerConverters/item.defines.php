@@ -37,8 +37,8 @@ $Items[123]=array(
     'icon'=>'Water_Strainer.png',
     'pack'=>$pack),
   -1=>array(
-    'name'=>'Nether Coal',
-    'icon'=>'Nether_Coal.png',
+    'name'=>'Unknown Engine',
+    'icon'=>'Engine_Generator_LV.png',
     'pack'=>$pack),
 );
 

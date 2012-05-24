@@ -44,11 +44,11 @@ $Items[216]=array(
     'pack'=>$pack),
 );
 $Items[4256]=array(
-  'type'=>'map',
-  'name'=>'Floppy Disk',
+  'type' =>'map',
+  'name' =>'Floppy Disk #map#',
   'title'=>'Floppy Disk #map#',
-  'icon'=>'Floppy_Disk.png',
-  'pack'=>$pack);
+  'icon' =>'Floppy_Disk.png',
+  'pack' =>$pack);
 
 unset($Items);
 ?>

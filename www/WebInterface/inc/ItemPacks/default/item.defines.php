@@ -28,7 +28,7 @@ ItemFuncs::$Items=array(
       'name'=>'Wooden Plank (Jungle)',
       'icon'=>'Wooden_Plank_Jungle.png'),
     -1=>array(
-      'name'=>'Wooden Plank',
+      'name'=>'Unknown Wooden Plank',
       'icon'=>'Wooden_Plank.png'),
   ),
   6=>array(
@@ -45,7 +45,7 @@ ItemFuncs::$Items=array(
       'name'=>'Jungle Sapling',
       'icon'=>'Sapling_Jungle.png'),
     -1=>array(
-      'name'=>'Sapling',
+      'name'=>'Unknown Sapling',
       'icon'=>'Sapling.png'),
   ),
   7=>array(
@@ -92,8 +92,8 @@ ItemFuncs::$Items=array(
       'name'=>'Jungle Log',
       'icon'=>'Log_Jungle.png'),
     -1=>array(
-      'name'=>'Log',
-      'icon'=>'Log.png'),
+      'name'=>'Unknown Log',
+      'icon'=>'Log_Oak.png'),
   ),
   18=>array(
     0 =>array(
@@ -121,8 +121,8 @@ ItemFuncs::$Items=array(
       'name'=>'Jungle Leaves',
       'icon'=>'Leaves_Jungle.png'),
     -1=>array(
-      'name'=>'Leaves',
-      'icon'=>'Leaves.png'),
+      'name'=>'Unknown Leaves',
+      'icon'=>'Leaves_Oak.png'),
   ),
   19=>array(
     'name'=>'Sponge',
@@ -150,7 +150,7 @@ ItemFuncs::$Items=array(
       'name'=>'Smooth Sandstone',
       'icon'=>'Sandstone_Smooth.png'),
     -1=>array(
-      'name'=>'Sandstone',
+      'name'=>'Unknown Sandstone',
       'icon'=>'Sandstone.png'),
   ),
   25=>array(
@@ -199,7 +199,7 @@ ItemFuncs::$Items=array(
       'name'=>'Sticky_Piston',
       'icon'=>'Sticky_Piston.png'),
     -1=>array(
-      'name'=>'Piston Head',
+      'name'=>'Unknown Piston',
       'icon'=>'Piston.png'),
   ),
   35=>array(
@@ -397,8 +397,8 @@ ItemFuncs::$Items=array(
       'name'=>'Villager Spawner',
       'icon'=>'Spawner_Villager.png'),
     -1=>array(
-      'name'=>'Monster Spawner',
-      'icon'=>'Spawner_Monster.png'),
+      'name'=>'Unknown Spawner',
+      'icon'=>'Spawner_Pig.png'),
   ),
   53=>array(
     'name'=>'Wooden Stairs',
@@ -1294,7 +1294,7 @@ ItemFuncs::$Items=array(
       'stack'=>1),
     8197 =>array(
       'name'=>'Healing Potion',
-      'icon'=>'Instant_Health.png',
+      'icon'=>'Potion_Instant_Health.png',
       'stack'=>1),
     8200 =>array(
       'name'=>'Weakness Potion (1=>30)',
@@ -1326,7 +1326,7 @@ ItemFuncs::$Items=array(
       'stack'=>1),
     8229 =>array(
       'name'=>'Healing Potion II',
-      'icon'=>'Instant_Health.png',
+      'icon'=>'Potion_Instant_Health.png',
       'stack'=>1),
     8233 =>array(
       'name'=>'Strength Potion II (1=>30)',
@@ -1453,7 +1453,7 @@ ItemFuncs::$Items=array(
       'icon'=>'Potion_Regeneration_Splash.png',
       'stack'=>1),
     -1   =>array(
-      'name'=>'Clear Potion',
+      'name'=>'Unknown Potion',
       'icon'=>'Bottle_Water.png',
       'stack'=>1),
   ),
@@ -1549,7 +1549,7 @@ ItemFuncs::$Items=array(
       'name'=>'Spawn Villager',
       'icon'=>'Spawn_Villager.png'),
     -1 =>array(
-      'name'=>'Spawn Unknown',
+      'name'=>'Unknown Spawn Egg',
       'icon'=>'Egg.png'),
   ),
   384=>array(

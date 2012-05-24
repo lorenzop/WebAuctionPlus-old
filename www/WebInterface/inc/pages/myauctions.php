@@ -140,7 +140,7 @@ while($auction = $auctions->getNext()){
         '<img src="'.$Item->getItemImageUrl().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
         '<br /><b>'.$Item->getItemName().'</b>';
   if($Item->itemType=='tool'){
-    $output.='<br />'.$Item->getPercentDamaged().' % damaged';
+    $output.='<br />'.$Item->getDamagedChargedStr();
     foreach($Item->getEnchantmentsArray() as $ench){
       $output.='<br /><span style="font-size: smaller;"><i>'.$ench['enchName'].' '.numberToRoman($ench['level']).'</i></span>';
     }
