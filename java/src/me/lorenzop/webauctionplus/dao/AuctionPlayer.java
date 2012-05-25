@@ -1,9 +1,13 @@
 package me.lorenzop.webauctionplus.dao;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
 public class AuctionPlayer {
 
 	private int playerId	= 0;
 	private String player	= null;
+	private Player p        = null;
 //	private String pass		= null;
 	private double money	= 0D;
 	private boolean canBuy	= false;
@@ -33,9 +37,14 @@ public class AuctionPlayer {
 		this.player = player;
 	}
 
-//	public String getPass() {
-//		return pass;
-//	}
+	// player object
+	public Player getPlayer() {
+		if(p == null) p = Bukkit.getPlayerExact(player);
+		return p;
+	}
+	public void setPlayer(Player p) {
+		this.p = p;
+	}
 
 	// money
 	public double getMoney() {

@@ -136,7 +136,7 @@ public class MySQLTables {
 				executeRawSQL("ALTER IGNORE TABLE `"+dbPrefix+"Players`	CHANGE		`itemsBought`	`itemsBought`	INT    (11)		NOT NULL	DEFAULT '0'");
 				executeRawSQL("ALTER IGNORE TABLE `"+dbPrefix+"Players`	CHANGE		`earnt`			`earnt`			DOUBLE (11,2) 	NOT NULL	DEFAULT '0.00'");
 				executeRawSQL("ALTER IGNORE TABLE `"+dbPrefix+"Players`	CHANGE		`spent`			`spent`			DOUBLE (11,2) 	NOT NULL	DEFAULT '0.00'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"Players`	ADD			`Permissions`	SET( 'canBuy', 'canSell', 'isAdmin' )	NOT NULL");
+				executeRawSQL("ALTER TABLE `"+dbPrefix+"Players`	ADD			`Permissions`	SET( 'canBuy', 'canSell', 'isAdmin' )	NULL	DEFAULT NULL");
 			} else
 				setTableExists("Players",
 					"`id`				INT    (11)		NOT NULL	AUTO_INCREMENT	, PRIMARY KEY(`id`), " +
@@ -147,7 +147,7 @@ public class MySQLTables {
 					"`itemsBought`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`earnt`			DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
 					"`spent`			DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
-					"`Permissions`		SET( 'canBuy', 'canSell', 'isAdmin' )	NOT NULL	");
+					"`Permissions`		SET( 'canBuy', 'canSell', 'isAdmin' ) NULL DEFAULT NULL");
 		// RecentSigns
 		else if (tableName.equals("RecentSigns"))
 			if (alter) {

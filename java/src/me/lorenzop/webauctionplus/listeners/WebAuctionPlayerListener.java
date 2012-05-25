@@ -1,12 +1,11 @@
 package me.lorenzop.webauctionplus.listeners;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Random;
 
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 import me.lorenzop.webauctionplus.dao.AuctionPlayer;
-import me.lorenzop.webauctionplus.dao.SaleAlert;
+import me.lorenzop.webauctionplus.tasks.SaleAlertTask;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -36,42 +35,11 @@ public class WebAuctionPlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		Player p = event.getPlayer();
-		String player = p.getName();
-		AuctionPlayer waPlayer = plugin.dataQueries.getPlayer(player);
-		if (waPlayer == null) return;
-
-		// Update permissions
-		boolean canBuy  = p.hasPermission("wa.canbuy");
-		boolean canSell = p.hasPermission("wa.cansell");
-		boolean isAdmin = p.hasPermission("wa.webadmin");
-		plugin.dataQueries.updatePlayerPermissions(waPlayer, canBuy, canSell, isAdmin);
-		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Player found - " + player + " with perms: " +
-				(canBuy ?"canBuy " :"") +
-				(canSell?"canSell ":"") +
-				(isAdmin?"isAdmin ":"") );
-
-		// Alert player of new sale alerts
-		if (plugin.showSalesOnJoin == true) {
-			List<SaleAlert> saleAlerts = plugin.dataQueries.getNewSaleAlertsForSeller(player);
-			for (SaleAlert saleAlert : saleAlerts) {
-// TODO: language here
-				p.sendMessage(WebAuctionPlus.chatPrefix + "You sold " +
-					saleAlert.getQty() + " " +
-					saleAlert.getItemName() + " to " +
-					saleAlert.getBuyerName() + " for $" +
-					saleAlert.getPriceEach() + " each, $" +
-					saleAlert.getPriceTotal() + " total.");
-			}
-		}
-
-		// Alert player of new mail
-		int mailCount = plugin.dataQueries.hasMail(player);
-// TODO: language here
-		if (mailCount > 0) {
-			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Player " + player + " has " + Integer.toString(mailCount) + " items in mailbox.");
-			p.sendMessage(WebAuctionPlus.chatPrefix + "You have [ " + Integer.toString(mailCount) + " ] new items in your mail!");
-		}
+		String player = event.getPlayer().getName();
+		// login code runs multi-threaded with a delay
+		if (player != null)
+			// run after 2 seconds
+			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new SaleAlertTask(plugin, player), 2 * 20);
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)

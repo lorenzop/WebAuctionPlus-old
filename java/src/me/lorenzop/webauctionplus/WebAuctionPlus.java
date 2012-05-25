@@ -33,7 +33,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -77,6 +76,7 @@ public class WebAuctionPlus extends JavaPlugin {
 //	public int totalAuctionCount	= 0;
 	public int signDelay			= 0;
 	public int numberOfRecentLink	= 0;
+	public Boolean useOriginalRecent= false;
 
 	// sign link
 	public Boolean useSignLink		= false;
@@ -84,16 +84,13 @@ public class WebAuctionPlus extends JavaPlugin {
 	// tim the enchanter
 	public boolean timEnabled		= false;
 
-	public Boolean useOriginalRecent= false;
-	public Boolean showSalesOnJoin	= false;
-
 	// cron executor
 	public CronExecutorTask waCronExecutorTask;
 	boolean cronExecutorEnabled		= false;
 
 	// announcer
 	public AnnouncerTask waAnnouncerTask;
-	public boolean announceEnabled	= false;
+	public boolean announcerEnabled	= false;
 
 	public Economy economy			= null;
 
@@ -125,6 +122,7 @@ public class WebAuctionPlus extends JavaPlugin {
 			onDisable();
 			return;
 		}
+
 		Stats = new waStats(this);
 
 		// load settings from db
@@ -145,7 +143,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		if(!Lang.isOk()) {onDisable(); return;}
 
 		onLoadMetrics();
-		checkUpdateAvailable(this);
+		checkUpdateAvailable();
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new WebAuctionPlayerListener(this), this);
@@ -158,7 +156,6 @@ public class WebAuctionPlus extends JavaPlugin {
 	public boolean onLoadConfig() {
 		try {
 //			addComment("debug_mode", Arrays.asList("# This is where you enable debug mode"))
-			showSalesOnJoin    = Config.getBoolean("Misc.ShowSalesOnJoin");
 			signDelay          = Config.getInt    ("Misc.SignClickDelay");
 			timEnabled         = Config.getBoolean("Misc.UnsafeEnchantments");
 			useSignLink        = Config.getBoolean("SignLink.Enabled");
@@ -170,39 +167,37 @@ public class WebAuctionPlus extends JavaPlugin {
 			if (UseMultithreads) log.info(logPrefix + "Using Multiple Threads");
 			else                 log.info(logPrefix + "Using Single Thread");
 
-			// cron executor
+			// cron executor (always multi-threaded)
 			cronExecutorEnabled = Config.getBoolean("CronExecutor.Enabled");
 			long cronExecutorMinutes = 20 * 60 * Config.getLong("Tasks.CronExecutorMinutes");
 			if (cronExecutorEnabled && cronExecutorMinutes>0) {
+				if(cronExecutorMinutes < 6000) cronExecutorMinutes = 6000; // minimum 5 minutes
 				waCronExecutorTask = new CronExecutorTask();
 				waCronExecutorTask.setCronUrl(Config.getString("CronExecutor.Url"));
 				// cron executor task (always multi-threaded)
 				scheduler.scheduleAsyncRepeatingTask(this, waCronExecutorTask,
 					(cronExecutorMinutes/2), cronExecutorMinutes);
-				log.info(logPrefix + "Enabled Task: Cron Executor");
+				log.info(logPrefix + "Enabled Task: Cron Executor (always multi-threaded)");
 			}
 
 			// announcer
-			announceEnabled = Config.getBoolean("Announcer.Enabled");
+			announcerEnabled = Config.getBoolean("Announcer.Enabled");
 			long announcerMinutes = 20 * 60 * Config.getLong("Tasks.AnnouncerMinutes");
-			if (announceEnabled && announcerMinutes>0) {
-				waAnnouncerTask = new AnnouncerTask(this);
+			if(announcerEnabled) waAnnouncerTask = new AnnouncerTask(this);
+			if (announcerEnabled && announcerMinutes>0) {
+				if(announcerMinutes < 6000) announcerMinutes = 6000; // minimum 5 minutes
 				waAnnouncerTask.chatPrefix     = Config.getString ("Announcer.Prefix");
 				waAnnouncerTask.announceRandom = Config.getBoolean("Announcer.Random");
 				waAnnouncerTask.addMessages(     Config.getStringList("Announcements"));
-				if (UseMultithreads)
-					scheduler.scheduleAsyncRepeatingTask(this, waAnnouncerTask,
-						(announcerMinutes/2), announcerMinutes);
-				else
-					scheduler.scheduleSyncRepeatingTask (this, waAnnouncerTask,
-						(announcerMinutes/2), announcerMinutes);
-				log.info(logPrefix + "Enabled Task: Announcer");
+				scheduler.scheduleAsyncRepeatingTask(this, waAnnouncerTask,
+					(announcerMinutes/2), announcerMinutes);
+				log.info(logPrefix + "Enabled Task: Announcer (always multi-threaded)");
 			}
 
 			long saleAlertSeconds        = 20 * Config.getLong("Tasks.SaleAlertSeconds");
 			long shoutSignUpdateSeconds  = 20 * Config.getLong("Tasks.ShoutSignUpdateSeconds");
 			long recentSignUpdateSeconds = 20 * Config.getLong("Tasks.RecentSignUpdateSeconds");
-			useOriginalRecent            = Config.getBoolean  ("Misc.UseOriginalRecentSigns");
+			useOriginalRecent            =   Config.getBoolean("Misc.UseOriginalRecentSigns");
 
 			// Build shoutSigns map
 			if (shoutSignUpdateSeconds > 0)
@@ -211,34 +206,31 @@ public class WebAuctionPlus extends JavaPlugin {
 			if (recentSignUpdateSeconds > 0)
 				recentSigns.putAll(dataQueries.getRecentSignLocations());
 
-			// report sales to players
+			// report sales to players (always multi-threaded)
 			if (saleAlertSeconds > 0) {
-				if (UseMultithreads)
-					scheduler.scheduleAsyncRepeatingTask(this, new SaleAlertTask(this),
-						saleAlertSeconds, saleAlertSeconds);
-				else
-					scheduler.scheduleSyncRepeatingTask (this, new SaleAlertTask(this),
-						saleAlertSeconds, saleAlertSeconds);
-				log.info(logPrefix + "Enabled Task: Sale Alert");
+				if(saleAlertSeconds < 3) saleAlertSeconds = 3;
+				scheduler.scheduleAsyncRepeatingTask(this, new SaleAlertTask(this, null),
+					saleAlertSeconds, saleAlertSeconds);
+				log.info(logPrefix + "Enabled Task: Sale Alert (always multi-threaded)");
 			}
 			// shout sign task
 			if (shoutSignUpdateSeconds > 0) {
 				if (UseMultithreads)
 					scheduler.scheduleAsyncRepeatingTask(this, new ShoutSignTask(this),
-						shoutSignUpdateSeconds+(shoutSignUpdateSeconds/2), shoutSignUpdateSeconds);
+						(shoutSignUpdateSeconds*2), shoutSignUpdateSeconds);
 				else
 					scheduler.scheduleSyncRepeatingTask (this, new ShoutSignTask(this),
-						shoutSignUpdateSeconds+(shoutSignUpdateSeconds/2), shoutSignUpdateSeconds);
+						(shoutSignUpdateSeconds*2), shoutSignUpdateSeconds);
 				log.info(logPrefix + "Enabled Task: Shout Sign");
 			}
 			// update recent signs
 			if (recentSignUpdateSeconds > 0 && useOriginalRecent) {
 				if (UseMultithreads)
 					scheduler.scheduleAsyncRepeatingTask(this, new RecentSignTask(this),
-						recentSignUpdateSeconds-(recentSignUpdateSeconds/2), recentSignUpdateSeconds);
+						recentSignUpdateSeconds+(recentSignUpdateSeconds/2), recentSignUpdateSeconds);
 				else
 					scheduler.scheduleSyncRepeatingTask (this, new RecentSignTask(this),
-						recentSignUpdateSeconds-(recentSignUpdateSeconds/2), recentSignUpdateSeconds);
+						recentSignUpdateSeconds+(recentSignUpdateSeconds/2), recentSignUpdateSeconds);
 				log.info(logPrefix + "Enabled Task: Recent Sign");
 			}
 		} catch (Exception e) {
@@ -310,7 +302,6 @@ public class WebAuctionPlus extends JavaPlugin {
 		Config.addDefault("MySQL.ConnectionPoolSizeHard",	10);
 		Config.addDefault("Misc.ReportSales",				true);
 		Config.addDefault("Misc.UseOriginalRecentSigns",	true);
-		Config.addDefault("Misc.ShowSalesOnJoin",			true);
 		Config.addDefault("Misc.SignClickDelay",			500);
 		Config.addDefault("Misc.UnsafeEnchantments",		false);
 		Config.addDefault("Tasks.SaleAlertSeconds",			20L);
@@ -362,6 +353,9 @@ public class WebAuctionPlus extends JavaPlugin {
 //	}
 
 	// work with doubles
+	public static String FormatPrice(double value) {
+		return settings.getString("Currency Prefix") + FormatDouble(value) + settings.getString("Currency Postfix");
+	}
 	public static String FormatDouble(double value) {
 		DecimalFormat decim = new DecimalFormat("0.00");
 		return decim.format(value);
@@ -521,8 +515,8 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	// check for an updated version
-	public static boolean checkUpdateAvailable(Plugin plugin) {
-		plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+	public void checkUpdateAvailable() {
+		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -535,8 +529,7 @@ public class WebAuctionPlus extends JavaPlugin {
 					}
 				} catch (Exception ignored) {}
 			}
-		}, 100);
-		return false;
+		}, 5 * 20, 14400 * 20); // run every 4 hours
 	}
 
 

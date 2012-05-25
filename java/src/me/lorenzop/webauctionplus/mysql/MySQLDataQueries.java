@@ -15,8 +15,6 @@ import me.lorenzop.webauctionplus.dao.Auction;
 import me.lorenzop.webauctionplus.dao.AuctionItem;
 import me.lorenzop.webauctionplus.dao.AuctionPlayer;
 import me.lorenzop.webauctionplus.dao.MailItem;
-import me.lorenzop.webauctionplus.dao.SaleAlert;
-
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
@@ -370,53 +368,6 @@ public class MySQLDataQueries extends MySQLConnPool {
 		return signLocations;
 	}
 
-	public List<SaleAlert> getNewSaleAlertsForSeller(String player) {
-		List<SaleAlert> saleAlerts = new ArrayList<SaleAlert>();
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if (debugSQL) log.info("WA Query: getNewSaleAlertsForSeller " + player);
-			st = conn.prepareStatement("SELECT `id`,`seller`,`qty`,`price`,`buyer`,`item` FROM `" +
-				dbPrefix+"SaleAlerts` WHERE `seller` = ? AND `alerted` = 0");
-			st.setString(1, player);
-			SaleAlert saleAlert;
-			rs = st.executeQuery();
-			while (rs.next()) {
-				saleAlert = new SaleAlert();
-				saleAlert.setAlertId  (rs.getInt   ("id"));
-				saleAlert.setBuyerName(rs.getString("buyer"));
-				saleAlert.setItem     (rs.getString("item"));
-				saleAlert.setQty      (rs.getInt   ("qty"));
-				saleAlert.setPriceEach(rs.getDouble("price"));
-				saleAlerts.add(saleAlert);
-			}
-		} catch (SQLException e) {
-			log.warning(logPrefix + "Unable to get sale alerts for player " + player);
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-		return saleAlerts;
-	}
-
-	public void markSaleAlertSeen(int id) {
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if (debugSQL) log.info("WA Query: markSaleAlertSeen " + Integer.toString(id));
-			st = conn.prepareStatement("UPDATE `"+dbPrefix+"SaleAlerts` SET `alerted` = 1 WHERE `id` = ?");
-			st.setInt(1, id);
-			st.executeUpdate();
-		} catch (SQLException e) {
-			log.warning(logPrefix + "Unable to mark sale alert seen " + id);
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-	}
-
 	public Auction getAuction(int auctionId) {
 		Auction auction = null;
 		Connection conn = getConnection();
@@ -645,6 +596,7 @@ public class MySQLDataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
+			// update player permissions for website
 			waPlayer.setPerms(canBuy, canSell, isAdmin);
 			if (debugSQL) log.info("WA Query: updatePlayerPermissions " + waPlayer.getPlayerName() +
 				" with perms: " + waPlayer.getPermsString());
