@@ -28,6 +28,10 @@ xcopy .\www\WebInterface %tempdir%\webauctionplus /s /e /H
 copy .\WebAuctionPlus*.jar %tempdir%
 
 
+copy .\README %tempdir%
+rename %tempdir%\README README.txt
+
+
 echo Compressing files..
 echo.
 zip.exe -r "%outputfile%" "%tempdir%"
