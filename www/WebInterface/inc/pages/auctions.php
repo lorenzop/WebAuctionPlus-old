@@ -41,7 +41,7 @@ if(isset($_SESSION['success'])) {
 
 $output.='
 <!-- mainTable example -->
-<table border="0" cellpadding="0" cellspacing="0" class="display" id="mainTable">
+<form class="well"><table border="0" cellpadding="0" cellspacing="0" class="display" id="mainTable">
   <thead>
     <tr style="text-align: center; vertical-align: bottom;">
       <th>Item</th>
@@ -79,7 +79,7 @@ while($auction = $auctions->getNext()){
         '<img src="'.$Item->getItemImageUrl().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
         '<br /><b>'.$Item->getItemName().'</b>';
   if($Item->itemType=='tool'){
-    $output.='<br />'.$Item->getDamagedChargedStr();
+    $output.='<br />'.$Item->getPercentDamagedString();
     foreach($Item->getEnchantmentsArray() as $ench){
       $output.='<br /><span style="font-size: smaller;"><i>'.$ench['enchName'].' '.numberToRoman($ench['level']).'</i></span>';
     }
@@ -100,14 +100,21 @@ while($auction = $auctions->getNext()){
         '<input type="text" name="qty" value="'.((int)$Item->qty).'" onkeypress="return numbersonly(this, event);" '.
           'class="input" style="width: 60px; margin-bottom: 5px; text-align: center;" /><br />'.
         '<input type="submit" value="Buy" class="button" />'.
-        '</form>'
+        '</form></form>'
       :$output.="Can't Buy").'</td>
       '.($user->hasPerms('isAdmin')?
 //        '<td style="text-align: center;"><a href="./?id='.((int)$Item->itemId).'" class="button">Cancel</a></td>':'').'
         '<td style="text-align: center;"><input type="button" value="Cancel" class="button"'.
         ' onclick="alert(\'Im sorry, this feature has been temporarily left out to get other things working. This button will be working again in the next update.\');" /></td>':'').'
     </tr>
-';
+
+</div>
+    </div>
+    </div
+<div id="title-box">
+ 
+  
+</div> </div> </div>';
 }
 unset($auctions);
 $output.='
