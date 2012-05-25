@@ -80,7 +80,7 @@ while($itemRow = $items->getNext()){
         '<img src="'.$Item->getItemImageUrl().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
         '<br /><b>'.$Item->getItemName().'</b>';
   if($Item->itemType=='tool'){
-    $output.='<br />'.$Item->getDamagedChargedStr();
+    $output.='<br />'.$Item->getPercentDamaged();
     foreach($Item->getEnchantmentsArray() as $ench){
       $output.='<br /><span style="font-size: smaller;"><i>'.$ench['enchName'].' '.numberToRoman($ench['level']).'</i></span>';
     }
@@ -91,9 +91,26 @@ while($itemRow = $items->getNext()){
       <td style="text-align: center;"><b>'.((int)$Item->qty).'</b></td>
       <td style="text-align: center;">market price<br />goes here</td>
       <td style="text-align: center;">market price<br />goes here</td>
-      <td style="text-align: center;"><a href="./?page=createauction&amp;id='.((int)$itemRow['id']).'" class="button">Sell it</a></td>
+      <td style="text-align: center;"><a href="./?page=createauction&amp;id='.((int)$itemRow['id']).'" class="button" data-toggle="modal">Sell it</a></td>
       <td style="text-align: center;"><a href="./?page='.$config['page'].'&amp;action=mailitem&amp;id='.((int)$itemRow['id']).'" class="button">Mail it</a></td>
     </tr>
+    <div style="display: none;" id="myModal" class="modal hide fade">
+            <div class="modal-header">
+              <button class="close" data-dismiss="modal">×</button>
+              <h3>Modal Heading</h3>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+              <a href="#" class="btn" data-dismiss="modal">Close</a>
+              <a href="#" class="btn btn-primary">Save changes</a>
+            </div>
+          </div>
+
+<script src="js/bootstrap.js"></script>
+
+
 ';
 //  $marketPrice=getMarketPrice($id, 0);
 //  $marketTotal=$marketPrice*$quantity;

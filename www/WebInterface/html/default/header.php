@@ -3,6 +3,7 @@ global $config,$html,$user;
 $output='';
 
 
+
 // page header
 $output.=
 '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -13,7 +14,8 @@ $output.=
   <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
 ';
 // css
-$html->loadCss('main.css');
+//$html->loadCss('main.css');
+$html->loadCss('bootstrap.css');
 $html->loadCss('table_jui.css');
 $html->loadCss('css/'.SanFilename($config['ui Pack']).'/jquery-ui-1.8.19.custom.css');
 //$html->loadCss('jquery-ui-1.8.16.custom.css');
@@ -33,40 +35,72 @@ $output.='
 switch($html->getPageFrame()){
 case 'default':
   $output.='
-<table border="0" cellspacing="0" cellpadding="0" id="profile-box">
-<tr>
-  <td rowspan="4"><img src="http://minotar.net/avatar/'.$user->getName().'" alt="" width="64" height="64" id="mcface" /></td>
-  <td>Name:</td><td>'.$user->getName().
-      ($user->hasPerms('isAdmin')?'&nbsp;<a href="admin/" style="font-size: small; font-weight: bold; color: #000000;">[ADMIN]</a>':'').'</td>
-</tr>
-<tr><td>Money:&nbsp;&nbsp;</td><td>'.FormatPrice($user->Money).'</td></tr>
-<tr><td>Mail: &nbsp;&nbsp;</td><td>'. $user->numMail.'</td></tr>
-<tr><td colspan="2" style="font-size: 100%; font-weight: bold; text-align: center;">'.@date('jS M Y H:i:s').'</td></tr>
-</table>
-<div id="menu-box">
+ <style>
+      body {
+        padding-top: 60px; //* 60px to make the container go all the way to the bottom of the topbar *//
+      }
+    </style>
+<div class="container-fluid">
+    <div class="row-fluid">
+    <div class="span2">
+    <form class="well"><table class="table">
+        <thead>
+          <tr>
+            <th><img src="http://minotar.net/avatar/'.$user->getName().'" alt="" width="64" height="64" id="mcface" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Name:</td><td>'.$user->getName().
+      ($user->hasPerms('isAdmin')?'<p style="font-size: small; font-weight: bold; color: #000000;">[ADMIN]</p>':'').'</td>
+          </tr>
+          <tr>
+           
+          </tr>
+          <tr>
+            <td>Money:</td><td>'.FormatPrice($user->Money).'</td>
+          </tr>
+		  <tr>
+		  
+		  </tr>
+		  <tr>
+		  <td>Mail: &nbsp;&nbsp;</td><td>'. $user->numMail.'</td>
+		  </tr>
+		  <tr>
+		  
+		  </tr>
+		  <tr>
+		  <td>'.@date('jS M Y H:i:s').'</td>
+		  </tr>
+        </tbody>
+      </table>
+</form>
+<form class="well">
+        <ul class="nav nav-list">
+          <li><a href="./"><i class="icon-home"></i> Home</a></li>
+          <li><a href="./?page=myitems"><i class="icon-shopping-cart"></i> My Items</a></li>
+          <li><a href="./?page=myauctions"><i class="icon-tag"></i> My Auctions</a></li>
+          <li><a href="./?page=logout"><i class="icon-lock"></i> Logout</a></li>
+        </ul>
+</div>    
+<div class="span10"></form>
 
-
-<a href="./">Home</a><br />
-<a href="./?page=myitems">My Items</a><br />
-<a href="./?page=myauctions">My Auctions</a><br />
-<!--
-<a href="./?page=playerstats">Player Stats</a><br />
-<a href="./?page=info">Item Info</a><br />
-<a href="./?page=transactionlog">Transaction Log</a><br />
--->
-<a href="./?page=logout">Logout</a>
-
-
-</div>
-<div id="title-box">
-  <h1>{site title}</h1>
-  <h2>{page title}</h2>
-</div>
 ';
   break;
 case 'basic':
   $output.='
-<h1 style="margin-bottom: 30px; text-align: center;">WebAuction Plus</h1>
+    <style type="text/css">
+      body {
+        padding-bottom: 40px;
+      }
+	  
+	  div.page-header {
+        padding-left: 20px;
+      }
+    </style>
+	<div class="page-header">
+    <h1>WebAuction<sup>Plus</sup></h1>
+    </div>
 ';
   break;
 }
