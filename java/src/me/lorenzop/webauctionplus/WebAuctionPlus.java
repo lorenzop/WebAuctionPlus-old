@@ -55,8 +55,9 @@ public class WebAuctionPlus extends JavaPlugin {
 	public static waStats Stats;
 
 	// plugin version
-	public static String currentVersion;
-	public static String newVersion;
+	public static String currentVersion = null;
+	public static String newVersion = null;
+	public static boolean newVersionAvailable = false;
 
 	// config
 	public FileConfiguration Config;
@@ -134,13 +135,13 @@ public class WebAuctionPlus extends JavaPlugin {
 		if(! currentVersion.equals(settings.getString("Version")) )
 			settings.setString("Version", currentVersion);
 
-		// load config.yml
-		if(!onLoadConfig()) {onDisable(); return;}
-
 		// load language file
 		Lang = new Language(this);
 		Lang.loadLanguage(settings.getString("Language"));
 		if(!Lang.isOk()) {onDisable(); return;}
+
+		// load config.yml
+		if(!onLoadConfig()) {onDisable(); return;}
 
 		onLoadMetrics();
 		checkUpdateAvailable();
@@ -164,8 +165,6 @@ public class WebAuctionPlus extends JavaPlugin {
 			// scheduled tasks
 			BukkitScheduler scheduler = getServer().getScheduler();
 			boolean UseMultithreads = Config.getBoolean("Development.UseMultithreads");
-			if (UseMultithreads) log.info(logPrefix + "Using Multiple Threads");
-			else                 log.info(logPrefix + "Using Single Thread");
 
 			// cron executor (always multi-threaded)
 			cronExecutorEnabled = Config.getBoolean("CronExecutor.Enabled");
@@ -221,7 +220,7 @@ public class WebAuctionPlus extends JavaPlugin {
 				else
 					scheduler.scheduleSyncRepeatingTask (this, new ShoutSignTask(this),
 						(shoutSignUpdateSeconds*2), shoutSignUpdateSeconds);
-				log.info(logPrefix + "Enabled Task: Shout Sign");
+				log.info(logPrefix + "Enabled Task: Shout Sign (using " + (UseMultithreads?"multiple threads":"single thread") + ")");
 			}
 			// update recent signs
 			if (recentSignUpdateSeconds > 0 && useOriginalRecent) {
@@ -231,7 +230,7 @@ public class WebAuctionPlus extends JavaPlugin {
 				else
 					scheduler.scheduleSyncRepeatingTask (this, new RecentSignTask(this),
 						recentSignUpdateSeconds+(recentSignUpdateSeconds/2), recentSignUpdateSeconds);
-				log.info(logPrefix + "Enabled Task: Recent Sign");
+				log.info(logPrefix + "Enabled Task: Recent Sign (using " + (UseMultithreads?"multiple threads":"single thread") + ")");
 			}
 		} catch (Exception e) {
 			log.severe("Unable to load config");
@@ -432,11 +431,16 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	public void onLoadMetrics() {
-		log.info(logPrefix+"Starting metrics");
 		// usage stats
 		try {
 			Metrics.isDev = isDev;
 			metrics = new Metrics(this);
+			metrics.setBaseUrl("http://metrics.poixson.com");
+			if(metrics.isOptOut()) {
+				log.info(logPrefix+"Plugin metrics are disabled, you bum");
+				return;
+			}
+			log.info(logPrefix+"Starting metrics");
 			// Create graphs for total Buy Nows / Auctions
 			Metrics.Graph lineGraph = metrics.createGraph("Stacks For Sale");
 			Metrics.Graph pieGraph  = metrics.createGraph("Selling Method");
@@ -462,7 +466,6 @@ public class WebAuctionPlus extends JavaPlugin {
 			// selling ratio
 			pieGraph.addPlotter(plotterBuyNows);
 			pieGraph.addPlotter(plotterAuctions);
-
 			metrics.start();
 		} catch (IOException e) {
 			// Failed to submit the stats :-(
@@ -475,7 +478,7 @@ public class WebAuctionPlus extends JavaPlugin {
 
 	// updateCheck() from MilkBowl's Vault
 	// modified for my compareVersions() function
-	public static String updateCheck() throws Exception {
+	private static String doUpdateCheck() throws Exception {
 		String pluginUrlString = "http://dev.bukkit.org/server-mods/webauctionplus/files.rss";
 		try {
 			URL url = new URL(pluginUrlString);
@@ -515,14 +518,15 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	// check for an updated version
-	public void checkUpdateAvailable() {
+	private void checkUpdateAvailable() {
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
 			@Override
 			public void run() {
 				try {
-					newVersion = updateCheck();
+					newVersion = doUpdateCheck();
 					String cmp = compareVersions(currentVersion, newVersion);
 					if(cmp == "<") {
+						newVersionAvailable = true;
 						log.warning(logPrefix+"An update is available!");
 						log.warning(logPrefix+"You're running "+currentVersion+" new version available is "+newVersion);
 						log.warning(logPrefix+"http://dev.bukkit.org/server-mods/webauctionplus");

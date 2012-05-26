@@ -75,8 +75,7 @@ public class Metrics {
     /**
      * The base url of the metrics domain
      */
-//    private static final String BASE_URL = "http://mcstats.org";
-    public static final String BASE_URL = "http://metrics.poixson.com";
+    private String BASE_URL = null;
 
     /**
      * The url used to report a server's status
@@ -105,7 +104,7 @@ public class Metrics {
     private final Plugin plugin;
 
     // plugin name
-    public String pluginName = null;
+    private String pluginName = null;
 
     /**
      * All of the custom graphs to submit to metrics
@@ -135,7 +134,7 @@ public class Metrics {
     /**
      * Lock for synchronization
      */
-    private final Object optOutLock = new Object();
+    private final Object lockOptOut = new Object();
 
     /**
      * Id of the scheduled task
@@ -143,34 +142,48 @@ public class Metrics {
     private volatile int taskId = -1;
 
     // logger
-	public static final Logger log = Logger.getLogger("Minecraft");
-	public static boolean isDev = false;
+    public static final Logger log = Logger.getLogger("Minecraft");
+    public static boolean isDev = false;
 
     public Metrics(final Plugin plugin) throws IOException {
-        if (plugin == null) {
+        if(plugin == null)
             throw new IllegalArgumentException("Plugin cannot be null");
-        }
-
         this.plugin = plugin;
-        pluginName = plugin.getDescription().getName();
-        if(isDev) pluginName += "Dev";
-
+        if(BASE_URL  ==null || BASE_URL.isEmpty()  ) BASE_URL = "http://mcstats.org";
+        if(pluginName==null || pluginName.isEmpty()) setPluginName(plugin.getDescription().getName());
         // load the config
         configurationFile = new File(CONFIG_FILE);
         configuration = YamlConfiguration.loadConfiguration(configurationFile);
-
         // add some defaults
         configuration.addDefault("opt-out", false);
         configuration.addDefault("guid", UUID.randomUUID().toString());
-
         // Do we need to create the file?
         if (configuration.get("guid", null) == null) {
             configuration.options().header("http://mcstats.org").copyDefaults(true);
             configuration.save(configurationFile);
         }
-
         // Load the guid then
         guid = configuration.getString("guid");
+    }
+
+    // base url
+    public String getBaseUrl() {
+        return BASE_URL;
+    }
+    public void setBaseUrl(String baseUrl) {
+        if(baseUrl==null || baseUrl.isEmpty()) return;
+        this.BASE_URL = baseUrl;
+    }
+
+    // plugin name
+    public String getPluginName() {
+        return pluginName;
+    }
+    public void setPluginName(String pluginName) {
+        if(pluginName==null || pluginName.isEmpty()) return;
+        this.pluginName = pluginName;
+        if(isDev && !this.pluginName.endsWith("Dev"))
+            this.pluginName += "Dev";
     }
 
     /**
@@ -220,38 +233,29 @@ public class Metrics {
      * @return True if statistics measuring is running, otherwise false.
      */
     public boolean start() {
-        synchronized (optOutLock) {
+        synchronized (lockOptOut) {
             // Did we opt out?
-            if (isOptOut()) {
-                return false;
-            }
-
+            if(isOptOut()) return false;
             // Is metrics already running?
-            if (taskId >= 0) {
-                return true;
-            }
+            if(taskId >= 0) return true;
 
             // Begin hitting the server with glorious data
             taskId = plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, new Runnable() {
-
                 private boolean firstPost = true;
-
                 public void run() {
                     try {
                         // This has to be synchronized or it can collide with the disable method.
-                        synchronized (optOutLock) {
+                        synchronized (lockOptOut) {
                             // Disable Task, if it is running and the server owner decided to opt-out
                             if (isOptOut() && taskId > 0) {
                                 plugin.getServer().getScheduler().cancelTask(taskId);
                                 taskId = -1;
                             }
                         }
-
                         // We use the inverse of firstPost because if it is the first time we are posting,
                         // it is not a interval ping, so it evaluates to FALSE
                         // Each time thereafter it will evaluate to TRUE, i.e PING!
                         postPlugin(!firstPost);
-
                         // After the first post we set firstPost to false
                         // Each post thereafter will be a ping
                         firstPost = false;
@@ -271,7 +275,7 @@ public class Metrics {
      * @return
      */
     public boolean isOptOut() {
-        synchronized(optOutLock) {
+        synchronized(lockOptOut) {
             try {
                 // Reload the metrics file
                 configuration.load(CONFIG_FILE);
@@ -295,17 +299,15 @@ public class Metrics {
     */
     public void enable() throws IOException {
         // This has to be synchronized or it can collide with the check in the task.
-        synchronized (optOutLock) {
-        	// Check if the server owner has already set opt-out, if not, set it.
-        	if (isOptOut()) {
-        		configuration.set("opt-out", false);
-        		configuration.save(configurationFile);
-        	}
+        synchronized (lockOptOut) {
+            // Check if the server owner has already set opt-out, if not, set it.
+            if(isOptOut()) {
+                configuration.set("opt-out", false);
+                configuration.save(configurationFile);
+            }
 
-        	// Enable Task, if it is not running
-        	if (taskId < 0) {
-        		start();
-        	}
+            // Enable Task, if it is not running
+            if(taskId < 0) start();
         }
     }
 
@@ -316,15 +318,14 @@ public class Metrics {
      */
     public void disable() throws IOException {
         // This has to be synchronized or it can collide with the check in the task.
-        synchronized (optOutLock) {
+        synchronized (lockOptOut) {
             // Check if the server owner has already set opt-out, if not, set it.
-            if (!isOptOut()) {
+            if(!isOptOut()) {
                 configuration.set("opt-out", true);
                 configuration.save(configurationFile);
             }
-
             // Disable Task, if it is running
-            if (taskId > 0) {
+            if(taskId > 0) {
                 this.plugin.getServer().getScheduler().cancelTask(taskId);
                 taskId = -1;
             }
@@ -347,9 +348,7 @@ public class Metrics {
         encodeDataPair(data, "revision", String.valueOf(REVISION));
 
         // If we're pinging, append it
-        if (isPing) {
-            encodeDataPair(data, "ping", "true");
-        }
+        if(isPing) encodeDataPair(data, "ping", "true");
 
         // Acquire a lock on the graphs, which lets us make the assumption we also lock everything
         // inside of the graph (e.g plotters)
@@ -358,17 +357,14 @@ public class Metrics {
 
             while (iter.hasNext()) {
                 final Graph graph = iter.next();
-
                 for (Plotter plotter : graph.getPlotters()) {
                     // The key name to send to the metrics server
                     // The format is C-GRAPHNAME-PLOTTERNAME where separator - is defined at the top
                     // Legacy (R4) submitters use the format Custom%s, or CustomPLOTTERNAME
                     final String key = String.format("C%s%s%s%s", CUSTOM_DATA_SEPARATOR, graph.getName(), CUSTOM_DATA_SEPARATOR, plotter.getColumnName());
-
                     // The value to send, which for the foreseeable future is just the string
                     // value of plotter.getValue()
                     final String value = Integer.toString(plotter.getValue());
-
                     // Add it to the http post data :)
                     encodeDataPair(data, key, value);
                 }
@@ -377,39 +373,34 @@ public class Metrics {
 
         // Create the url
         URL url = new URL(BASE_URL + String.format(REPORT_URL, encode(pluginName)));
-
         // Connect to the website
         URLConnection connection;
-
         // Mineshafter creates a socks proxy, so we can safely bypass it
         // It does not reroute POST requests so we need to go around it
-        if (isMineshafterPresent()) {
+        if(isMineshafterPresent())
             connection = url.openConnection(Proxy.NO_PROXY);
-        } else {
+        else
             connection = url.openConnection();
-        }
-
         connection.setDoOutput(true);
 
         // Write the data
         final OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
         writer.write(data.toString());
         writer.flush();
-
         // Now read the response
         final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         final String response = reader.readLine();
 
         // response is ok - We should get "OK" followed by an optional description if everything goes right
         if(isDev) {
-        	if(!response.startsWith("OK")) {
-        		Metrics.log.info("[Metrics] " + response);
-        		Metrics.log.warning("[Metrics]["+pluginName+"] Failed to report in!");
-        		Metrics.log.warning("[Metrics]["+pluginName+"] " + response);
-        		for(String line = null; (line = reader.readLine()) != null;){
-        			Metrics.log.warning("[Metrics] " + line);
-        		}
-        	}
+            if(!response.startsWith("OK")) {
+                Metrics.log.info("[Metrics] " + response);
+                Metrics.log.warning("[Metrics]["+pluginName+"] Failed to report in!");
+                Metrics.log.warning("[Metrics]["+pluginName+"] " + response);
+                for(String line = null; (line = reader.readLine()) != null;){
+                    Metrics.log.warning("[Metrics] " + line);
+                }
+            }
         }
 
         // close resources
@@ -540,10 +531,7 @@ public class Metrics {
 
         @Override
         public boolean equals(final Object object) {
-            if (!(object instanceof Graph)) {
-                return false;
-            }
-
+            if(!(object instanceof Graph)) return false;
             final Graph graph = (Graph) object;
             return graph.name.equals(name);
         }
@@ -606,10 +594,7 @@ public class Metrics {
 
         @Override
         public boolean equals(final Object object) {
-            if (!(object instanceof Plotter)) {
-                return false;
-            }
-
+            if (!(object instanceof Plotter)) return false;
             final Plotter plotter = (Plotter) object;
             return plotter.name.equals(name) && plotter.getValue() == getValue();
         }

@@ -29,7 +29,7 @@ public class WebAuctionCommands implements CommandExecutor {
 			return false;
 		// 1 arg
 		} else if (params == 1) {
-			// /wa reload
+			// wa reload
 			if (args[0].equalsIgnoreCase("reload")){
 boolean temp=true;
 if(temp) {
@@ -56,7 +56,7 @@ return true;
 				if (sender instanceof Player)
 					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("finished_reloading"));
 				return true;
-			// save config
+			// wa save
 			} else if (args[0].equalsIgnoreCase("save")){
 				if (sender instanceof Player) {
 					if (!sender.hasPermission("wa.save")){
@@ -75,11 +75,25 @@ return true;
 				if (sender instanceof Player)
 					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("finished_saving"));
 				return true;
+			// wa version
+			} else if (args[0].equalsIgnoreCase("version")) {
+				if(sender instanceof Player) {
+					sender.sendMessage(WebAuctionPlus.chatPrefix+"v"+plugin.getDescription().getVersion());
+					if(WebAuctionPlus.newVersionAvailable && sender.hasPermission("wa.webadmin"))
+						sender.sendMessage(WebAuctionPlus.chatPrefix+"A new version is available! " + WebAuctionPlus.newVersion);
+				} else {
+					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"v"+plugin.getDescription().getVersion());
+					if(WebAuctionPlus.newVersionAvailable) {
+						WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"A new version is available! " + WebAuctionPlus.newVersion);
+						WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"http://dev.bukkit.org/server-mods/webauctionplus");
+					}
+				}
+				return true;
 			}
 			return false;
 		// 2 args
 		} else if (params == 2 || params == 3) {
-			// /wa password
+			// wa password
 			if (args[0].equalsIgnoreCase("password") ||
 				args[0].equalsIgnoreCase("pass")     ||
 				args[0].equalsIgnoreCase("pw")       ) {
@@ -89,6 +103,7 @@ return true;
 				if (isPlayer) {
 					if (params != 2 || args[1].isEmpty()) return false;
 					pass = WebAuctionPlus.MD5(args[1]);
+					args[1] = "";
 				// is console
 				} else {
 					if (params != 3) return false;
@@ -100,6 +115,7 @@ return true;
 						return true;
 					}
 					pass = WebAuctionPlus.MD5(args[2]);
+					args[2] = "";
 				}
 				if (player.isEmpty()) return false;
 				AuctionPlayer waPlayer = plugin.dataQueries.getPlayer(player);
@@ -139,11 +155,11 @@ return true;
 				}
 				return true;
 			}
-		} else if (params == 4) {
-			// /wa give <player> <item> <count>
-			if (args[0].equals("give")) {
+//		} else if (params == 4) {
+//			// wa give <player> <item> <count>
+//			if (args[0].equals("give")) {
 // /wa give lorenzop diamond 3
-			}
+//			}
 		}
 		return false;
 	}
