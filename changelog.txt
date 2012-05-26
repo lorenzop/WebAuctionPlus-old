@@ -1,0 +1,111 @@
+WebAuctionPlus Change Log
+
+
+2012-04- WA+ 1.0.9 alpha
+==========================
+
+
+2012-04- WA+ 1.0.8 alpha
+==========================
+* tracked down and tested well the bug with failing loading language files on windows servers
+* added wa.password.create and wa.password.change permission nodes
+* fixed permissions bug when creating/changing an account from console
+* fixed a dangerous security bug in the website
+* added most tekkit items (just set "Item Packs" in the WA_Settings table to "Tekkit")
+note: a bunch of features have been temporarily removed, will be finished in next versions 
+note: be sure to make a backup of your database before running this plugin. this version isn't recommended for live servers until more testing is done.
+
+
+2012-04-22 WA+ 1.0.7 alpha
+==========================
+* improved loading of language files
+* improved handling of numbers in money deposit/withdraw signs
+* started adding custom item support for tekkit (many more items to add)
+* finished caching of simple count(*) queries
+* plugin will completely stop loading if any part critically fails
+note: a bunch of features have been temporarily removed, will be finished in next versions 
+note:be sure to make a backup of your database before running this plugin. this version isn't recommended for live servers until more testing is done.
+
+
+2012-04-15 WA+ 1.0.6 alpha
+==========================
+* fixed negative balance for players (can no longer buy items without enough money)
+* a few small fixes to how signs work
+* withdraw mailbox can now have a quantity on the last line or blank for all
+* found the typo that was preventing recent signs from working proper
+* changed back to the old way of creating database tables - checks for each table. will be improved soon
+* added code to update the version number on the website
+* added multi-language files for de, es, pt, and sv
+note: a bunch of features have been temporarily removed, will be finished in next versions 
+note: be sure to make a backup of your database before running this plugin. this version isn't recommended for live servers until more testing is done.
+
+
+2012-04-12 WA+ 1.0.5 alpha
+==========================
+* added multi-language support (only english is included, others will be added to next update)
+* fixed mailing items to players bug, again. think I got it this time
+note: a bunch of features have been temporarily removed, will be finished in next versions 
+note: be sure to make a backup of your database before running this plugin. this version isn't recommended for live servers until more testing is done.
+
+
+2012-04-10 WA+ 1.0.4 alpha
+==========================
+* fixed bug players were getting with trying to mail items
+* fixed displaying of some items with damage values
+* finished fixing bugs with unnatural enchantments
+* fixed problems where database config file wasn't included in the package
+* default settings are now loaded into Settings database table
+* cleaned up metrics exceptions
+* fixed a timezone error some people were getting, will write better code for this later
+* added a new page background image
+* added an update alert
+note: a bunch of features have been temporarily removed, will be finished in next versions 
+note: be sure to make a backup of your database before running this plugin. this version isn't recommended for live servers until more testing is done.
+
+
+2012-05-08 WA+ 1.0.3 alpha
+==========================
+* next phase of rewrite
+* all new web interface
+* new database schema for item tables
+* database is now automatically updated
+* new item deposit/withdraw code
+* fixed bugs with enchanted items
+* auctions home page loads much faster now, but will load faster once server_processing.php is re-implemented
+* many other bug fixes
+note: a bunch of features have been temporarily removed, will be finished in next versions 
+note: be sure to make a backup of your database before running this plugin. this version isn't recommended for live servers until more testing is done.
+
+
+2012-04-03 WA+ 1.0.2 alpha
+==========================
+* added lightweight announcer system
+* changed config task ticks to seconds
+* many bug fixes (finished all bug tickets)
+* made some changes to database tables and added convert_webauction_to_plus.sql
+* removed storage fees
+
+
+2012-04-03 WA+ 1.0.1 alpha
+==========================
+* fixed bug depositing enchanted items
+* fixed database table creation
+* fixed json error when no auctions to display
+* updated jquery, tabledata, and jqplot libraries
+
+
+2012-04-03 WA+ 1.0.0 alpha
+==========================
+* Updated plugin for bukkit 1.2.4
+* Added new items up to 1.2.4
+* Added missing enchantments and damage values for bows, flint and steel, and shears
+* Changed enchanted levels from numeric to roman
+* Converted itemInfo.php lists from switches to arrays for future use
+* Added color to chat messages
+* A few bug and annoyance fixes
+* A few small cosmetic and feature improvements
+* Partially added custom table prefixes, i.e. "WA_" (Incomplete in web interface)
+* Updated jquery and related libraries
+* Made JSON data more human readable
+* Fixed fav icon in web interface
+

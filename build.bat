@@ -30,6 +30,7 @@ copy .\WebAuctionPlus*.jar %tempdir%
 
 copy .\README %tempdir%
 rename %tempdir%\README README.txt
+copy .\changelog.txt %tempdir%
 
 
 echo Compressing files..
