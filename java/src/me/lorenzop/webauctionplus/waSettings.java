@@ -8,10 +8,10 @@ import java.util.HashMap;
 
 public class waSettings {
 
-	private boolean isOk = false;
-	WebAuctionPlus plugin;
-
 	protected HashMap<String, String> settingsMap = new HashMap<String, String>();
+	private boolean isOk = false;
+
+	private final WebAuctionPlus plugin;
 
 	public waSettings(WebAuctionPlus plugin) {
 		this.plugin = plugin;

@@ -13,8 +13,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class ShoutSignTask implements Runnable {
 
-	private final WebAuctionPlus plugin;
 	private int lastAuction;
+
+	private final WebAuctionPlus plugin;
 
 	public ShoutSignTask(WebAuctionPlus plugin) {
 		this.plugin = plugin;

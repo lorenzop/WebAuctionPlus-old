@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import me.lorenzop.webauctionplus.dao.waStats;
+import me.lorenzop.webauctionplus.jsonserver.waJSONServer;
 import me.lorenzop.webauctionplus.listeners.WebAuctionBlockListener;
 import me.lorenzop.webauctionplus.listeners.WebAuctionCommands;
 import me.lorenzop.webauctionplus.listeners.WebAuctionPlayerListener;
@@ -85,6 +86,9 @@ public class WebAuctionPlus extends JavaPlugin {
 	// tim the enchanter
 	public boolean timEnabled		= false;
 
+	// JSON Server
+	public waJSONServer jsonServer;
+
 	// cron executor
 	public CronExecutorTask waCronExecutorTask;
 	boolean cronExecutorEnabled		= false;
@@ -143,6 +147,8 @@ public class WebAuctionPlus extends JavaPlugin {
 		// load config.yml
 		if(!onLoadConfig()) {onDisable(); return;}
 
+		// load more services
+//		onLoadJSONServer();
 		onLoadMetrics();
 		checkUpdateAvailable();
 
@@ -246,10 +252,14 @@ public class WebAuctionPlus extends JavaPlugin {
 	public void onDisable() {
 		try {
 			getServer().getScheduler().cancelTasks(this);
-			if(dataQueries != null)
-				dataQueries.forceCloseConnections();
-			log.info(logPrefix + "Disabled, bye for now :-)");
 		} catch (Exception ignore) {}
+		try {
+			if(jsonServer != null)  jsonServer.listener.close();
+		} catch (Exception ignore) {}
+		try {
+			if(dataQueries != null) dataQueries.forceCloseConnections();
+		} catch (Exception ignore) {}
+		log.info(logPrefix + "Disabled, bye for now :-)");
 	}
 
 	// Init database
@@ -428,6 +438,21 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 	public static void PrintProgress(int count, int total) {
 		PrintProgress(count, total, 20);
+	}
+
+	public void onLoadJSONServer() {
+		// Initialize the listener
+		try {
+			jsonServer = new waJSONServer(this, "*", 8420);
+			if(jsonServer == null) {
+				WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Failed to start JSON server!");
+				return;
+			}
+			jsonServer.start();
+		} catch(IOException e) {
+			WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Failed to start JSON server!");
+			e.printStackTrace();
+		}
 	}
 
 	public void onLoadMetrics() {

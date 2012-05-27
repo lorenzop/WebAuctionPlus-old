@@ -6,9 +6,11 @@ echo updating from svn
 echo =================
 git svn rebase
 echo
+
 echo pushing to github
 echo =================
 git push origin master
+echo
 
 exit
 

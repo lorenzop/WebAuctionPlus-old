@@ -14,7 +14,8 @@ import org.bukkit.inventory.ItemStack;
 
 public class PlayerActions {
 
-	private WebAuctionPlus plugin;
+	private final WebAuctionPlus plugin;
+
 	public PlayerActions(WebAuctionPlus plugin) {
 		this.plugin = plugin;
 	}

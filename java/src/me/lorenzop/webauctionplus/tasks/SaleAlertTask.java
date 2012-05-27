@@ -17,7 +17,7 @@ public class SaleAlertTask implements Runnable {
 
 	private String playerJoined = null;
 
-	private WebAuctionPlus plugin;
+	private final WebAuctionPlus plugin;
 
 	public SaleAlertTask(WebAuctionPlus plugin, String playerJoined) {
 		this.plugin = plugin;

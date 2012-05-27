@@ -9,7 +9,8 @@ import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 public class WebAuctionServerListener implements Listener {
-	private WebAuctionPlus plugin;
+
+	private final WebAuctionPlus plugin;
 
 	public WebAuctionServerListener(WebAuctionPlus plugin) {
 		this.plugin = plugin;

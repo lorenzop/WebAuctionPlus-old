@@ -12,7 +12,7 @@ public class Language {
 	protected HashMap<String, String> langMap = new HashMap<String, String>();
 
 	protected FileConfiguration langConfig;
-	protected WebAuctionPlus plugin;
+	protected final WebAuctionPlus plugin;
 
 	public Language(WebAuctionPlus plugin) {
 		this.plugin = plugin;
