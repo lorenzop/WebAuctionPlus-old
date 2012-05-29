@@ -9,7 +9,8 @@ $marketDaysMin = 30;    //number of past days to take the average of the sales f
 $marketTimeMin = $marketDaysMin * 86400;
 
 // Design config
-$config['ui Pack'] = 'redmond'; //name of the jquery ui pack you would like to use, "start" or "dark-hive" come installed by default find more @ http://jqueryui.com/themeroller/
+// moved to database. check the WA_Settings table
+//$config['ui Pack'] = 'redmond'; //name of the jquery ui pack you would like to use, "start" or "dark-hive" come installed by default find more @ http://jqueryui.com/themeroller/
 
 // Auction fees and config
 $auctionLength = 14; //days before auction is ended, and items returned to owner
