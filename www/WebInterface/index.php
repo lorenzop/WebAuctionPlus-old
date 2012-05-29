@@ -22,6 +22,7 @@ function getVar($name,$type='',$order=array('get','post')){$output='';
   return($output);
 }
 function toBoolean($value){
+  if(gettype($value) == 'boolean') return($value);
   $tempValue = strtolower($value);
   if($tempValue=='t' || $tempValue=='true' ) return(TRUE);
   if($tempValue=='y' || $tempValue=='yes'  ) return(TRUE);
@@ -68,9 +69,11 @@ $lpaths['config']     = 'config.php';
 $lpaths['includes']   = 'inc/';
 $lpaths['classes']    = 'inc/classes/';
 $lpaths['pages']      = 'inc/pages/';
+$lpaths['static']     = 'static/';
 $lpaths['theme']      = 'html/{theme}/';
 $lpaths['item packs'] = 'inc/ItemPacks/';
 // http paths
+$wpaths['static']     = 'static/';
 $wpaths['images']     = 'html/{theme}/images/';
 $wpaths['item packs'] = 'inc/ItemPacks/{pack}/icons/';
 // load config
@@ -86,11 +89,17 @@ $page=SanFilename($page);
 require($lpaths['classes'].'settings.class.php');
 SettingsClass::LoadSettings();
 // default settings
-//SettingsClass::setDefault('Default Language'		, 'en');
+SettingsClass::setDefault('Version'				, 'unknown!');
+SettingsClass::setDefault('Language'			, 'en');
 SettingsClass::setDefault('Currency Prefix'		, '$ ');
 SettingsClass::setDefault('Currency Postfix'		, '');
-SettingsClass::setDefault('Custom Descriptions'		, FALSE);
-//SettingsClass::setDefault('Allow Enchanted Items'	, TRUE);
+SettingsClass::setDefault('Custom Description'		, FALSE);
+SettingsClass::setDefault('Item Packs'			, '');
+SettingsClass::setDefault('jquery ui pack'		, 'redmond');
+
+// jquery ui path
+$lpaths['static jquery'] = $lpaths['static'].'jquery/'.SanFilename(SettingsClass::getString('jquery ui pack')).'/';
+$wpaths['static jquery'] = $wpaths['static'].'jquery/'.SanFilename(SettingsClass::getString('jquery ui pack')).'/';
 
 // load item packs
 require($lpaths['item packs'].'default/item.defines.php');

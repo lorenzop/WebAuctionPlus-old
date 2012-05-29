@@ -10,20 +10,20 @@ $output.=
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
   <title>{sitepage title}</title>
-  <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+  <link rel="icon" type="image/x-icon" href="'.$config['paths']['http']['static'].'favicon.ico" />
 ';
 // css
 $html->loadCss('main.css');
 $html->loadCss('table_jui.css');
-$html->loadCss('css/'.SanFilename($config['ui Pack']).'/jquery-ui-1.8.19.custom.css');
+$html->loadCss($config['paths']['local']['static jquery'].'jquery-ui-1.8.19.custom.css');
 //$html->loadCss('jquery-ui-1.8.16.custom.css');
 //$html->loadCss($cssFile.'.css');
 $output.="  <style type=\"text/css\">\n{css}\n  </style>\n";
 // finish header
 $output.='
-  <script type="text/javascript" language="javascript" src="js/jquery-1.7.2.min.js"></script>
-  <script type="text/javascript" language="javascript" src="js/jquery.dataTables-1.9.0.min.js"></script>
-  <script type="text/javascript" language="javascript" src="js/inputfunc.js"></script>
+  <script type="text/javascript" language="javascript" src="'.$config['paths']['http']['static'].'js/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" language="javascript" src="'.$config['paths']['http']['static'].'js/jquery.dataTables-1.9.0.min.js"></script>
+  <script type="text/javascript" language="javascript" src="'.$config['paths']['http']['static'].'js/inputfunc.js"></script>
 {AddToHeader}
 </head>
 <body>
