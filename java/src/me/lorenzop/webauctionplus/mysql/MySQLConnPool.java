@@ -14,24 +14,26 @@ import me.lorenzop.webauctionplus.WebAuctionPlus;
 
 public class MySQLConnPool {
 
-	protected String dbHost		= "localhost";
-	protected int    dbPort		= 3306;
-	protected String dbUser		= "";
-	protected String dbPass		= "";
-	protected String dbName		= "";
-	public    String dbPrefix	= "";
-	public int ConnPoolSizeWarn	= 5;
-	public int ConnPoolSizeHard	= 10;
+	protected String dbHost;
+	protected int    dbPort;
+	protected String dbUser;
+	protected String dbPass;
+	protected String dbName;
+	protected String dbPrefix;
+	protected int ConnPoolSizeWarn	= 5;
+	protected int ConnPoolSizeHard	= 10;
 
-	public boolean debugSQL = false;
 	private List<Boolean> inuse = new ArrayList<Boolean> (4);
 	private List<Connection> connections = new ArrayList<Connection> (4);
 
-	protected Logger log = Logger.getLogger("Minecraft");
-	protected String logPrefix = "";
+	protected static Logger log = Logger.getLogger("Minecraft");
+	protected static String logPrefix = "";
+
+	protected boolean debugSQL;
 
 	// get a db connection from pool
 	public Connection getConnection() {
+		// find an available connection
 		synchronized (inuse) {
 			for(int i = 0; i != inuse.size(); i++) {
 				if(!inuse.get(i)) {
@@ -49,13 +51,14 @@ public class MySQLConnPool {
 				}
 			}
 		}
-
+		// check max pool size
 		if(connections.size() >= ConnPoolSizeHard) {
 			log.severe(logPrefix + "DB connection pool is full! Hard limit reached!  Size:" + Integer.toString(connections.size()));
 			return null;
 		} else if(connections.size() >= ConnPoolSizeWarn) {
 			log.warning(logPrefix + "DB connection pool is full! Warning limit reached.  Size: " + Integer.toString(connections.size()));
 		}
+		// make a new connection
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			Connection conn = DriverManager.getConnection("jdbc:mysql://"+dbHost+":"+Integer.toString(dbPort)+"/"+dbName, dbUser, dbPass);
@@ -77,6 +80,14 @@ public class MySQLConnPool {
 		}
 		log.severe(logPrefix + "Exception getting MySQL Connection");
 		return null;
+	}
+
+	// set connection pool size
+	public void setConnPoolSizeWarn(int size) {
+		ConnPoolSizeWarn = size;
+	}
+	public void setConnPoolSizeHard(int size) {
+		ConnPoolSizeHard = size;
 	}
 
 	// close resources
@@ -187,6 +198,14 @@ public class MySQLConnPool {
 		if (columnExists(tableName, columnName)) {return;}
 		log.info("Adding column " + columnName + " to table " + dbPrefix + tableName);
 		executeRawSQL("ALTER TABLE `" + dbPrefix + tableName + "` ADD `" + columnName + "` " + Attr);
+	}
+
+	// access layer
+	public boolean debugSQL() {
+		return debugSQL;
+	}
+	public String dbPrefix() {
+		return dbPrefix;
 	}
 
 

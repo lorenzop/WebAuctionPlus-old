@@ -5,7 +5,7 @@ import java.util.Random;
 
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 import me.lorenzop.webauctionplus.dao.AuctionPlayer;
-import me.lorenzop.webauctionplus.tasks.SaleAlertTask;
+import me.lorenzop.webauctionplus.tasks.PlayerAlertTask;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -39,7 +39,7 @@ public class WebAuctionPlayerListener implements Listener {
 		// login code runs multi-threaded with a delay
 		if (player != null)
 			// run after 2 seconds
-			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new SaleAlertTask(plugin, player), 2 * 20);
+			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new PlayerAlertTask(plugin, player), 2 * 20);
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
@@ -59,7 +59,7 @@ public class WebAuctionPlayerListener implements Listener {
 		String player = p.getName();
 		event.setCancelled(true);
 
-		// Make sure we can use the sign
+		// prevent spamming a sign
 		if (plugin.lastSignUse.containsKey(player))
 			if( plugin.lastSignUse.get(player)+(long)plugin.signDelay > plugin.getCurrentMilli() ) return;
 		//p.sendMessage(plugin.chatPrefix + "Please wait a bit before using that again");
@@ -137,7 +137,6 @@ public class WebAuctionPlayerListener implements Listener {
 		} else if (lines[1].equals("Deposit")) {
 			if (!p.hasPermission("wa.use.deposit.money")) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
-				event.setCancelled(true);
 				return;
 			} else {
 				double amount = 0.0D;
@@ -165,12 +164,12 @@ public class WebAuctionPlayerListener implements Listener {
 					p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("not_enough_money_pocket"));
 				}
 			}
+			return;
 
 		// Withdraw sign (money)
 		} else if (lines[1].equals("Withdraw")) {
 			if (!p.hasPermission("wa.use.withdraw.money")) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
-				event.setCancelled(true);
 				return;
 			} else {
 				double amount = 0.0D;
@@ -203,36 +202,32 @@ public class WebAuctionPlayerListener implements Listener {
 					e.printStackTrace();
 				}
 			}
+			return;
 
 		// MailBox Deposit (items)
 		} else if (lines[1].equals("MailBox") && lines[2].equals("Deposit")) {
 			if (!p.hasPermission("wa.use.deposit.items")) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
-				event.setCancelled(true);
 				return;
 			// disallow creative
 			} else if (p.getGameMode() != GameMode.SURVIVAL) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_cheating"));
-				event.setCancelled(true);
 				return;
 			}
-			if (!plugin.waPlayerActions.DepositStack(p))
-				event.setCancelled(true);
+			plugin.waPlayerActions.DepositStack(p);
 			return;
 
 		// MailBox Withdraw (items)
 		} else if (lines[1].equals("MailBox") && lines[2].equals("Withdraw")) {
 			if (!p.hasPermission("wa.use.withdraw.items")) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
-				event.setCancelled(true);
 				return;
 			}
 			int qty = 0;
 			try {
 				qty = Integer.parseInt(lines[3].replace("qty: ", ""));
 			} catch(NumberFormatException ignore) {}
-			if (!plugin.waPlayerActions.WithdrawStacks(p, qty))
-				event.setCancelled(true);
+			plugin.waPlayerActions.WithdrawStacks(p, qty);
 			return;
 		}
 	}

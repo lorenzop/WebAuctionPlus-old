@@ -21,9 +21,8 @@ public class WebAuctionCommands implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		int params = args.length;
 		String player = "";
-		if (sender instanceof Player) {
+		if (sender instanceof Player)
 			player = ((Player) sender).getName();
-		}
 		// 0 args
 		if (params == 0) {
 			return false;

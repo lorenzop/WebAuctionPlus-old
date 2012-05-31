@@ -9,14 +9,15 @@ import java.util.HashMap;
 public class waSettings {
 
 	protected HashMap<String, String> settingsMap = new HashMap<String, String>();
-	private boolean isOk = false;
 
 	private final WebAuctionPlus plugin;
+	private boolean isOk;
 
 	public waSettings(WebAuctionPlus plugin) {
 		this.plugin = plugin;
 		isOk = false;
 	}
+
 
 	public synchronized void LoadSettings(){
 		isOk = false;
@@ -24,13 +25,14 @@ public class waSettings {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: LoadSettings");
-			st = conn.prepareStatement("SELECT `name`, `value` FROM `"+plugin.dataQueries.dbPrefix+"Settings`");
+			if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: LoadSettings");
+			st = conn.prepareStatement("SELECT `name`, `value` FROM `"+plugin.dataQueries.dbPrefix()+"Settings`");
 			rs = st.executeQuery();
 			while (rs.next()) {
 				if(rs.getString(1) != null)
 					settingsMap.put(rs.getString(1), rs.getString(2));
 			}
+			updateSettingsTable();
 		} catch (SQLException e) {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to get settings");
 			e.printStackTrace();
@@ -44,35 +46,60 @@ public class waSettings {
 	}
 	public boolean isOk() {return this.isOk;}
 
+
 	// set default settings
 	private void addDefaults() {
 		addDefault("Version",				plugin.getDescription().getVersion().toString());
+		addDefault("Language",				"en");
 		addDefault("Currency Prefix",		"$ ");
 		addDefault("Currency Postfix",		"");
-		addDefault("Custom Description",	"false");
-		addDefault("Language",				"en");
+		addDefault("Custom Description",	false);
+		addDefault("Website Theme",			"");
+		addDefault("jQuery UI Pack",		"");
 		addDefault("Item Packs",			"");
 	}
 	private void addDefault(String name, String value) {
 		if(!settingsMap.containsKey(name)) {
 //			if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: Insert setting: " + name);
-			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Adding default setting for " + name);
+			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Adding default setting for: " + name);
 			Connection conn = plugin.dataQueries.getConnection();
 			PreparedStatement st = null;
 			ResultSet rs = null;
 			try {
-				st = conn.prepareStatement("INSERT INTO `"+plugin.dataQueries.dbPrefix+"Settings` (`name`,`value`) VALUES (?, ?)");
+				st = conn.prepareStatement("INSERT INTO `"+plugin.dataQueries.dbPrefix()+"Settings` (`name`,`value`) VALUES (?, ?)");
 				st.setString(1, name);
 				st.setString(2, value);
 				st.executeUpdate();
 			} catch (SQLException e) {
-				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to add setting " + name);
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to add setting: " + name);
 				e.printStackTrace();
 			} finally {
 				plugin.dataQueries.closeResources(conn, st, rs);
 			}
 		}
 	}
+	private void addDefault(String name, boolean value) {
+		if(value) addDefault(name, "true");
+		else      addDefault(name, "false");
+	}
+@SuppressWarnings("unused")
+	private void addDefault(String name, int value) {
+		addDefault(name, Integer.toString(value));
+	}
+@SuppressWarnings("unused")
+	private void addDefault(String name, double value) {
+		addDefault(name, Double.toString(value));
+	}
+
+
+	private void updateSettingsTable() {
+		if(settingsMap.containsKey("jquery ui pack")) {
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Updating Settings table: jQuery UI Pack");
+			plugin.dataQueries.executeRawSQL("UPDATE `"+plugin.dataQueries.dbPrefix()+"Settings` SET `name` = 'jQuery UI Pack' WHERE `name` = 'jquery ui pack' LIMIT 1");
+			settingsMap.put("jQuery UI Pack", "");
+		}
+	}
+
 
 	// get setting
 	public synchronized String getString(String name) {
@@ -80,9 +107,6 @@ public class waSettings {
 			return settingsMap.get(name);
 		else
 			return null;
-	}
-	public int getInteger(String name) {
-		return Integer.valueOf(this.getString(name));
 	}
 	public boolean getBoolean(String name) {
 		String value = this.getString(name);
@@ -92,6 +116,13 @@ public class waSettings {
 		else if(value.equalsIgnoreCase("off"))		return false;
 		else										return Boolean.valueOf(value);
 	}
+	public int getInteger(String name) {
+		return Integer.valueOf(this.getString(name));
+	}
+	public double getDouble(String name) {
+		return Double.valueOf(this.getString(name));
+	}
+
 
 	// change setting
 	public synchronized void setString(String name, String value) {
@@ -107,9 +138,9 @@ public class waSettings {
 		Connection conn = plugin.dataQueries.getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-		if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: Update setting: " + name);
+		if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: Update setting: " + name);
 		try {
-			st = conn.prepareStatement("UPDATE `"+plugin.dataQueries.dbPrefix+"Settings` SET `value` = ? WHERE `name` = ? LIMIT 1");
+			st = conn.prepareStatement("UPDATE `"+plugin.dataQueries.dbPrefix()+"Settings` SET `value` = ? WHERE `name` = ? LIMIT 1");
 			st.setString(1, value);
 			st.setString(2, name);
 			st.executeUpdate();
@@ -126,5 +157,6 @@ public class waSettings {
 	public void setBoolean(String name, boolean value) {
 		this.setString(name, Boolean.toString(value));
 	}
+
 
 }

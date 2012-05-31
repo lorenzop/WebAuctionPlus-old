@@ -10,19 +10,18 @@ import me.lorenzop.webauctionplus.WebAuctionPlus;
 
 public class MySQLTables {
 
-	private boolean isOk = false;
+	protected final String dbPrefix;
+	protected final boolean debugSQL;
+	protected final DataQueries dataQueries;
 
-	protected String dbPrefix = "";
-	protected boolean debugSQL = false;
-
-	protected MySQLDataQueries dataQueries;
 	protected final WebAuctionPlus plugin;
+	private boolean isOk;
 
 	public MySQLTables(WebAuctionPlus plugin) {
 		this.plugin = plugin;
 		this.dataQueries = plugin.dataQueries;
-		dbPrefix = dataQueries.dbPrefix;
-		debugSQL = dataQueries.debugSQL;
+		this.dbPrefix = dataQueries.dbPrefix;
+		this.debugSQL = dataQueries.debugSQL;
 		isOk = false;
 
 		// create new tables

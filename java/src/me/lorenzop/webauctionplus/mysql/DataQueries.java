@@ -20,15 +20,15 @@ import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
-public class MySQLDataQueries extends MySQLConnPool {
+public class DataQueries extends MySQLConnPool {
 
 	public enum ItemTables { Items, Auctions, Mail }
 
 	protected final WebAuctionPlus plugin;
 
-	public MySQLDataQueries(WebAuctionPlus plugin, String dbHost, int dbPort,
-			String dbUser, String dbPass, String dbName, String dbPrefix) {
-		this.logPrefix = WebAuctionPlus.logPrefix;
+	public DataQueries(WebAuctionPlus plugin, String dbHost, int dbPort,
+			String dbUser, String dbPass, String dbName, String dbPrefix, boolean debugSQL) {
+		DataQueries.logPrefix = WebAuctionPlus.logPrefix;
 		this.plugin = plugin;
 		this.dbHost = dbHost;
 		this.dbPort = dbPort;
@@ -36,6 +36,7 @@ public class MySQLDataQueries extends MySQLConnPool {
 		this.dbPass = dbPass;
 		this.dbName = dbName;
 		this.dbPrefix = dbPrefix;
+		this.debugSQL = debugSQL;
 	}
 
 	public String ItemTableToString(ItemTables ItemTable) {
@@ -587,11 +588,7 @@ public class MySQLDataQueries extends MySQLConnPool {
 
 	public void updatePlayerPermissions(AuctionPlayer waPlayer, boolean canBuy, boolean canSell, boolean isAdmin) {
 		// return if update not needed
-		if (Boolean.valueOf( canBuy  ).equals( waPlayer.getCanBuy()  ) &&
-			Boolean.valueOf( canSell ).equals( waPlayer.getCanSell() ) &&
-			Boolean.valueOf( isAdmin ).equals( waPlayer.getIsAdmin() ) ) {
-			return;
-		}
+		if(waPlayer.comparePerms(canBuy, canSell, isAdmin)) return;
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;

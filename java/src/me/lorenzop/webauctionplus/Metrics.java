@@ -166,6 +166,11 @@ public class Metrics {
         guid = configuration.getString("guid");
     }
 
+    // internal logging
+    private void logWarning(String message) {
+        log.warning("[Metrics] ["+pluginName+"] "+message);
+    }
+
     // base url
     public String getBaseUrl() {
         return BASE_URL;
@@ -260,7 +265,7 @@ public class Metrics {
                         // Each post thereafter will be a ping
                         firstPost = false;
                     } catch (IOException e) {
-                        Metrics.log.warning("[Metrics] failed");
+                        logWarning("failed");
                     }
                 }
             }, 0, PING_INTERVAL * 1200);
@@ -280,11 +285,11 @@ public class Metrics {
                 // Reload the metrics file
                 configuration.load(CONFIG_FILE);
             } catch (IOException e) {
-                //Metrics.log.warning("[Metrics] " + ex.getMessage());
+                //logWarning(ex.getMessage());
                 e.printStackTrace();
                 return true;
             } catch (InvalidConfigurationException e) {
-                //Metrics.log.warning("[Metrics] " + ex.getMessage());
+                //logWarning(ex.getMessage());
                 e.printStackTrace();
                 return true;
             }
@@ -393,12 +398,11 @@ public class Metrics {
 
         // response is ok - We should get "OK" followed by an optional description if everything goes right
         if(isDev) {
-            if(!response.startsWith("OK")) {
-                Metrics.log.info("[Metrics] " + response);
-                Metrics.log.warning("[Metrics]["+pluginName+"] Failed to report in!");
-                Metrics.log.warning("[Metrics]["+pluginName+"] " + response);
+            if(response==null || !response.startsWith("OK")) {
+                logWarning("Failed to report in!");
+                logWarning(response);
                 for(String line = null; (line = reader.readLine()) != null;){
-                    Metrics.log.warning("[Metrics] " + line);
+                    logWarning(line);
                 }
             }
         }

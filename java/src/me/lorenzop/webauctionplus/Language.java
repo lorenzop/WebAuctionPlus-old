@@ -8,11 +8,11 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class Language {
 
-	private boolean isOk = false;
 	protected HashMap<String, String> langMap = new HashMap<String, String>();
-
 	protected FileConfiguration langConfig;
+
 	protected final WebAuctionPlus plugin;
+	private boolean isOk;
 
 	public Language(WebAuctionPlus plugin) {
 		this.plugin = plugin;

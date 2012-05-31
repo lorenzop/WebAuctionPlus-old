@@ -21,12 +21,12 @@ import me.lorenzop.webauctionplus.listeners.WebAuctionBlockListener;
 import me.lorenzop.webauctionplus.listeners.WebAuctionCommands;
 import me.lorenzop.webauctionplus.listeners.WebAuctionPlayerListener;
 import me.lorenzop.webauctionplus.listeners.WebAuctionServerListener;
-import me.lorenzop.webauctionplus.mysql.MySQLDataQueries;
+import me.lorenzop.webauctionplus.mysql.DataQueries;
 import me.lorenzop.webauctionplus.mysql.MySQLTables;
 import me.lorenzop.webauctionplus.tasks.AnnouncerTask;
 import me.lorenzop.webauctionplus.tasks.CronExecutorTask;
+import me.lorenzop.webauctionplus.tasks.PlayerAlertTask;
 import me.lorenzop.webauctionplus.tasks.RecentSignTask;
-import me.lorenzop.webauctionplus.tasks.SaleAlertTask;
 import me.lorenzop.webauctionplus.tasks.ShoutSignTask;
 import net.milkbowl.vault.economy.Economy;
 
@@ -67,7 +67,7 @@ public class WebAuctionPlus extends JavaPlugin {
 	// language
 	public static Language Lang;
 
-	public MySQLDataQueries dataQueries;
+	public DataQueries dataQueries;
 	public WebAuctionCommands WebAuctionCommandsListener = new WebAuctionCommands(this);
 	public PlayerActions waPlayerActions = new PlayerActions(this);
 
@@ -103,6 +103,12 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	public void onEnable() {
+		if(isOk) {
+			getServer().getConsoleSender().sendMessage(ChatColor.RED+"********************************************");
+			getServer().getConsoleSender().sendMessage(ChatColor.RED+"*** WebAuctionPlus is already running!!! ***");
+			getServer().getConsoleSender().sendMessage(ChatColor.RED+"********************************************");
+			return;
+		}
 		isOk = false;
 		currentVersion = getDescription().getVersion();
 
@@ -214,7 +220,7 @@ public class WebAuctionPlus extends JavaPlugin {
 			// report sales to players (always multi-threaded)
 			if (saleAlertSeconds > 0) {
 				if(saleAlertSeconds < 3) saleAlertSeconds = 3;
-				scheduler.scheduleAsyncRepeatingTask(this, new SaleAlertTask(this, null),
+				scheduler.scheduleAsyncRepeatingTask(this, new PlayerAlertTask(this),
 					saleAlertSeconds, saleAlertSeconds);
 				log.info(logPrefix + "Enabled Task: Sale Alert (always multi-threaded)");
 			}
@@ -253,9 +259,9 @@ public class WebAuctionPlus extends JavaPlugin {
 		try {
 			getServer().getScheduler().cancelTasks(this);
 		} catch (Exception ignore) {}
-		try {
-			if(jsonServer != null)  jsonServer.listener.close();
-		} catch (Exception ignore) {}
+//		try {
+//			if(jsonServer != null)  jsonServer.listener.close();
+//		} catch (Exception ignore) {}
 		try {
 			if(dataQueries != null) dataQueries.forceCloseConnections();
 		} catch (Exception ignore) {}
@@ -271,18 +277,17 @@ public class WebAuctionPlus extends JavaPlugin {
 			int port = Config.getInt("MySQL.Port");
 			if(port < 1) port = Integer.valueOf(Config.getString("MySQL.Port"));
 			if(port < 1) port = 3306;
-			dataQueries = new MySQLDataQueries(this,
+			dataQueries = new DataQueries(this,
 				Config.getString("MySQL.Host"),
 				port,
 				Config.getString("MySQL.Username"),
 				Config.getString("MySQL.Password"),
 				Config.getString("MySQL.Database"),
-				Config.getString("MySQL.TablePrefix")
+				Config.getString("MySQL.TablePrefix"),
+				Config.getBoolean("Development.DebugSQL") || isDev
 			);
-			dataQueries.ConnPoolSizeWarn = Config.getInt("MySQL.ConnectionPoolSizeWarn");
-			dataQueries.ConnPoolSizeHard = Config.getInt("MySQL.ConnectionPoolSizeHard");
-			dataQueries.debugSQL         = Config.getBoolean("Development.DebugSQL");
-			if(isDev) dataQueries.debugSQL = true;
+			dataQueries.setConnPoolSizeWarn(Config.getInt("MySQL.ConnectionPoolSizeWarn"));
+			dataQueries.setConnPoolSizeHard(Config.getInt("MySQL.ConnectionPoolSizeHard"));
 			// create/update tables
 			MySQLTables dbTables = new MySQLTables(this);
 			if(!dbTables.isOk()) {
@@ -473,16 +478,14 @@ public class WebAuctionPlus extends JavaPlugin {
 			Metrics.Plotter plotterBuyNows = new Metrics.Plotter("Buy Nows") {
 				@Override
 				public int getValue(){
-					Stats.Update();
-					return Stats.totalBuyNowCount;
+					return Stats.getTotalBuyNows();
 				}
 			};
 			// auction count
 			Metrics.Plotter plotterAuctions = new Metrics.Plotter("Auctions") {
 				@Override
 				public int getValue(){
-					Stats.Update();
-					return Stats.totalAuctionCount;
+					return Stats.getTotalAuctions();
 				}
 			};
 			// total selling

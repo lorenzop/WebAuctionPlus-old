@@ -8,7 +8,6 @@ public class AuctionPlayer {
 	private int playerId	= 0;
 	private String player	= null;
 	private Player p        = null;
-//	private String pass		= null;
 	private double money	= 0D;
 	private boolean canBuy	= false;
 	private boolean canSell	= false;
@@ -19,6 +18,7 @@ public class AuctionPlayer {
 	public AuctionPlayer(String player) {
 		this.player = player;
 	}
+
 
 	// player id
 	public int getPlayerId() {
@@ -45,6 +45,7 @@ public class AuctionPlayer {
 	public void setPlayer(Player p) {
 		this.p = p;
 	}
+
 
 	// money
 	public double getMoney() {
@@ -97,11 +98,17 @@ public class AuctionPlayer {
 		canSell = Perms.contains(",canSell,");
 		isAdmin = Perms.contains(",isAdmin,");
 	}
+	public boolean comparePerms(boolean canBuy, boolean canSell, boolean isAdmin) {
+		return	canBuy  == this.canBuy  &&
+				canSell == this.canSell &&
+				isAdmin == this.isAdmin;
+	}
 
-	public String addStringSet(String baseString, String addThis, String Delim) {
+	private String addStringSet(String baseString, String addThis, String Delim) {
 		if (addThis.isEmpty())    return baseString;
 		if (baseString.isEmpty()) return addThis;
 		return baseString + Delim + addThis;
 	}
+
 
 }

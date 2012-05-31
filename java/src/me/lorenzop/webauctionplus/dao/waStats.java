@@ -9,27 +9,45 @@ import me.lorenzop.webauctionplus.WebAuctionPlus;
 
 public class waStats {
 
-	private WebAuctionPlus plugin;
+	// long cycle stats
+	private int  totalBuyNowCount	= 0;
+	private int  totalAuctionCount	= 0;
 
-	private long lastUpdate = -1;
-	public int totalBuyNowCount = 0;
-	public int totalAuctionCount = 0;
+	// short cycle stats
+	private int  maxAuctionId		=-1;
 
-	private long lastUpdateMaxAId = -1;
-	public int maxAuctionId = -1;
+	private long lastUpdateLong		=-1;
+	private long lastUpdateShort	=-1;
+	private final WebAuctionPlus plugin;
 
 	public waStats(WebAuctionPlus plugin) {
 		this.plugin = plugin;
 	}
 
-	public synchronized boolean Update() {
+	private synchronized boolean Update(boolean updateAll) {
 		long tim = plugin.getCurrentMilli();
-		// update no more than every 5 minutes
-		if(lastUpdate!=-1)
-			if(tim-lastUpdate<(300*1000))
-				return false;
-		lastUpdate = tim;
-		if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Updating stats");
+		boolean didUpdate = false;
+		// update long cycle (every 5 minutes min)
+		if(updateAll || lastUpdateLong == -1) {
+			if( ((tim-lastUpdateLong) >= (300*1000)) || lastUpdateLong == -1) {
+				updateLong();
+				lastUpdateLong = tim;
+				didUpdate = true;
+			}
+		}
+		// update short cycle (every 10 seconds min)
+		if( (tim-lastUpdateShort) >= (10*1000) || lastUpdateShort == -1) {
+			updateShort();
+			lastUpdateShort = tim;
+			didUpdate = true;
+		}
+		return didUpdate;
+	}
+
+
+	// update long cycle
+	private boolean updateLong() {
+		if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Updating stats");
 		Connection conn;
 		PreparedStatement st;
 		ResultSet rs;
@@ -39,8 +57,8 @@ public class waStats {
 		st = null;
 		rs = null;
 		try {
-			if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: Stats::count buy nows");
-			st = conn.prepareStatement("SELECT COUNT(*) FROM `"+plugin.dataQueries.dbPrefix+"Auctions` WHERE `allowBids` = 0");
+			if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: Stats::count buy nows");
+			st = conn.prepareStatement("SELECT COUNT(*) FROM `"+plugin.dataQueries.dbPrefix()+"Auctions` WHERE `allowBids` = 0");
 			rs = st.executeQuery();
 			if (rs.next())
 				totalBuyNowCount = rs.getInt(1);
@@ -56,8 +74,8 @@ public class waStats {
 		st = null;
 		rs = null;
 		try {
-			if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: Stats::count auctions");
-			st = conn.prepareStatement("SELECT COUNT(*) FROM `"+plugin.dataQueries.dbPrefix+"Auctions` WHERE `allowBids` != 0");
+			if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: Stats::count auctions");
+			st = conn.prepareStatement("SELECT COUNT(*) FROM `"+plugin.dataQueries.dbPrefix()+"Auctions` WHERE `allowBids` != 0");
 			rs = st.executeQuery();
 			if (rs.next())
 				totalAuctionCount = rs.getInt(1);
@@ -71,21 +89,16 @@ public class waStats {
 		return true;
 	}
 
-	public synchronized int getMaxAuctionID() {
-		long tim = plugin.getCurrentMilli();
-		// update no more than every 10 seconds
-		if(lastUpdateMaxAId!=-1)
-			if(tim-lastUpdateMaxAId<(10*1000))
-				return maxAuctionId;
-		lastUpdateMaxAId = tim;
+	// update short cycle
+	private void updateShort() {
 		// get max auction id
 		maxAuctionId = -1;
 		Connection conn = plugin.dataQueries.getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: getMaxAuctionID");
-			st = conn.prepareStatement("SELECT MAX(`id`) FROM `"+plugin.dataQueries.dbPrefix+"Auctions`");
+			if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: getMaxAuctionID");
+			st = conn.prepareStatement("SELECT MAX(`id`) FROM `"+plugin.dataQueries.dbPrefix()+"Auctions`");
 			rs = st.executeQuery();
 			if (rs.next())
 				maxAuctionId = rs.getInt(1);
@@ -95,7 +108,24 @@ public class waStats {
 		} finally {
 			plugin.dataQueries.closeResources(conn, st, rs);
 		}
+	}
+
+
+	// data access layer
+	// long cycle
+	public int getTotalBuyNows() {
+		Update(true);
+		return totalBuyNowCount;
+	}
+	public int getTotalAuctions() {
+		Update(true);
+		return totalAuctionCount;
+	}
+	// short cycle
+	public int getMaxAuctionID() {
+		Update(false);
 		return maxAuctionId;
 	}
+
 
 }

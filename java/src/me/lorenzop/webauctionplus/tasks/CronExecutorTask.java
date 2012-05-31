@@ -27,12 +27,14 @@ public class CronExecutorTask implements Runnable {
 
 	public void run() {
 		for (String url : cronUrls) {
-			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Running Cron Executor: " + url);
+			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "[Cron] Running Cron Executor: " + url);
 			if (!url.startsWith("http://") && !url.startsWith("https://")) {
-					WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Invalid url!");
+					WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"[Cron] Invalid url!");
 					continue;
 			}
-			WebAuctionPlus.log.info(executeUrl(url));
+			String response = executeUrl(url);
+			for(String line : response.split("\\n"))
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"[Cron] "+line);
 		}
 	}
 
