@@ -61,7 +61,9 @@ function __construct($username=NULL, $password=NULL){global $config;
     exit();
   }
   // use iconomy table
-  if ($config['iConomy']['use']===TRUE || $config['iConomy']['use']==='auto'){
+  if($config['iConomy']['use']!=='auto')
+    $config['iConomy']['use'] = toBoolean($config['iConomy']['use']);
+  if($config['iConomy']['use']===TRUE || $config['iConomy']['use']==='auto'){
     global $db;
     $result = mysql_query("SELECT `balance` FROM `".mysql_san($config['iConomy']['table'])."` WHERE ".
                           "LOWER(`username`)='".mysql_san(strtolower($this->Name))."' LIMIT 1", $db);

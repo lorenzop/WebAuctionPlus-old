@@ -4,11 +4,22 @@ $output='';
 
 
 //<div class="spacer"></div>
-$output.="<br /><br /><br /><br /><br /><br /></div>\n";
-//switch($html->getPageFrame()){
-//case 'default':
-//case 'basic':
+$output.="\n\n\n".'
+<br /><br /><br /><br /><br /><br />
+';
+switch($html->getPageFrame()){
+case 'default':
   $output.='
+</div>
+';
+break;
+case 'basic':
+  $output.='
+</td></tr>
+<tr><td style="height: 1px;">
+';
+}
+$output.='
 <div id="footer" class="clear" style="text-align:center; padding:10px">
   <!-- Paste advert code here -->
 
@@ -21,16 +32,21 @@ $output.="<br /><br /><br /><br /><br /><br /></div>\n";
     '<b>&nbsp;Rendered page in '.GetRenderTime().' Seconds with '.((int)@$num_queries).' Queries&nbsp;</b></p>
   <p style="font-size: smaller; color: #FFFFFF;">'.
     '<a href="http://validator.w3.org/#validate_by_input" target="_blank">'.
-    '<img src="images/valid-xhtml10.png" alt="Valid XHTML 1.0 Transitional" width="88" height="31" style="border-width: 0px;" /></a></p>
+    '<img src="'.$config['paths']['http']['static'].'/valid-xhtml10.png" alt="Valid XHTML 1.0 Transitional" width="88" height="31" style="border-width: 0px;" /></a></p>
 </div>
 ';
-//  break;
-//}
+switch($html->getPageFrame()){
+case 'basic':
+  $output.='
+</td></tr>
+</table>
+';
+}
 $output.='
 </body>
 </html>
 ';
 
 
-return("\n\n\n".$output);
+return($output);
 ?>

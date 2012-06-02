@@ -1,3 +1,7 @@
+body, html{
+  height: 99%;
+}
+
 #login-box {
   position: relative;
   margin-left: auto;
@@ -10,6 +14,8 @@
   position: absolute;
   width:  621px;
   height: 300px;
+  background-color: rgb (139,180,255);
+  background-color: rgba(139,180,255,0.6);
 }
 
 #login-background img {
@@ -25,9 +31,8 @@
   margin-right: auto;
   width: 400px;
   top:   70px;
-  background-color: rgb (139,180,255);
-  background-color: rgba(139,180,255,0.5);
 }
 #login-table td {
   color: #FFFFFF;
+  text-shadow: 0.1em 0.1em #222222;
 }

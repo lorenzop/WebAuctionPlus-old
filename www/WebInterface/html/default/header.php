@@ -27,12 +27,12 @@ $output.='
 {AddToHeader}
 </head>
 <body>
-<div id="holder">
 ';
 
 switch($html->getPageFrame()){
 case 'default':
   $output.='
+<div id="holder">
 <table border="0" cellspacing="0" cellpadding="0" id="profile-box">
 <tr>
   <td rowspan="4"><img src="http://minotar.net/avatar/'.$user->getName().'" alt="" width="64" height="64" id="mcface" /></td>
@@ -59,16 +59,17 @@ case 'default':
 
 </div>
 <div id="title-box">
-  <h1>{site title}</h1>
+  <h1 style="margin-bottom: 10px; text-align: center; font-family: Arial;">WebAuction<sup>Plus</sup></h1>
   <h2>{page title}</h2>
 </div>
 ';
   break;
 case 'basic':
   $output.='
-<h1 style="margin-bottom: 30px; text-align: center;">WebAuction Plus</h1>
+<table border="0" cellspacing="0" cellpadding="0" align="center" style="width: 100%; height: 100%;">
+<tr><td style="height: 1px;"><h1 style="margin-bottom: 30px; text-align: center; font-family: Arial; font-size: 45px;">WebAuction<sup>Plus</sup></h1></td></tr>
+<tr><td>
 ';
-  break;
 }
 
 
