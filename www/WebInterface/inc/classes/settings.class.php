@@ -22,7 +22,7 @@ public static function SaveSettings(){global $config;
 
 
 // set defaults / type
-public static function setDefault($name, $default='', $type='', $setIfEmpty=TRUE){global $config;
+public static function setDefault($name, $default='', $setIfEmpty=TRUE){global $config;
   // set default
   if($setIfEmpty){
     if(empty($config['settings'][$name]['value']))
@@ -32,19 +32,39 @@ public static function setDefault($name, $default='', $type='', $setIfEmpty=TRUE
       $config['settings'][$name]['value'] = $default;
   }
   // set type
-  if(empty($type)) $type = gettype($default);
+  $type = gettype($default);
   if(    $type=='string' ) $config['settings'][$name]['value'] = (string)  $config['settings'][$name]['value'];
+  elseif($type=='boolean') $config['settings'][$name]['value'] = toBoolean($config['settings'][$name]['value']);
   elseif($type=='integer') $config['settings'][$name]['value'] = (integer) $config['settings'][$name]['value'];
   elseif($type=='double' ) $config['settings'][$name]['value'] = (float)   $config['settings'][$name]['value'];
-  elseif($type=='boolean') $config['settings'][$name]['value'] = toBoolean($config['settings'][$name]['value']);
 }
 
+
 // get setting
-public static function getString($name){global $config;
+private static function getSetting($name){global $config;
   if(isset($config['settings'][$name]['value']))
     return($config['settings'][$name]['value']);
-  else
-    return(NULL);
+  else return(NULL);
+}
+public static function getString($name){
+  $value = self::getSetting($name);
+  if($value == NULL) return(NULL);
+  else               return((string)$value);
+}
+public static function getBoolean($name){
+  $value = self::getSetting($name);
+  if($value == NULL) return(NULL);
+  else               return(toBoolean($value));
+}
+public static function getInteger($name){
+  $value = self::getSetting($name);
+  if($value == NULL) return(NULL);
+  else               return((integer)$value);
+}
+public static function getDouble($name){
+  $value = self::getSetting($name);
+  if($value == NULL) return(NULL);
+  else               return((float)$value);
 }
 
 
