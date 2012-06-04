@@ -8,14 +8,14 @@ body, html{
   margin-right: auto;
   width: 620px;
   height: 300px;
+  background-color: rgb (139,180,255);
+  background-color: rgba(139,180,255,0.6);
 }
 
 #login-background {
   position: absolute;
   width:  621px;
   height: 300px;
-  background-color: rgb (139,180,255);
-  background-color: rgba(139,180,255,0.6);
 }
 
 #login-background img {
