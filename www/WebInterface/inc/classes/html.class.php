@@ -146,7 +146,7 @@ protected static function ifCallback($matches){global $config;
 
 public static function getLocalThemePath($theme=''){global $config;
   if(empty($theme)) $theme = $config['theme'];
-  return(str_replace('{theme}', $config['theme'], $config['paths']['local']['theme']));
+  return(str_replace('{theme}', $theme, $config['paths']['local']['theme']));
 }
 
 
@@ -155,15 +155,15 @@ public static function LoadHTML($file){
   $output = '';
   if(substr($file,-4) != '.php') $file .='.php';
   // current theme
-  if(file_exists(     RenderHTML::getLocalThemePath().$file)){
+  if(file_exists(     RenderHTML::getLocalThemePath().$file))
     $output = include(RenderHTML::getLocalThemePath().$file);
   // default theme
-  }elseif(file_exists(RenderHTML::getLocalThemePath('default').$file)){
+  elseif(file_exists( RenderHTML::getLocalThemePath('default').$file))
     $output = include(RenderHTML::getLocalThemePath('default').$file);
   // website root
-  }elseif(file_exists($file)){
+  elseif(file_exists( $file))
     $output = include($file);
-  }
+  else{echo '<p>Failed to load html file: '.$file."</p>\n"; exit();}
   // remove comments
   if(is_array($output))
     foreach($output as $v1=>$v2)
@@ -180,16 +180,15 @@ public static function LoadCss($file){global $config,$paths;
   $output = '';
   if(substr($file,-4) != '.css') $file .= '.css';
   // current theme
-  if(file_exists(               RenderHTML::getLocalThemePath().$file)){
+  if(file_exists(               RenderHTML::getLocalThemePath().$file))
     $output = file_get_contents(RenderHTML::getLocalThemePath().$file);
   // default theme
-  }elseif(file_exists(          RenderHTML::getLocalThemePath('default').$file)){
+  elseif(file_exists(           RenderHTML::getLocalThemePath('default').$file))
     $output = file_get_contents(RenderHTML::getLocalThemePath('default').$file);
   // website root
-  }elseif(file_exists(          $file)){
+  elseif(file_exists(           $file))
     $output = file_get_contents($file);
-  }
-  if(empty($output)){echo '<p>File not found: '.$file."</p>\n"; return;}
+  if(empty($output)){echo '<p>Failed to load css file: '.$file."</p>\n"; return;}
   // remove comments
   $output = preg_replace('/\/\*(.*?)\*\//s','',$output);
   $config['html']->outputs['css'] .= "\n".$output."\n";

@@ -23,7 +23,7 @@ function getVar($name,$type='',$order=array('get','post')){$output='';
 }
 function toBoolean($value){
   if(gettype($value) == 'boolean') return($value);
-  $tempValue = strtolower($value);
+  $tempValue = strtolower((string)$value);
   if($tempValue=='t' || $tempValue=='true' ) return(TRUE);
   if($tempValue=='y' || $tempValue=='yes'  ) return(TRUE);
   if($tempValue=='f' || $tempValue=='false') return(FALSE);
@@ -42,6 +42,8 @@ if($page=='mcface'){require('inc/mcface.php'); exit();}
 // set defaults
 $config=array(
   'settings'     => array(),
+  'languages'    => array(),
+  'language'     => '',
   'html'         => NULL,
   'user'         => NULL,
   'page'         => &$page,
@@ -53,16 +55,17 @@ $config=array(
   'demo'         => FALSE,
   'title'        => '',
   'tags'         => array(),
-  'theme'        => 'default',
-  'ui Pack'      => 'redmond',
+  'theme'        => '',
   'table prefix' => 'WA_',
   'iConomy' => array(
     'use'        => 'auto',
-    'Table'      => 'iConomy'
+    'table'      => 'iConomy'
   ),
   'session name' => 'WebAuctionPlus User'
 );
 $settings = &$config['settings'];
+$languages= &$config['languages'];
+$language = &$config['language'];
 $html     = &$config['html'];
 $user     = &$config['user'];
 $tags     = &$config['tags'];
@@ -95,17 +98,21 @@ $page=SanFilename($page);
 require($lpaths['classes'].'settings.class.php');
 SettingsClass::LoadSettings();
 // default settings
-SettingsClass::setDefault('Version'				, 'unknown!');
-SettingsClass::setDefault('Language'			, 'en');
-SettingsClass::setDefault('Currency Prefix'		, '$ ');
-SettingsClass::setDefault('Currency Postfix'		, '');
-SettingsClass::setDefault('Custom Description'		, FALSE);
-SettingsClass::setDefault('Item Packs'			, '');
-SettingsClass::setDefault('jquery ui pack'		, 'redmond');
+SettingsClass::setDefault('Version'            , 'unknown!' , '', TRUE );
+SettingsClass::setDefault('Language'           , 'en'       , '', TRUE );
+SettingsClass::setDefault('Currency Prefix'    , '$ '       , '', FALSE);
+SettingsClass::setDefault('Currency Postfix'   , ''         , '', FALSE);
+SettingsClass::setDefault('Custom Description' , FALSE      , '', TRUE );
+SettingsClass::setDefault('Website Theme'      , 'default'  , '', TRUE );
+SettingsClass::setDefault('jQuery UI Pack'     , 'redmond'  , '', TRUE );
+SettingsClass::setDefault('Item Packs'         , ''         , '', FALSE);
+$config['language'] = SettingsClass::getString('Language');
+$config['theme']    = SettingsClass::getString('Website Theme');
+//echo '<pre style="background-color: white;">'.print_r($config, true).'</pre>';
 
 // jquery ui path
-$lpaths['static jquery'] = $lpaths['static'].'jquery/'.SanFilename(SettingsClass::getString('jquery ui pack')).'/';
-$wpaths['static jquery'] = $wpaths['static'].'jquery/'.SanFilename(SettingsClass::getString('jquery ui pack')).'/';
+$lpaths['static jquery'] = $lpaths['static'].'jquery/'.SanFilename(SettingsClass::getString('jQuery UI Pack')).'/';
+$wpaths['static jquery'] = $wpaths['static'].'jquery/'.SanFilename(SettingsClass::getString('jQuery UI Pack')).'/';
 
 // load item packs
 require($lpaths['item packs'].'default/item.defines.php');
