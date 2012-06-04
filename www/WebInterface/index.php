@@ -42,6 +42,8 @@ if($page=='mcface'){require('inc/mcface.php'); exit();}
 // set defaults
 $config=array(
   'settings'     => array(),
+  'html'         => NULL,
+  'user'         => NULL,
   'page'         => &$page,
   'action'       => &$action,
   'paths' => array(
@@ -50,6 +52,7 @@ $config=array(
   ),
   'demo'         => FALSE,
   'title'        => '',
+  'tags'         => array(),
   'theme'        => 'default',
   'ui Pack'      => 'redmond',
   'table prefix' => 'WA_',
@@ -60,10 +63,13 @@ $config=array(
   'session name' => 'WebAuctionPlus User'
 );
 $settings = &$config['settings'];
+$html     = &$config['html'];
+$user     = &$config['user'];
+$tags     = &$config['tags'];
+// paths
 $paths    = &$config['paths'];
 $lpaths   = &$config['paths']['local'];
 $wpaths   = &$config['paths']['http'];
-$user     = &$config['user'];
 // local paths
 $lpaths['config']     = 'config.php';
 $lpaths['includes']   = 'inc/';
@@ -111,7 +117,6 @@ foreach(explode(',',SettingsClass::getString('Item Packs')) as $v){
 // load template engine
 require($lpaths['classes'].'html.class.php');
 $page_outputs = array();
-$tags         = array();
 $html = new RenderHtml($page_outputs, $tags);
 
 // init login system

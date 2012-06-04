@@ -13,12 +13,16 @@ $output.=
   <link rel="icon" type="image/x-icon" href="'.$config['paths']['http']['static'].'favicon.ico" />
 ';
 // css
-$html->loadCss('main.css');
-$html->loadCss('table_jui.css');
-$html->loadCss($config['paths']['local']['static jquery'].'jquery-ui-1.8.19.custom.css');
-//$html->loadCss('jquery-ui-1.8.16.custom.css');
-//$html->loadCss($cssFile.'.css');
-$output.="  <style type=\"text/css\">\n{css}\n  </style>\n";
+RenderHTML::LoadCss('main.css');
+RenderHTML::LoadCss('table_jui.css');
+RenderHTML::LoadCss($config['paths']['local']['static jquery'].'jquery-ui-1.8.19.custom.css');
+//RenderHTML::LoadCss('jquery-ui-1.8.16.custom.css');
+//RenderHTML::LoadCss($cssFile.'.css');
+$output.='
+<style type="text/css">
+{css}
+</style>
+';
 // finish header
 $output.='
   <script type="text/javascript" language="javascript" src="'.$config['paths']['http']['static'].'js/jquery-1.7.2.min.js"></script>

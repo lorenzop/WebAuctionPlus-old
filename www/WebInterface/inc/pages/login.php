@@ -19,43 +19,29 @@ if(!empty($username) && !empty($password)){
 unset($username,$password);
 
 
-function RenderPage_login(){global $config,$html; $output='';
+function RenderPage_login(){global $config,$html;
   $config['title'] = 'Login';
-  $username=''; $password='';
   $html->setPageFrame('basic');
-  $html->loadCss('login.css');
-  if(getVar('error')!='')    $output.='<h2 style="color: #ff0000;">Login Failed</h2>'."\n";
-  if($config['demo']===TRUE){$username='demo'; $password='demo';}
-  $output.='
-<div id="login-box">
-<div id="login-background"><img src="{path=images}wa_bg_login.png" alt="" /></div>
-<form action="./" name="login" method="post">
-<input type="hidden" name="page"     value="login" />
-<input type="hidden" name="lastpage" value="'.getVar('lastpage').'" />
-<table border="0" cellspacing="0" cellpadding="0" align="center" id="login-table">
-  <tr>
-    <td align="right"><label for="WA_Login_Username">Username:&nbsp;</label></td>
-    <td><input type="text"  name="WA_Login_Username" value="'.$username.'" class="input" size="30" tabindex="1" id="WA_Login_Username" /></td>
-  </tr>
-  <tr><td style="height: 10px;"></td></tr>
-  <tr>
-    <td align="right"><label    for="WA_Login_Password">Password:&nbsp;</label></td>
-    <td><input type="password" name="WA_Login_Password" value="'.$password.'" class="input" size="30" tabindex="2" id="WA_Login_Password" /></td>
-  </tr>
-  <tr><td style="height: 0px;"></td></tr>
-  <tr><td colspan="2" align="center"><input type="submit" name="Submit" value="Submit" class="button" tabindex="3" /></td>
-  </tr>
-</table>
-</form>
-<script type="text/javascript">
-function formfocus() {
-  document.getElementById(\'WA_Login_Username\').focus();
-}
-window.onload = formfocus;
-</script>
-</div>
-';
-  return($output);
+  // load page html
+  $html->LoadCss('login.css');
+  $outputs = RenderHTML::LoadHTML('pages/login.php');
+  $html->addTags(array(
+    'messages'	=> '',
+    'username'	=> getVar('username'),
+    'password'	=> '',
+    'lastpage'	=> getVar('lastpage'),
+  ));
+  if($config['demo'])
+    $html->addTags(array(
+      'username' => 'demo',
+      'password' => 'demo'
+    ));
+  // display error
+  if(getVar('error') != '')
+    $html->addTags(array(
+      'messages' => str_replace('{message}', 'Login Failed', $outputs['error'])
+    ));
+  return($outputs['body']);
 }
 
 

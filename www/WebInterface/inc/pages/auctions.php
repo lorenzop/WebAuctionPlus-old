@@ -2,119 +2,74 @@
 // current auctions page
 
 
-function RenderPage_auctions(){global $config,$html,$user,$settings; $output='';
-  $UseAjaxSource = FALSE;
-  $auctions=new AuctionsClass();
-  $config['title'] = 'Current Auctions';
-
-$html->addToHeader('
-  <script type="text/javascript" language="javascript" charset="utf-8">
-  $(document).ready(function() {
-    oTable = $(\'#mainTable\').dataTable({
-      "sZeroRecords"      : "No auctions to display",
-      "bJQueryUI"         : true,
-      "bStateSave"        : true,
-      "iDisplayLength"    : 5,
-      "aLengthMenu"       : [[5, 10, 30, 100, -1], [5, 10, 30, 100, "All"]],
-      "sPaginationType"   : "full_numbers",
-      "sPagePrevEnabled"  : true,
-      "sPageNextEnabled"  : true,
-'.($UseAjaxSource?'
-      "bProcessing"       : true,
-      "sAjaxSource"       : "scripts/server_processing.php",
-':'').'
-    });
-  } );
-//  var info = $(\'.dataTables_info\')
-//  $(\'tfoot\').append(info);
-  </script>
-');
-
-if(isset($_SESSION['error'])) {
-  $output.='<p style="color:red">'.$_SESSION['error'].'</p>';
-  unset($_SESSION['error']);
-}
-if(isset($_SESSION['success'])) {
-  $output.='<p style="color: green;">'.$_SESSION['success'].'</p>';
-  unset($_SESSION['success']);
-}
-
-$output.='
-<!-- mainTable example -->
-<table border="0" cellpadding="0" cellspacing="0" class="display" id="mainTable">
-  <thead>
-    <tr style="text-align: center; vertical-align: bottom;">
-      <th>Item</th>
-      <th>Seller</th>
-      <th>Expires</th>
-      <th>Qty</th>
-      <th>Price (Each)</th>
-      <th>Price (Total)</th>
-      <th>Percent of<br />Market Price</th>
-      <th>Buy</th>
-';
-if($user->hasPerms('isAdmin')){
-$output.='
-      <th>Cancel</th>
-';
-}
-$output.='
-    </tr>
-  </thead>
-  <tbody>
-';
-
-
-// get auctions
-$auctions->QueryAuctions();
-// list auctions
-while($auction = $auctions->getNext()){
-  $Item = &$auction['Item'];
-  $rowClass = 'gradeU';
-  $output.='
-    <tr class="'.$rowClass.'" style="height: 120px;">
-      <td style="padding-bottom: 10px; text-align: center;">'.
-// add enchantments to this link!
-//        '<a href="./?page=graph&amp;name='.$Item->itemId.'&amp;damage='.$Item->itemDamage.'"></a>'.
-        '<img src="'.$Item->getItemImageUrl().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
-        '<br /><b>'.$Item->getItemName().'</b>';
-  if($Item->itemType=='tool'){
-    $output.='<br />'.$Item->getDamagedChargedStr();
-    foreach($Item->getEnchantmentsArray() as $ench){
-      $output.='<br /><span style="font-size: smaller;"><i>'.$ench['enchName'].' '.numberToRoman($ench['level']).'</i></span>';
-    }
+// buy an auction
+if($config['action']=='buy'){
+  if(AuctionsClass::RemoveAuction(
+    getVar('auctionid','int'),
+    getVar('qty',      'int'),
+    TRUE
+  )){
+///////////////////////////////////////
+//TODO: create a function getLastPage()
+///////////////////////////////////////
+$lastpage = getVar('lastpage');
+if(empty($lastpage)) $lastpage = './';
+echo '<center><h2>Auction purchased successfully!</h2><br /><a href="'.$lastpage.'">Back to last page</a></center>';
+ForwardTo('./',2);
+    exit();
   }
-  $output.='</td>
-      <td style="text-align: center;"><img src="http://minotar.net/avatar/'.$auction['playerName'].'" width="32" alt="" /><br />'.$auction['playerName'].'</td>
-      <td style="text-align: center;">expires date<br />goes here</td>
-      <td style="text-align: center;"><b>'.((int)$Item->qty).'</b></td>
-      <td style="text-align: center;">'.FormatPrice($auction['price']             ).'</td>
-      <td style="text-align: center;">'.FormatPrice($auction['price'] * $Item->qty).'</td>
-      <td style="text-align: center;">market price<br />goes here</td>
-      <td style="text-align: center;">'.
-      ($user->hasPerms('canBuy')?
-        '<form action="./" method="get">'.
-        '<input type="hidden" name="page" value="auctionactions" />'.
-        '<input type="hidden" name="action" value="buy" />'.
-        '<input type="hidden" name="auctionid" value="'.((int)$auction['id']).'" />'.
-        '<input type="text" name="qty" value="'.((int)$Item->qty).'" onkeypress="return numbersonly(this, event);" '.
-          'class="input" style="width: 60px; margin-bottom: 5px; text-align: center;" /><br />'.
-        '<input type="submit" value="Buy" class="button" />'.
-        '</form>'
-      :$output.="Can't Buy").'</td>
-      '.($user->hasPerms('isAdmin')?
-//        '<td style="text-align: center;"><a href="./?id='.((int)$Item->itemId).'" class="button">Cancel</a></td>':'').'
-        '<td style="text-align: center;"><input type="button" value="Cancel" class="button"'.
-        ' onclick="alert(\'Im sorry, this feature has been temporarily left out to get other things working. This button will be working again in the next update.\');" /></td>':'').'
-    </tr>
-';
 }
-unset($auctions);
-$output.='
-</tbody>
-</table>
-';
-  return($output);
+
+
+function RenderPage_auctions(){global $config,$html;
+  $UseAjaxSource = FALSE;
+  $config['title'] = 'Current Auctions';
+  // load page html
+  $outputs = RenderHTML::LoadHTML('pages/auctions.php');
+  $html->addTags(array(
+    'messages' => ''
+  ));
+  // load javascript
+  $html->addToHeader($outputs['header']);
+  // display error
+  if(isset($config['error']))
+    $config['tags']['messages'] .= str_replace('{message}', $config['error'], $outputs['error']);
+  if(isset($_SESSION['error'])){
+    $config['tags']['messages'] .= str_replace('{message}', $_SESSION['error'], $outputs['error']);
+    unset($_SESSION['error']);
+  }
+  // display success
+  if(isset($_SESSION['success'])){
+    $config['tags']['messages'] .= str_replace('{message}', $_SESSION['success'], $outputs['success']);
+    unset($_SESSION['success']);
+  }
+  // list auctions
+  $auctions = new AuctionsClass();
+  $auctions->QueryAuctions();
+  $outputRows = '';
+  while($auction = $auctions->getNext()){
+    $Item = &$auction['Item'];
+    $tags = array(
+      'auction id'		=> ((int)$auction['id']),
+      'auction seller name'	=> $auction['playerName'],
+      'auction expire'		=> 'expires date<br />goes here',
+      'auction qty'		=> ((int)$Item->qty),
+      'auction price each'	=> FormatPrice($auction['price']),
+      'auction price total'	=> FormatPrice($auction['price'] * $Item->qty),
+      'item title'		=> $Item->getItemTitle(),
+      'item name'			=> $Item->getItemName(),
+      'item image url'		=> $Item->getItemImageUrl(),
+      'market price percent'	=> 'market price<br />goes here',
+      'rowclass'			=> 'gradeU',
+    );
+    $htmlRow = $outputs['body row'];
+    RenderHTML::RenderTags($htmlRow, $tags);
+    $outputRows .= $htmlRow;
+  }
+  unset($auctions, $Item);
+  return($outputs['body top']."\n".
+         $outputRows."\n".
+         $outputs['body bottom']);
 }
 
 

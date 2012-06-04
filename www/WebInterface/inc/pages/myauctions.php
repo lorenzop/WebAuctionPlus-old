@@ -2,70 +2,78 @@
 // my auctions page
 
 
-function RenderPage_myauctions(){global $config,$html,$user; $output='';
+function RenderPage_myauctions(){global $config,$html; $output='';
   $UseAjaxSource = FALSE;
-  $auctions=new AuctionsClass();
   $config['title'] = 'My Auctions';
-
-$html->addToHeader('
-  <script type="text/javascript" language="javascript" charset="utf-8">
-  $(document).ready(function() {
-    oTable = $(\'#mainTable\').dataTable({
-      "sZeroRecords"      : "No auctions to display",
-      "bJQueryUI"         : true,
-      "bStateSave"        : true,
-      "iDisplayLength"    : 5,
-      "aLengthMenu"       : [[5, 10, 30, 100, -1], [5, 10, 30, 100, "All"]],
-      "sPaginationType"   : "full_numbers",
-      "sPagePrevEnabled"  : true,
-      "sPageNextEnabled"  : true,
-'.($UseAjaxSource?'
-      "bProcessing"       : true,
-      "sAjaxSource"       : "scripts/server_processing.php",
-':'').'
-    });
-  } );
-  </script>
-');
-//$html->addToHeader('
-//    <script type="text/javascript" charset="utf-8">
-//      $(document).ready(function() {
-//        oTable=$(\'#example\').dataTable({
-//          "bJQueryUI": true,
-//          "sPaginationType": "full_numbers"
-//        });
-//      });
-//    </script>
-//');
-
-if(isset($_SESSION['error'])) {
-  $output.='<p style="color:red">'.$_SESSION['error'].'</p>';
-  unset($_SESSION['error']);
+  // load page html
+  $outputs = RenderHTML::LoadHTML('pages/myauctions.php');
+  $html->addTags(array(
+    'messages' => ''
+  ));
+  // load javascript
+  $html->addToHeader($outputs['header']);
+  // display error
+  if(isset($config['error']))
+    $config['tags']['messages'] .= str_replace('{message}', $config['error'], $outputs['error']);
+  if(isset($_SESSION['error'])){
+    $config['tags']['messages'] .= str_replace('{message}', $_SESSION['error'], $outputs['error']);
+    unset($_SESSION['error']);
+  }
+  // display success
+  if(isset($_SESSION['success'])){
+    $config['tags']['messages'] .= str_replace('{message}', $_SESSION['success'], $outputs['success']);
+    unset($_SESSION['success']);
+  }
+  // list my auctions
+  $auctions = new AuctionsClass();
+  $auctions->QueryAuctions( "`playerName`='".mysql_san($config['user']->getName())."'" );
+  $outputRows = '';
+  while($auction = $auctions->getNext()){
+    $Item = &$auction['Item'];
+    $tags = array(
+      'auction id'		=> ((int)$auction['id']),
+      'auction expire'		=> 'expires date<br />goes here',
+      'auction qty'		=> ((int)$Item->qty),
+      'auction price each'	=> FormatPrice($auction['price']),
+      'auction price total'	=> FormatPrice($auction['price'] * $Item->qty),
+      'item title'		=> $Item->getItemTitle(),
+      'item name'			=> $Item->getItemName(),
+      'item image url'		=> $Item->getItemImageUrl(),
+      'market price percent'	=> 'market price<br />goes here',
+      'rowclass'			=> 'gradeU',
+    );
+//  if($Item->itemType=='tool'){
+//    $output.='<br />'.$Item->getDamagedChargedStr();
+//    foreach($Item->getEnchantmentsArray() as $ench){
+//      $output.='<br /><span style="font-size: smaller;"><i>'.$ench['enchName'].' '.numberToRoman($ench['level']).'</i></span>';
+//    }
+//  }
+//$marketPrice=getMarketPrice($id, 1);
+//if($marketPrice>0){
+//  $marketPercent=round((($price/$marketPrice)*100), 1);
+//}else{
+//  $marketPercent='N/A';
+//}if($marketPercent=='N/A'){
+//  $grade='gradeU';
+//}elseif($marketPercent<=50){
+//  $grade='gradeA';
+//}elseif($marketPercent<=150){
+//  $grade='gradeC';
+//}else{
+//  $grade='gradeX';
+//}
+    $htmlRow = $outputs['body row'];
+    RenderHTML::RenderTags($htmlRow, $tags);
+    $outputRows .= $htmlRow;
+  }
+  unset($auction, $Item);
+  return($outputs['body top']."\n".
+         $outputRows."\n".
+         $outputs['body bottom']);
 }
-if(isset($_SESSION['success'])) {
-  $output.='<p style="color: green;">'.$_SESSION['success'].'</p>';
-  unset($_SESSION['success']);
-}
-
-$output.='
-<!-- mainTable example -->
-<table border="0" cellpadding="0" cellspacing="0" class="display" id="mainTable">
-  <thead>
-    <tr style="text-align: center; vertical-align: bottom;">
-      <th>Item</th>
-      <th>Expires</th>
-      <th>Qty</th>
-      <th>Price (Each)</th>
-      <th>Price (Total)</th>
-      <th>Percent of<br />Market Price</th>
-      <th>Cancel</th>
-    </tr>
-  </thead>
-  <tbody>
-';
 
 
-if($user->hasPerms('canSell')){
+//if($user->hasPerms('canSell')){
 //$queryItems=mysql_query("SELECT * FROM WA_Items WHERE player='$user'");
 //$output.='
 //    <div id="new-auction-box">
@@ -107,62 +115,34 @@ if($user->hasPerms('canSell')){
 //      </form>
 //    </div>
 //';
-}
 
 
-// get my auctions
-$auctions->QueryAuctions( "`playerName`='".mysql_san($user->getName())."'" );
-// list auctions
-while($auction = $auctions->getNext()){
-//  $marketPrice=getMarketPrice($id, 1);
-//  if($marketPrice>0){
-//    $marketPercent=round((($price/$marketPrice)*100), 1);
-//  }else{
-//    $marketPercent='N/A';
-//  }if($marketPercent=='N/A'){
-//    $grade='gradeU';
-//  }elseif($marketPercent<=50){
-//    $grade='gradeA';
-//  }elseif($marketPercent<=150){
-//    $grade='gradeC';
-//  }else{
-//    $grade='gradeX';
-//  }
-  $Item = &$auction['Item'];
-  $rowClass = 'gradeU';
-  $output.='
-    <tr class="'.$rowClass.'" style="height: 120px;">
-      <td style="padding-bottom: 10px; text-align: center;">'.
-// ($quantity==0?'Never':date('jS M Y H:i:s', $timeCreated + $auctionDurationSec) ).'</td>
-//    <td class="center">'.($marketPercent=='N/A'?'N/A':number_format($marketPercent,1).' %').'</td>
-// add enchantments to this link!
-//        '<a href="./?page=graph&amp;name='.$Item->itemId.'&amp;damage='.$Item->itemDamage.'">'.
-        '<img src="'.$Item->getItemImageUrl().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
-        '<br /><b>'.$Item->getItemName().'</b>';
-  if($Item->itemType=='tool'){
-    $output.='<br />'.$Item->getDamagedChargedStr();
-    foreach($Item->getEnchantmentsArray() as $ench){
-      $output.='<br /><span style="font-size: smaller;"><i>'.$ench['enchName'].' '.numberToRoman($ench['level']).'</i></span>';
-    }
-  }
-  $output.='</a></td>
-      <td style="text-align: center;">expires date<br />goes here</td>
-      <td style="text-align: center;"><b>'.((int)$Item->qty).'</b></td>
-      <td style="text-align: center;">'.FormatPrice($auction['price']             ).'</td>
-      <td style="text-align: center;">'.FormatPrice($auction['price'] * $Item->qty).'</td>
-      <td style="text-align: center;">market price<br />goes here</td>
-      <td style="text-align: center;"><input type="button" value="Cancel" class="button" onclick="alert(\'Im sorry, this feature has been temporarily left out to get other things working. This button will be working again in the next update.\');"></td>
-    </tr>
-';
-//      <td style="text-align: center;"><a href="./?page='.$config['page'].'&amp;action=cancel&amp;auctionid='.((int)$auction['id']).'" class="button">Cancel</a></td>
-}
-unset($auctions);
-$output.='
-</tbody>
-</table>
-';
-  return($output);
-}
+//oTable.fnGetPosition(
+//  $(\'#auctionrow'.((int)$auction['id']).'\').click
+//).slideUp();
+
+
+//DataTables constructor
+//oTable = $('#mainTable').dataTable({
+//"bProcessing": true,
+//"bServerSide": true,
+//"iDisplayLength": 50,
+//"bLengthChange": false,
+//"sAjaxSource": "datatables_comments_list.php",
+//"sPaginationType": "full_numbers",
+//"aaSorting": [[ 0, "desc" ]],
+//"fnDrawCallback": function() {
+//  //bind the click handler script to the newly created elements held in the table
+//	$('.flagsmileysad').bind('click',auctioncancelclick);
+//}
+//});
+
+
+//<script>
+//$("button").click(function(){
+//  $(this).slideUp();
+//});
+//</script>
 
 
 ?>

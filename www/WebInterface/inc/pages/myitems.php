@@ -12,89 +12,44 @@ if($config['action'] == 'mailitem'){
 }
 
 
-function RenderPage_myitems(){global $config,$html,$user; $output='';
+function RenderPage_myitems(){global $config,$html;
   $UseAjaxSource = FALSE;
-  $items = new ItemsClass();
   $config['title'] = 'My Items';
-
-$html->addToHeader('
-  <script type="text/javascript" language="javascript" charset="utf-8">
-  $(document).ready(function() {
-    oTable = $(\'#mainTable\').dataTable({
-      "sZeroRecords"      : "No auctions to display",
-      "bJQueryUI"         : true,
-      "bStateSave"        : true,
-      "iDisplayLength"    : 5,
-      "aLengthMenu"       : [[5, 10, 30, 100, -1], [5, 10, 30, 100, "All"]],
-      "sPaginationType"   : "full_numbers",
-      "sPagePrevEnabled"  : true,
-      "sPageNextEnabled"  : true,
-'.($UseAjaxSource?'
-      "bProcessing"       : true,
-      "sAjaxSource"       : "scripts/server_processing.php",
-':'').'
-    });
-  } );
-//  var info = $(\'.dataTables_info\')
-//  $(\'tfoot\').append(info);
-  </script>
-');
-
-//if(isset($_SESSION['error'])) {
-//  $output.='<p style="color:red">'.$_SESSION['error'].'</p>';
-//  unset($_SESSION['error']);
-//}
-//if(isset($_SESSION['success'])) {
-//  $output.='<p style="color: green;">'.$_SESSION['success'].'</p>';
-//  unset($_SESSION['success']);
-//}
-
-$output.='
-<!-- mainTable example -->
-<table border="0" cellpadding="0" cellspacing="0" class="display" id="mainTable">
-  <thead>
-    <tr style="text-align: center; vertical-align: bottom;">
-      <th>Item</th>
-      <th>Qty</th>
-      <th>Market Price (Each)</th>
-      <th>Market Price (Total)</th>
-      <th>Sell Item</th>
-      <th>Mail Item</th>
-    </tr>
-  </thead>
-  <tbody>
-';
-
-
-// get items
-$items->QueryItems($user->getName(),'');
-// list items
-while($itemRow = $items->getNext()){
-  $Item = &$itemRow['Item'];
-  $rowClass = 'gradeU';
-  $output.='
-    <tr class="'.$rowClass.'" style="height: 120px;">
-      <td style="padding-bottom: 10px; text-align: center;">'.
-// add enchantments to this link!
-//        '<a href="./?page=graph&amp;name='.$Item->itemId.'&amp;damage='.$Item->itemDamage.'">'.
-        '<img src="'.$Item->getItemImageUrl().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
-        '<br /><b>'.$Item->getItemName().'</b>';
-  if($Item->itemType=='tool'){
-    $output.='<br />'.$Item->getDamagedChargedStr();
-    foreach($Item->getEnchantmentsArray() as $ench){
-      $output.='<br /><span style="font-size: smaller;"><i>'.$ench['enchName'].' '.numberToRoman($ench['level']).'</i></span>';
-    }
+  // load page html
+  $outputs = RenderHTML::LoadHTML('pages/myitems.php');
+  $html->addTags(array(
+    'messages' => ''
+  ));
+  // load javascript
+  $html->addToHeader($outputs['header']);
+  // display error
+  if(isset($config['error']))
+    $config['tags']['messages'] .= str_replace('{message}', $config['error'], $outputs['error']);
+  if(isset($_SESSION['error'])){
+    $config['tags']['messages'] .= str_replace('{message}', $_SESSION['error'], $outputs['error']);
+    unset($_SESSION['error']);
   }
-//      <td style="text-align: center;">'.number_format((double)$auction['price'],2).'</td>
-//      <td style="text-align: center;">'.number_format((double)($auction['price'] * $Item->qty),2).'</td>
-  $output.='</a></td>
-      <td style="text-align: center;"><b>'.((int)$Item->qty).'</b></td>
-      <td style="text-align: center;">market price<br />goes here</td>
-      <td style="text-align: center;">market price<br />goes here</td>
-      <td style="text-align: center;"><a href="./?page=createauction&amp;id='.((int)$itemRow['id']).'" class="button">Sell it</a></td>
-      <td style="text-align: center;"><a href="./?page='.$config['page'].'&amp;action=mailitem&amp;id='.((int)$itemRow['id']).'" class="button">Mail it</a></td>
-    </tr>
-';
+  // display success
+  if(isset($_SESSION['success'])){
+    $config['tags']['messages'] .= str_replace('{message}', $_SESSION['success'], $outputs['success']);
+    unset($_SESSION['success']);
+  }
+  // list items
+  $items = new ItemsClass();
+  $items->QueryItems($config['user']->getName(),'');
+  $outputRows = '';
+  while($itemRow = $items->getNext()){
+    $Item = &$itemRow['Item'];
+    $tags = array(
+      'item row id'		=> ((int)$itemRow['id']),
+      'item qty'			=> ((int)$Item->qty),
+      'item title'		=> $Item->getItemTitle(),
+      'item name'			=> $Item->getItemName(),
+      'item image url'		=> $Item->getItemImageUrl(),
+      'market price each'	=> 'market price<br />goes here',
+      'market price total'	=> 'market price<br />goes here',
+//number_format((double)$auction['price'],2)
+//number_format((double)($auction['price'] * $Item->qty),2)
 //  $marketPrice=getMarketPrice($id, 0);
 //  $marketTotal=$marketPrice*$quantity;
 //  if($marketPrice==0){
@@ -102,13 +57,16 @@ while($itemRow = $items->getNext()){
 //    $marketTotal='0';
 //  }
 //  echo '  <tr class="gradeC">'."\n";
-}
-unset($items);
-$output.='
-</tbody>
-</table>
-';
-  return($output);
+      'rowclass'			=> 'gradeU',
+    );
+    $htmlRow = $outputs['body row'];
+    RenderHTML::RenderTags($htmlRow, $tags);
+    $outputRows .= $htmlRow;
+  }
+  unset($items, $Item);
+  return($outputs['body top']."\n".
+         $outputRows."\n".
+         $outputs['body bottom']);
 }
 
 

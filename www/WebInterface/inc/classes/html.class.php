@@ -2,6 +2,7 @@
 // this class handles html generation, templates, and tags
 class RenderHTML{
 
+
 protected $outputs = array();
 protected $tags    = array();
 protected $Frame   = '';
@@ -22,46 +23,51 @@ function __construct(&$outputs, &$tags){global $config;
   $this->setPageFrame();
 }
 
+
 // display page
 public function Display(){global $config,$lpaths;
   // render header/footer
-  $this->outputs['header'] = include($this->getLocalThemePath().'header.php');
-  $this->outputs['footer'] = include($this->getLocalThemePath().'footer.php');
+  $this->outputs['header'] = RenderHTML::LoadHTML('header.php');
+  $this->outputs['footer'] = RenderHTML::LoadHTML('footer.php');
   $this->outputs['header'] = str_replace('{AddToHeader}',$this->tempHeader,$this->outputs['header']);
   // insert css
-  $this->outputs['header']=str_replace('{css}', "\n".$this->outputs['css']."\n", $this->outputs['header']);
-  // render tags
+  $this->outputs['header'] = str_replace('{css}', "\n".$this->outputs['css']."\n", $this->outputs['header']);
+  // common tags
   $this->tags['site title']     = $config['site title'];
   $this->tags['page title']     = $config['title'];
   $this->tags['sitepage title'] = $config['site title'].(empty($config['title'])?'':' - '.$config['title']);
-  $this->RenderTags($this->outputs['header']);
-  $this->RenderTags($this->outputs['body']);
-  $this->RenderTags($this->outputs['footer']);
-  // output page
-  echo $this->outputs['header']."\n";
-  echo $this->outputs['body']  ."\n";
-  echo $this->outputs['footer']."\n";
+  // finish rendering page
+  $output = $this->outputs['header']."\n".
+            $this->outputs['body']  ."\n".
+            $this->outputs['footer']."\n";
+  RenderHTML::RenderTags($output, $this->tags);
+  echo $output;
+  unset($output, $this->outputs);
 }
+
 
 // Frame = default | basic | none
 public function setPageFrame($Frame='default'){
-  $this->Frame=$Frame;
+  $this->Frame = $Frame;
 }
 public function getPageFrame(){
   return($this->Frame);
 }
-
 // add to html header
 public function addToHeader($text){
-  $this->tempHeader.="\n".$text."\n";
+  $this->tempHeader .= "\n".$text."\n";
+}
+// add tags
+public function addTags($tags){
+  if(!is_array($tags)) return;
+  foreach($tags as $name => $value)
+    $this->tags[$name] = $value;
 }
 
 
-
-
 // replace {tag} tags
-function RenderTags(&$html){global $config,$tags;
-//  // loop until finished
+public static function RenderTags(&$html, $tags=array()){global $config;
+//  // include tags (loop until finished)
 //  for($t=0;$t<10;$t++){$StillWorking=FALSE;
 //    // remove comments
 //    $html=preg_replace('/\{\*(.*?)\*\}/s','',$html);
@@ -74,67 +80,119 @@ function RenderTags(&$html){global $config,$tags;
 //    // done?
 //    if(!$StillWorking){break;}
 //  }
-  // remove comments (again)
-  $html=preg_replace('/\{\*(.*?)\*\}/s','',$html);
-//  // {if x}{endif}
-//  $html=preg_replace_callback('/\{if (.*?)\{endif\}/s',create_function($matches,'
-//    $match=explode('}',substr($matches[0],4,-7),2);
-//    // not
-//    $not=FALSE; if(substr($match[0],0,1)=='!'){$not=TRUE; $match[0]=substr($match[0],1);}
-//    // framed
-//    if($match[0]=='framed'){
-//      $match[0]=$config['framed'];
-//    // user logged in
-//    }elseif($match[0]=='loggedin'){
-//      $match[0]=($config['user'] != NULL);
-//    }
-//    // not
-//    if($not){$match[0]=!(boolean)$match[0];
-//    }else{   $match[0]= (boolean)$match[0];}
-//    if($match[0]) return($match[1]);
-//    else          return($match[2]);
+  // remove comments
+  $html = preg_replace('/\{\*(.*?)\*\}/s','',$html);
+  // {if x} {else} {endif}
+  $html = preg_replace_callback('/\{if (.*?)\{endif\}/s',array('RenderHTML','ifCallback'),$html);
   // paths
   foreach($config['paths'] as $paths){
     foreach($paths as $pathName=>$path){
-      $path=str_replace('{theme}'             ,$config['theme'],$path);
-      $html=str_replace('{path='.$pathName.'}',$path           ,$html);
+      $path = str_replace('{theme}'             , $config['theme'], $path);
+      $html = str_replace('{path='.$pathName.'}', $path           , $html);
     }
   }
   unset($pathName, $path);
   // tags
-  foreach($tags as $tagName=>$tag){
-    $html=str_replace('{'.$tagName.'}',$tag,$html);
+  $searches = array(); $replaces = array();
+  foreach($tags as $search => $replace){
+    $searches[] = '{'.$search.'}';
+    $replaces[] = $replace;
   }
-  unset($tagName, $tag);
+  $html = str_replace($searches, $replaces, $html);
+  unset($tags, $searches, $replaces);
+}
+// {if x} tag callback function
+protected static function ifCallback($matches){global $config;
+  $match = explode('}', substr($matches[0],4,-7), 2);
+  $match[0] = trim($match[0]);
+  $not = FALSE;
+  $value = NULL;
+  if(substr($match[0],0,1) == '!'){
+    $not = TRUE;
+    $match[0] = substr($match[0],1);
+  }
+  // common variables
+  // permissions
+  if(substr($match[0],0,10) == 'permission'){
+    $match[0] = substr($match[0],11,-1);
+    $value = $config['user']->hasPerms($match[0]);
+  }
+////    // framed
+////    if($match[0]=='framed'){
+////      $match[0]=$config['framed'];
+////    // user logged in
+////    }elseif($match[0]=='loggedin'){
+////      $match[0]=($config['user'] != NULL);
+////    }
+  // unknown variable
+  if($value === NULL){
+    error_log('Unknown variable in if tag: '.$match[0]);
+    return('Unable to process tag!');
+  }
+  // not !
+  if($not) $value = !$value;
+  // has {else}
+  if(strpos($match[1],'{else}') !== FALSE){
+    $match[1] = explode('{else}', $match[1]);
+    if($value) return($match[1][0]);
+    else       return($match[1][1]);
+  // no {else}
+  }else{
+    if($value) return($match[1]);
+  }
+  return('');
 }
 
 
-public function getLocalThemePath($theme=''){global $config;
-  if($theme=='') $theme=$config['theme'];
-  return str_replace('{theme}', $config['theme'], $config['paths']['local']['theme']);
+public static function getLocalThemePath($theme=''){global $config;
+  if(empty($theme)) $theme = $config['theme'];
+  return(str_replace('{theme}', $config['theme'], $config['paths']['local']['theme']));
 }
 
+
+// load html theme file
+public static function LoadHTML($file){
+  $output = '';
+  if(substr($file,-4) != '.php') $file .='.php';
+  // current theme
+  if(file_exists(     RenderHTML::getLocalThemePath().$file)){
+    $output = include(RenderHTML::getLocalThemePath().$file);
+  // default theme
+  }elseif(file_exists(RenderHTML::getLocalThemePath('default').$file)){
+    $output = include(RenderHTML::getLocalThemePath('default').$file);
+  // website root
+  }elseif(file_exists($file)){
+    $output = include($file);
+  }
+  // remove comments
+  if(is_array($output))
+    foreach($output as $v1=>$v2)
+      $output[$v1] = preg_replace('/\/\*(.*?)\*\//s','',$v2);
+  else
+    $output = preg_replace('/\/\*(.*?)\*\//s','',$output);
+  return($output);
+}
 
 
 // load a .css file
-public function loadCss($file){global $config,$paths;
+public static function LoadCss($file){global $config,$paths;
 //  $file=SanFilename($file);
   $output = '';
-  if(substr($file,-4)!='.css'){$file.='.css';}
+  if(substr($file,-4) != '.css') $file .= '.css';
   // current theme
-  if(file_exists(               $this->getLocalThemePath().$file)){
-    $output = file_get_contents($this->getLocalThemePath().$file);
+  if(file_exists(               RenderHTML::getLocalThemePath().$file)){
+    $output = file_get_contents(RenderHTML::getLocalThemePath().$file);
   // default theme
-  }elseif(file_exists(          $this->getLocalThemePath('default').$file)){
-    $output = file_get_contents($this->getLocalThemePath('default').$file);
+  }elseif(file_exists(          RenderHTML::getLocalThemePath('default').$file)){
+    $output = file_get_contents(RenderHTML::getLocalThemePath('default').$file);
   // website root
   }elseif(file_exists(          $file)){
     $output = file_get_contents($file);
   }
   if(empty($output)){echo '<p>File not found: '.$file."</p>\n"; return;}
   // remove comments
-  $output=preg_replace('/\/\*(.*?)\*\//s','',$output);
-  $this->outputs['css'] .= "\n".$output."\n";
+  $output = preg_replace('/\/\*(.*?)\*\//s','',$output);
+  $config['html']->outputs['css'] .= "\n".$output."\n";
 }
 
 
