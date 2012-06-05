@@ -132,16 +132,17 @@ public static function CreateAuction($id, $qty, $price, $desc){global $config,$u
 
 
 // buy/cancel auction
-public static function RemoveAuction($auctionId, $qty, $isBuying=TRUE){global $config,$user;
+public static function RemoveAuction($auctionId, $qty=-1, $isBuying=FALSE){global $config,$user;
   // has canBuy permissions
   if($isBuying && !$user->hasPerms('canBuy')){
     $config['error'] = 'You don\'t have permission to buy.'; return(FALSE);}
   // validate args
   $auctionId = floor((int)$auctionId);
-  $qty       = floor((int)$qty);
   if($auctionId < 1) {$config['error'] = 'Invalid auction id!'; return(FALSE);}
-  if($qty       < 1) {$config['error'] = 'Invalid qty!';        return(FALSE);}
-//  if($price     <=0) {$config['error'] = 'Invalid price!';      return(FALSE);}
+  if($isBuying){
+    $qty = floor((int)$qty);
+    if($qty < 1) {$config['error'] = 'Invalid qty!'; return(FALSE);}
+  }
 
   // get item from db
   $auctionsClass = new AuctionsClass();
@@ -169,6 +170,7 @@ public static function RemoveAuction($auctionId, $qty, $isBuying=TRUE){global $c
     // isAdmin or owns auction
     if( !$user->hasPerms('isAdmin') && $auctionRow['playerName']!=$user->getName() ) {
       $config['error'] = 'You don\'t own that auction!'; return(FALSE);}
+    $qty = $Item->qty;
   }
 
   // make payment from buyer to seller

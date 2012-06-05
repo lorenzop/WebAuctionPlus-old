@@ -72,8 +72,7 @@ $outputs['body row']='
       </td>
 {endif}
 {if permission[isAdmin]}
-        <td style="text-align: center;"><input type="button" value="Cancel" class="button"'.
-        ' onclick="alert(\'Im sorry, this feature has been temporarily left out to get other things working. This button will be working again in the next update.\');" /></td>
+      <td style="text-align: center;"><a href="./?page={page}&amp;action=cancel&amp;auctionid={auction id}" class="button">Cancel</a></td>
 {endif}
     </tr>
 ';

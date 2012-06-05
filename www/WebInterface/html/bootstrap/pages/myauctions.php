@@ -52,14 +52,9 @@ $outputs['body row']='
       <td style="text-align: center;">{auction price each}</td>
       <td style="text-align: center;">{auction price total}</td>
       <td style="text-align: center;">{market price percent}</td>
-        <td style="text-align: center;"><input type="button" value="Cancel" class="button"'.
-        ' onclick="alert(\'Im sorry, this feature has been temporarily left out to get other things working. This button will be working again in the next update.\');" /></td>
+      <td style="text-align: center;"><a href="./?page={page}&amp;action=cancel&amp;auctionid={auction id}" class="button">Cancel</a></td>
     </tr>
 ';
-//<td style="text-align: center;"><a href="./?page='.$config['page'].'&amp;action=cancel&amp;auctionid='.((int)$auction['id']).'" class="button"
-//id="auctionrow'.((int)$auction['id']).'"
-//onclick="return false;">Cancel</a></td>
-
 // ($quantity==0?'Never':date('jS M Y H:i:s', $timeCreated + $auctionDurationSec) ).'</td>
 //    <td class="center">'.($marketPercent=='N/A'?'N/A':number_format($marketPercent,1).' %').'</td>
 // add enchantments to this link!

@@ -2,6 +2,24 @@
 // my auctions page
 
 
+if($config['action']=='cancel'){
+  if(AuctionsClass::RemoveAuction(
+    getVar('auctionid','int'),
+    -1,
+    FALSE
+  )){
+///////////////////////////////////////
+//TODO: create a function getLastPage()
+///////////////////////////////////////
+$lastpage = getVar('lastpage');
+if(empty($lastpage)) $lastpage = './?page=myauctions';
+echo '<center><h2>Auction canceled!</h2><br /><a href="'.$lastpage.'">Back to last page</a></center>';
+ForwardTo('./',2);
+    exit();
+  }
+}
+
+
 function RenderPage_myauctions(){global $config,$html; $output='';
   $UseAjaxSource = FALSE;
   $config['title'] = 'My Auctions';
