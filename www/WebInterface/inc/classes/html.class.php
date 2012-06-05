@@ -92,7 +92,9 @@ public static function RenderTags(&$html, $tags=array()){global $config;
     }
   }
   unset($pathName, $path);
-  // tags
+  // global tags
+  if(!isset($tags['page'])) $tags['page'] = $config['page'];
+  // replace tags
   $searches = array(); $replaces = array();
   foreach($tags as $search => $replace){
     $searches[] = '{'.$search.'}';

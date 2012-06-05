@@ -2,9 +2,11 @@
 // this class is a group of functions to handle auctions
 class AuctionsClass{
 
+
 public $currentId  = 0;
 protected $result  = FALSE;
 private   $tempRow = FALSE;
+
 
 function __construct(){
 }
@@ -83,7 +85,7 @@ public static function CreateAuction($id, $qty, $price, $desc){global $config,$u
 //    $_SESSION['error'] = $item->fullname.' is not allowed to be sold.';
 //    header("Location: ../myauctions.php");
 //  }
-global $maxSellPrice;
+  $maxSellPrice = SettingsClass::getDouble('Max Sell Price');
   if($price > $maxSellPrice){$config['error'] = 'Over max sell price of $ '.$maxSellPrice.' !'; return(FALSE);}
   // get item from db
   $itemRow = ItemFuncs::QueryItem($user->getName(),$id);
@@ -94,6 +96,7 @@ global $maxSellPrice;
 ///////////////////////////////////////////////////////////
 //TODO: will have a function to check for existing auctions
 ///////////////////////////////////////////////////////////
+
   // split item stack
   $splitStack = ($qty < $Item->qty);
   // create auction
@@ -101,7 +104,6 @@ global $maxSellPrice;
            "`playerName`,`itemId`,`itemDamage`,`qty`,`price`,`created` )VALUES( ".
            "'".mysql_san($user->getName())."',".((int)$Item->itemId).",".((int)$Item->itemDamage).",".
            ((int)$qty).",".((float)$price).",NOW() )";
-//echo '<p>'.$query.'</p>';$auctionId=0;
   $result = RunQuery($query, __file__, __line__);
   if(!$result){echo '<p style="color: red;">Error creating auction!</p>'; exit();}
   $auctionId = mysql_insert_id();
@@ -122,7 +124,6 @@ global $maxSellPrice;
     $query = "UPDATE `".$config['table prefix']."ItemEnchantments` SET ".
              "`ItemTable` = 'Auctions', `ItemTableId` = ".((int)$auctionId).
              " WHERE `ItemTable` = 'Items' AND `ItemTableId` = ".((int)$itemRow['id']);
-//echo '<p>'.$query.'</p>';
     $result = RunQuery($query, __file__, __line__);
     if(!$result){echo '<p style="color: red;">Error moving enchantment!</p>'; exit();}
   }
@@ -132,32 +133,15 @@ global $maxSellPrice;
 
 // buy/cancel auction
 public static function RemoveAuction($auctionId, $qty, $isBuying=TRUE){global $config,$user;
-  if($auctionId < 1) return(FALSE);
-  // permissions
-  // is buying
-  if($isBuying){
-    // has canBuy permissions
-    if(!$user->hasPerms('canBuy')){
-      $config['error'] = 'You don\'t have permission to buy.'; return(FALSE);}
-  // is canceling
-  }else{
-    // is owner or has isAdmin permissions
-// todo: is owner?
-    if(FALSE || !$user->hasPerms('isAdmin') ){
-      $config['error'] = 'You don\'t have permission to cancel this auction.'; return(FALSE);}
-echo 'canceling auctions is not finished!!';
-exit();
-  }
+  // has canBuy permissions
+  if($isBuying && !$user->hasPerms('canBuy')){
+    $config['error'] = 'You don\'t have permission to buy.'; return(FALSE);}
   // validate args
-  $qty = floor((int)$qty);
-  if($qty <= 0) {$config['error'] = 'Invalid qty!'; return(FALSE);}
-//  if($price <= 0){$config['error'] = 'Invalid price!'; return(FALSE);}
-//  if (!itemAllowed($item->name, $item->damage)){
-//    $_SESSION['error'] = $item->fullname.' is not allowed to be sold.';
-//    header("Location: ../myauctions.php");
-//  }
-//global $maxSellPrice;
-//  if($price > $maxSellPrice){$config['error'] = 'Over max sell price of $ '.$maxSellPrice.' !'; return(FALSE);}
+  $auctionId = floor((int)$auctionId);
+  $qty       = floor((int)$qty);
+  if($auctionId < 1) {$config['error'] = 'Invalid auction id!'; return(FALSE);}
+  if($qty       < 1) {$config['error'] = 'Invalid qty!';        return(FALSE);}
+//  if($price     <=0) {$config['error'] = 'Invalid price!';      return(FALSE);}
 
   // get item from db
   $auctionsClass = new AuctionsClass();
@@ -165,12 +149,36 @@ exit();
   $auctionRow = $auctionsClass->getNext();
   if($auctionRow === FALSE) {$config['error'] = 'Auction not found!'; return(FALSE);}
   $Item = &$auctionRow['Item'];
-  if($qty > $Item->qty){$qty = $Item->qty; $config['error'] = 'Not that many for sale!'; return(FALSE);}
-  $priceTotal = ((float)$auctionRow['price']) * ((float)$qty);
-  if($priceTotal > $user->Money) {$config['error'] = 'You don\'t have enough money'; return(FALSE);}
+
+  // buying validation
+  if($isBuying){
+    if($qty > $Item->qty){$qty = $Item->qty; $config['error'] = 'Not that many for sale!'; return(FALSE);}
+    $priceTotal = ((float)$auctionRow['price']) * ((float)$qty);
+    $maxSellPrice = SettingsClass::getDouble('Max Sell Price');
+    if(((float)$auctionRow['price']) > $maxSellPrice){
+      $config['error'] = 'Over max sell price of $ '.$maxSellPrice.' !'; return(FALSE);}
+    if($priceTotal > $user->Money){
+      $config['error'] = 'You don\'t have enough money!';                return(FALSE);}
+    // is item allowed
+//    if (!itemAllowed($item->name, $item->damage)){
+//      $_SESSION['error'] = $item->fullname.' is not allowed to be sold.';
+//      header("Location: ../myauctions.php");
+//    }
+  // canceling validation
+  }else{
+    // isAdmin or owns auction
+    if( !$user->hasPerms('isAdmin') && $auctionRow['playerName']!=$user->getName() ) {
+      $config['error'] = 'You don\'t own that auction!'; return(FALSE);}
+  }
 
   // make payment from buyer to seller
-  UserClass::MakePayment($user->getName(), $auctionRow['playerName'], $priceTotal, 'Bought auction '.((int)$auctionRow['id']).' '.$Item->getItemTitle().' x'.((int)$Item->qty) );
+  if($isBuying)
+    UserClass::MakePayment(
+      $user->getName(),
+      $auctionRow['playerName'],
+      $priceTotal,
+      'Bought auction '.((int)$auctionRow['id']).' '.$Item->getItemTitle().' x'.((int)$Item->qty)
+    );
 
   // split auction stack
   $splitStack = ($qty < $Item->qty);
@@ -180,37 +188,23 @@ exit();
   // subtract qty
   if($splitStack){
     $query = "UPDATE `".$config['table prefix']."Auctions` SET `qty`=`qty` - ".((int)$qty)." WHERE `id` = ".((int)$auctionRow['id'])." LIMIT 1";
-//echo '<p>'.$query.'</p>';
     $result = RunQuery($query, __file__, __line__);
     if(!$result){echo '<p style="color: red;">Error updating auction stack quantity!</p>'; exit();}
   // remove auction
   }else{
     $query = "DELETE FROM `".$config['table prefix']."Auctions` WHERE `id` = ".((int)$auctionRow['id'])." LIMIT 1";
-//echo '<p>'.$query.'</p>';
     $result = RunQuery($query, __file__, __line__);
     if(!$result){echo '<p style="color: red;">Error removing item stack!</p>'; exit();}
   }
-  // copy enchantments
-  if($splitStack){
-// already done by ItemFuncs::CreateItem()
-//    foreach($Item->getEnchantmentsArray() as $v){
-//      $query = "INSERT INTO `".$config['table prefix']."ItemEnchantments` (".
-//               "`ItemTable`,`ItemTableId`,`enchName`,`enchId`,`level`) VALUES(".
-//               "'Items',".((int)$auctionId).",".
-//               "'".mysql_san($v['enchName'])."','".mysql_san($v['enchId'])."',".((int)$v['level']).")";
-//echo '<p>'.$query.'</p>';
-//      $result = RunQuery($query, __file__, __line__);
-//      if(!$result){echo '<p style="color: red;">Error creating enchantment!</p>'; exit();}
-//    }
   // move enchantments
-  }else{
+  if(!$splitStack){
     $query = "UPDATE `".$config['table prefix']."ItemEnchantments` SET ".
              "`ItemTable` = 'Items', `ItemTableId` = ".((int)$ItemTableId).
              " WHERE `ItemTable` = 'Items' AND `ItemTableId` = ".((int)$auctionRow['id']);
-//echo '<p>'.$query.'</p>';
     $result = RunQuery($query, __file__, __line__);
     if(!$result){echo '<p style="color: red;">Error moving enchantment!</p>'; exit();}
   }
+
   return(TRUE);
 }
 

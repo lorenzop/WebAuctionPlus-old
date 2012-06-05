@@ -2,12 +2,15 @@
 // this class handles item object manipulation
 class ItemsClass{
 
+
 public $currentId  = 0;
 protected $result  = FALSE;
 private   $tempRow = FALSE;
 
+
 function __construct(){
 }
+
 
 // get items
 public function QueryItems($playerName,$WHERE=''){global $config;
@@ -34,6 +37,7 @@ public function QueryItems($playerName,$WHERE=''){global $config;
 //echo '<pre><font color="white">'.$query."</font></pre>";
   $this->result=RunQuery($query, __file__, __line__);
 }
+
 
 // get next auction row
 public function getNext(){

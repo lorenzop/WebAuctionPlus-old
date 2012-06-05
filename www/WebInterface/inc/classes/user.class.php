@@ -81,10 +81,12 @@ function __construct($username=NULL, $password=NULL){global $config;
   }
 }
 
+
 // user id
 public function getUserId(){
   return($this->UserId);
 }
+
 
 // player name
 public function getName(){
@@ -93,6 +95,7 @@ public function getName(){
 public function nameEquals($name){
   return(strtolower($name) == strtolower($this->getName()));
 }
+
 
 // permissions
 public function hasPerms($perms){
@@ -106,6 +109,7 @@ public function hasPerms($perms){
   }
   return((boolean)@$this->permissions[$perms]);
 }
+
 
 // money
 public function saveMoney($useMySQLiConomy, $iConTableName){
@@ -139,12 +143,14 @@ public function earn($amount, $useMySQLiConomy, $iConTableName){
 //  $query = mysql_query("UPDATE WA_Players SET earnt='$this->earnt' WHERE name='$this->name'");
 }
 
+
 public static function MakePayment($fromPlayer, $toPlayer, $amount, $desc=''){
   if(empty($fromPlayer) || empty($toPlayer) || $amount<=0){echo 'Invalid payment amount!'; exit();}
   self::PaymentQuery($toPlayer,     $amount);
   self::PaymentQuery($fromPlayer, 0-$amount);
   // TODO: log transaction
 }
+
 
 public static function PaymentQuery($playerName, $amount){global $config;
   if($config['iConomy']['use'] === TRUE){

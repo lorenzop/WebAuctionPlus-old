@@ -8,6 +8,14 @@ body{
   background-position:   top;
 }
 
+img{
+  border-width: 0px;
+}
+
+pre{
+  background-color: #ffffff;
+}
+
 a:link{
   text-decoration: none;
   color: #000000;

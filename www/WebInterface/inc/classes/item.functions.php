@@ -52,8 +52,10 @@ class ItemTables{
 // item functions
 class ItemFuncs{
 
+
 // all items info
 static $Items = array();
+
 
 // get item array
 public static function getItemArray($itemId=0, $itemDamage=0){
@@ -73,12 +75,14 @@ public static function getItemArray($itemId=0, $itemDamage=0){
   return($item[-1]);
 }
 
+
 // get item type
 public static function getItemType($itemId=0){
   $item = self::getItemArray($itemId);
   if(isset($item['type'])) return($item['type']);
   return('');
 }
+
 
 // get item name
 public static function getItemName($itemId=0, $itemDamage=0){
@@ -89,6 +93,7 @@ public static function getItemName($itemId=0, $itemDamage=0){
     $name=str_replace('#map#',$itemDamage,$name);
   return($name);
 }
+
 
 // get item title
 public static function getItemTitle($itemId=0, $itemDamage=0){
@@ -101,6 +106,7 @@ public static function getItemTitle($itemId=0, $itemDamage=0){
   if(@$item['type'] == 'map' ) $title=str_replace('#map#'    , $itemDamage                                            , $title);
   return($title);
 }
+
 
 // get item icon file
 //public static function getItemImage($itemId=0, $itemDamage=0){
@@ -120,6 +126,7 @@ public static function getItemImageUrl($itemId=0, $itemDamage=0){global $config;
   return(str_replace('{pack}',$pack,$config['paths']['http']['item packs']).$icon);
 }
 
+
 // get full item title
 //public static function getItemDamageStr($itemId=0, $itemDamage=0){
 //  $item = self::getItemArray($itemId, $itemDamage);
@@ -131,6 +138,7 @@ public static function getItemImageUrl($itemId=0, $itemDamage=0){global $config;
 //  if(@$item['damage'] == 'map' )  $title=str_replace('#map#'    , ' '.$itemDamage                                        , $title);
 //  return($title);
 //}
+
 
 // get damage/charged percent string
 public static function getDamagedChargedStr($itemId=0, $itemDamage=0){
@@ -150,6 +158,7 @@ public static function getDamagedChargedStr($itemId=0, $itemDamage=0){
   return('');
 }
 
+
 // get percent damaged
 private static function getPercentDamaged($itemDamage, $maxDamage){
   $damaged = ( ((float)$itemDamage)/((float)$maxDamage) )*100.0;
@@ -161,6 +170,7 @@ private static function getPercentDamagedStr($itemDamage, $maxDamage){
   if( ((string)$damaged) == '0') return('Brand New!');
   else                           return(((string)$damaged).' % damaged');
 }
+
 
 // get percent charged
 private static function getPercentCharged($itemDamage, $maxDamage){
@@ -174,6 +184,7 @@ private static function getPercentChargedStr($itemDamage, $maxDamage){
   else                           return(((string)$charged).' % charged');
 }
 
+
 // get max stack size
 public static function getMaxStack($itemId=0, $itemDamage=0){
   $item = self::getItemArray($itemId, $itemDamage);
@@ -185,6 +196,7 @@ public static function getMaxStack($itemId=0, $itemDamage=0){
   return($stacksize);
 }
 
+
 // query single stack
 public static function QueryItem($playerName,$id){global $user;
   if(empty($playerName) || $id<1) return(FALSE);
@@ -194,6 +206,7 @@ public static function QueryItem($playerName,$id){global $user;
   unset($items);
   return($itemRow);
 }
+
 
 // create item
 public static function CreateItem($ItemTable, $playerName, $itemId, $itemDamage, $qty, $ench=array()){global $config;
@@ -212,6 +225,7 @@ public static function CreateItem($ItemTable, $playerName, $itemId, $itemDamage,
   return($ItemTableId);
 }
 
+
 // update qty
 public static function UpdateQty($itemId, $qty, $fixed=TRUE){global $config;
   // set qty
@@ -225,6 +239,7 @@ public static function UpdateQty($itemId, $qty, $fixed=TRUE){global $config;
   return($result);
 }
 
+
 // delete item
 public static function DeleteItem($itemId){global $config;
   $query = "DELETE FROM `".$config['table prefix']."Items` WHERE `id` = ".((int)$itemId)." LIMIT 1";
@@ -233,6 +248,7 @@ public static function DeleteItem($itemId){global $config;
   if(!$result){echo '<p style="color: red;">Error removing item stack!</p>'; exit();}
   return($result);
 }
+
 
 // create new enchantments
 public static function CreateEnchantments($ench, $ItemTable, $ItemTableId){global $config;
@@ -250,6 +266,7 @@ public static function CreateEnchantments($ench, $ItemTable, $ItemTableId){globa
   }
   return($newEnch);
 }
+
 
 // mail item stack to player
 public static function MailStack($id){global $config,$user;

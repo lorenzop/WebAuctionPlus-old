@@ -2,11 +2,13 @@
 // this class is an item stack object
 class ItemClass{
 
+
 public $itemType   = '';
 public $itemId     = 0;
 public $itemDamage = 0;
 public $qty        = 0;
 public $enchantments = array();
+
 
 function __construct($Item=array()){global $config;
   if(count($Item) > 0){
@@ -31,12 +33,12 @@ public function getItemName(){
   if($this->itemId<=0) return('');
   return(ItemFuncs::getItemName($this->itemId, $this->itemDamage));
 }
-
 // get item title
 public function getItemTitle(){
   if($this->itemId<=0) return('');
   return(ItemFuncs::getItemTitle($this->itemId, $this->itemDamage));
 }
+
 
 // get item icon file
 //public function getItemImage(){
@@ -48,11 +50,11 @@ public function getItemImageUrl(){
   return(ItemFuncs::getItemImageUrl($this->itemId, $this->itemDamage));
 }
 
+
 // get damage/charged percent string
 public function getDamagedChargedStr(){
   return(ItemFuncs::getDamagedChargedStr($this->itemId, $this->itemDamage));
 }
-
 // get percent damaged
 //public function getPercentDamaged(){
 //  if($this->itemId<=0) return('');
@@ -65,7 +67,6 @@ public function getDamagedChargedStr(){
 //  if( ((string)$damaged) == '0') return('Brand New!');
 //  else                           return((string)$damaged);
 //}
-
 // get percent charged
 //public function getItemDamageStr(){
 //  return(ItemFuncs::getPercentChargedStr($this->itemId, $this->itemDamage));
@@ -73,6 +74,7 @@ public function getDamagedChargedStr(){
 //  if( ((string)$damaged) == '0') return('Fully Charged!');
 //  else                           return((string)$damaged);
 //}
+
 
 // add enchantment
 public function addEnchantment($enchName, $enchId, $level, $enchTableId=0){

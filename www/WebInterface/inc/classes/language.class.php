@@ -15,7 +15,8 @@ public static function setDefaults(){global $config;
   }
 }
 
-// get setting
+
+// get message
 public static function getMessage($name){global $config;
   if(isset($config['languages'][$config['language']][$name]))
     return($config['languages'][$config['language']][$name]);
