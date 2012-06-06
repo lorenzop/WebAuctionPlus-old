@@ -3,15 +3,15 @@
 class SettingsClass{
 
 
-public static function LoadSettings(){global $config;
-  $query = "SELECT `name`,`value` FROM `".$config['table prefix']."Settings`";
-  $result = RunQuery($query, __file__, __line__);
-  if(!$result){echo '<p>Failed to load settings from database.</p>'; exit();}
+public static function LoadSettings(){global $config, $db;
+  if(!$db) ConnectDB();
+  $result = mysql_query("SELECT `name`,`value` FROM `".$config['table prefix']."Settings`", $db);
+  if(!$result) {echo '<p>Failed to load settings from the database! The plugin may not have been loaded for the first time yet.</p>'; exit();}
   if(mysql_num_rows($result) == 0) return;
   while($row = mysql_fetch_assoc($result))
     $config['settings'][$row['name']] = array(
-      'value'	=> $row['value'],
-      'changed'	=> FALSE,
+      'value'   => $row['value'],
+      'changed' => FALSE,
     );
 }
 
