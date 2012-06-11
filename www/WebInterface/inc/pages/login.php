@@ -1,19 +1,19 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
+// login page
 
 
 // check login
-$username = trim(stripslashes( getVar('WA_Login_Username') ));
-$password =      stripslashes( getVar('WA_Login_Password') );
-$user = NULL;
+$username = trim(stripslashes( getVar('WA_Login_Username','str','post') ));
+$password =      stripslashes( getVar('WA_Login_Password','str','post') );
 if(!empty($username) && !empty($password)){
-  $user = new userClass($username,md5($password));
-  if($user!==NULL){
-    if(getVar('error')==''){
-      $lastpage = getVar('lastpage');
-      if(empty($lastpage)) ForwardTo('./');
-      else                 ForwardTo($lastpage);
-      exit();
-    }
+  CSRF::ValidateToken();
+  global $config;
+  $config['user']->doLogin($username, md5($password));
+  if($user->isOk() && getVar('error')==''){
+    $lastpage = getLastPage();
+    if(strpos($lastpage,'login')!==FALSE) $lastpage = './';
+    ForwardTo($lastpage);
+    exit();
   }
 }
 unset($username,$password);

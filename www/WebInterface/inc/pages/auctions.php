@@ -4,34 +4,26 @@
 
 // buy an auction
 if($config['action']=='buy'){
+  CSRF::ValidateToken();
   if(AuctionsClass::RemoveAuction(
-    getVar('auctionid','int'),
-    getVar('qty',      'int'),
+    getVar('auctionid','int','post'),
+    getVar('qty',      'int','post'),
     TRUE
   )){
-///////////////////////////////////////
-//TODO: create a function getLastPage()
-///////////////////////////////////////
-$lastpage = getVar('lastpage');
-if(empty($lastpage)) $lastpage = './';
-echo '<center><h2>Auction purchased successfully!</h2><br /><a href="'.$lastpage.'">Back to last page</a></center>';
-ForwardTo('./',2);
+    echo '<center><h2>Auction purchased successfully!</h2><br /><a href="'.getLastPage().'">Back to last page</a></center>';
+    ForwardTo(getLastPage(), 2);
     exit();
   }
 }
 if($config['action']=='cancel'){
+  CSRF::ValidateToken();
   if(AuctionsClass::RemoveAuction(
-    getVar('auctionid','int'),
+    getVar('auctionid','int','post'),
     -1,
     FALSE
   )){
-///////////////////////////////////////
-//TODO: create a function getLastPage()
-///////////////////////////////////////
-$lastpage = getVar('lastpage');
-if(empty($lastpage)) $lastpage = './';
-echo '<center><h2>Auction canceled!</h2><br /><a href="'.$lastpage.'">Back to last page</a></center>';
-ForwardTo('./',2);
+    echo '<center><h2>Auction canceled!</h2><br /><a href="'.getLastPage().'">Back to last page</a></center>';
+    ForwardTo(getLastPage(), 2);
     exit();
   }
 }

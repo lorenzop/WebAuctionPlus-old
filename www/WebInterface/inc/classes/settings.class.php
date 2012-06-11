@@ -24,19 +24,19 @@ public static function SaveSettings(){global $config;
 // set defaults / type
 public static function setDefault($name, $default='', $setIfEmpty=TRUE){global $config;
   // set default
-  if($setIfEmpty){
+  if($setIfEmpty)
     if(empty($config['settings'][$name]['value']))
       $config['settings'][$name]['value'] = $default;
-  }else{
+  else
     if(!isset($config['settings'][$name]['value']))
       $config['settings'][$name]['value'] = $default;
-  }
   // set type
   $type = gettype($default);
   if(    $type=='string' ) $config['settings'][$name]['value'] = (string)  $config['settings'][$name]['value'];
   elseif($type=='boolean') $config['settings'][$name]['value'] = toBoolean($config['settings'][$name]['value']);
   elseif($type=='integer') $config['settings'][$name]['value'] = (integer) $config['settings'][$name]['value'];
   elseif($type=='double' ) $config['settings'][$name]['value'] = (float)   $config['settings'][$name]['value'];
+  $config['settings'][$name]['changed'] = (boolean)@$config['settings'][$name]['changed'];
 }
 
 
@@ -48,23 +48,23 @@ private static function getSetting($name){global $config;
 }
 public static function getString($name){
   $value = self::getSetting($name);
-  if($value == NULL) return(NULL);
-  else               return((string)$value);
+  if($value === NULL) return(NULL);
+  else                return((string)$value);
 }
 public static function getBoolean($name){
   $value = self::getSetting($name);
-  if($value == NULL) return(NULL);
-  else               return(toBoolean($value));
+  if($value === NULL) return(NULL);
+  else                return(toBoolean($value));
 }
 public static function getInteger($name){
   $value = self::getSetting($name);
-  if($value == NULL) return(NULL);
-  else               return((integer)$value);
+  if($value === NULL) return(NULL);
+  else                return((integer)$value);
 }
 public static function getDouble($name){
   $value = self::getSetting($name);
-  if($value == NULL) return(NULL);
-  else               return((float)$value);
+  if($value === NULL) return(NULL);
+  else                return((float)$value);
 }
 
 

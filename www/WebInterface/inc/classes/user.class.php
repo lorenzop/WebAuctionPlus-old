@@ -1,5 +1,6 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 // this class handles user accounts and sessions
+session_start();
 class UserClass{
 
 
@@ -14,32 +15,38 @@ public    $Spent         = 0.0;
 protected $permissions   = array();
 
 
-function __construct($username=NULL, $password=NULL){global $config;
+function __construct(){global $config;
   $loginUrl = './?page=login';
-  session_start();
-  $query = '';
-  if($username===NULL || $password===NULL){
-    if(isset($_SESSION[$config['session name']])){
-      $this->Name = trim($_SESSION[$config['session name']]);
-      $query = "WHERE LOWER(`playerName`)='".mysql_san(strtolower($this->Name))."'";
-    }
-    if(empty($this->Name)) ForwardTo($loginUrl);
-  }else{
-    $this->Name = $username;
-    $query = "WHERE LOWER(`playerName`)='".mysql_san(strtolower($username))."'".
-             " AND `password`='".mysql_san($password)."'";
-  }
+  // check logged in
+  if(isset($_SESSION[$config['session name']]))
+    $this->doLogin( $_SESSION[$config['session name']] );
+  // not logged in
+  if(SettingsClass::getBoolean('Require Login'))
+    if(!$this->isOk()){
+      ForwardTo($loginUrl, 0); exit();}
+}
+
+
+// do login
+public function doLogin($username, $password=FALSE){global $config;
+  $this->Name = strtolower(trim($username));
+  if(empty($this->Name)) return(FALSE);
+  if($password!==FALSE && empty($password)) return(FALSE);
   // validate player
-  $query="SELECT `id`,`money`,`itemsSold`,`itemsBought`,`earnt`,`spent`,`Permissions` ".
-                   "FROM `".$config['table prefix']."Players` ".$query." LIMIT 1";
-  $result=RunQuery($query, __file__, __line__);
+  $query = "SELECT `id`,`playerName`,`money`,`itemsSold`,`itemsBought`,`earnt`,`spent`,`Permissions` ".
+           "FROM `".$config['table prefix']."Players` ".
+           "WHERE LOWER(`playerName`)='".mysql_san($this->Name)."'";
+  if($password !== FALSE)
+    $query .= " AND `password`='".mysql_san($password)."' LIMIT 1";
+  $result = RunQuery($query, __file__, __line__);
   if($result){
     if(mysql_num_rows($result)==0){
       $_SESSION[$config['session name']] = '';
-      $_GET['error']='bad login';
-      return;
+      $_GET['error'] = 'bad login';
+      return(FALSE);
     }
     $row=mysql_fetch_assoc($result);
+    if($row['playerName'] != $this->Name) return(FALSE);
     $this->UserId      = ((int)    $row['id']         );
     $this->Money       = ((double) $row['money']      );
     $this->ItemsSold   = ((int)    $row['itemsSold']  );
@@ -50,9 +57,9 @@ function __construct($username=NULL, $password=NULL){global $config;
       $this->permissions[$perm] = TRUE;
     }
     // get mail count
-    $result=RunQuery("SELECT COUNT(*) AS `count` FROM `".$config['table prefix']."Items` WHERE ".
+    $result = RunQuery("SELECT COUNT(*) AS `count` FROM `".$config['table prefix']."Items` WHERE ".
                      "`ItemTable`='Mail' AND LOWER(`playerName`)='".mysql_san(strtolower($this->Name))."'", __file__, __line__);
-    $row=mysql_fetch_assoc($result);
+    $row = mysql_fetch_assoc($result);
     $this->numMail = ((int)$row['count']);
     $_SESSION[$config['session name']] = $this->Name;
   }else{
@@ -61,9 +68,7 @@ function __construct($username=NULL, $password=NULL){global $config;
     exit();
   }
   // use iconomy table
-  if($config['iConomy']['use']!=='auto')
-    $config['iConomy']['use'] = toBoolean($config['iConomy']['use']);
-  if($config['iConomy']['use']===TRUE || $config['iConomy']['use']==='auto'){
+  if(toBoolean($config['iConomy']['use']) || $config['iConomy']['use']==='auto'){
     global $db;
     $result = mysql_query("SELECT `balance` FROM `".mysql_san($config['iConomy']['table'])."` WHERE ".
                           "LOWER(`username`)='".mysql_san(strtolower($this->Name))."' LIMIT 1", $db);
@@ -79,6 +84,18 @@ function __construct($username=NULL, $password=NULL){global $config;
     }
     unset($result, $row);
   }
+  return($this->isOk());
+}
+public function isOk(){
+  return($this->UserId > 0);
+}
+
+
+// do logout
+public function doLogout(){global $config;
+echo $config['session name'];
+  unset($_SESSION[$config['session name']]);
+  unset($_SESSION[CSRF::session_key]);
 }
 
 
@@ -99,12 +116,13 @@ public function nameEquals($name){
 
 // permissions
 public function hasPerms($perms){
-  if(empty($perms) || count($this->permissions)==0) return(false);
+  if(empty($perms) || count($this->permissions)==0) return(FALSE);
   if(is_array($perms)){
-    $hasPerms = true;
-    foreach($perms as $perm){
-      if(!(boolean)@$this->permissions[$perm]) $hasPerms = false;
-    }
+    if(count($perms) == 0) return(FALSE);
+    $hasPerms = TRUE;
+    foreach($perms as $perm)
+      if(!(boolean)@$this->permissions[$perm])
+        $hasPerms = FALSE;
     return($hasPerms);
   }
   return((boolean)@$this->permissions[$perms]);

@@ -7,7 +7,10 @@ $outputs['header']='
   <script type="text/javascript" language="javascript" charset="utf-8">
   $(document).ready(function() {
     oTable = $(\'#mainTable\').dataTable({
-      "sZeroRecords"      : "No auctions to display",
+      "oLanguage": {
+        "sEmptyTable"     : "&nbsp;<br />No auctions to display<br />&nbsp;",
+        "sZeroRecords"    : "&nbsp;<br />No auctions to display<br />&nbsp;",
+      },
       "bJQueryUI"         : true,
       "bStateSave"        : true,
       "iDisplayLength"    : 5,
@@ -52,7 +55,14 @@ $outputs['body row']='
       <td style="text-align: center;">{auction price each}</td>
       <td style="text-align: center;">{auction price total}</td>
       <td style="text-align: center;">{market price percent}</td>
-      <td style="text-align: center;"><a href="./?page={page}&amp;action=cancel&amp;auctionid={auction id}" class="button">Cancel</a></td>
+      <td style="text-align: center;">
+        <form action="./" method="post">
+        {token form}
+        <input type="hidden" name="page"      value="{page}" />
+        <input type="hidden" name="action"    value="cancel" />
+        <input type="hidden" name="auctionid" value="{auction id}" />
+        <input type="submit" value="Cancel" class="button" />
+        </form>
     </tr>
 ';
 // ($quantity==0?'Never':date('jS M Y H:i:s', $timeCreated + $auctionDurationSec) ).'</td>

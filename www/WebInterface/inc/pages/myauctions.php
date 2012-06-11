@@ -2,19 +2,18 @@
 // my auctions page
 
 
+if(!$config['user']->isOk()) ForwardTo('./', 0);
+
+
 if($config['action']=='cancel'){
+  CSRF::ValidateToken();
   if(AuctionsClass::RemoveAuction(
-    getVar('auctionid','int'),
+    getVar('auctionid','int','post'),
     -1,
     FALSE
   )){
-///////////////////////////////////////
-//TODO: create a function getLastPage()
-///////////////////////////////////////
-$lastpage = getVar('lastpage');
-if(empty($lastpage)) $lastpage = './?page=myauctions';
-echo '<center><h2>Auction canceled!</h2><br /><a href="'.$lastpage.'">Back to last page</a></center>';
-ForwardTo('./',2);
+    echo '<center><h2>Auction canceled!</h2><br /><a href="'.getLastPage().'">Back to last page</a></center>';
+    ForwardTo(getLastPage(), 2);
     exit();
   }
 }

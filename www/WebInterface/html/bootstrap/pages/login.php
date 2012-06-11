@@ -7,7 +7,8 @@ $outputs['body']='
 {messages}
 <div id="login-box">
 <div id="login-background"><img src="{path=images}wa_bg_login.png" alt="" /></div>
-<form action="./" name="login" method="post">
+<form action="./" name="loginform" method="post">
+{token form}
 <input type="hidden" name="page"     value="login" />
 <input type="hidden" name="lastpage" value="{lastpage}" />
 <table border="0" cellspacing="0" cellpadding="0" align="center" id="login-table">

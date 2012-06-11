@@ -36,7 +36,9 @@ switch($html->getPageFrame()){
 case 'default':
   $output.='
 <div id="holder">
-<table border="0" cellspacing="0" cellpadding="0" id="profile-box">
+<div id="profile-box">
+{if logged in}
+<table border="0" cellspacing="0" cellpadding="0">
 <tr>
   <td rowspan="4"><img src="http://minotar.net/avatar/'.$user->getName().'" alt="" width="64" height="64" id="mcface" /></td>
   <td>Name:</td><td>'.$user->getName().
@@ -46,10 +48,15 @@ case 'default':
 <tr><td>Mail: &nbsp;&nbsp;</td><td>'. $user->numMail.'</td></tr>
 <tr><td colspan="2" style="font-size: 100%; font-weight: bold; text-align: center;">'.@date('jS M Y H:i:s').'</td></tr>
 </table>
+{else}
+<center style="margin-top: 30px; font-size: 30px;"><a href="./?page=login"><u>Login here!</u></a></center>
+{endif}
+</div>
 <div id="menu-box">
 
 
 <a href="./">Home</a><br />
+{if logged in}
 <a href="./?page=myitems">My Items</a><br />
 <a href="./?page=myauctions">My Auctions</a><br />
 <!--
@@ -57,13 +64,18 @@ case 'default':
 <a href="./?page=info">Item Info</a><br />
 <a href="./?page=transactionlog">Transaction Log</a><br />
 -->
-<a href="./?page=logout">Logout</a>
+<a href="./?page=logout{token}">Logout</a><br />
+{else}
+<a href="./?page=login">Login</a><br />
+{endif}
 
 
 </div>
 <div id="title-box">
-  <h1 style="margin-bottom: 10px; text-align: center; font-family: Arial;">WebAuction<sup>Plus</sup></h1>
-  <h2>{page title}</h2>
+  <div id="title-box2">
+    <h1 style="margin-bottom: 10px; text-align: center; font-family: Arial;">WebAuction<sup>Plus</sup></h1>
+    <h2>{page title}</h2>
+  </div>
 </div>
 ';
   break;

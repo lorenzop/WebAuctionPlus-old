@@ -1,11 +1,11 @@
 <?php
+// do logout
 
 
+CSRF::ValidateToken();
 global $config;
-unset($_SESSION[$config['session name']]);
-$lastpage=getVar('lastpage');
-if(empty($lastpage)) ForwardTo('./');
-else                 ForwardTo($lastpage);
+$config['user']->doLogout();
+ForwardTo(getLastPage());
 exit();
 
 

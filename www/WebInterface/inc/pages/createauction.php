@@ -2,20 +2,19 @@
 // current auctions page
 
 
+if(!$config['user']->isOk()) ForwardTo('./', 0);
+
+
 if($config['action']=='newauction'){
+  CSRF::ValidateToken();
   if(AuctionsClass::CreateAuction(
-    getVar('id',   'int'),
-    getVar('qty',  'int'),
-    getVar('price','double'),
-    getVar('desc', 'string')
+    getVar('id'   ,'int'   ,'post'),
+    getVar('qty'  ,'int'   ,'post'),
+    getVar('price','double','post'),
+    getVar('desc' ,'string','post')
   )){
-///////////////////////////////////////
-//TODO: create a function getLastPage()
-///////////////////////////////////////
-$lastpage = getVar('lastpage');
-if(empty($lastpage)) $lastpage = './';
-echo '<center><h2>Auction created successfully!</h2><br /><a href="'.$lastpage.'">Back to last page</a></center>';
-ForwardTo($lastpage,2);
+    echo '<center><h2>Auction created successfully!</h2><br /><a href="'.getLastPage().'">Back to last page</a></center>';
+    ForwardTo(getLastPage(), 2);
     exit();
   }
 }
@@ -167,15 +166,13 @@ function updateTotal(thisfield,otherfieldid){
 //}
 
 
-$lastpage = getVar('lastpage');
-if(empty($lastpage)) $lastpage = @$_SERVER['HTTP_REFERER'];
-
 $output.='
 <!-- mainTable example -->
-<form action="./" method="get">
+<form action="./" method="post">
+{token form}
 <input type="hidden" name="page"     value="'.$config['page'].'" />
 <input type="hidden" name="action"   value="newauction" />
-<input type="hidden" name="lastpage" value="'.$lastpage.'" />
+<input type="hidden" name="lastpage" value="'.getLastPage().'" />
 <input type="hidden" name="id"       value="'.getVar('id','int').'" />
 <table border="0" cellpadding="0" cellspacing="0" id="createauctionTable">
 ';

@@ -7,7 +7,10 @@ $outputs['header']='
   <script type="text/javascript" language="javascript" charset="utf-8">
   $(document).ready(function() {
     oTable = $(\'#mainTable\').dataTable({
-      "sZeroRecords"      : "No auctions to display",
+      "oLanguage": {
+        "sEmptyTable"     : "&nbsp;<br />No auctions to display<br />&nbsp;",
+        "sZeroRecords"    : "&nbsp;<br />No auctions to display<br />&nbsp;",
+      },
       "bJQueryUI"         : true,
       "bStateSave"        : true,
       "iDisplayLength"    : 5,
@@ -32,11 +35,11 @@ $outputs['body top']='
     <tr style="text-align: center; vertical-align: bottom;">
       <th>Item</th>
       <th>Seller</th>
-      <th>Expires</th>
       <th>Qty</th>
       <th>Price (Each)</th>
       <th>Price (Total)</th>
       <th>Percent of<br />Market Price</th>
+      <th>Expires</th>
 {if permission[canBuy]}
       <th>Buy</th>
 {endif}
@@ -54,14 +57,15 @@ $outputs['body row']='
       <td style="padding-bottom: 10px; text-align: center;">'.
         '<img src="{item image url}" alt="{item title}" style="margin-bottom: 5px;" /><br /><b>{item name}</b></td>
       <td style="text-align: center;"><img src="http://minotar.net/avatar/{auction seller name}" width="32" alt="" /><br />{auction seller name}</td>
-      <td style="text-align: center;">{auction expire}</td>
       <td style="text-align: center;"><b>{auction qty}</b></td>
       <td style="text-align: center;">{auction price each}</td>
       <td style="text-align: center;">{auction price total}</td>
       <td style="text-align: center;">{market price percent}</td>
+      <td style="text-align: center;">{auction expire}</td>
 {if permission[canBuy]}
       <td style="text-align: center;">
-        <form action="./" method="get">
+        <form action="./" method="post">
+        {token form}
         <input type="hidden" name="page"      value="{page}" />
         <input type="hidden" name="action"    value="buy" />
         <input type="hidden" name="auctionid" value="{auction id}" />
@@ -72,7 +76,14 @@ $outputs['body row']='
       </td>
 {endif}
 {if permission[isAdmin]}
-      <td style="text-align: center;"><a href="./?page={page}&amp;action=cancel&amp;auctionid={auction id}" class="button">Cancel</a></td>
+      <td style="text-align: center;">
+        <form action="./" method="post">
+        {token form}
+        <input type="hidden" name="page"      value="{page}" />
+        <input type="hidden" name="action"    value="cancel" />
+        <input type="hidden" name="auctionid" value="{auction id}" />
+        <input type="submit" value="Cancel" class="button" />
+        </form>
 {endif}
     </tr>
 ';

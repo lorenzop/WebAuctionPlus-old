@@ -36,6 +36,8 @@ public function Display(){global $config,$lpaths;
   $this->tags['site title']     = $config['site title'];
   $this->tags['page title']     = $config['title'];
   $this->tags['sitepage title'] = $config['site title'].(empty($config['title'])?'':' - '.$config['title']);
+  $this->tags['token']          = CSRF::getTokenURL();
+  $this->tags['token form']     = CSRF::getTokenForm();
   // finish rendering page
   $output = $this->outputs['header']."\n".
             $this->outputs['body']  ."\n".
@@ -118,6 +120,9 @@ protected static function ifCallback($matches){global $config;
   if(substr($match[0],0,10) == 'permission'){
     $match[0] = substr($match[0],11,-1);
     $value = $config['user']->hasPerms($match[0]);
+  }elseif($match[0] == 'logged in'){
+    if($config['user'] == NULL) $value = FALSE;
+    else $value = $config['user']->isOk();
   }
 ////    // framed
 ////    if($match[0]=='framed'){

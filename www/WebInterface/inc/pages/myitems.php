@@ -2,9 +2,13 @@
 // my items page
 
 
+if(!$config['user']->isOk()) ForwardTo('./', 0);
+
+
 // mail item stack
 if($config['action'] == 'mailitem'){
-  ItemFuncs::MailStack( getVar('id',  'int') );
+  CSRF::ValidateToken();
+  ItemFuncs::MailStack( getVar('id','int','post') );
   if(!empty($config['error'])){
     echo '<p style="color: red;">'.$config['error'].'</font>';
     exit();

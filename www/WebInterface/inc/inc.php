@@ -2,10 +2,46 @@
 
 
 // load item classes
+require($lpaths['classes'].'csrf.class.php');
 require($lpaths['classes'].'item.functions.php');
 require($lpaths['classes'].'item.class.php');
 require($lpaths['classes'].'items.class.php');
 require($lpaths['classes'].'auctions.class.php');
+require($lpaths['classes'].'transactions.class.php');
+
+
+// get last page
+function getLastPage(){global $config;
+  if(!empty($config['lastpage'])) return($config['lastpage']);
+  $lastpage = getVar('lastpage');
+  if(empty($lastpage))
+    $lastpage = @$_SERVER['HTTP_REFERER'];
+  elseif(startsWith($lastpage,'page-'))
+    $lastpage = './?page='.substr($lastpage,strlen('page-'));
+  if(empty($lastpage)) $lastpage = './';
+  $config['lastpage'] = $lastpage;
+  return($lastpage);
+}
+
+
+// starts with
+function startsWith($haystack, $needle, $ignoreCase=FALSE){
+  if(empty($haystack) || empty($needle)) return(FALSE);
+  if($ignoreCase){
+    $haystack = strtolower($haystack);
+    $needle   = strtolower($needle);}
+  return(substr($haystack, 0, strlen($needle)) === $needle);
+}
+// ends with
+function endsWith($haystack, $needle, $ignoreCase=FALSE){
+  if(empty($haystack) || empty($needle)) return(FALSE);
+  if($ignoreCase){
+    $haystack = strtolower($haystack);
+    $needle   = strtolower($needle);}
+  $length = strlen($needle);
+  if($length == 0) return(FALSE);
+  return(substr($haystack, 0-$length) === $needle);
+}
 
 
 // format price

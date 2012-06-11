@@ -8,10 +8,10 @@ class ItemTables{
   const Auctions = 2;
   const Mail     = 3;
   public $value = NULL;
-  public function setValue($ItemTable){
-    $type = gettype($ItemTable);
-    if(    $type == 'string' ) $this->value = self::fromString(   $ItemTable);
-    elseif($type == 'integer') $this->value = self::Validate((int)$ItemTable);
+  public function setValue($value){
+    $type = gettype($value);
+    if(    $type == 'string' ) $this->value = self::fromString(   $value);
+    elseif($type == 'integer') $this->value = self::Validate((int)$value);
     return($this->value);
   }
   public function getValue($type='string'){
@@ -20,16 +20,16 @@ class ItemTables{
     return($this->value);
   }
   public static function toString($value){
-    if($value == self::Items)    return("Items"   );
+    if($value == self::Items   ) return("Items"   );
     if($value == self::Auctions) return("Auctions");
-    if($value == self::Mail)     return("Mail"    );
+    if($value == self::Mail    ) return("Mail"    );
     return(NULL);
   }
   public static function fromString($str){
-    $str = strtolower(func_get_arg(0));
-    if($str == 'items')    return(self::Items   );
+    $str = strtolower($str);
+    if($str == 'items'   ) return(self::Items   );
     if($str == 'auctions') return(self::Auctions);
-    if($str == 'mail')     return(self::Mail    );
+    if($str == 'mail'    ) return(self::Mail    );
     return(-1);
   }
   public static function Validate($ItemTable){

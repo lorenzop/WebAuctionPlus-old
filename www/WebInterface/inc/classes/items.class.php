@@ -2,21 +2,26 @@
 // this class handles item object manipulation
 class ItemsClass{
 
-
 public $currentId  = 0;
 protected $result  = FALSE;
 private   $tempRow = FALSE;
-
 
 function __construct(){
 }
 
 
 // get items
-public function QueryItems($playerName,$WHERE=''){global $config;
+public function QueryItems($playerName, $WHERE=''){global $config;
   if(empty($playerName)) {$this->result=FALSE; return;}
   $this->currentId = 0;
   $tempRow = FALSE;
+  // WHERE
+  $WHERE = trim($WHERE);
+  if(!empty($WHERE)){
+    if(!startsWith($WHERE, 'WHERE ', TRUE))
+      $WHERE = 'WHERE '.$WHERE;
+    $WHERE .= ' ';
+  }
   $query="SELECT ".
          "Items.`id`          AS `id`, ".
          "Items.`itemId`      AS `itemId`, ".
@@ -32,10 +37,9 @@ public function QueryItems($playerName,$WHERE=''){global $config;
          "AND ItemEnch.`ItemTable` = Items.`ItemTable` ".
          "WHERE Items.`ItemTable`  = 'Items' ".
          "AND LOWER(`playerName`) = '".mysql_san(strtolower($playerName))."' ".
-         (empty($WHERE)?'':'AND '.$WHERE.' ').
-         "ORDER BY Items.`id` ASC";
+         $WHERE."ORDER BY Items.`id` ASC";
 //echo '<pre><font color="white">'.$query."</font></pre>";
-  $this->result=RunQuery($query, __file__, __line__);
+  $this->result = RunQuery($query, __file__, __line__);
 }
 
 
@@ -45,8 +49,8 @@ public function getNext(){
   $tempRow = &$this->tempRow;
   $output  = array();
   // get first row
-  if($tempRow==FALSE) $tempRow = mysql_fetch_assoc($this->result);
-  if($tempRow==FALSE) return(FALSE);
+  if($tempRow == FALSE) $tempRow = mysql_fetch_assoc($this->result);
+  if($tempRow == FALSE) return(FALSE);
   $this->currentId      = $tempRow['id'];
   $output['id']         = $tempRow['id'];
   // create item object
@@ -62,7 +66,7 @@ public function getNext(){
     if($tempRow['id'] != $this->currentId) break;
     $output['Item']->addEnchantment($tempRow['enchName'], $tempRow['enchId'], $tempRow['level'], $tempRow['eid']);
   }
-  if(count($output)==0) $output=FALSE;
+  if(count($output) == 0) $output=FALSE;
   return($output);
 }
 

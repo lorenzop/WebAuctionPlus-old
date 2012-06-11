@@ -7,7 +7,10 @@ $outputs['header']='
   <script type="text/javascript" language="javascript" charset="utf-8">
   $(document).ready(function() {
     oTable = $(\'#mainTable\').dataTable({
-      "sZeroRecords"      : "No items to display",
+      "oLanguage": {
+        "sEmptyTable"     : "&nbsp;<br />No items to display<br />&nbsp;",
+        "sZeroRecords"    : "&nbsp;<br />No items to display<br />&nbsp;",
+      },
       "bJQueryUI"         : true,
       "bStateSave"        : true,
       "iDisplayLength"    : 5,
@@ -52,9 +55,16 @@ $outputs['body row']='
       <td style="text-align: center;">{market price each}</td>
       <td style="text-align: center;">{market price total}</td>
 {if permission[canSell]}
-      <td style="text-align: center;"><a href="./?page=createauction&amp;id={item row id}" class="button">Sell it</a></td>
+      <td style="text-align: center;"><a href="./?page=createauction&amp;id={item row id}&amp;lastpage=page-myitems" class="button">Sell it</a></td>
 {endif}
-      <td style="text-align: center;"><a href="./?page={page}&amp;action=mailitem&amp;id={item row id}" class="button">Mail it</a></td>
+      <td style="text-align: center;">
+        <form action="./" method="post">
+        {token form}
+        <input type="hidden" name="page"      value="{page}" />
+        <input type="hidden" name="action"    value="mailitem" />
+        <input type="hidden" name="auctionid" value="{item row id}" />
+        <input type="submit" value="Mail it" class="button" />
+        </form>
     </tr>
 ';
 //      <td style="padding-bottom: 10px; text-align: center;">'.
