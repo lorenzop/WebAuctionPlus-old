@@ -3,55 +3,20 @@
 
 
 // item tables enum
-class ItemTables{
-  const Items    = 1;
-  const Auctions = 2;
-  const Mail     = 3;
-  public $value = NULL;
-  public function setValue($value){
-    $type = gettype($value);
-    if(    $type == 'string' ) $this->value = self::fromString(   $value);
-    elseif($type == 'integer') $this->value = self::Validate((int)$value);
-    return($this->value);
-  }
-  public function getValue($type='string'){
-    if(    $type=='str'   || $type=='string' ) return( self::toString($this->value) );
-    elseif($type=='int'   || $type=='integer') return(           (int)$this->value  );
-    return($this->value);
-  }
-  public static function toString($value){
-    if($value == self::Items   ) return("Items"   );
-    if($value == self::Auctions) return("Auctions");
-    if($value == self::Mail    ) return("Mail"    );
-    return(NULL);
-  }
-  public static function fromString($str){
-    $str = strtolower($str);
-    if($str == 'items'   ) return(self::Items   );
-    if($str == 'auctions') return(self::Auctions);
-    if($str == 'mail'    ) return(self::Mail    );
-    return(-1);
-  }
-  public static function Validate($ItemTable){
-    $type = gettype($ItemTable);
-    if(    $type == 'string' ) return( self::toString(self::fromString($ItemTable)) );
-    elseif($type == 'integer') return( self::fromString(self::toString($ItemTable)) );
-    elseif($type == 'object' ) return( self::toString($ItemTable->value)            );
-    return(NULL);
-  }
-  public static function ValidateStr($ItemTable){
-    $type = gettype($ItemTable);
-    if(    $type == 'string' ) return( self::Validate($ItemTable)        );
-    elseif($type == 'integer') return( self::toString($ItemTable)        );
-    elseif($type == 'object' ) return( self::toString($ItemTable->value) );
-    return(NULL);
+class ItemTables extends Enum{
+  function __construct(){
+    self::$enumValues = array(
+      'items'    => 1,
+      'auctions' => 2,
+      'mail'     => 3
+    );
+    self::construct(func_get_args());
   }
 }
 
 
 // item functions
 class ItemFuncs{
-
 
 // all items info
 static $Items = array();

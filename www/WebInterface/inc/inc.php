@@ -3,6 +3,7 @@
 
 // load item classes
 require($lpaths['classes'].'csrf.class.php');
+require($lpaths['classes'].'enum.class.php');
 require($lpaths['classes'].'item.functions.php');
 require($lpaths['classes'].'item.class.php');
 require($lpaths['classes'].'items.class.php');
