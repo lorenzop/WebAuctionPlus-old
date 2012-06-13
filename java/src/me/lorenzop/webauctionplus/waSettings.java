@@ -51,12 +51,14 @@ public class waSettings {
 	private void addDefaults() {
 		addDefault("Version",				plugin.getDescription().getVersion().toString());
 		addDefault("Language",				"en");
+		addDefault("Require Login",			false);
 		addDefault("Currency Prefix",		"$ ");
 		addDefault("Currency Postfix",		"");
 		addDefault("Custom Description",	false);
 		addDefault("Website Theme",			"");
 		addDefault("jQuery UI Pack",		"");
 		addDefault("Item Packs",			"");
+		addDefault("Max Sell Price",		10000.00);
 	}
 	private void addDefault(String name, String value) {
 		if(!settingsMap.containsKey(name)) {
@@ -86,7 +88,6 @@ public class waSettings {
 	private void addDefault(String name, int value) {
 		addDefault(name, Integer.toString(value));
 	}
-@SuppressWarnings("unused")
 	private void addDefault(String name, double value) {
 		addDefault(name, Double.toString(value));
 	}

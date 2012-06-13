@@ -76,10 +76,10 @@ public class PlayerActions {
 		if(qty<1 || qty>36) qty = 36;
 		List<Integer> delMail = new ArrayList<Integer>();
 		int nextId = 0;
+		MailItem mail = null;
+		boolean invFull = false;
+		boolean gotMail = false;
 		try {
-			MailItem mail = null;
-			boolean invFull = false;
-			boolean gotMail = false;
 			// get items from mailbox
 			for (int i=0; i<qty; i++) {
 				mail = plugin.dataQueries.getMail(player, nextId);
@@ -96,6 +96,11 @@ public class PlayerActions {
 				nextId = mail.getMailId();
 				gotMail = true;
 			}
+		} catch(Exception e) {
+			p.sendMessage(WebAuctionPlus.chatPrefix + ChatColor.RED + "Error getting items!");
+			e.printStackTrace();
+		}
+		try {
 			plugin.dataQueries.deleteMail(player, delMail);
 			if (gotMail)
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("got_mail"));

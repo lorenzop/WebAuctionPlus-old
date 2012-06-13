@@ -46,7 +46,7 @@ public class WebAuctionPlus extends JavaPlugin {
 
 	// isDev is for testing mode only
 	public final boolean isDev = true;
-	private      boolean isOk  = false;
+	private static boolean isOk  = false;
 
 	public static String logPrefix  = "[WebAuction+] ";
 	public static String chatPrefix = ChatColor.DARK_GREEN+"["+ChatColor.WHITE+"WebAuction+"+ChatColor.DARK_GREEN+"] ";
@@ -164,7 +164,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		pm.registerEvents(new WebAuctionServerListener(this), this);
 		isOk = true;
 	}
-	public boolean isOk() {return this.isOk;}
+	public boolean isOk() {return isOk;}
 
 	public boolean onLoadConfig() {
 		try {
@@ -256,6 +256,7 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	public void onDisable() {
+		isOk = false;
 		try {
 			getServer().getScheduler().cancelTasks(this);
 		} catch (Exception ignore) {}

@@ -44,7 +44,9 @@ public class RecentSignTask implements Runnable {
 				tempSeller.setDefault("N/A");
 				if (i < totalAuctionCount - 1) {
 					Auction offsetAuction = plugin.dataQueries.getAuctionForOffset(i);
+					if(offsetAuction == null) continue;
 					ItemStack stack = offsetAuction.getItemStack();
+					if(stack == null) continue;
 					tempName.set(stack.getType().toString());
 					tempQuant.set(Integer.toString(stack.getAmount()));
 					tempPrice.set(plugin.economy.format(offsetAuction.getPrice()));
@@ -61,11 +63,11 @@ public class RecentSignTask implements Runnable {
 				int offset = (Integer)plugin.recentSigns.get(key);
 				if (offset <= totalAuctionCount) {
 					Auction offsetAuction = plugin.dataQueries.getAuctionForOffset(offset - 1);
-
+					if(offsetAuction == null) continue;
 					ItemStack stack = offsetAuction.getItemStack();
+					if(stack == null) continue;
 					int qty = stack.getAmount();
 					String formattedPrice = plugin.economy.format(offsetAuction.getPrice());
-
 					if (key.getBlock().getType() == Material.SIGN_POST || key.getBlock().getType() == Material.WALL_SIGN) {
 						Sign thisSign = (Sign)key.getBlock().getState();
 						thisSign.setLine(1, stack.getType().toString());

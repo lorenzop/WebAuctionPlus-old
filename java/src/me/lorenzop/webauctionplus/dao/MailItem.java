@@ -52,7 +52,8 @@ public class MailItem {
 		return stack.getEnchantments();
 	}
 	public void addEnchantments(ItemStack stack, String enchantment, int level) {
-		if (stack == null || enchantment.isEmpty()) return;
+		if (stack==null || enchantment==null) return;
+		if (enchantment.isEmpty()) return;
 		Enchantment ench = Enchantment.getByName(enchantment);
 		if (!timEnabled && !ench.canEnchantItem(stack)) {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Removed unsafe enchantment: "+ench.toString());

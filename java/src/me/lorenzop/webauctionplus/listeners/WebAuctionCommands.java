@@ -92,6 +92,7 @@ return true;
 			return false;
 		// 2 args
 		} else if (params == 2 || params == 3) {
+			if(!plugin.isOk()) {sender.sendMessage(WebAuctionPlus.chatPrefix+"Plugin isn't loaded"); return true;}
 			// wa password
 			if (args[0].equalsIgnoreCase("password") ||
 				args[0].equalsIgnoreCase("pass")     ||
