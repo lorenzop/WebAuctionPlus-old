@@ -5,11 +5,11 @@
 function ConnectDB(){global $db,$config;
 
 
-  $host     = 'localhost';
-  $port     = 3306;
-  $username = 'minecraft';
-  $password = 'password123';
-  $database = 'minecraft';
+  $host     = '119.198.193.38';
+  $port     = 25565;
+  $username = 'simond';
+  $password = 'chlrkd12';
+  $database = 'herosimond.net';
   $config['table prefix'] = 'WA_';
 
 
