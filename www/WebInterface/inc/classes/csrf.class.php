@@ -18,9 +18,9 @@ const session_key = 'csrf token';
 
 // get token
 public static function getToken(){
-  if(!isset($_SESSION['token']) || empty($_SESSION['token']))
+  if(!isset($_SESSION[self::session_key]) || empty($_SESSION[self::session_key]))
     $_SESSION[self::session_key] = self::GenerateToken();
-  return($_SESSION['token']);
+  return($_SESSION[self::session_key]);
 }
 // generate new token
 protected static function GenerateToken(){
@@ -43,8 +43,8 @@ public static function ValidateToken(){
     header('Location: ./'); exit();}
 }
 protected static function isValidToken(){
-  if(isset($_POST['token'])) return(self::getToken() === $_POST['token']);
-  if(isset($_GET ['token'])) return(self::getToken() === $_GET ['token']);
+  if(isset($_POST[self::session_key])) return(self::getToken() === $_POST[self::session_key]);
+  if(isset($_GET [self::session_key])) return(self::getToken() === $_GET [self::session_key]);
   return false;
 }
 
