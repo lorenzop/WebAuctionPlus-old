@@ -71,7 +71,7 @@ public class WebAuctionBlockListener implements Listener {
 				event.setLine(2, Integer.toString(radius));
 				if (!lines[3].isEmpty()) event.setLine(3, "");
 				plugin.shoutSigns.put(sign.getLocation(), radius);
-				plugin.dataQueries.createShoutSign(world, radius, sign.getX(), sign.getY(), sign.getZ());
+				WebAuctionPlus.dataQueries.createShoutSign(world, radius, sign.getX(), sign.getY(), sign.getZ());
 			}
 		} else
 
@@ -85,11 +85,11 @@ public class WebAuctionBlockListener implements Listener {
 				try {
 					offset = Integer.parseInt(lines[2]);
 				} catch (NumberFormatException ignore) {}
-				if (offset<1)  offset = 1;
-				if (offset>10) offset = 10;
+				if(offset < 1)  offset = 1;
+				if(offset > 10) offset = 10;
 				// display auction
-				if (offset <= plugin.dataQueries.getTotalAuctionCount()) {
-					Auction offsetAuction = plugin.dataQueries.getAuctionForOffset(offset - 1);
+				if (offset <= WebAuctionPlus.dataQueries.getTotalAuctionCount()) {
+					Auction offsetAuction = WebAuctionPlus.dataQueries.getAuctionForOffset(offset - 1);
 					ItemStack stack = offsetAuction.getItemStack();
 					int qty = stack.getAmount();
 					String formattedPrice = plugin.economy.format(offsetAuction.getPrice());
@@ -102,7 +102,7 @@ public class WebAuctionBlockListener implements Listener {
 					event.setLine(3, "Not Available");
 				}
 				plugin.recentSigns.put(sign.getLocation(), offset);
-				plugin.dataQueries.createRecentSign(world, offset, sign.getX(), sign.getY(), sign.getZ());
+				WebAuctionPlus.dataQueries.createRecentSign(world, offset, sign.getX(), sign.getY(), sign.getZ());
 			}
 		} else
 
@@ -185,12 +185,15 @@ public class WebAuctionBlockListener implements Listener {
 			}
 		}
 
-		if (!allowEvent) {
+		if (allowEvent) {
+//TODO: this needs to be tested
+			player.sendMessage(WebAuctionPlus.chatPrefix + "Invalid sign parameters! Please check dev bukkit for the right sign usage.");
+		} else {
 			event.setCancelled(true);
 			sign.setTypeId(0);
 			ItemStack stack = new ItemStack(323, 1);
 			player.getInventory().addItem(stack);
-			plugin.doUpdateInventory(player);
+			WebAuctionPlus.doUpdateInventory(player);
 			player.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
 		}
 	}

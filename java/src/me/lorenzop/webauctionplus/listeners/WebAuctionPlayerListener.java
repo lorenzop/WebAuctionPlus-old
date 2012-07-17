@@ -1,8 +1,8 @@
 package me.lorenzop.webauctionplus.listeners;
 
 import java.math.BigDecimal;
-import java.util.Random;
 
+import me.lorenzop.webauctionplus.PlayerActions;
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 import me.lorenzop.webauctionplus.dao.AuctionPlayer;
 import me.lorenzop.webauctionplus.tasks.PlayerAlertTask;
@@ -39,7 +39,7 @@ public class WebAuctionPlayerListener implements Listener {
 		// login code runs multi-threaded with a delay
 		if (player != null)
 			// run after 2 seconds
-			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new PlayerAlertTask(plugin, player), 2 * 20);
+			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new PlayerAlertTask(player), 2 * 20);
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
@@ -54,172 +54,112 @@ public class WebAuctionPlayerListener implements Listener {
 		Sign sign = (Sign) block.getState();
 		String[] lines = sign.getLines();
 		if (!lines[0].equals("[WebAuction+]")) return;
-
+		// get player info
 		Player p = event.getPlayer();
 		String player = p.getName();
 		event.setCancelled(true);
-
-		// prevent spamming a sign
+		// prevent click spamming signs
 		if (plugin.lastSignUse.containsKey(player))
-			if( plugin.lastSignUse.get(player)+(long)plugin.signDelay > plugin.getCurrentMilli() ) return;
+			if( plugin.lastSignUse.get(player)+(long)plugin.signDelay > WebAuctionPlus.getCurrentMilli() ) return;
 		//p.sendMessage(plugin.chatPrefix + "Please wait a bit before using that again");
-		plugin.lastSignUse.put(player, plugin.getCurrentMilli());
+		plugin.lastSignUse.put(player, WebAuctionPlus.getCurrentMilli());
 
 		// Shout sign
-		if (lines[1].equals("Shout")) {
-			Random generator = new Random();
-			int roll = generator.nextInt(20);
-			switch (roll) {
-			case 0:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "RAAN MIR TAH!");
-				break;
-			case 1:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "LAAS YAH NIR!");
-				break;
-			case 2:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "FEIM ZII GRON!");
-				break;
-			case 3:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "OD AH VIING!");
-				break;
-			case 4:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "HUN KAL ZOOR!");
-				break;
-			case 5:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "LOK VAH KOOR!");
-				break;
-			case 6:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "ZUN HAAL VIK!");
-				break;
-			case 7:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "FAAS RU MAAR!");
-				break;
-			case 8:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "JOOR ZAH FRUL!");
-				break;
-			case 9:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "SU GRAH DUN!");
-				break;
-			case 10:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "YOL TOOR SHOL!");
-				break;
-			case 11:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "FO KRAH DIIN!");
-				break;
-			case 12:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "LIZ SLEN NUS!");
-				break;
-			case 13:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "KAAN DREM OV!");
-				break;
-			case 14:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "KRII LUN AUS!");
-				break;
-			case 15:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "TIID KLO UL!");
-				break;
-			case 16:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "STRUN BAH QO!");
-				break;
-			case 17:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "ZUL MEY GUT!");
-				break;
-			case 18:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "WULK NAH KEST!");
-				break;
-			default:
-				p.sendMessage(WebAuctionPlus.chatPrefix + "FUS RO DAH!");
-				break;
-			}
+		if(lines[1].equals("Shout")) {
+			PlayerActions.clickSignShout();
 			return;
+		}
 
 		// Deposit sign (money)
-		} else if (lines[1].equals("Deposit")) {
-			if (!p.hasPermission("wa.use.deposit.money")) {
+		if(lines[1].equals("Deposit")) {
+			if(!p.hasPermission("wa.use.deposit.money")) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
 				return;
-			} else {
-				double amount = 0.0D;
-				if (!lines[2].equals("All")) {
+			}
+			double amount = 0.0D;
+			if(!lines[2].equals("All")) {
+				try {
+					amount = WebAuctionPlus.ParseDouble(lines[2]);
+				} catch(NumberFormatException ignore) {}
+			}
+			// player has enough money
+			if(!plugin.economy.has(player, amount)) {
+				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("not_enough_money_pocket"));
+				return;
+			}
+			AuctionPlayer auctionPlayer = WebAuctionPlus.dataQueries.getPlayer(player);
+			if(auctionPlayer == null) {
+				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_not_found"));
+				return;
+			}
+			double currentMoney = auctionPlayer.getMoney();
+			if(lines[2].equals("All"))
+				amount = plugin.economy.getBalance(player);
+			currentMoney += amount;
+			currentMoney = WebAuctionPlus.RoundDouble(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
+			p.sendMessage(WebAuctionPlus.chatPrefix + "Added " + amount +
+				" to auction account, new auction balance: " + currentMoney);
+			WebAuctionPlus.dataQueries.updatePlayerMoney(player, currentMoney);
+			plugin.economy.withdrawPlayer(player, amount);
+			return;
+		}
+
+		// Withdraw sign (money)
+		if(lines[1].equals("Withdraw")) {
+			if(!p.hasPermission("wa.use.withdraw.money")) {
+				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
+				return;
+			}
+			double amount = 0.0D;
+			try {
+				AuctionPlayer auctionPlayer = WebAuctionPlus.dataQueries.getPlayer(player);
+				if(auctionPlayer == null) {
+					p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_not_found"));
+					return;
+				}
+				// Match found!
+				double currentMoney = auctionPlayer.getMoney();
+				if(lines[2].equals("All")) {
+					amount = currentMoney;
+				} else {
 					try {
 						amount = WebAuctionPlus.ParseDouble(lines[2]);
 					} catch(NumberFormatException ignore) {}
 				}
-				if (plugin.economy.has(player, amount)) {
-					AuctionPlayer auctionPlayer = plugin.dataQueries.getPlayer(player);
-					if (auctionPlayer != null) {
-						double currentMoney = auctionPlayer.getMoney();
-						if (lines[2].equals("All"))
-							amount = plugin.economy.getBalance(player);
-						currentMoney += amount;
-						currentMoney = WebAuctionPlus.RoundDouble(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
-						p.sendMessage(WebAuctionPlus.chatPrefix + "Added " + amount +
-							" to auction account, new auction balance: " + currentMoney);
-						plugin.dataQueries.updatePlayerMoney(player, currentMoney);
-						plugin.economy.withdrawPlayer(player, amount);
-					} else {
-						p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_not_found"));
-					}
-				} else {
-					p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("not_enough_money_pocket"));
+				if(currentMoney < amount) {
+					p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("not_enough_money_account"));
+					return;
 				}
+				currentMoney -= amount;
+				currentMoney = WebAuctionPlus.RoundDouble(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
+				p.sendMessage(WebAuctionPlus.chatPrefix + "Removed " +
+					amount + " from auction account, new auction balance: " + currentMoney);
+				WebAuctionPlus.dataQueries.updatePlayerMoney(player, currentMoney);
+				plugin.economy.depositPlayer(player, amount);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 			return;
-
-		// Withdraw sign (money)
-		} else if (lines[1].equals("Withdraw")) {
-			if (!p.hasPermission("wa.use.withdraw.money")) {
-				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
-				return;
-			} else {
-				double amount = 0.0D;
-				try {
-					AuctionPlayer auctionPlayer = plugin.dataQueries.getPlayer(player);
-					if (auctionPlayer == null) {
-						p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_not_found"));
-					} else {
-						// Match found!
-						double currentMoney = auctionPlayer.getMoney();
-						if (lines[2].equals("All"))
-							amount = currentMoney;
-						else {
-							try {
-								amount = WebAuctionPlus.ParseDouble(lines[2]);
-							} catch(NumberFormatException ignore) {}
-						}
-						if (currentMoney >= amount) {
-							currentMoney -= amount;
-							currentMoney = WebAuctionPlus.RoundDouble(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
-							p.sendMessage(WebAuctionPlus.chatPrefix + "Removed " +
-								amount + " from auction account, new auction balance: " + currentMoney);
-							plugin.dataQueries.updatePlayerMoney(player, currentMoney);
-							plugin.economy.depositPlayer(player, amount);
-						} else {
-							p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_not_found"));
-						}
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			return;
+		}
 
 		// MailBox Deposit (items)
-		} else if (lines[1].equals("MailBox") && lines[2].equals("Deposit")) {
-			if (!p.hasPermission("wa.use.deposit.items")) {
+		if(lines[1].equals("MailBox") && lines[2].equals("Deposit")) {
+			if(!p.hasPermission("wa.use.deposit.items")) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
 				return;
+			}
 			// disallow creative
-			} else if (p.getGameMode() != GameMode.SURVIVAL) {
+			if(p.getGameMode() != GameMode.SURVIVAL) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_cheating"));
 				return;
 			}
-			plugin.waPlayerActions.DepositStack(p);
+			PlayerActions.DepositStack(p);
 			return;
+		}
 
 		// MailBox Withdraw (items)
-		} else if (lines[1].equals("MailBox") && lines[2].equals("Withdraw")) {
-			if (!p.hasPermission("wa.use.withdraw.items")) {
+		if(lines[1].equals("MailBox") && lines[2].equals("Withdraw")) {
+			if(!p.hasPermission("wa.use.withdraw.items")) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
 				return;
 			}
@@ -227,9 +167,10 @@ public class WebAuctionPlayerListener implements Listener {
 			try {
 				qty = Integer.parseInt(lines[3].replace("qty: ", ""));
 			} catch(NumberFormatException ignore) {}
-			plugin.waPlayerActions.WithdrawStacks(p, qty);
+			PlayerActions.WithdrawStacks(p, qty);
 			return;
 		}
+
 	}
 
 }

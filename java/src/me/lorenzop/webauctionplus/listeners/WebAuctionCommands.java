@@ -48,7 +48,7 @@ return true;
 				plugin.waAnnouncerTask.clearMessages();
 				plugin.shoutSigns.clear();
 				plugin.recentSigns.clear();
-				plugin.dataQueries.forceCloseConnections();
+				WebAuctionPlus.dataQueries.forceCloseConnections();
 				plugin.reloadConfig();
 				plugin.onLoadConfig();
 				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("finished_reloading"));
@@ -118,7 +118,7 @@ return true;
 					args[2] = "";
 				}
 				if (player.isEmpty()) return false;
-				AuctionPlayer waPlayer = plugin.dataQueries.getPlayer(player);
+				AuctionPlayer waPlayer = WebAuctionPlus.dataQueries.getPlayer(player);
 				// create that person in database
 				if (waPlayer == null) {
 					// permission to create an account
@@ -134,7 +134,7 @@ return true;
 						sender.hasPermission("wa.cansell")  && isPlayer,
 						sender.hasPermission("wa.webadmin") && isPlayer
 					);
-					plugin.dataQueries.createPlayer(waPlayer, pass);
+					WebAuctionPlus.dataQueries.createPlayer(waPlayer, pass);
 					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("account_created") + " " + player +
 							" with perms: " + waPlayer.getPermsString());
 					if (sender instanceof Player)
@@ -148,7 +148,7 @@ return true;
 							return true;
 						}
 					}
-					plugin.dataQueries.updatePlayerPassword(player, pass);
+					WebAuctionPlus.dataQueries.updatePlayerPassword(player, pass);
 					if (sender instanceof Player)
 						sender.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("password_changed"));
 					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("password_changed") + " " + player);

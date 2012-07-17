@@ -45,11 +45,11 @@ import org.w3c.dom.NodeList;
 public class WebAuctionPlus extends JavaPlugin {
 
 	// isDev is for testing mode only
-	public final boolean isDev = true;
+	private static boolean isDev = true;
 	private static boolean isOk  = false;
 
-	public static String logPrefix  = "[WebAuction+] ";
-	public static String chatPrefix = ChatColor.DARK_GREEN+"["+ChatColor.WHITE+"WebAuction+"+ChatColor.DARK_GREEN+"] ";
+	public static final String logPrefix  = "[WebAuction+] ";
+	public static final String chatPrefix = ChatColor.DARK_GREEN+"["+ChatColor.WHITE+"WebAuction+"+ChatColor.DARK_GREEN+"] ";
 	public static final Logger log = Logger.getLogger("Minecraft");
 
 	public static Metrics metrics;
@@ -67,9 +67,8 @@ public class WebAuctionPlus extends JavaPlugin {
 	// language
 	public static Language Lang;
 
-	public DataQueries dataQueries;
+	public static DataQueries dataQueries;
 	public WebAuctionCommands WebAuctionCommandsListener = new WebAuctionCommands(this);
-	public PlayerActions waPlayerActions = new PlayerActions(this);
 
 	public Map<String,   Long>    lastSignUse = new HashMap<String , Long>();
 	public Map<Location, Integer> recentSigns = new HashMap<Location, Integer>();
@@ -134,7 +133,7 @@ public class WebAuctionPlus extends JavaPlugin {
 			return;
 		}
 
-		Stats = new waStats(this);
+		Stats = new waStats();
 
 		// load settings from db
 		settings = new waSettings(this);
@@ -165,6 +164,8 @@ public class WebAuctionPlus extends JavaPlugin {
 		isOk = true;
 	}
 	public boolean isOk() {return isOk;}
+	public static boolean isDev() {return isDev;}
+
 
 	public boolean onLoadConfig() {
 		try {
@@ -220,7 +221,7 @@ public class WebAuctionPlus extends JavaPlugin {
 			// report sales to players (always multi-threaded)
 			if (saleAlertSeconds > 0) {
 				if(saleAlertSeconds < 3) saleAlertSeconds = 3;
-				scheduler.scheduleAsyncRepeatingTask(this, new PlayerAlertTask(this),
+				scheduler.scheduleAsyncRepeatingTask(this, new PlayerAlertTask(),
 					saleAlertSeconds, saleAlertSeconds);
 				log.info(logPrefix + "Enabled Task: Sale Alert (always multi-threaded)");
 			}
@@ -257,12 +258,15 @@ public class WebAuctionPlus extends JavaPlugin {
 
 	public void onDisable() {
 		isOk = false;
+		// stop schedulers
 		try {
 			getServer().getScheduler().cancelTasks(this);
 		} catch (Exception ignore) {}
+		// stop json server
 //		try {
 //			if(jsonServer != null)  jsonServer.listener.close();
 //		} catch (Exception ignore) {}
+		// close mysql connection
 		try {
 			if(dataQueries != null) dataQueries.forceCloseConnections();
 		} catch (Exception ignore) {}
@@ -270,10 +274,14 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	// Init database
-	public boolean ConnectDB() {
+	public synchronized boolean ConnectDB() {
 		if ( ((String)Config.getString("MySQL.Password")).equals("password123") )
 			return false;
 		log.info(logPrefix + "MySQL Initializing.");
+		if(dataQueries != null) {
+			log.severe("Database connection already made?");
+			return false;
+		}
 		try {
 			int port = Config.getInt("MySQL.Port");
 			if(port < 1) port = Integer.valueOf(Config.getString("MySQL.Port"));
@@ -289,17 +297,17 @@ public class WebAuctionPlus extends JavaPlugin {
 			);
 			dataQueries.setConnPoolSizeWarn(Config.getInt("MySQL.ConnectionPoolSizeWarn"));
 			dataQueries.setConnPoolSizeHard(Config.getInt("MySQL.ConnectionPoolSizeHard"));
+			dataQueries.start();
 			// create/update tables
 			MySQLTables dbTables = new MySQLTables(this);
 			if(!dbTables.isOk()) {
-				log.severe(logPrefix+"Error loading db tables!");
+				log.severe(logPrefix+"Error loading db updater class!");
 				return false;
 			}
 			dbTables = null;
 		} catch (Exception e) {
-			if (e.getCause() instanceof SQLException) {
+			if (e.getCause() instanceof SQLException)
 				log.severe(logPrefix + "Unable to connect to MySQL database.");
-			}
 			e.printStackTrace();
 			return false;
 		}
@@ -339,11 +347,11 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	@SuppressWarnings("deprecation")
-	public void doUpdateInventory(Player p) {
+	public static synchronized void doUpdateInventory(Player p) {
 		p.updateInventory();
 	}
 
-	public long getCurrentMilli() {
+	public static long getCurrentMilli() {
 		return System.currentTimeMillis();
 	}
 
@@ -393,6 +401,42 @@ public class WebAuctionPlus extends JavaPlugin {
 			newNumber = randomGen.nextInt(maxNumber + 1);
 			if (newNumber != oldNumber) return newNumber;
 		}
+	}
+
+	// min/max value
+	public static int MinMax(int value, int min, int max) {
+		if(value < min) value = min;
+		if(value > max) value = max;
+		return value;
+	}
+	public static long MinMax(long value, long min, long max) {
+		if(value < min) value = min;
+		if(value > max) value = max;
+		return value;
+	}
+	public static double MinMax(double value, double min, double max) {
+		if(value < min) value = min;
+		if(value > max) value = max;
+		return value;
+	}
+	// min/max by object
+	public static boolean MinMax(Integer value, int min, int max) {
+		boolean changed = false;
+		if(value < min) {value = min; changed = true;}
+		if(value > max) {value = max; changed = true;}
+		return changed;
+	}
+	public static boolean MinMax(Long value, long min, long max) {
+		boolean changed = false;
+		if(value < min) {value = min; changed = true;}
+		if(value > max) {value = max; changed = true;}
+		return changed;
+	}
+	public static boolean MinMax(Double value, double min, double max) {
+		boolean changed = false;
+		if(value < min) {value = min; changed = true;}
+		if(value > max) {value = max; changed = true;}
+		return changed;
 	}
 
 	public static String MD5(String str) {

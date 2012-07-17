@@ -31,7 +31,7 @@ public class RecentSignTask implements Runnable {
 		List<Variable> WAQuants = new ArrayList<Variable>();
 		List<Variable> WASellers = new ArrayList<Variable>();
 
-		int totalAuctionCount = plugin.dataQueries.getTotalAuctionCount();
+		int totalAuctionCount = WebAuctionPlus.dataQueries.getTotalAuctionCount();
 		if (plugin.useSignLink) {
 			for (int i = 0; i < plugin.numberOfRecentLink; i++) {
 				Variable tempName = Variables.get("WAName" + i);
@@ -43,7 +43,7 @@ public class RecentSignTask implements Runnable {
 				tempPrice.setDefault("N/A");
 				tempSeller.setDefault("N/A");
 				if (i < totalAuctionCount - 1) {
-					Auction offsetAuction = plugin.dataQueries.getAuctionForOffset(i);
+					Auction offsetAuction = WebAuctionPlus.dataQueries.getAuctionForOffset(i);
 					if(offsetAuction == null) continue;
 					ItemStack stack = offsetAuction.getItemStack();
 					if(stack == null) continue;
@@ -62,7 +62,7 @@ public class RecentSignTask implements Runnable {
 			for (Location key : plugin.recentSigns.keySet()) {
 				int offset = (Integer)plugin.recentSigns.get(key);
 				if (offset <= totalAuctionCount) {
-					Auction offsetAuction = plugin.dataQueries.getAuctionForOffset(offset - 1);
+					Auction offsetAuction = WebAuctionPlus.dataQueries.getAuctionForOffset(offset - 1);
 					if(offsetAuction == null) continue;
 					ItemStack stack = offsetAuction.getItemStack();
 					if(stack == null) continue;
@@ -93,7 +93,7 @@ public class RecentSignTask implements Runnable {
 		// Remove any signs flagged for removal
 		for (Location signLoc : toRemove) {
 			plugin.recentSigns.remove(signLoc);
-			plugin.dataQueries.removeRecentSign(signLoc);
+			WebAuctionPlus.dataQueries.removeRecentSign(signLoc);
 			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Removed invalid sign at location: " + signLoc);
 		}
 	}

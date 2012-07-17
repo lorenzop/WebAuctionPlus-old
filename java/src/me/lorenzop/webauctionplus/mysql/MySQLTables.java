@@ -19,7 +19,7 @@ public class MySQLTables {
 
 	public MySQLTables(WebAuctionPlus plugin) {
 		this.plugin = plugin;
-		this.dataQueries = plugin.dataQueries;
+		this.dataQueries = WebAuctionPlus.dataQueries;
 		this.dbPrefix = dataQueries.dbPrefix;
 		this.debugSQL = dataQueries.debugSQL;
 		isOk = false;

@@ -38,6 +38,10 @@ public class DataQueries extends MySQLConnPool {
 		this.dbPrefix = dbPrefix;
 		this.debugSQL = debugSQL;
 	}
+	public void start() {
+		Connection conn = getConnection();
+		closeResources(conn);
+	}
 
 	public String ItemTableToString(ItemTables ItemTable) {
 		// ItemTable Enum

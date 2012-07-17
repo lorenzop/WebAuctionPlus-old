@@ -21,12 +21,12 @@ public class waSettings {
 
 	public synchronized void LoadSettings(){
 		isOk = false;
-		Connection conn = plugin.dataQueries.getConnection();
+		Connection conn = WebAuctionPlus.dataQueries.getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: LoadSettings");
-			st = conn.prepareStatement("SELECT `name`, `value` FROM `"+plugin.dataQueries.dbPrefix()+"Settings`");
+			if(WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: LoadSettings");
+			st = conn.prepareStatement("SELECT `name`, `value` FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Settings`");
 			rs = st.executeQuery();
 			while (rs.next()) {
 				if(rs.getString(1) != null)
@@ -38,7 +38,7 @@ public class waSettings {
 			e.printStackTrace();
 			return;
 		} finally {
-			plugin.dataQueries.closeResources(conn, st, rs);
+			WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
 		}
 		addDefaults();
 		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Loaded " + Integer.toString(settingsMap.size()) + " settings from db");
@@ -64,11 +64,11 @@ public class waSettings {
 		if(!settingsMap.containsKey(name)) {
 //			if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: Insert setting: " + name);
 			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Adding default setting for: " + name);
-			Connection conn = plugin.dataQueries.getConnection();
+			Connection conn = WebAuctionPlus.dataQueries.getConnection();
 			PreparedStatement st = null;
 			ResultSet rs = null;
 			try {
-				st = conn.prepareStatement("INSERT INTO `"+plugin.dataQueries.dbPrefix()+"Settings` (`name`,`value`) VALUES (?, ?)");
+				st = conn.prepareStatement("INSERT INTO `"+WebAuctionPlus.dataQueries.dbPrefix()+"Settings` (`name`,`value`) VALUES (?, ?)");
 				st.setString(1, name);
 				st.setString(2, value);
 				st.executeUpdate();
@@ -76,7 +76,7 @@ public class waSettings {
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to add setting: " + name);
 				e.printStackTrace();
 			} finally {
-				plugin.dataQueries.closeResources(conn, st, rs);
+				WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
 			}
 		}
 	}
@@ -96,7 +96,7 @@ public class waSettings {
 	private void updateSettingsTable() {
 		if(settingsMap.containsKey("jquery ui pack")) {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Updating Settings table: jQuery UI Pack");
-			plugin.dataQueries.executeRawSQL("UPDATE `"+plugin.dataQueries.dbPrefix()+"Settings` SET `name` = 'jQuery UI Pack' WHERE `name` = 'jquery ui pack' LIMIT 1");
+			WebAuctionPlus.dataQueries.executeRawSQL("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+"Settings` SET `name` = 'jQuery UI Pack' WHERE `name` = 'jquery ui pack' LIMIT 1");
 			settingsMap.put("jQuery UI Pack", "");
 		}
 	}
@@ -136,12 +136,12 @@ public class waSettings {
 			return;
 		}
 		settingsMap.put(name, value);
-		Connection conn = plugin.dataQueries.getConnection();
+		Connection conn = WebAuctionPlus.dataQueries.getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-		if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: Update setting: " + name);
+		if (WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: Update setting: " + name);
 		try {
-			st = conn.prepareStatement("UPDATE `"+plugin.dataQueries.dbPrefix()+"Settings` SET `value` = ? WHERE `name` = ? LIMIT 1");
+			st = conn.prepareStatement("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+"Settings` SET `value` = ? WHERE `name` = ? LIMIT 1");
 			st.setString(1, value);
 			st.setString(2, name);
 			st.executeUpdate();
@@ -149,7 +149,7 @@ public class waSettings {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to update setting " + name);
 			e.printStackTrace();
 		} finally {
-			plugin.dataQueries.closeResources(conn, st, rs);
+			WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
 		}
 	}
 	public void setInteger(String name, int value) {

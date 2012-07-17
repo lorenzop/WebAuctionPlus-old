@@ -17,14 +17,11 @@ public class PlayerAlertTask implements Runnable {
 
 	private String playerJoined = null;
 
-	private final WebAuctionPlus plugin;
 
-	public PlayerAlertTask(WebAuctionPlus plugin) {
-		this.plugin = plugin;
+	public PlayerAlertTask() {
 		this.playerJoined = null;
 	}
-	public PlayerAlertTask(WebAuctionPlus plugin, String playerJoined) {
-		this.plugin = plugin;
+	public PlayerAlertTask(String playerJoined) {
 		this.playerJoined = playerJoined;
 	}
 
@@ -37,7 +34,7 @@ public class PlayerAlertTask implements Runnable {
 		int i = 0;
 		// build players online hashmap
 		if(playerJoined == null) {
-			Player[] playersList = plugin.getServer().getOnlinePlayers();
+			Player[] playersList = Bukkit.getOnlinePlayers();
 			// no players online
 			if (playersList.length == 0) return;
 			// build query
@@ -48,7 +45,7 @@ public class PlayerAlertTask implements Runnable {
 			}
 		// only running for a single joined player
 		} else {
-			waPlayer = plugin.dataQueries.getPlayer(playerJoined);
+			waPlayer = WebAuctionPlus.dataQueries.getPlayer(playerJoined);
 			p = Bukkit.getPlayerExact(playerJoined);
 			if (waPlayer==null || p==null) return;
 			// update permissions
@@ -59,7 +56,7 @@ public class PlayerAlertTask implements Runnable {
 					(canBuy ?" canBuy" :"") +
 					(canSell?" canSell":"") +
 					(isAdmin?" isAdmin":"") );
-			plugin.dataQueries.updatePlayerPermissions(waPlayer, canBuy, canSell, isAdmin);
+			WebAuctionPlus.dataQueries.updatePlayerPermissions(waPlayer, canBuy, canSell, isAdmin);
 			// build query
 			whereSql += "seller = ?";
 			playersMap.put(1, playerJoined);
@@ -67,13 +64,13 @@ public class PlayerAlertTask implements Runnable {
 		if(playersMap.size() == 0) return;
 		// run the querys
 		String markSeenSql = "";
-		Connection conn = plugin.dataQueries.getConnection();
+		Connection conn = WebAuctionPlus.dataQueries.getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: SaleAlertTask::SaleAlerts " + playersMap.toString());
+			if (WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: SaleAlertTask::SaleAlerts " + playersMap.toString());
 			st = conn.prepareStatement("SELECT `id`,`seller`,`qty`,`price`,`buyer`,`item` FROM `" +
-				plugin.dataQueries.dbPrefix()+"SaleAlerts` WHERE ( " + whereSql + " ) AND `alerted` = 0");
+				WebAuctionPlus.dataQueries.dbPrefix()+"SaleAlerts` WHERE ( " + whereSql + " ) AND `alerted` = 0");
 			for(Map.Entry<Integer, String> entry : playersMap.entrySet()) {
 				st.setString(entry.getKey(), entry.getValue());
 			}
@@ -96,15 +93,15 @@ public class PlayerAlertTask implements Runnable {
 			}
 			// mark seen
 			if(!markSeenSql.isEmpty()) {
-				if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: SaleAlertTask::SaleAlerts " + playersMap.toString());
-				st = conn.prepareStatement("UPDATE `"+plugin.dataQueries.dbPrefix()+"SaleAlerts` SET `alerted` = 1 WHERE " + markSeenSql);
+				if (WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: SaleAlertTask::SaleAlerts " + playersMap.toString());
+				st = conn.prepareStatement("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+"SaleAlerts` SET `alerted` = 1 WHERE " + markSeenSql);
 				if(st.executeUpdate() == 0)
 					WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Failed to mark sale alerts seen!");
 			}
 			// alert joined player
 			if(playerJoined!=null && p!=null) {
 				// new mail
-				int mailCount = plugin.dataQueries.hasMail(playerJoined);
+				int mailCount = WebAuctionPlus.dataQueries.hasMail(playerJoined);
 				if (mailCount > 0) {
 // TODO: language here
 					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Player " + playerJoined + " has " + Integer.toString(mailCount) + " items in their mailbox.");
@@ -118,7 +115,7 @@ public class PlayerAlertTask implements Runnable {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to get sale alerts for players");
 			e.printStackTrace();
 		} finally {
-			plugin.dataQueries.closeResources(conn, st, rs);
+			WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
 		}
 	}
 

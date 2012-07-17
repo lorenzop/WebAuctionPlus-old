@@ -18,14 +18,12 @@ public class waStats {
 
 	private long lastUpdateLong		=-1;
 	private long lastUpdateShort	=-1;
-	private final WebAuctionPlus plugin;
 
-	public waStats(WebAuctionPlus plugin) {
-		this.plugin = plugin;
+	public waStats() {
 	}
 
 	private synchronized boolean Update(boolean updateAll) {
-		long tim = plugin.getCurrentMilli();
+		long tim = WebAuctionPlus.getCurrentMilli();
 		boolean didUpdate = false;
 		// update long cycle (every 5 minutes min)
 		if(updateAll || lastUpdateLong == -1) {
@@ -47,18 +45,18 @@ public class waStats {
 
 	// update long cycle
 	private boolean updateLong() {
-		if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Updating stats");
+		if (WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Updating stats");
 		Connection conn;
 		PreparedStatement st;
 		ResultSet rs;
 		// total buy nows
 		totalBuyNowCount = 0;
-		conn = plugin.dataQueries.getConnection();
+		conn = WebAuctionPlus.dataQueries.getConnection();
 		st = null;
 		rs = null;
 		try {
-			if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: Stats::count buy nows");
-			st = conn.prepareStatement("SELECT COUNT(*) FROM `"+plugin.dataQueries.dbPrefix()+"Auctions` WHERE `allowBids` = 0");
+			if (WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: Stats::count buy nows");
+			st = conn.prepareStatement("SELECT COUNT(*) FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Auctions` WHERE `allowBids` = 0");
 			rs = st.executeQuery();
 			if (rs.next())
 				totalBuyNowCount = rs.getInt(1);
@@ -66,16 +64,16 @@ public class waStats {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to get total buy now count");
 			e.printStackTrace();
 		} finally {
-			plugin.dataQueries.closeResources(conn, st, rs);
+			WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
 		}
 		// total auctions
 		totalAuctionCount = 0;
-		conn = plugin.dataQueries.getConnection();
+		conn = WebAuctionPlus.dataQueries.getConnection();
 		st = null;
 		rs = null;
 		try {
-			if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: Stats::count auctions");
-			st = conn.prepareStatement("SELECT COUNT(*) FROM `"+plugin.dataQueries.dbPrefix()+"Auctions` WHERE `allowBids` != 0");
+			if (WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: Stats::count auctions");
+			st = conn.prepareStatement("SELECT COUNT(*) FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Auctions` WHERE `allowBids` != 0");
 			rs = st.executeQuery();
 			if (rs.next())
 				totalAuctionCount = rs.getInt(1);
@@ -83,7 +81,7 @@ public class waStats {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to get total auction count");
 			e.printStackTrace();
 		} finally {
-			plugin.dataQueries.closeResources(conn, st, rs);
+			WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
 		}
 		// finished updating stats
 		return true;
@@ -93,12 +91,12 @@ public class waStats {
 	private void updateShort() {
 		// get max auction id
 		maxAuctionId = -1;
-		Connection conn = plugin.dataQueries.getConnection();
+		Connection conn = WebAuctionPlus.dataQueries.getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if (plugin.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: getMaxAuctionID");
-			st = conn.prepareStatement("SELECT MAX(`id`) FROM `"+plugin.dataQueries.dbPrefix()+"Auctions`");
+			if (WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: getMaxAuctionID");
+			st = conn.prepareStatement("SELECT MAX(`id`) FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Auctions`");
 			rs = st.executeQuery();
 			if (rs.next())
 				maxAuctionId = rs.getInt(1);
@@ -106,7 +104,7 @@ public class waStats {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to query for max Auction ID");
 			e.printStackTrace();
 		} finally {
-			plugin.dataQueries.closeResources(conn, st, rs);
+			WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
 		}
 	}
 
