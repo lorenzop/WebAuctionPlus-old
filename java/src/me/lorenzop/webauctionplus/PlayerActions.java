@@ -1,16 +1,11 @@
 package me.lorenzop.webauctionplus;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
-import me.lorenzop.webauctionplus.dao.AuctionItem;
-import me.lorenzop.webauctionplus.dao.MailItem;
+import me.lorenzop.webauctionplus.mysql.DataQueries;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -19,48 +14,32 @@ public class PlayerActions {
 
 	// deposit items
 	public static synchronized boolean DepositStack(Player p) {
+		if(p == null) return false;
 		String player = p.getName();
 		// get item/stack in hand
 		ItemStack stack = p.getItemInHand();
-		int itemTypeId = stack.getTypeId();
+		if(stack == null) return false;
 		// no item in hand
-		if (itemTypeId == 0) {
-			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_item_in_hand"));
+		if(stack.getTypeId() == 0) {
+			p.sendMessage(WebAuctionPlus.chatPrefix+WebAuctionPlus.Lang.getString("no_item_in_hand"));
 			return false;
 		}
-		int damage = stack.getDurability();
-		if (damage < 0) damage = 0;
-		Map<Enchantment, Integer> ench = stack.getEnchantments();
-
-		try {
-			// get player items from db
-			List<AuctionItem> auctionItems = WebAuctionPlus.dataQueries.GetItems(player, itemTypeId, stack.getDurability(), false);
-			// loop items from db
-			int foundItemId = -1;
-			for (AuctionItem auctionItem : auctionItems) {
-				// same item id
-				if (auctionItem.getTypeId() != itemTypeId) continue;
-				// same damage
-				if (auctionItem.getDamage() != damage) continue;
-				// same enchantments
-				if (!WebAuctionPlus.dataQueries.ItemHasEnchantments(auctionItem.getItemId(), ench)) continue;
-				foundItemId = auctionItem.getItemId();
-				break;
-			}
-
-			// add new item
-			if (foundItemId == -1) {
-				WebAuctionPlus.dataQueries.CreateItem(player, stack);
-			// add to existing item
-			} else {
-				WebAuctionPlus.dataQueries.AddItemQuantity(foundItemId, stack.getAmount());
-			}
-			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("item_stack_stored"));
+		boolean depositOk = false;
+		// has existing stack
+		int keyId = WebAuctionPlus.dataQueries.getItemStackId(player, stack);
+		if(keyId > 0) {
+			// add to existing stack
+			depositOk = WebAuctionPlus.dataQueries.AddItemQty(keyId, stack.getAmount());
+		} else {
+			// add new item stack
+			depositOk = (WebAuctionPlus.dataQueries.CreateItem(player, stack) > 0);
+		}
+		if(depositOk) {
+			p.sendMessage(WebAuctionPlus.chatPrefix+WebAuctionPlus.Lang.getString("item_stack_stored"));
 			p.setItemInHand(null);
 			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} else
+			p.sendMessage(WebAuctionPlus.chatPrefix+"Failed to deposit item!");
 		return false;
 	}
 
@@ -70,47 +49,38 @@ public class PlayerActions {
 		return WithdrawStacks(p, 0);
 	}
 	public static synchronized boolean WithdrawStacks(Player p, int qty) {
+		if(p == null) return false;
+		DataQueries.MailGetter mailGetter = new DataQueries.MailGetter();
 		String player = p.getName();
 		if(qty<1 || qty>36) qty = 36;
-		List<Integer> delMail = new ArrayList<Integer>();
-		int nextId = 0;
-		MailItem mail = null;
+//		HashMap<Integer, Integer> delMail = new HashMap<Integer, Integer>();
+		int gotMail = 0;
 		boolean invFull = false;
-		boolean gotMail = false;
 		try {
 			// get items from mailbox
 			for (int i=0; i<qty; i++) {
-				mail = WebAuctionPlus.dataQueries.getMail(player, nextId);
-				if (mail == null) break;
 				int firstEmpty = p.getInventory().firstEmpty();
 				// inventory full
-				if (firstEmpty == -1) {
+				if(firstEmpty == -1) {
 					invFull = true;
 					break;
 				}
-				p.getInventory().addItem(new ItemStack[] { mail.getItemStack() });
+				ItemStack stack = mailGetter.getPlayerMail(player);
+				if(stack == null) break;
+				p.getInventory().addItem(new ItemStack[] { stack });
 				WebAuctionPlus.doUpdateInventory(p);
-				delMail.add(mail.getMailId());
-				nextId = mail.getMailId();
-				gotMail = true;
+//				delMail.add(mail.getMailId());
+				gotMail++;
 			}
 		} catch(Exception e) {
-			p.sendMessage(WebAuctionPlus.chatPrefix + ChatColor.RED + "Error getting items!");
+			p.sendMessage(WebAuctionPlus.chatPrefix+ChatColor.RED+"Error getting items!");
 			e.printStackTrace();
 		}
-		try {
-			WebAuctionPlus.dataQueries.deleteMail(player, delMail);
-			if (gotMail)
-				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("got_mail"));
-			else
-				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_mail"));
-			if (invFull)
-				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("inventory_full"));
-		} catch(Exception e) {
-			p.sendMessage(WebAuctionPlus.chatPrefix + ChatColor.RED + "Error getting items!");
-			e.printStackTrace();
-		}
-		return false;
+//		WebAuctionPlus.dataQueries.deleteMail(player, delMail);
+		if(gotMail > 0)	p.sendMessage(WebAuctionPlus.chatPrefix+WebAuctionPlus.Lang.getString("got_mail"));
+		else			p.sendMessage(WebAuctionPlus.chatPrefix+WebAuctionPlus.Lang.getString("no_mail"));
+		if(invFull)		p.sendMessage(WebAuctionPlus.chatPrefix+WebAuctionPlus.Lang.getString("inventory_full"));
+		return true;
 	}
 
 

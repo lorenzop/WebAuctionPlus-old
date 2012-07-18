@@ -77,13 +77,13 @@ public class WebAuctionPlus extends JavaPlugin {
 //	public int totalAuctionCount	= 0;
 	public int signDelay			= 0;
 	public int numberOfRecentLink	= 0;
-	public Boolean useOriginalRecent= false;
 
+	// use recent signs
+	private static boolean useOriginalRecent = false;
 	// sign link
-	public Boolean useSignLink		= false;
-
+	private static boolean useSignLink = false;
 	// tim the enchanter
-	public boolean timEnabled		= false;
+	private static boolean timEnabled = false;
 
 	// JSON Server
 	public waJSONServer jsonServer;
@@ -286,7 +286,7 @@ public class WebAuctionPlus extends JavaPlugin {
 			int port = Config.getInt("MySQL.Port");
 			if(port < 1) port = Integer.valueOf(Config.getString("MySQL.Port"));
 			if(port < 1) port = 3306;
-			dataQueries = new DataQueries(this,
+			dataQueries = new DataQueries(
 				Config.getString("MySQL.Host"),
 				port,
 				Config.getString("MySQL.Username"),
@@ -345,6 +345,18 @@ public class WebAuctionPlus extends JavaPlugin {
 		Config.options().copyDefaults(true);
 		saveConfig();
 	}
+
+
+	public static boolean useOriginalRecent() {
+		return useOriginalRecent;
+	}
+	public static boolean useSignLink() {
+		return useSignLink;
+	}
+	public static boolean timEnabled() {
+		return timEnabled;
+	}
+
 
 	@SuppressWarnings("deprecation")
 	public static synchronized void doUpdateInventory(Player p) {

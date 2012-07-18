@@ -6,6 +6,7 @@ import java.util.List;
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 import me.lorenzop.webauctionplus.dao.Auction;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
@@ -23,7 +24,7 @@ public class RecentSignTask implements Runnable {
 	}
 
 	public void run() {
-		if (plugin.getServer().getOnlinePlayers().length == 0) return;
+		if(Bukkit.getServer().getOnlinePlayers().length == 0) return;
 
 		List<Location> toRemove = new ArrayList<Location>();
 		List<Variable> WANames = new ArrayList<Variable>();
@@ -31,9 +32,9 @@ public class RecentSignTask implements Runnable {
 		List<Variable> WAQuants = new ArrayList<Variable>();
 		List<Variable> WASellers = new ArrayList<Variable>();
 
-		int totalAuctionCount = WebAuctionPlus.dataQueries.getTotalAuctionCount();
-		if (plugin.useSignLink) {
-			for (int i = 0; i < plugin.numberOfRecentLink; i++) {
+		int totalAuctionCount = WebAuctionPlus.Stats.getTotalAuctions();
+		if(WebAuctionPlus.useSignLink()) {
+			for(int i = 0; i < plugin.numberOfRecentLink; i++) {
 				Variable tempName = Variables.get("WAName" + i);
 				Variable tempQuant = Variables.get("WAQuant" + i);
 				Variable tempPrice = Variables.get("WAPrice" + i);
@@ -42,7 +43,7 @@ public class RecentSignTask implements Runnable {
 				tempQuant.setDefault("N/A");
 				tempPrice.setDefault("N/A");
 				tempSeller.setDefault("N/A");
-				if (i < totalAuctionCount - 1) {
+				if(i < totalAuctionCount-1) {
 					Auction offsetAuction = WebAuctionPlus.dataQueries.getAuctionForOffset(i);
 					if(offsetAuction == null) continue;
 					ItemStack stack = offsetAuction.getItemStack();
@@ -58,17 +59,17 @@ public class RecentSignTask implements Runnable {
 				}
 			}
 		}
-		if (plugin.useOriginalRecent) {
-			for (Location key : plugin.recentSigns.keySet()) {
+		if(WebAuctionPlus.useOriginalRecent()) {
+			for(Location key : plugin.recentSigns.keySet()) {
 				int offset = (Integer)plugin.recentSigns.get(key);
-				if (offset <= totalAuctionCount) {
+				if(offset <= totalAuctionCount) {
 					Auction offsetAuction = WebAuctionPlus.dataQueries.getAuctionForOffset(offset - 1);
 					if(offsetAuction == null) continue;
 					ItemStack stack = offsetAuction.getItemStack();
 					if(stack == null) continue;
 					int qty = stack.getAmount();
 					String formattedPrice = plugin.economy.format(offsetAuction.getPrice());
-					if (key.getBlock().getType() == Material.SIGN_POST || key.getBlock().getType() == Material.WALL_SIGN) {
+					if(key.getBlock().getType() == Material.SIGN_POST || key.getBlock().getType() == Material.WALL_SIGN) {
 						Sign thisSign = (Sign)key.getBlock().getState();
 						thisSign.setLine(1, stack.getType().toString());
 						thisSign.setLine(2, "qty: " + Integer.toString(qty));
@@ -77,7 +78,7 @@ public class RecentSignTask implements Runnable {
 					} else {
 						toRemove.add(key);
 					}
-				} else if (key.getBlock().getType() == Material.SIGN_POST ||
+				} else if(key.getBlock().getType() == Material.SIGN_POST ||
 						   key.getBlock().getType() == Material.WALL_SIGN) {
 					Sign thisSign = (Sign) key.getBlock().getState();
 					thisSign.setLine(1, "Recent");
@@ -91,7 +92,7 @@ public class RecentSignTask implements Runnable {
 		}
 
 		// Remove any signs flagged for removal
-		for (Location signLoc : toRemove) {
+		for(Location signLoc : toRemove) {
 			plugin.recentSigns.remove(signLoc);
 			WebAuctionPlus.dataQueries.removeRecentSign(signLoc);
 			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Removed invalid sign at location: " + signLoc);
