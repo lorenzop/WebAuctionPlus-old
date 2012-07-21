@@ -3,12 +3,12 @@
 
 // load item classes
 require($lpaths['classes'].'csrf.class.php');
-require($lpaths['classes'].'enum.class.php');
+require($lpaths['classes'].'enum.dao.php');
+require($lpaths['classes'].'item.dao.php');
 require($lpaths['classes'].'item.functions.php');
-require($lpaths['classes'].'item.class.php');
-require($lpaths['classes'].'items.class.php');
+require($lpaths['classes'].'queryitems.class.php');
 require($lpaths['classes'].'auctions.class.php');
-require($lpaths['classes'].'transactions.class.php');
+//require($lpaths['classes'].'transactions.class.php');
 
 
 // get last page

@@ -1,30 +1,52 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 // this class is an item stack object
-class ItemClass{
+class ItemDAO{
 
 
-public $itemType   = '';
+public $tableRowId = 0;
 public $itemId     = 0;
 public $itemDamage = 0;
 public $qty        = 0;
 public $enchantments = array();
 
 
-function __construct($Item=array()){global $config;
-  if(count($Item) > 0){
-    if(isset($Item['itemType']))   $this->itemType   = $Item['itemType'];
-    if(isset($Item['itemId']))     $this->itemId     = $Item['itemId'];
-    if(isset($Item['itemDamage'])) $this->itemDamage = $Item['itemDamage'];
-    if(isset($Item['qty']))        $this->qty        = $Item['qty'];
-    if($this->itemId>0 && empty($this->itemType))
-      $this->itemType = @ItemFuncs::$Items[$this->itemId]['type'];
-    if(isset($Item['enchantments']) && is_array($Item['enchantments'])){
-echo '** set enchantments here **';
-      foreach($Item['enchantments'] as $ench){
-        // check for existing enchantment
-      }
-    }
+function __construct($tableRowId=0, $itemId=0, $itemDamage=0, $qty=0, $enchantments=array()){
+  $this->tableRowId = (int) $tableRowId;
+  $this->itemId     = (int) $itemId;
+  $this->itemDamage = (int) $itemDamage;
+  $this->qty        = (int) $qty;
+  $this->enchantments = self::parseEnchantments($enchantments);
+}
+
+
+// parse enchantments string from db
+public static function parseEnchantments($enchStr) {
+  // already an array
+  if(is_array($enchStr)) return($enchStr);
+  if(gettype($enchStr) != 'string') return(array());
+  if(empty($enchStr)) return(array());
+  $output = array();
+  $lines = explode(',', $enchStr);
+  foreach($lines as $line){
+    $parts = explode(':', $line);
+    if(count($parts) != 2) continue;
+    $output[$parts[0]] = $parts[1];
   }
+  return($output);
+}
+
+
+// get item type id
+public function getItemId(){
+  return((int)$this->itemId);
+}
+// get item damage value
+public function getItemDamage(){
+  return((int)$this->itemDamage);
+}
+// get item qty
+public function getItemQty(){
+  return((int)$this->qty);
 }
 
 
@@ -41,10 +63,6 @@ public function getItemTitle(){
 
 
 // get item icon file
-//public function getItemImage(){
-//  if($this->itemId<=0) return('');
-//  return(ItemFuncs::getItemImage($this->itemId, $this->itemDamage));
-//}
 public function getItemImageUrl(){
   if($this->itemId<=0) return('');
   return(ItemFuncs::getItemImageUrl($this->itemId, $this->itemDamage));
@@ -77,27 +95,8 @@ public function getDamagedChargedStr(){
 
 
 // add enchantment
-public function addEnchantment($enchName, $enchId, $level, $enchTableId=0){
-// check for existing enchantment
-////////////////////////////////////////////////////////////////////// <-- to do
-  $a = array(
-    'enchName' => $enchName,
-    'enchId'   => $enchId,
-    'level'    => $level
-  );
-  if($enchTableId == 0) $this->enchantments[]             = $a;
-  else                  $this->enchantments[$enchTableId] = $a;
-}
-
-// get enchantments array
-public function getEnchantmentsArray(){
-  return($this->enchantments);
-}
-
-// item has enchantments
-public function hasEnchantments(){
-echo 'hasEnchantments function not finished yet!!!';
-exit();
+public function addEnchantment($enchId, $level){
+  $this->enchantments[$enchId] = $level;
 }
 
 

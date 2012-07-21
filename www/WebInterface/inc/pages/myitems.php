@@ -39,19 +39,18 @@ function RenderPage_myitems(){global $config,$html;
     unset($_SESSION['success']);
   }
   // list items
-  $items = new ItemsClass();
-  $items->QueryItems($config['user']->getName(),'');
+  $Items = QueryItems::QueryInventory($config['user']->getName());
+  if($Items == FALSE) {echo 'Unable to query items!'; exit();}
   $outputRows = '';
-  while($itemRow = $items->getNext()){
-    $Item = &$itemRow['Item'];
+  while($Item = $Items->getNext()) {
     $tags = array(
-      'item row id'		=> ((int)$itemRow['id']),
-      'item qty'			=> ((int)$Item->qty),
-      'item title'		=> $Item->getItemTitle(),
-      'item name'			=> $Item->getItemName(),
-      'item image url'		=> $Item->getItemImageUrl(),
-      'market price each'	=> 'market price<br />goes here',
-      'market price total'	=> 'market price<br />goes here',
+      'item row id'        => $Item->getItemId(),
+      'item qty'           => $Item->getItemQty(),
+      'item title'         => $Item->getItemTitle(),
+      'item name'          => $Item->getItemName(),
+      'item image url'     => $Item->getItemImageUrl(),
+      'market price each'  => 'market price<br />goes here',
+      'market price total' => 'market price<br />goes here',
 //number_format((double)$auction['price'],2)
 //number_format((double)($auction['price'] * $Item->qty),2)
 //  $marketPrice=getMarketPrice($id, 0);
@@ -61,7 +60,7 @@ function RenderPage_myitems(){global $config,$html;
 //    $marketTotal='0';
 //  }
 //  echo '  <tr class="gradeC">'."\n";
-      'rowclass'			=> 'gradeU',
+      'rowclass'           => 'gradeU',
     );
     $htmlRow = $outputs['body row'];
     RenderHTML::RenderTags($htmlRow, $tags);

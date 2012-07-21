@@ -74,12 +74,6 @@ public static function getItemTitle($itemId=0, $itemDamage=0){
 
 
 // get item icon file
-//public static function getItemImage($itemId=0, $itemDamage=0){
-//  $item = self::getItemArray($itemId, $itemDamage);
-//  if(!is_array($item) || count($item)<=0) return('');
-//  if(isset($item['icon'])) return($item['icon']);
-//  else                     return($item['name']);
-//}
 public static function getItemImageUrl($itemId=0, $itemDamage=0){global $config;
   $item = self::getItemArray($itemId, $itemDamage);
   if(!is_array($item) || count($item)<=0) return('');

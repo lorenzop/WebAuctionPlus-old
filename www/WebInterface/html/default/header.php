@@ -49,7 +49,8 @@ case 'default':
 <tr><td colspan="2" style="font-size: 100%; font-weight: bold; text-align: center;">'.@date('jS M Y H:i:s').'</td></tr>
 </table>
 {else}
-<center style="margin-top: 30px; font-size: 30px;"><a href="./?page=login"><u>Login here!</u></a></center>
+<center style="font-size: 30px; margin-top: 10px;"><a href="./?page=login"><u>Login here!</u></a></center>
+<center style="font-size: small;">If you don\'t have an account, you can create one using the command \'/wa password <somepassword>\' in game.</center>
 {endif}
 </div>
 <div id="menu-box">
