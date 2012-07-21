@@ -19,8 +19,8 @@ function __construct(){global $config;
   $loginUrl = './?page=login';
   // check logged in
   if(isset($_SESSION[$config['session name']]))
-    $this->doLogin( $_SESSION[$config['session name']] );
-  // not logged in
+    $this->doValidate( $_SESSION[$config['session name']] );
+  // not logged in (and is required)
   if(SettingsClass::getBoolean('Require Login'))
     if(!$this->isOk()){
       ForwardTo($loginUrl, 0); exit();}
@@ -28,16 +28,21 @@ function __construct(){global $config;
 
 
 // do login
-public function doLogin($username, $password=FALSE){global $config;
+public function doLogin($username, $password){global $config;
+  if($password===FALSE) $password = '';
+  return($this->doValidate($username, $password));
+}
+// validate session
+private function doValidate($username, $password=FALSE){global $config;
   $this->Name = strtolower(trim($username));
   if(empty($this->Name)) return(FALSE);
   if($password!==FALSE && empty($password)) return(FALSE);
   // validate player
   $query = "SELECT `id`,`playerName`,`money`,`itemsSold`,`itemsBought`,`earnt`,`spent`,`Permissions` ".
            "FROM `".$config['table prefix']."Players` ".
-           "WHERE LOWER(`playerName`)='".mysql_san($this->Name)."'";
-  if($password !== FALSE)
-    $query .= " AND `password`='".mysql_san($password)."' LIMIT 1";
+           "WHERE LOWER(`playerName`)='".mysql_san($this->Name)."' ".
+           ($password===FALSE?"":"AND `password`='".mysql_san($password)."' ").
+           "LIMIT 1";
   $result = RunQuery($query, __file__, __line__);
   if($result){
     if(mysql_num_rows($result)==0){
@@ -45,7 +50,7 @@ public function doLogin($username, $password=FALSE){global $config;
       $_GET['error'] = 'bad login';
       return(FALSE);
     }
-    $row=mysql_fetch_assoc($result);
+    $row = mysql_fetch_assoc($result);
     if($row['playerName'] != $this->Name) return(FALSE);
     $this->UserId      = ((int)    $row['id']         );
     $this->Money       = ((double) $row['money']      );
@@ -93,9 +98,8 @@ public function isOk(){
 
 // do logout
 public function doLogout(){global $config;
-echo $config['session name'];
   unset($_SESSION[$config['session name']]);
-  unset($_SESSION[CSRF::session_key]);
+  unset($_SESSION[CSRF::SESSION_KEY]);
 }
 
 
@@ -168,8 +172,6 @@ public static function MakePayment($fromPlayer, $toPlayer, $amount, $desc=''){
   self::PaymentQuery($fromPlayer, 0-$amount);
   // TODO: log transaction
 }
-
-
 public static function PaymentQuery($playerName, $amount){global $config;
   if($config['iConomy']['use'] === TRUE){
     $query = "UPDATE `".mysql_san($config['iConomy']['table'])."` SET ".
