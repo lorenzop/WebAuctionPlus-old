@@ -48,6 +48,20 @@ public function Display(){global $config,$lpaths;
 }
 
 
+// block tags
+public static function showBlock(&$html, $tag) {
+  $html = str_replace('{'.$tag.'}', '', $html);
+  $html = str_replace('{/'.$tag.'}','', $html);
+}
+public static function hideBlock(&$html, $tag) {
+  $html = preg_replace('/\{'.$tag.'\}(.*?)\{\/'.$tag.'\}/s','',$html);
+}
+public static function Block(&$html, $tag, $show) {
+  if($show) self::showBlock($html, $tag);
+  else      self::hideBlock($html, $tag);
+}
+
+
 // Frame = default | basic | none
 public function setPageFrame($Frame='default'){
   $this->Frame = $Frame;

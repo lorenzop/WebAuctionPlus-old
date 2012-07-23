@@ -1,6 +1,33 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 // default - item definitions
 
+
+ItemFuncs::$Enchantments=array(
+  0 =>'Protection',
+  1 =>'Fire Protecion',
+  2 =>'Feather Falling',
+  3 =>'Blast Protection',
+  4 =>'Projectile Protection',
+  5 =>'Respiration',
+  6 =>'Aqua Affinity',
+  16=>'Sharpness',
+  17=>'Smite',
+  18=>'Bane of Arthropods',
+  19=>'Knockback',
+  20=>'Fire Aspect',
+  21=>'Looting',
+  32=>'Efficiency',
+  33=>'Silk Touch',
+  34=>'Unbreaking',
+  35=>'Fortune',
+  48=>'Power',
+  49=>'Punch',
+  50=>'Flame',
+  51=>'Infinity',
+  -1=>'Unknown'
+);
+
+
 ItemFuncs::$Items=array(
   1=>array(
     'name'=>'Stone',
@@ -1620,41 +1647,6 @@ ItemFuncs::$Items=array(
 /*
 
 
-
-
-protection: 0
-protect: 0
-fireprotection: 1
-fireprotect: 1
-featherfalling: 2
-blastprotect: 3
-blastprotection: 3
-projectileprotection: 4
-projectileprotect: 4
-respiration: 5
-aquaaffinity: 6
-wateraffinity: 6
-sharpness: 16
-sharp: 16
-smite: 17
-baneofarthropods: 18
-knockback: 19
-fireaspect: 20
-looting: 21
-loot: 21
-efficiency: 32
-efficient: 32
-silktouch: 33
-unbreaking: 34
-fortune: 35 - looting
-power: 48
-punch: 49
-flame: 50
-infinity: 51
-infinite: 51
-
-
-
 function indent($json) {
     $result      = '';
     $pos         = 0;
@@ -1697,9 +1689,6 @@ function indent($json) {
 }
 
 
-
-
-
 function itemAllowed ($itemId, $itemDamage){
   return true; 
 //  switch ($itemId){
@@ -1713,96 +1702,6 @@ function itemAllowed ($itemId, $itemDamage){
 //  }
 }
 
-function isTrueDamage ($itemId, $itemDamage){global $DamageValues;
-  if(!isset($DamageValues[$itemId])){
-    return(@$DamageValue[-1]);
-  }else{
-    return($DamageValues[$itemId]);
-  }
-}
 
-
-
-
-//function getMarketPrice($itemTableId, $tableId){
-
-
-
-
-
-function getEnchName($enchId){global $EnchantmentNames;
-  if(isset($EnchantmentNames[$enchId])){
-    return($EnchantmentNames[$enchId]);
-  }else{
-    return(@$EnchantmentNames[-1]);
-  }
-}
-$EnchantmentNames=array(
-  0=>'Protection',
-  1=>'Fire Protecion',
-  2=>'Feather Falling',
-  3=>'Blast Protection',
-  4=>'Projectile Protection',
-  5=>'Respiration',
-  6=>'Aqua Affinity',
-  16=>'Sharpness',
-  17=>'Smite',
-  18=>'Bane of Arthropods',
-  19=>'Knockback',
-  20=>'Fire Aspect',
-  21=>'Looting',
-  32=>'Efficiency',
-  33=>'Silk Touch',
-  34=>'Unbreaking',
-  35=>'Fortune',
-  48=>'Power',
-  49=>'Punch',
-  50=>'Flame',
-  51=>'Infinity',
-  -1=>'Unknown'
-);
-
-
-
-
-function getItemName($itemId, $itemDamage){global $ItemNames,$DamageValues;
-  $output='';
-  if(isset($ItemNames[$itemId])){
-    if(is_array($ItemNames[$itemId])){
-      if(isset($ItemNames[$itemId][$itemDamage])){
-        $output=$ItemNames[$itemId][$itemDamage];
-      }else{
-        $output=$ItemNames[$itemId][-1];
-      }
-    }else{
-      $output=$ItemNames[$itemId];
-    }
-  }else{
-    $output=@$ItemNames[-1];
-  }
-  // damage %
-  if(strpos($output,'%damaged%')!==FALSE){
-    $output=str_replace('%damaged%', '</b><br /><font size="-1">'..'% damaged</font><b>' ,$output);
-  // map #
-  }elseif(strpos($output,'#map#')!==FALSE){
-    $output=str_replace('#map#','# '.$itemDamage,$output);
-  }
-  return('<font size="-1"><b>'.$output.'</b></font>');
-}
-function getItemImage($itemId, $itemDamage){global $ItemImages;
-  if(isset($ItemImages[$itemId])){
-    if(is_array($ItemImages[$itemId])){
-      if(isset($ItemImages[$itemId][$itemDamage])){
-        return('images/'.$ItemImages[$itemId][$itemDamage]);
-      }else{
-        return('images/'.$ItemImages[$itemId][-1]);
-      }
-    }else{
-      return('images/'.$ItemImages[$itemId]);
-    }
-  }else{
-    return('images/'.@$ItemImages[-1]);
-  }
-}
 */
 ?>

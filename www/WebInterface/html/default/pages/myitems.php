@@ -49,8 +49,7 @@ $outputs['body top']='
 
 $outputs['body row']='
     <tr class="{rowclass}" style="height: 120px;">
-      <td style="padding-bottom: 10px; text-align: center;">'.
-        '<img src="{item image url}" alt="{item title}" style="margin-bottom: 5px;" /><br /><b>{item name}</b></td>
+      <td style="padding-bottom: 10px; text-align: center;">{item display}</td>
       <td style="text-align: center;"><b>{item qty}</b></td>
       <td style="text-align: center;">{market price each}</td>
       <td style="text-align: center;">{market price total}</td>

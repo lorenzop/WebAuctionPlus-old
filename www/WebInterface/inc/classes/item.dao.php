@@ -36,6 +36,9 @@ public static function parseEnchantments($enchStr) {
 }
 
 
+public function getTableRowId(){
+  return((int)$this->tableRowId);
+}
 // get item type id
 public function getItemId(){
   return((int)$this->itemId);
@@ -48,23 +51,39 @@ public function getItemDamage(){
 public function getItemQty(){
   return((int)$this->qty);
 }
+// get enchantments array
+public function getEnchantmentsArray(){
+  return($this->enchantments);
+}
 
 
 // get item name
 public function getItemName(){
-  if($this->itemId<=0) return('');
+  if($this->itemId <= 0) return('');
   return(ItemFuncs::getItemName($this->itemId, $this->itemDamage));
 }
 // get item title
 public function getItemTitle(){
-  if($this->itemId<=0) return('');
+  if($this->itemId <= 0) return('');
   return(ItemFuncs::getItemTitle($this->itemId, $this->itemDamage));
+}
+
+
+// display item html
+public function getDisplay(){
+  return(ItemFuncs::getDisplay(
+    $this->tableRowId,
+    $this->itemId,
+    $this->itemDamage,
+    $this->qty,
+    $this->enchantments
+  ));
 }
 
 
 // get item icon file
 public function getItemImageUrl(){
-  if($this->itemId<=0) return('');
+  if($this->itemId <= 0) return('');
   return(ItemFuncs::getItemImageUrl($this->itemId, $this->itemDamage));
 }
 
@@ -75,7 +94,7 @@ public function getDamagedChargedStr(){
 }
 // get percent damaged
 //public function getPercentDamaged(){
-//  if($this->itemId<=0) return('');
+//  if($this->itemId <= 0) return('');
 //  $item = ItemFuncs::getItemArray($this->itemId);
 //  if(!isset($item['damage'])) return('');
 //  return(ItemFuncs::getPercentDamagedStr($this->itemDamage,$item['damage']));

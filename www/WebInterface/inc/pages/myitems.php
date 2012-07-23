@@ -21,6 +21,17 @@ function RenderPage_myitems(){global $config,$html;
   $config['title'] = 'My Items';
   // load page html
   $outputs = RenderHTML::LoadHTML('pages/myitems.php');
+  if(!is_array($outputs)) {echo 'Failed to load html!'; exit();}
+
+
+
+
+
+
+
+
+
+//TODO: this shouldn't be using global tags!
   $html->addTags(array(
     'messages' => ''
   ));
@@ -44,11 +55,9 @@ function RenderPage_myitems(){global $config,$html;
   $outputRows = '';
   while($Item = $Items->getNext()) {
     $tags = array(
+      'item display'       => $Item->getDisplay(),
       'item row id'        => $Item->getItemId(),
       'item qty'           => $Item->getItemQty(),
-      'item title'         => $Item->getItemTitle(),
-      'item name'          => $Item->getItemName(),
-      'item image url'     => $Item->getItemImageUrl(),
       'market price each'  => 'market price<br />goes here',
       'market price total' => 'market price<br />goes here',
 //number_format((double)$auction['price'],2)
@@ -66,7 +75,7 @@ function RenderPage_myitems(){global $config,$html;
     RenderHTML::RenderTags($htmlRow, $tags);
     $outputRows .= $htmlRow;
   }
-  unset($items, $Item);
+  unset($Items, $Item);
   return($outputs['body top']."\n".
          $outputRows."\n".
          $outputs['body bottom']);
