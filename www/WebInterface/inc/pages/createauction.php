@@ -131,21 +131,19 @@ if($config['action']=='newauction'){
 
 
 function RenderPage_createauction(){global $config,$html,$user,$settings; $output='';
-  $id         = getVar('id');
-  $qty        = getVar('qty');
-  $priceEach  = getVar('price');
-  $itemRow = ItemFuncs::QueryItem($user->getName(),$id);
-  if($itemRow === FALSE) return('<h2 style="text-align: center;">The item you\'re trying to sell couldn\'t be found!</h2>');
-//echo '<pre>';print_r($itemRow);exit();
-  $Item    = &$itemRow['Item'];
-  if(empty($qty)) $qty = $Item->qty;
-  $qty = (int)$qty;
-  $priceEach  = (double)$priceEach;
-  if($priceEach == 0){
+  $id        = getVar('id', 'int');
+  $qty       = getVar('qty');
+  $priceEach = getVar('price', 'double');
+  // query item
+  $Item = QueryItems::QuerySingle($user->getName(), $id);
+  if(!$Item) return('<h2 style="text-align: center;">The item you\'re trying to sell couldn\'t be found!</h2>');
+//echo '<pre>';print_r($Item);exit();
+  if(empty($qty)) $qty = $Item->getItemQty();
+  if($priceEach == 0.0){
     $priceEach  = '';
     $priceTotal = '';
   }else{
-    $priceTotal = (double)($priceEach * ((double)$qty));
+    $priceTotal = ((double)$priceEach) * ((double)$qty);
   }
 $html->addToHeader('
 <script type="text/javascript" language="javascript">
@@ -187,16 +185,16 @@ $output.='
 <tr><td align="center"><div class="input" style="width: 150px; padding-top: 15px; padding-bottom: 15px; text-align: center;" />
 '.
 // add enchantments to this link!
-//  '<a href="./?page=graph&amp;name='.$Item->itemId.'&amp;damage='.$Item->itemDamage.'">'.
+//  '<a href="./?page=graph&amp;name='.((int)$Item->getItemId()).'&amp;damage='.$Item->getItemDamage().'">'.
   '<img src="'.$Item->getItemImageUrl().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
   '<br /><b>'.$Item->getItemName().'</b><font size="-2"><b>';
-foreach($itemRow['Item']->getEnchantmentsArray() as $v){
+foreach($Item->getEnchantmentsArray() as $v){
   $output.='<br />'.$v['enchName'].' '.$v['level'];
 }
 $output.='</b></font></div></td></tr>
 <tr><td height="20"></td></tr>
 
-<tr><td align="center"><b>You have <font size="+2">'.((int)$Item->qty).'</font> items</b></td></tr>
+<tr><td align="center"><b>You have <font size="+2">'.((int)$Item->getItemQty()).'</font> items</b></td></tr>
 <tr><td><table border="0" cellpadding="0" cellspacing="10" align="center">
 <tr>
   <td align="right"><b>Quantity:</b></td>
@@ -232,7 +230,7 @@ $output.='
 </table>
 </form>
 ';
-  unset($itemRow,$Item);
+  unset($Item);
   return($output);
 }
 

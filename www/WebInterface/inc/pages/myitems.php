@@ -22,33 +22,22 @@ function RenderPage_myitems(){global $config,$html;
   // load page html
   $outputs = RenderHTML::LoadHTML('pages/myitems.php');
   if(!is_array($outputs)) {echo 'Failed to load html!'; exit();}
-
-
-
-
-
-
-
-
-
-//TODO: this shouldn't be using global tags!
-  $html->addTags(array(
-    'messages' => ''
-  ));
   // load javascript
   $html->addToHeader($outputs['header']);
   // display error
+  $msg = '';
   if(isset($config['error']))
-    $config['tags']['messages'] .= str_replace('{message}', $config['error'], $outputs['error']);
+    $msg .= str_replace('{message}', $config['error'], $outputs['error']);
   if(isset($_SESSION['error'])){
-    $config['tags']['messages'] .= str_replace('{message}', $_SESSION['error'], $outputs['error']);
+    $msg .= str_replace('{message}', $_SESSION['error'], $outputs['error']);
     unset($_SESSION['error']);
   }
   // display success
   if(isset($_SESSION['success'])){
-    $config['tags']['messages'] .= str_replace('{message}', $_SESSION['success'], $outputs['success']);
+  	$msg .= str_replace('{message}', $_SESSION['success'], $outputs['success']);
     unset($_SESSION['success']);
   }
+  $outputs['body top'] = str_replace('{messages}', $msg, $outputs['body top']);
   // list items
   $Items = QueryItems::QueryInventory($config['user']->getName());
   if($Items == FALSE) {echo 'Unable to query items!'; exit();}

@@ -1,13 +1,13 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
-// this class is an item stack object
+// item stack object
 class ItemDAO{
 
 
-public $tableRowId = 0;
-public $itemId     = 0;
-public $itemDamage = 0;
-public $qty        = 0;
-public $enchantments = array();
+protected $tableRowId = 0;
+protected $itemId     = 0;
+protected $itemDamage = 0;
+protected $qty        = 0;
+protected $enchantments = array();
 
 
 function __construct($tableRowId=0, $itemId=0, $itemDamage=0, $qty=0, $enchantments=array()){
@@ -19,23 +19,7 @@ function __construct($tableRowId=0, $itemId=0, $itemDamage=0, $qty=0, $enchantme
 }
 
 
-// parse enchantments string from db
-public static function parseEnchantments($enchStr) {
-  // already an array
-  if(is_array($enchStr)) return($enchStr);
-  if(gettype($enchStr) != 'string') return(array());
-  if(empty($enchStr)) return(array());
-  $output = array();
-  $lines = explode(',', $enchStr);
-  foreach($lines as $line){
-    $parts = explode(':', $line);
-    if(count($parts) != 2) continue;
-    $output[$parts[0]] = $parts[1];
-  }
-  return($output);
-}
-
-
+// get table row id
 public function getTableRowId(){
   return((int)$this->tableRowId);
 }
@@ -51,21 +35,50 @@ public function getItemDamage(){
 public function getItemQty(){
   return((int)$this->qty);
 }
-// get enchantments array
+
+
+// enchantments
 public function getEnchantmentsArray(){
+  self::sortEnchantments($this->enchantments);
   return($this->enchantments);
 }
-
-
-// get item name
-public function getItemName(){
-  if($this->itemId <= 0) return('');
-  return(ItemFuncs::getItemName($this->itemId, $this->itemDamage));
+public function getEnchantmentsCompressed(){
+  self::sortEnchantments($this->enchantments);
+  return(self::compressEnchantments($this->enchantments));
 }
-// get item title
-public function getItemTitle(){
-  if($this->itemId <= 0) return('');
-  return(ItemFuncs::getItemTitle($this->itemId, $this->itemDamage));
+public function addEnchantment($enchId, $level){
+  $this->enchantments[$enchId] = $level;
+}
+public static function sortEnchantments(&$enchantments){
+  ksort($enchantments, SORT_NUMERIC);
+}
+
+
+// parse enchantments string from db
+public static function parseEnchantments($enchStr) {
+  // already an array
+  if(is_array($enchStr)) return($enchStr);
+  if(gettype($enchStr) != 'string') return(array());
+  if(empty($enchStr)) return(array());
+  $output = array();
+  $lines = explode(',', $enchStr);
+  foreach($lines as $line){
+    $parts = explode(':', $line);
+    if(count($parts) != 2) continue;
+    $output[(int)$parts[0]] = (int)$parts[1];
+  }
+  return($output);
+}
+// compress enchantments for db storage
+public static function compressEnchantments($enchantments){
+  if(!is_array($enchantments)) return('');
+  if(count($enchantments) == 0) return('');
+  $output = '';
+  foreach($enchantments as $enchId => $level){
+  	if(!empty($output)) $output .= ',';
+    $output .= ((int)$enchId).':'.((int)$level);
+  }
+  return($output);
 }
 
 
@@ -78,6 +91,18 @@ public function getDisplay(){
     $this->qty,
     $this->enchantments
   ));
+}
+
+
+// get item name
+public function getItemName(){
+  if($this->itemId <= 0) return('');
+  return(ItemFuncs::getItemName($this->itemId, $this->itemDamage));
+}
+// get item title
+public function getItemTitle(){
+  if($this->itemId <= 0) return('');
+  return(ItemFuncs::getItemTitle($this->itemId, $this->itemDamage));
 }
 
 
@@ -111,12 +136,6 @@ public function getDamagedChargedStr(){
 //  if( ((string)$damaged) == '0') return('Fully Charged!');
 //  else                           return((string)$damaged);
 //}
-
-
-// add enchantment
-public function addEnchantment($enchId, $level){
-  $this->enchantments[$enchId] = $level;
-}
 
 
 }

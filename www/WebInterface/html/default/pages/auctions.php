@@ -35,11 +35,11 @@ $outputs['body top']='
     <tr style="text-align: center; vertical-align: bottom;">
       <th>Item</th>
       <th>Seller</th>
-      <th>Qty</th>
+<!--      <th>Expires</th>-->
       <th>Price (Each)</th>
       <th>Price (Total)</th>
       <th>Percent of<br />Market Price</th>
-      <th>Expires</th>
+      <th>Qty</th>
 {if permission[canBuy]}
       <th>Buy</th>
 {endif}
@@ -54,14 +54,13 @@ $outputs['body top']='
 
 $outputs['body row']='
     <tr class="{rowclass}" style="height: 120px;">
-      <td style="padding-bottom: 10px; text-align: center;">'.
-        '<img src="{item image url}" alt="{item title}" style="margin-bottom: 5px;" /><br /><b>{item name}</b></td>
-      <td style="text-align: center;"><img src="http://minotar.net/avatar/{auction seller name}" width="32" alt="" /><br />{auction seller name}</td>
-      <td style="text-align: center;"><b>{auction qty}</b></td>
-      <td style="text-align: center;">{auction price each}</td>
-      <td style="text-align: center;">{auction price total}</td>
+      <td style="padding-bottom: 10px; text-align: center;">{item}</td>
+      <td style="text-align: center;"><img src="http://minotar.net/avatar/{seller name}" width="32" alt="" /><br />{seller name}</td>
+<!--      <td style="text-align: center;">{expire}</td>-->
+      <td style="text-align: center;">{price each}</td>
+      <td style="text-align: center;">{price total}</td>
       <td style="text-align: center;">{market price percent}</td>
-      <td style="text-align: center;">{auction expire}</td>
+      <td style="text-align: center;"><b>{qty}</b></td>
 {if permission[canBuy]}
       <td style="text-align: center;">
         <form action="./" method="post">
@@ -69,7 +68,7 @@ $outputs['body row']='
         <input type="hidden" name="page"      value="{page}" />
         <input type="hidden" name="action"    value="buy" />
         <input type="hidden" name="auctionid" value="{auction id}" />
-        <input type="text" name="qty" value="{auction qty}" onkeypress="return numbersonly(this, event);" '.
+        <input type="text" name="qty" value="{qty}" onkeypress="return numbersonly(this, event);" '.
           'class="input" style="width: 60px; margin-bottom: 5px; text-align: center;" /><br />
         <input type="submit" value="Buy" class="button" />
         </form>
