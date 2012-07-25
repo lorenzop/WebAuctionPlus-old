@@ -19,4 +19,9 @@ function ConnectDB(){global $db,$config;
 }
 
 
+// iConomy config
+$config['iConomy']['use']   = 'auto';    // ( true / false / 'auto' )  you you have iConomy data in another table in the same database?
+$config['iConomy']['table'] = 'iConomy'; // 'iConomy' is the default table name when using MySQL with iConomy
+
+
 ?>
