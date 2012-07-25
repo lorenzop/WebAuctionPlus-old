@@ -1,0 +1,6 @@
+The original config.php file is no longer used. To update 1.0.8 or earlier versions of Web Auction Plus to this or future updates, please follow the short instructions below.
+
+* First, it's recommended you delete all of the Web Auction Plus website files except for db.config.php
+* Next, extract and upload the new website files to the same place they were
+* This step only needs to be done once, and you have 2 options. You can either rename the file db.config.php to config.php, or copy your database connection info from the old db.config.php file into the new config.php. The new db config file is slightly different, but nothing major has changed in it, and the old one will still work if only renamed.
+

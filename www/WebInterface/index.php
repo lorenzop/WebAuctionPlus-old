@@ -87,7 +87,16 @@ $wpaths['images']     = 'html/{theme}/images/';
 $wpaths['item packs'] = 'inc/ItemPacks/{pack}/icons/';
 // load config
 require($lpaths['config']);
-require('db.config.php');
+
+
+
+$config['site title'] = 'WebAuctionPlus';
+if(!isset($config['iConomy']['use']))   $config['iConomy']['use']   = 'auto';
+if(!isset($config['iConomy']['table'])) $config['iConomy']['table'] = 'iConomy';
+if(!date_default_timezone_get())
+  date_default_timezone_set('America/New_York');
+
+
 
 // includes
 require($lpaths['includes'].'inc.php');
