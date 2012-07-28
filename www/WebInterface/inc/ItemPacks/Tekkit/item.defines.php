@@ -4,19 +4,23 @@
 
 $pathPrefix  = $config['paths']['local']['item packs'];
 $pathPostfix = '/item.defines.php';
-include($pathPrefix.'AdditionalPipes' .$pathPostfix);
-include($pathPrefix.'AdvancedMachines'.$pathPostfix);
-include($pathPrefix.'Balkon'          .$pathPostfix);
-include($pathPrefix.'Buildcraft'      .$pathPostfix);
-include($pathPrefix.'ChargingBench'   .$pathPostfix);
-include($pathPrefix.'CleverCraft'     .$pathPostfix);
-include($pathPrefix.'CompactSolars'   .$pathPostfix);
-include($pathPrefix.'ComputerCraft'   .$pathPostfix);
-include($pathPrefix.'EnderChest'      .$pathPostfix);
-include($pathPrefix.'IndustrialCraft2'.$pathPostfix);
-include($pathPrefix.'NetherOres'      .$pathPostfix);
-include($pathPrefix.'PowerConverters' .$pathPostfix);
-include($pathPrefix.'WirelessRedstone'.$pathPostfix);
+include($pathPrefix.'AdditionalPipes'        .$pathPostfix);
+include($pathPrefix.'AdvancedMachines'       .$pathPostfix);
+include($pathPrefix.'Buildcraft'             .$pathPostfix);
+include($pathPrefix.'ChargingBench'          .$pathPostfix);
+include($pathPrefix.'CleverCraft'            .$pathPostfix);
+include($pathPrefix.'CompactSolars'          .$pathPostfix);
+include($pathPrefix.'ComputerCraft'          .$pathPostfix);
+include($pathPrefix.'EnderChest'             .$pathPostfix);
+include($pathPrefix.'EquivalentExchange2'    .$pathPostfix);
+include($pathPrefix.'IndustrialCraft2'       .$pathPostfix);
+include($pathPrefix.'IronChests'             .$pathPostfix);
+include($pathPrefix.'NetherOres'             .$pathPostfix);
+include($pathPrefix.'NuclearControl'         .$pathPostfix);
+include($pathPrefix.'PowerConverters'        .$pathPostfix);
+include($pathPrefix.'RedPower'               .$pathPostfix);
+include($pathPrefix.'TubeStuff'              .$pathPostfix);
+include($pathPrefix.'WirelessRedstoneChicken'.$pathPostfix);
 
 
 ?>
