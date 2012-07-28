@@ -15,6 +15,12 @@ public static function QueryCurrent(){
   $class->doQuery();
   return($class);
 }
+// get my auctions
+public static function QueryMy(){global $user;
+  $class = new QueryAuctions();
+  $class->doQuery( "`playerName` = '".mysql_san($user->getName())."'" );
+  return($class);
+}
 // query single auction
 public static function QuerySingle($id){
   if($id < 1) return(FALSE);
@@ -24,6 +30,7 @@ public static function QuerySingle($id){
 }
 
 
+// run query
 protected function doQuery($WHERE=FALSE){global $config;
 //  if(empty($WHERE)) {$this->result = FALSE; return;}
   $query = "SELECT `id`, `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, ".

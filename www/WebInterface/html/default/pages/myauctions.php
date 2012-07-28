@@ -48,12 +48,11 @@ $outputs['body top']='
 
 $outputs['body row']='
     <tr class="{rowclass}" style="height: 120px;">
-      <td style="padding-bottom: 10px; text-align: center;">'.
-        '<img src="{item image url}" alt="{item title}" style="margin-bottom: 5px;" /><br /><b>{item name}</b></td>
-      <td style="text-align: center;">{auction expire}</td>
-      <td style="text-align: center;"><b>{auction qty}</b></td>
-      <td style="text-align: center;">{auction price each}</td>
-      <td style="text-align: center;">{auction price total}</td>
+      <td style="padding-bottom: 10px; text-align: center;">{item}</td>
+      <td style="text-align: center;">{expire}</td>
+      <td style="text-align: center;"><b>{qty}</b></td>
+      <td style="text-align: center;">{price each}</td>
+      <td style="text-align: center;">{price total}</td>
       <td style="text-align: center;">{market price percent}</td>
       <td style="text-align: center;">
         <form action="./" method="post">

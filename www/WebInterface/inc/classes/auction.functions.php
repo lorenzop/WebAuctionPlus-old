@@ -43,12 +43,12 @@ public static function CreateAuction($id, $qty, $price, $desc){global $config, $
   $auctionId = mysql_insert_id();
   // subtract qty
   if($splitStack){
-    $result = ItemFuncs::UpdateQty($id, 0-$qty, FALSE);
-    if(!$result || mysql_affected_rows()==0){echo '<p style="color: red;">Error updating item stack quantity!</p>'; exit();}
+    if(!ItemFuncs::UpdateQty($Item->getTableRowId(), 0-$qty, FALSE)){
+      echo '<p style="color: red;">Error updating item stack quantity!</p>'; exit();}
   // remove item stack
   }else{
-    $result = ItemFuncs::DeleteItem($Item->getTableRowId());
-    if(!$result || mysql_affected_rows()==0){echo '<p style="color: red;">Error removing item stack quantity!</p>'; exit();}
+    if(!ItemFuncs::DeleteItem( $Item->getTableRowId() )){
+      echo '<p style="color: red;">Error removing item stack quantity!</p>'; exit();}
   }
   // add transaction log
 //TODO: this needs to be done yet

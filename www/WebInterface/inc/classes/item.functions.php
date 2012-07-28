@@ -230,8 +230,8 @@ public static function UpdateQty($itemId, $qty, $fixed=TRUE){global $config;
   else $query = "`qty` = `qty` + ".((int)$qty);
   $query = "UPDATE `".$config['table prefix']."Items` SET ".$query." WHERE `id`=".((int)$itemId)." LIMIT 1";
   $result = RunQuery($query, __file__, __line__);
-  if(!$result){echo '<p style="color: red;">Error updating item stack!</p>'; exit();}
-  return($result);
+  if(!$result || mysql_affected_rows()==0){echo '<p style="color: red;">Error updating item stack! '.__line__.'</p>'; exit();}
+  return(TRUE);
 }
 
 
@@ -239,8 +239,8 @@ public static function UpdateQty($itemId, $qty, $fixed=TRUE){global $config;
 public static function DeleteItem($itemId){global $config;
   $query = "DELETE FROM `".$config['table prefix']."Items` WHERE `id` = ".((int)$itemId)." LIMIT 1";
   $result = RunQuery($query, __file__, __line__);
-  if(!$result){echo '<p style="color: red;">Error removing item stack!</p>'; exit();}
-  return($result);
+  if(!$result || mysql_affected_rows()==0){echo '<p style="color: red;">Error removing item stack! '.__line__.'</p>'; exit();}
+  return(TRUE);
 }
 
 

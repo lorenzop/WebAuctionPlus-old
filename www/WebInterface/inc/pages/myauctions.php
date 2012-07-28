@@ -41,23 +41,27 @@ function RenderPage_myauctions(){global $config,$html; $output='';
     $config['tags']['messages'] .= str_replace('{message}', $_SESSION['success'], $outputs['success']);
     unset($_SESSION['success']);
   }
-  // list my auctions
-  $auctions = new AuctionsClass();
-  $auctions->QueryAuctions( "`playerName`='".mysql_san($config['user']->getName())."'" );
+  // list auctions
+  $auctions = QueryAuctions::QueryMy();
   $outputRows = '';
   while($auction = $auctions->getNext()){
-    $Item = &$auction['Item'];
+  	$Item = $auction->getItem();
+  	if(!$Item) continue;
     $tags = array(
-      'auction id'		=> ((int)$auction['id']),
-      'auction expire'		=> 'expires date<br />goes here',
-      'auction qty'		=> ((int)$Item->qty),
-      'auction price each'	=> FormatPrice($auction['price']),
-      'auction price total'	=> FormatPrice($auction['price'] * $Item->qty),
-      'item title'		=> $Item->getItemTitle(),
-      'item name'			=> $Item->getItemName(),
-      'item image url'		=> $Item->getItemImageUrl(),
-      'market price percent'	=> 'market price<br />goes here',
-      'rowclass'			=> 'gradeU',
+      'auction id'  => (int)$auction->getTableRowId(),
+      'seller name' => $auction->getSeller(),
+      'item'        => $Item->getDisplay(),
+      'qty'         => (int)$Item->getItemQty(),
+      'price each'	=> FormatPrice($auction->getPrice()),
+      'price total'	=> FormatPrice($auction->getPriceTotal()),
+      'created'     => $auction->getCreated(),
+      'expire'      => $auction->getExpire(),
+      'market price percent' => 'market price<br />goes here',
+      'rowclass'    => 'gradeU',
+//TODO:
+//allowBids
+//currentBid
+//currentWinner
     );
 //  if($Item->itemType=='tool'){
 //    $output.='<br />'.$Item->getDamagedChargedStr();
@@ -83,7 +87,7 @@ function RenderPage_myauctions(){global $config,$html; $output='';
     RenderHTML::RenderTags($htmlRow, $tags);
     $outputRows .= $htmlRow;
   }
-  unset($auction, $Item);
+  unset($auctions, $Item);
   return($outputs['body top']."\n".
          $outputRows."\n".
          $outputs['body bottom']);

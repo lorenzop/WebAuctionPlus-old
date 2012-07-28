@@ -19,7 +19,7 @@ public static function QueryInventory($playerName){
 public static function QuerySingle($playerName, $id){
   if(empty($playerName)) return(FALSE);
   $class = new QueryItems();
-  $class->doQuery("LOWER(`playerName`) = '".mysql_san($playerName)."'");
+  $class->doQuery("LOWER(`playerName`) = '".mysql_san($playerName)."' AND `id` = ".((int)$id)." ");
   return($class->getNext());
 }
 

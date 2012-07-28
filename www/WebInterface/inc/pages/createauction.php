@@ -7,7 +7,7 @@ if(!$config['user']->isOk()) ForwardTo('./', 0);
 
 if($config['action']=='newauction'){
   CSRF::ValidateToken();
-  if(AuctionsClass::CreateAuction(
+  if(AuctionFuncs::CreateAuction(
     getVar('id'   ,'int'   ,'post'),
     getVar('qty'  ,'int'   ,'post'),
     getVar('price','double','post'),
@@ -180,18 +180,11 @@ if(!isset($config['error']))
     $config['error'] = 'You don\'t have permission to sell.';
 if(isset($config['error']))
   $output.='<tr><td align="center" style="padding-top: 20px; color: red; font-size: larger;">'.$config['error'].'</td></tr>';
+// add enchantments to this link!
+//  '<a href="./?page=graph&amp;name='.((int)$Item->getItemId()).'&amp;damage='.$Item->getItemDamage().'">'.' .
 $output.='
 <tr><td align="center"><h2>Create a New Auction</h2></td></tr>
-<tr><td align="center"><div class="input" style="width: 150px; padding-top: 15px; padding-bottom: 15px; text-align: center;" />
-'.
-// add enchantments to this link!
-//  '<a href="./?page=graph&amp;name='.((int)$Item->getItemId()).'&amp;damage='.$Item->getItemDamage().'">'.
-  '<img src="'.$Item->getItemImageUrl().'" alt="'.$Item->getItemTitle().'" style="margin-bottom: 5px;" />'.
-  '<br /><b>'.$Item->getItemName().'</b><font size="-2"><b>';
-foreach($Item->getEnchantmentsArray() as $v){
-  $output.='<br />'.$v['enchName'].' '.$v['level'];
-}
-$output.='</b></font></div></td></tr>
+<tr><td align="center"><div class="input" style="width: 150px; padding-top: 15px; padding-bottom: 15px; text-align: center;">'.$Item->getDisplay().'</div></td></tr>
 <tr><td height="20"></td></tr>
 
 <tr><td align="center"><b>You have <font size="+2">'.((int)$Item->getItemQty()).'</font> items</b></td></tr>

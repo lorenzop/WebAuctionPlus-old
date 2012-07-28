@@ -45,7 +45,7 @@ function RenderPage_myitems(){global $config,$html;
   while($Item = $Items->getNext()) {
     $tags = array(
       'item display'       => $Item->getDisplay(),
-      'item row id'        => $Item->getItemId(),
+      'item row id'        => $Item->getTableRowId(),
       'item qty'           => $Item->getItemQty(),
       'market price each'  => 'market price<br />goes here',
       'market price total' => 'market price<br />goes here',
