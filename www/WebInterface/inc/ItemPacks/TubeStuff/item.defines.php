@@ -9,8 +9,8 @@ $Items[194]=array(
     'icon'=>'Buffer.png',
     'pack'=>$pack),
   1 =>array(
-    'name'=>'Auto Crafting Table III',
-    'icon'=>'Automatic_Crafting_Table_MkIII.png',
+    'name'=>'Auto Crafting Table II',
+    'icon'=>'Automatic_Crafting_Table_MkII.png',
     'pack'=>$pack),
   2 =>array(
     'name'=>'Black Hole Chest',
@@ -18,7 +18,7 @@ $Items[194]=array(
     'pack'=>$pack),
   -1=>array(
     'name'=>'Unknown Item',
-    'icon'=>'Automatic_Crafting_Table_MkIII.png',
+    'icon'=>'Automatic_Crafting_Table_MkII.png',
     'pack'=>$pack),
 );
 

@@ -18,6 +18,7 @@ include($pathPrefix.'IronChests'             .$pathPostfix);
 include($pathPrefix.'NetherOres'             .$pathPostfix);
 include($pathPrefix.'NuclearControl'         .$pathPostfix);
 include($pathPrefix.'PowerConverters'        .$pathPostfix);
+include($pathPrefix.'RailCraft'              .$pathPostfix);
 include($pathPrefix.'RedPower'               .$pathPostfix);
 include($pathPrefix.'TubeStuff'              .$pathPostfix);
 include($pathPrefix.'WirelessRedstoneChicken'.$pathPostfix);
