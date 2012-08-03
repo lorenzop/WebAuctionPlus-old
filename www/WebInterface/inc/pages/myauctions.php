@@ -7,15 +7,14 @@ if(!$config['user']->isOk()) ForwardTo('./', 0);
 
 if($config['action']=='cancel'){
   CSRF::ValidateToken();
-  if(AuctionsClass::RemoveAuction(
-    getVar('auctionid','int','post'),
-    -1,
-    FALSE
+  if(AuctionFuncs::CancelAuction(
+    getVar('auctionid','int','post')
   )){
     echo '<center><h2>Auction canceled!</h2><br /><a href="'.getLastPage().'">Back to last page</a></center>';
     ForwardTo(getLastPage(), 2);
     exit();
   }
+  echo $config['error']; exit();
 }
 
 

@@ -4,15 +4,15 @@ session_start();
 class UserClass{
 
 
-protected $UserId        = 0;
-protected $Name          = '';
-public    $numMail       = 0;
-public    $Money         = 0.0;
-public    $ItemsSold     = 0;
-public    $ItemsBought   = 0;
-public    $Earnt         = 0.0;
-public    $Spent         = 0.0;
-protected $permissions   = array();
+protected $UserId      = 0;
+protected $Name        = '';
+protected $numMail     = 0;
+protected $Money       = 0.0;
+protected $ItemsSold   = 0;
+protected $ItemsBought = 0;
+protected $Earnt       = 0.0;
+protected $Spent       = 0.0;
+protected $permissions = array();
 
 
 function __construct(){global $config;
@@ -118,6 +118,12 @@ public function nameEquals($name){
 }
 
 
+// get mail count
+public function getMailCount(){
+  return($this->numMail);
+}
+
+
 // permissions
 public function hasPerms($perms){
   if(empty($perms) || count($this->permissions)==0) return(FALSE);
@@ -134,7 +140,10 @@ public function hasPerms($perms){
 
 
 // money
-public function saveMoney($useMySQLiConomy, $iConTableName){
+public function getMoney(){
+  return($this->Money);
+}
+//public function saveMoney($useMySQLiConomy, $iConTableName){
 //  if ($useMySQLiConomy){
 //    $query = mysql_query("UPDATE `".mysql_san($iConTableName)."` SET ".
 //                         "`balance`=".((double)$this->money)" WHERE ".
@@ -151,19 +160,19 @@ public function saveMoney($useMySQLiConomy, $iConTableName){
 //  }else{
 //    $query = mysql_query("UPDATE WA_Players SET money='$this->money' WHERE name='$this->Name'");
 //  }
-}
-public function spend($amount, $useMySQLiConomy, $iConTableName){
+//}
+//public function spend($amount, $useMySQLiConomy, $iConTableName){
 //  $this->money = $this->money - $amount;
 //  $this->saveMoney($useMySQLiConomy, $iConTableName);
 //  $this->spent = $this->spent + $amount;
 //  $query = mysql_query("UPDATE WA_Players SET spent='$this->spent' WHERE name='$this->name'");
-}
-public function earn($amount, $useMySQLiConomy, $iConTableName){
+//}
+//public function earn($amount, $useMySQLiConomy, $iConTableName){
 //  $this->money = $this->money + $amount;
 //  $this->saveMoney($useMySQLiConomy, $iConTableName);
 //  $this->earnt = $this->earnt + $amount;
 //  $query = mysql_query("UPDATE WA_Players SET earnt='$this->earnt' WHERE name='$this->name'");
-}
+//}
 
 
 public static function MakePayment($fromPlayer, $toPlayer, $amount, $desc=''){

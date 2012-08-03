@@ -3,25 +3,25 @@
 class AuctionDAO{
 
 
-protected $tableRowId    = 0;
+protected $tableRowId    = -1;
 protected $playerName    = '';
 protected $Item          = FALSE;
 protected $price         = 0.0;
-protected $created       = 0;
+protected $created       = -1;
 protected $allowBids     = FALSE;
 protected $currentBid    = 0.0;
 protected $currentWinner = '';
 
 
 function __construct($tableRowId=0, $playerName='', $Item=FALSE, $price=0.0, $created=0, $allowBids=FALSE, $currentBid=0.0, $currentWinner=''){
-  $this->tableRowId = (int)$tableRowId;
-  $this->playerName = $playerName;
+  $this->tableRowId = ($tableRowId<1  ? -1 : (int)  $tableRowId);
+  $this->playerName = (string)$playerName;
   $this->Item       = $Item;
-  $this->price      = (float)$price;
-  $this->created    = (int)$created;
+  $this->price      = ($price<0.0     ? 0.0: (float)$price);
+  $this->created    = ($created<0     ? -1 : (int)  $created);
   $this->allowBids  = (boolean)$allowBids;
-  $this->currentBid = (float)$currentBid;
-  $this->currentWinner = $currentWinner;
+  $this->currentBid = ($currentBid<0.0? 0.0: (float)$currentBid);
+  $this->currentWinner = (string)$currentWinner;
 }
 
 
@@ -39,7 +39,7 @@ public function getItem(){
 }
 // get price
 public function getPrice(){
-  return($this->price);
+  return( (float)$this->price );
 }
 public function getPriceTotal(){
   if(!$this->Item) return('ERROR');

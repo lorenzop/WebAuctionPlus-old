@@ -4,26 +4,23 @@ class QueryItems{
 protected $result = FALSE;
 
 
-function __construct(){
-}
-
-
 // query inventory item stacks
 public static function QueryInventory($playerName){
-  if(empty($playerName)) return(FALSE);
+  if(empty($playerName)) {$this->result = FALSE; return(FALSE);}
   $class = new QueryItems();
   $class->doQuery("LOWER(`playerName`) = '".mysql_san($playerName)."'");
+  if(!$class->result) return(FALSE);
   return($class);
 }
 // query single item stack
 public static function QuerySingle($playerName, $id){
-  if(empty($playerName)) return(FALSE);
+  if(empty($playerName)) {$this->result = FALSE; return(FALSE);}
   $class = new QueryItems();
   $class->doQuery("LOWER(`playerName`) = '".mysql_san($playerName)."' AND `id` = ".((int)$id)." ");
+  if(!$class->result) return(FALSE);
   return($class->getNext());
 }
-
-
+// query
 protected function doQuery($WHERE){global $config;
   if(empty($WHERE)) {$this->result = FALSE; return;}
   $query="SELECT `id`, `itemId`, `itemDamage`, `qty`, `enchantments` ".
@@ -48,22 +45,6 @@ public function getNext(){
     $row['enchantments']
   ));
 }
-
-
-
-
-
-//public static function QueryItem($playerName,$id){global $user;
-//  if(empty($playerName) || $id<1) return(FALSE);
-//  $items = new ItemsClass();
-//  $items->QueryItems($user->getName(),"LOWER(`Items`.`playerName`)='".mysql_san(strtolower($playerName))."' AND `Items`.`id`=".((int)$id));
-//  $itemRow = $items->getNext();
-//  unset($items);
-//  return($itemRow);
-//}
-
-
-
 
 
 }

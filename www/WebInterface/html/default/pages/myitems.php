@@ -59,9 +59,9 @@ $outputs['body row']='
       <td style="text-align: center;">
         <form action="./" method="post">
         {token form}
-        <input type="hidden" name="page"      value="{page}" />
-        <input type="hidden" name="action"    value="mailitem" />
-        <input type="hidden" name="auctionid" value="{item row id}" />
+        <input type="hidden" name="page"   value="{page}" />
+        <input type="hidden" name="action" value="mailitem" />
+        <input type="hidden" name="itemid" value="{item row id}" />
         <input type="submit" value="Mail it" class="button" />
         </form>
     </tr>

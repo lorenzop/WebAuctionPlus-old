@@ -5,27 +5,26 @@
 // buy an auction
 if($config['action']=='buy'){
   CSRF::ValidateToken();
-  if(AuctionsClass::RemoveAuction(
+  if(AuctionFuncs::BuyAuction(
     getVar('auctionid','int','post'),
-    getVar('qty',      'int','post'),
-    TRUE
+    getVar('qty',      'int','post')
   )){
     echo '<center><h2>Auction purchased successfully!</h2><br /><a href="'.getLastPage().'">Back to last page</a></center>';
     ForwardTo(getLastPage(), 2);
     exit();
   }
+  echo $config['error']; exit();
 }
 if($config['action']=='cancel'){
   CSRF::ValidateToken();
-  if(AuctionsClass::RemoveAuction(
-    getVar('auctionid','int','post'),
-    -1,
-    FALSE
+  if(AuctionFuncs::CancelAuction(
+    getVar('auctionid','int','post')
   )){
     echo '<center><h2>Auction canceled!</h2><br /><a href="'.getLastPage().'">Back to last page</a></center>';
     ForwardTo(getLastPage(), 2);
     exit();
   }
+  echo $config['error']; exit();
 }
 
 

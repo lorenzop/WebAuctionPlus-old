@@ -31,8 +31,6 @@ public static function CreateAuction($id, $qty, $price, $desc){global $config, $
 //TODO: will have a function to check for existing auctions
 ///////////////////////////////////////////////////////////
 
-  // split item stack
-  $splitStack = ($qty < $Item->getItemQty());
   // create auction
   $query = "INSERT INTO `".$config['table prefix']."Auctions` (".
            "`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `price`, `created` )VALUES( ".
@@ -41,15 +39,9 @@ public static function CreateAuction($id, $qty, $price, $desc){global $config, $
   $result = RunQuery($query, __file__, __line__);
   if(!$result) {echo '<p style="color: red;">Error creating auction!</p>'; exit();}
   $auctionId = mysql_insert_id();
-  // subtract qty
-  if($splitStack){
-    if(!ItemFuncs::UpdateQty($Item->getTableRowId(), 0-$qty, FALSE)){
-      echo '<p style="color: red;">Error updating item stack quantity!</p>'; exit();}
-  // remove item stack
-  }else{
-    if(!ItemFuncs::DeleteItem( $Item->getTableRowId() )){
-      echo '<p style="color: red;">Error removing item stack quantity!</p>'; exit();}
-  }
+  // update qty / remove item stack
+  if(!ItemFuncs::RemoveItem( $Item->getTableRowId(), ($qty<$Item->getItemQty() ? $qty : -1) )){
+    echo '<p style="color: red;">Error removing item stack quantity!</p>'; exit();}
   // add transaction log
 //TODO: this needs to be done yet
 //  $Item->qty = $qty;
@@ -58,91 +50,82 @@ public static function CreateAuction($id, $qty, $price, $desc){global $config, $
 }
 
 
-// buy/cancel auction
-public static function RemoveAuction($auctionId, $qty=-1, $isBuying=FALSE){global $config,$user;
-
-
-
-
-
-
-
-
-echo __file__.' '.__line__;exit();
+// buy auction
+public static function BuyAuction($auctionId, $qty){global $config, $user;
+  // validate args
+  $auctionId = (int) $auctionId;
+  if($auctionId < 1) {$config['error'] = 'Invalid auction id!'; return(FALSE);}
+  $qty = (int) $qty;
+  if($qty < 1) {$config['error'] = 'Invalid qty!'; return(FALSE);}
   // has canBuy permissions
-  if($isBuying && !$user->hasPerms('canBuy')){
-    $config['error'] = 'You don\'t have permission to buy.'; return(FALSE);}
+  if(!$user->hasPerms('canBuy')) {$config['error'] = 'You don\'t have permission to buy.'; return(FALSE);}
+  // query auction
+  $auction = QueryAuctions::QuerySingle($auctionId);
+  if(!$auction) {$config['error'] = 'Auction not found!'; return(FALSE);}
+  $Item = $auction->getItem();
+//  // is item allowed
+//  if (!itemAllowed($item->name, $item->damage)){
+//    $_SESSION['error'] = $item->fullname.' is not allowed to be sold.';
+//    header("Location: ../myauctions.php");
+//  }
+  // buying validation
+  if($auction->getSeller()==$user->getName()){$config['error'] = 'Can\'t buy from yourself!'; return(FALSE);}
+  if($qty > $Item->getItemQty()) {$qty = $Item->getItemQty(); $config['error'] = 'Not that many for sale!'; return(FALSE);}
+//  $priceTotal = $auction->getPriceTotal();
+  $maxSellPrice = SettingsClass::getDouble('Max Sell Price');
+  $sellPrice = $auction->getPrice();
+  $priceQty = ((int)$auction->getPrice()) * $qty;
+  if($sellPrice > $maxSellPrice) {$config['error'] = 'Over max sell price of $ '.$maxSellPrice.' !'; return(FALSE);}
+  if($priceQty > $user->getMoney()) {$config['error'] = 'You don\'t have enough money!';                return(FALSE);}
+  // make payment from buyer to seller
+  UserClass::MakePayment(
+    $user->getName(),
+    $auction->getSeller(),
+    $priceQty,
+    'Bought auction '.((int)$auction->getTableRowId()).' '.$Item->getItemTitle().' x'.((int)$Item->getItemQty())
+  );
+  // remove auction
+  if(!self::RemoveAuction($auctionId, ($qty<$Item->getItemQty() ? $qty : -1) )){
+    echo '<p style="color: red;">Error removing/updating auction!</p>'; exit();}
+  // add to inventory
+  $tableRowId = ItemFuncs::AddCreateItem($user->getName(), $Item);
+  if(!$tableRowId){echo '<p style="color: red;">Error adding item to your inventory!</p>'; exit();}
+  // transaction log
+//TODO: TransactionLog::addLog();
+  return(TRUE);
+}
+public static function CancelAuction($auctionId){global $config, $user;
   // validate args
   $auctionId = floor((int)$auctionId);
   if($auctionId < 1) {$config['error'] = 'Invalid auction id!'; return(FALSE);}
-  if($isBuying){
-    $qty = floor((int)$qty);
-    if($qty < 1) {$config['error'] = 'Invalid qty!'; return(FALSE);}
-  }
-
-  // get item from db
-  $auctionsClass = new AuctionsClass();
-  $auctionsClass->QueryAuctions("Auctions.`id`=".((int)$auctionId), 1);
-  $auctionRow = $auctionsClass->getNext();
-  if($auctionRow === FALSE) {$config['error'] = 'Auction not found!'; return(FALSE);}
-  $Item = &$auctionRow['Item'];
-
-  // buying validation
-  if($isBuying){
-    if($qty > $Item->qty) {$qty = $Item->qty; $config['error'] = 'Not that many for sale!'; return(FALSE);}
-    $priceTotal = ((float)$auctionRow['price']) * ((float)$qty);
-    $maxSellPrice = SettingsClass::getDouble('Max Sell Price');
-    if(((float)$auctionRow['price']) > $maxSellPrice){
-      $config['error'] = 'Over max sell price of $ '.$maxSellPrice.' !'; return(FALSE);}
-    if($priceTotal > $user->Money){
-      $config['error'] = 'You don\'t have enough money!';                return(FALSE);}
-    // is item allowed
-//    if (!itemAllowed($item->name, $item->damage)){
-//      $_SESSION['error'] = $item->fullname.' is not allowed to be sold.';
-//      header("Location: ../myauctions.php");
-//    }
-  // canceling validation
-  }else{
-    // isAdmin or owns auction
-    if( !$user->hasPerms('isAdmin') && $auctionRow['playerName']!=$user->getName() ) {
-      $config['error'] = 'You don\'t own that auction!'; return(FALSE);}
-    $qty = $Item->qty;
-  }
-
-  // make payment from buyer to seller
-  if($isBuying)
-    UserClass::MakePayment(
-      $user->getName(),
-      $auctionRow['playerName'],
-      $priceTotal,
-      'Bought auction '.((int)$auctionRow['id']).' '.$Item->getItemTitle().' x'.((int)$Item->qty)
-    );
-
-  // split auction stack
-  $splitStack = ($qty < $Item->qty);
-// TODO: check for existing stack in inventory
-  // create item
-  $ItemTableId = ItemFuncs::CreateItem('Items', $user->getName(), $Item->itemId, $Item->itemDamage, $qty,$Item->getEnchantmentsArray() );
-  // subtract qty
-  if($splitStack){
-    $query = "UPDATE `".$config['table prefix']."Auctions` SET `qty`=`qty` - ".((int)$qty)." WHERE `id` = ".((int)$auctionRow['id'])." LIMIT 1";
-    $result = RunQuery($query, __file__, __line__);
-    if(!$result) {echo '<p style="color: red;">Error updating auction stack quantity!</p>'; exit();}
+  // query auction
+  $auction = QueryAuctions::QuerySingle($auctionId);
+  if(!$auction) {$config['error'] = 'Auction not found!'; return(FALSE);}
+  // isAdmin or owns auction
+  if( !$user->hasPerms('isAdmin') && $auction->getSeller() != $user->getName() ) {
+    $config['error'] = 'You don\'t own that auction!'; return(FALSE);}
   // remove auction
-  }else{
-    $query = "DELETE FROM `".$config['table prefix']."Auctions` WHERE `id` = ".((int)$auctionRow['id'])." LIMIT 1";
+  self::RemoveAuction($auctionId, -1);
+  // add item to inventory
+  $tableRowId = ItemFuncs::AddCreateItem($auction->getSeller(), $auction->getItem());
+  // transaction log
+//TODO: TransactionLog::addLog();
+  return(TRUE);
+}
+// update qty / remove auction
+protected static function RemoveAuction($auctionId, $qty=-1){global $config;
+  if($auctionId < 1) return(FALSE);
+  // remove auction
+  if($qty < 0){
+    $query = "DELETE FROM `".$config['table prefix']."Auctions` WHERE `id` = ".((int)$auctionId)." LIMIT 1";
     $result = RunQuery($query, __file__, __line__);
-    if(!$result) {echo '<p style="color: red;">Error removing item stack!</p>'; exit();}
+    if(!$result || mysql_affected_rows()==0){echo '<p style="color: red;">Error removing auction!</p>'; exit();}
+  // subtract qty
+  }else{
+    $query = "UPDATE `".$config['table prefix']."Auctions` SET `qty` = `qty` - ".((int)$qty)." WHERE `id` = ".((int)$auctionId)." LIMIT 1";
+    $result = RunQuery($query, __file__, __line__);
+    if(!$result || mysql_affected_rows()==0){echo '<p style="color: red;">Error updating auction!</p>'; exit();}
   }
-//  // move enchantments
-//  if(!$splitStack){
-//    $query = "UPDATE `".$config['table prefix']."ItemEnchantments` SET ".
-//             "`ItemTable` = 'Items', `ItemTableId` = ".((int)$ItemTableId).
-//             " WHERE `ItemTable` = 'Items' AND `ItemTableId` = ".((int)$auctionRow['id']);
-//    $result = RunQuery($query, __file__, __line__);
-//    if(!$result) {echo '<p style="color: red;">Error moving enchantment!</p>'; exit();}
-//  }
-
   return(TRUE);
 }
 

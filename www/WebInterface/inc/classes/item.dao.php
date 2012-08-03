@@ -3,37 +3,48 @@
 class ItemDAO{
 
 
-protected $tableRowId = 0;
-protected $itemId     = 0;
+protected $tableRowId =-1;
+protected $itemId     =-1;
 protected $itemDamage = 0;
 protected $qty        = 0;
 protected $enchantments = array();
 
 
 function __construct($tableRowId=0, $itemId=0, $itemDamage=0, $qty=0, $enchantments=array()){
-  $this->tableRowId = (int) $tableRowId;
-  $this->itemId     = (int) $itemId;
-  $this->itemDamage = (int) $itemDamage;
-  $this->qty        = (int) $qty;
+  $this->tableRowId = ($tableRowId<1 ? -1 : (int)$tableRowId);
+  $this->itemId     = ($itemId<1     ? -1 : (int)$itemId);
+  $this->itemDamage = ($itemDamage<1 ?  0 : (int)$itemDamage);
+  $this->qty        = ($qty<1        ?  0 : (int)$qty);
   $this->enchantments = self::parseEnchantments($enchantments);
 }
 
 
-// get table row id
+// table row id
 public function getTableRowId(){
   return((int)$this->tableRowId);
 }
-// get item type id
+public function setTableRowId($rowId){
+  if($rowId < 1) $rowId = -1;
+  $this->tableRowId = (int)$rowId;
+}
+// item type id
 public function getItemId(){
   return((int)$this->itemId);
 }
-// get item damage value
+// item damage value
 public function getItemDamage(){
   return((int)$this->itemDamage);
 }
-// get item qty
+// item qty
 public function getItemQty(){
   return((int)$this->qty);
+}
+//public function setItemQty($qty){
+//  $this->qty = $qty;
+//}
+public function subtractQty($qty){
+  $this->qty -= $qty;
+  if($this->qty < 0) $this->qty = 0;
 }
 
 

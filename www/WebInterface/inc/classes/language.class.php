@@ -9,10 +9,10 @@ public static function LoadLanguage(){global $config;
 
 // set defaults / type
 public static function setDefaults(){global $config;
-  foreach($tempArray as $name => $message){
-    if(empty(@$config['languages'][$name]))
-      $config['languages'][$name] = $message;
-  }
+//  foreach($tempArray as $name => $message){
+//    if(empty($config['languages'][$name]))
+//      $config['languages'][$name] = $message;
+//  }
 }
 
 
