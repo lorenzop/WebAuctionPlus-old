@@ -95,6 +95,10 @@ public class MySQLConnPool {
 		closeResources(conn);
 		closeResources(st, rs);
 	}
+	public void closeResources(Connection conn, Statement st) {
+		closeResources(conn);
+		closeResources(st, null);
+	}
 	public void closeResources(Connection conn) {
 		if (conn == null) return;
 		boolean valid = false;

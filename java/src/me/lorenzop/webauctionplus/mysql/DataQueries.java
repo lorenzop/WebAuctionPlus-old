@@ -4,9 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -34,10 +32,6 @@ public class DataQueries extends MySQLConnPool {
 		this.dbName = dbName;
 		this.dbPrefix = dbPrefix;
 		this.debugSQL = debugSQL;
-	}
-	public void start() {
-		Connection conn = getConnection();
-		closeResources(conn);
 	}
 
 
@@ -124,7 +118,7 @@ public class DataQueries extends MySQLConnPool {
 	public static boolean checkSafeEnchantments(ItemStack stack, Enchantment enchantment, int level) {
 		// can enchant item
 		if(!enchantment.canEnchantItem(stack)) {
-//			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Removed unsafe enchantment: "+stack.toString()+"  "+enchantment.toString());
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Removed unsafe enchantment: "+stack.toString()+"  "+enchantment.toString());
 			return false;
 		}
 		if(level < 1) return false;
@@ -148,112 +142,112 @@ public class DataQueries extends MySQLConnPool {
 	}
 
 
-	// find existing item stack
-	public int getItemStackId(String player, ItemStack stack) {
-		if(stack == null) return -1;
-		int itemId = stack.getTypeId();
-		int itemDamage = stack.getDurability();
-		String enchStr = encodeEnchantments(stack);
-		if(enchStr!=null && enchStr.isEmpty()) enchStr = null;
-		int keyId = -1;
-		if(player == null || player.isEmpty()) return -1;
-		if(itemId < 1 || itemDamage < 0) return -1;
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if(debugSQL) log.info("WA Query: getItemStackId");
-			st = conn.prepareStatement("SELECT `id` FROM `"+dbPrefix+"Items` WHERE "+
-				"`ItemTable` = 'Items' AND "+
-				"`playerName` = ? AND "+
-				"`itemId` = ? AND "+
-				"`itemDamage` = ? AND "+
-				"`enchantments` "+(enchStr==null?"IS NULL":"= ?")+" "+
-				"LIMIT 1");
-			st.setString(1, player);
-			st.setInt   (2, itemId);
-			st.setInt   (3, itemDamage);
-			if(enchStr != null)
-				st.setString(4, enchStr);
-			rs = st.executeQuery();
-			// got stack id
-			if(rs.next())
-				keyId = rs.getInt("id");
-		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to get item stack id");
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-		return keyId;
-	}
+//	// find existing item stack
+//	public int getItemStackId(String player, ItemStack stack) {
+//		if(stack == null) return -1;
+//		int itemId = stack.getTypeId();
+//		int itemDamage = stack.getDurability();
+//		String enchStr = encodeEnchantments(stack);
+//		if(enchStr!=null && enchStr.isEmpty()) enchStr = null;
+//		int keyId = -1;
+//		if(player == null || player.isEmpty()) return -1;
+//		if(itemId < 1 || itemDamage < 0) return -1;
+//		Connection conn = getConnection();
+//		PreparedStatement st = null;
+//		ResultSet rs = null;
+//		try {
+//			if(debugSQL) log.info("WA Query: getItemStackId");
+//			st = conn.prepareStatement("SELECT `id` FROM `"+dbPrefix+"Items` WHERE "+
+//				"`ItemTable` = 'Items' AND "+
+//				"`playerName` = ? AND "+
+//				"`itemId` = ? AND "+
+//				"`itemDamage` = ? AND "+
+//				"`enchantments` "+(enchStr==null?"IS NULL":"= ?")+" "+
+//				"LIMIT 1");
+//			st.setString(1, player);
+//			st.setInt   (2, itemId);
+//			st.setInt   (3, itemDamage);
+//			if(enchStr != null)
+//				st.setString(4, enchStr);
+//			rs = st.executeQuery();
+//			// got stack id
+//			if(rs.next())
+//				keyId = rs.getInt("id");
+//		} catch(SQLException e) {
+//			log.warning(logPrefix + "Unable to get item stack id");
+//			e.printStackTrace();
+//		} finally {
+//			closeResources(conn, st, rs);
+//		}
+//		return keyId;
+//	}
 
 
-	// add quantity
-	public boolean AddItemQty(int TableItemId, int qty) {
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if(debugSQL) log.info("WA Query: AddItemQty " +
-				Integer.toString(TableItemId) + " " + Integer.toString(qty) );
-			st = conn.prepareStatement("UPDATE `"+dbPrefix+"Items` SET `qty` = `qty` + ? WHERE `id` = ? AND `ItemTable`='Items'");
-			st.setInt(1, qty);
-			st.setInt(2, TableItemId);
-			st.executeUpdate();
-		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to update item quantity in DB");
-			e.printStackTrace();
-			return false;
-		} finally {
-			closeResources(conn, st, rs);
-		}
-		return true;
-	}
+//	// add quantity
+//	public boolean AddItemQty(int TableItemId, int qty) {
+//		Connection conn = getConnection();
+//		PreparedStatement st = null;
+//		ResultSet rs = null;
+//		try {
+//			if(debugSQL) log.info("WA Query: AddItemQty " +
+//				Integer.toString(TableItemId) + " " + Integer.toString(qty) );
+//			st = conn.prepareStatement("UPDATE `"+dbPrefix+"Items` SET `qty` = `qty` + ? WHERE `id` = ? AND `ItemTable`='Items'");
+//			st.setInt(1, qty);
+//			st.setInt(2, TableItemId);
+//			st.executeUpdate();
+//		} catch(SQLException e) {
+//			log.warning(logPrefix + "Unable to update item quantity in DB");
+//			e.printStackTrace();
+//			return false;
+//		} finally {
+//			closeResources(conn, st, rs);
+//		}
+//		return true;
+//	}
 
 
 	// add new stack to db
-	public int CreateItem(String player, ItemStack stack) {
-		if(stack == null) return -1;
-		int itemId = stack.getTypeId();
-		int itemDamage = stack.getDurability();
-		int qty = stack.getAmount();
-		String enchStr = encodeEnchantments(stack);
-		if(enchStr!=null && enchStr.isEmpty()) enchStr = null;
-		int keyId = 0;
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if(debugSQL) log.info("WA Query: createItem " +
-				Integer.toString(itemId)+":"+Integer.toString(itemDamage)+" x"+Integer.toString(qty) );
-			st = conn.prepareStatement("INSERT INTO `"+dbPrefix+"Items` "+
-				"(`ItemTable`, `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`) VALUES "+
-				"('Items', ?, ?, ?, ?, "+(enchStr==null?"NULL":"?")+")",
-				Statement.RETURN_GENERATED_KEYS);
-			st.setString(1, player);
-			st.setInt   (2, itemId);
-			st.setInt   (3, itemDamage);
-			st.setInt   (4, qty);
-			if(enchStr != null)
-				st.setString(5, enchStr);
-			int affectedRows = st.executeUpdate();
-			if(affectedRows == 0) throw new SQLException("Creating new wa item failed, no rows affected.");
-			// get insert id
-			rs = st.getGeneratedKeys();
-			if(rs.next()) {
-				keyId = rs.getInt(1);
-				log.info(logPrefix + "Added new item; key id: "+Integer.toString(keyId)+"  "+
-					Integer.toString(itemId)+":"+Integer.toString(itemDamage)+"  ench: "+enchStr );
-			} else throw new SQLException("Creating new wa item failed, no generated key.");
-		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to create item");
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-		return keyId;
-	}
+//	public int CreateItem(String player, ItemStack stack) {
+//		if(stack == null) return -1;
+//		int itemId = stack.getTypeId();
+//		int itemDamage = stack.getDurability();
+//		int qty = stack.getAmount();
+//		String enchStr = encodeEnchantments(stack);
+//		if(enchStr!=null && enchStr.isEmpty()) enchStr = null;
+//		int keyId = 0;
+//		Connection conn = getConnection();
+//		PreparedStatement st = null;
+//		ResultSet rs = null;
+//		try {
+//			if(debugSQL) log.info("WA Query: createItem " +
+//				Integer.toString(itemId)+":"+Integer.toString(itemDamage)+" x"+Integer.toString(qty) );
+//			st = conn.prepareStatement("INSERT INTO `"+dbPrefix+"Items` "+
+//				"(`ItemTable`, `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`) VALUES "+
+//				"('Items', ?, ?, ?, ?, "+(enchStr==null?"NULL":"?")+")",
+//				Statement.RETURN_GENERATED_KEYS);
+//			st.setString(1, player);
+//			st.setInt   (2, itemId);
+//			st.setInt   (3, itemDamage);
+//			st.setInt   (4, qty);
+//			if(enchStr != null)
+//				st.setString(5, enchStr);
+//			int affectedRows = st.executeUpdate();
+//			if(affectedRows == 0) throw new SQLException("Creating new wa item failed, no rows affected.");
+//			// get insert id
+//			rs = st.getGeneratedKeys();
+//			if(rs.next()) {
+//				keyId = rs.getInt(1);
+//				log.info(logPrefix + "Added new item; key id: "+Integer.toString(keyId)+"  "+
+//					Integer.toString(itemId)+":"+Integer.toString(itemDamage)+"  ench: "+enchStr );
+//			} else throw new SQLException("Creating new wa item failed, no generated key.");
+//		} catch(SQLException e) {
+//			log.warning(logPrefix + "Unable to create item");
+//			e.printStackTrace();
+//		} finally {
+//			closeResources(conn, st, rs);
+//		}
+//		return keyId;
+//	}
 
 
 //	public List<AuctionItem> GetItems(String player, int itemID, int damage, boolean reverseOrder) {
@@ -315,72 +309,72 @@ public class DataQueries extends MySQLConnPool {
 	}
 
 
-	// withdraw item
-	public static class MailGetter {
-		public int lastKeyId = 0;
-		public ItemStack getPlayerMail(String player) {
-			ItemStack stack = null;
-			Connection conn = WebAuctionPlus.dataQueries.getConnection();
-			PreparedStatement st = null;
-			ResultSet rs = null;
-			try {
-				if(WebAuctionPlus.dataQueries.debugSQL) log.info("WA Query: getPlayerMail " + player + " lastKeyId: " + Integer.toString(lastKeyId));
-				st = conn.prepareStatement("SELECT `id`, `ItemTable`, `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments` "+
-					"FROM `"+WebAuctionPlus.dataQueries.dbPrefix+"Items` WHERE `ItemTable` = 'Mail' AND `playerName` = ? AND `id` > ? ORDER BY `id` ASC LIMIT 1");
-				st.setString(1, player);
-				st.setInt   (2, lastKeyId);
-				rs = st.executeQuery();
-				if(rs.next()) {
-					// create item stack
-					stack = new ItemStack( rs.getInt("itemId"), rs.getInt("qty"), rs.getShort("itemDamage") );
-					// set enchantments
-					decodeEnchantments(stack, rs.getString("enchantments"));
-					lastKeyId = rs.getInt("id");
-				}
-			} catch(SQLException e) {
-				log.warning(logPrefix+"Unable to withdraw mail for "+player);
-				e.printStackTrace();
-			} finally {
-				WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
-			}
-			return stack;
-		}
-	}
+//	// withdraw item
+//	public static class MailGetter {
+//		public int lastKeyId = 0;
+//		public ItemStack getPlayerMail(String player) {
+//			ItemStack stack = null;
+//			Connection conn = WebAuctionPlus.dataQueries.getConnection();
+//			PreparedStatement st = null;
+//			ResultSet rs = null;
+//			try {
+//				if(WebAuctionPlus.dataQueries.debugSQL) log.info("WA Query: getPlayerMail " + player + " lastKeyId: " + Integer.toString(lastKeyId));
+//				st = conn.prepareStatement("SELECT `id`, `ItemTable`, `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments` "+
+//					"FROM `"+WebAuctionPlus.dataQueries.dbPrefix+"Items` WHERE `ItemTable` = 'Mail' AND `playerName` = ? AND `id` > ? ORDER BY `id` ASC LIMIT 1");
+//				st.setString(1, player);
+//				st.setInt   (2, lastKeyId);
+//				rs = st.executeQuery();
+//				if(rs.next()) {
+//					// create item stack
+//					stack = new ItemStack( rs.getInt("itemId"), rs.getInt("qty"), rs.getShort("itemDamage") );
+//					// set enchantments
+//					decodeEnchantments(stack, rs.getString("enchantments"));
+//					lastKeyId = rs.getInt("id");
+//				}
+//			} catch(SQLException e) {
+//				log.warning(logPrefix+"Unable to withdraw mail for "+player);
+//				e.printStackTrace();
+//			} finally {
+//				WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
+//			}
+//			return stack;
+//		}
+//	}
 
 
-	public void deleteMail(String player, List<Integer> delMail) {
-		if(delMail.size() == 0) return;
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if(debugSQL) log.info("WA Query: deleteMail "+player+" "+delMail.size()+" "+delMail.toString());
-			String sql  = "";
-			String sql2 = "";
-			int i = 0;
-			for(int mailId : delMail) { i++;
-				if (i!=1) {
-					sql  += " OR ";
-					sql2 += " OR ";
-				}
-				sql  += "`id`="          + Integer.toString(mailId);
-				sql2 += "`ItemTableId`=" + Integer.toString(mailId);
-			}
-			if(sql.isEmpty() || sql2.isEmpty()) return;
-			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"Items` " +
-				"WHERE `ItemTable` = 'Mail' AND `playerName` = ? AND ( " + sql + " ) LIMIT 36");
-			st.setString(1, player);
-			st.executeUpdate();
-			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"ItemEnchantments` " +
-				"WHERE `ItemTable` = 'Mail' AND ( " + sql2 + " ) LIMIT 36");
-			st.executeUpdate();
-		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to remove mail " + player + " " + delMail.toString());
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-	}
+//	public void deleteMail(String player, List<Integer> delMail) {
+//		if(delMail.size() == 0) return;
+//		Connection conn = getConnection();
+//		PreparedStatement st = null;
+//		ResultSet rs = null;
+//		try {
+//			if(debugSQL) log.info("WA Query: deleteMail "+player+" "+delMail.size()+" "+delMail.toString());
+//			String sql  = "";
+//			String sql2 = "";
+//			int i = 0;
+//			for(int mailId : delMail) { i++;
+//				if (i!=1) {
+//					sql  += " OR ";
+//					sql2 += " OR ";
+//				}
+//				sql  += "`id`="          + Integer.toString(mailId);
+//				sql2 += "`ItemTableId`=" + Integer.toString(mailId);
+//			}
+//			if(sql.isEmpty() || sql2.isEmpty()) return;
+//			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"Items` " +
+//				"WHERE `ItemTable` = 'Mail' AND `playerName` = ? AND ( " + sql + " ) LIMIT 36");
+//			st.setString(1, player);
+//			st.executeUpdate();
+//			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"ItemEnchantments` " +
+//				"WHERE `ItemTable` = 'Mail' AND ( " + sql2 + " ) LIMIT 36");
+//			st.executeUpdate();
+//		} catch(SQLException e) {
+//			log.warning(logPrefix + "Unable to remove mail " + player + " " + delMail.toString());
+//			e.printStackTrace();
+//		} finally {
+//			closeResources(conn, st, rs);
+//		}
+//	}
 
 
 	public Map<Location, Integer> getShoutSignLocations() {

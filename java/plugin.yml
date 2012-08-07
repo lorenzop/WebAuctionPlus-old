@@ -1,6 +1,6 @@
 name: WebAuctionPlus
 main: me.lorenzop.webauctionplus.WebAuctionPlus
-version: 1.0.9
+version: 1.1.1
 author: lorenzop
 website: http://webauctionplus.com/
 depend: [Vault]
@@ -8,20 +8,18 @@ softdepend: [SignLink]
 commands:
     wa:
         description: WebAuctionPlus
-        usage: Use "/wa password [apassword]" to set your password, then log into the WebAuction on the website.
+        usage: Use "/wa password [somepassword]" to set your password, then log into the WebAuction on the website.
 permissions:
     wa.*:
         description: Gives access to all WebAuction commands
         children:
-            wa.use.withdraw.items: true
+            wa.use.mailbox: true
             wa.use.withdraw.money: true
-            wa.use.deposit.items: true
             wa.use.deposit.money: true
             wa.announcer.receive: true
             wa.create.sign.deposit: true
             wa.create.sign.withdraw: true
-            wa.create.sign.mailbox.deposit: true
-            wa.create.sign.mailbox.withdraw: true
+            wa.create.sign.mailbox: true
             wa.create.sign.recent: true
             wa.create.sign.shout: true
             wa.password.create: true
@@ -35,9 +33,8 @@ permissions:
     wa.use.*:
         description: Gives access to all WebAuction commands
         children:
-            wa.use.withdraw.items: true
+            wa.use.mailbox: true
             wa.use.withdraw.money: true
-            wa.use.deposit.items: true
             wa.use.deposit.money: true
             wa.announcer.receive: true
             wa.password.create: true
@@ -47,21 +44,22 @@ permissions:
     wa.create.*:
         description: Gives access to all create and remove sign permissions
         children:
+            wa.create.sign.mailbox: true
             wa.create.sign.deposit: true
             wa.create.sign.withdraw: true
-            wa.create.sign.mailbox.deposit: true
-            wa.create.sign.mailbox.withdraw: true
             wa.create.sign.recent: true
             wa.create.sign.shout: true
             wa.remove: true
-    wa.use.withdraw.items:
+    wa.password.*:
+        description: Gives access to create an account or change password
+        children:
+            wa.password.create: true
+            wa.password.change: true
+    wa.use.mailbox:
         description: Lets you use the mailbox
         default: true
     wa.use.withdraw.money:
         description: Lets you withdraw money from web account
-        default: true
-    wa.use.deposit.items:
-        description: Lets you deposit items and send them to web account
         default: true
     wa.use.deposit.money:
         description: Lets you deposit money to web account
@@ -81,6 +79,9 @@ permissions:
     wa.cansell:
         description: Lets you sell items on the website
         default: true
+    wa.create.sign.mailbox:
+        description: Lets you create mailbox signs
+        default: op
     wa.create.sign.deposit:
         description: Lets you create money deposit points
         default: op
@@ -92,12 +93,6 @@ permissions:
         default: op
     wa.create.sign.shout:
         description: Lets you create a sign to shout to all players nearby when a new auction is made
-        default: op
-    wa.create.sign.mailbox.deposit:
-        description: Lets you create deposit mailboxes
-        default: op
-    wa.create.sign.mailbox.withdraw:
-        description: Lets you create withdraw mailboxes
         default: op
     wa.remove:
         description: Lets you remove signs
