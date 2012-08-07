@@ -974,140 +974,140 @@ ItemFuncs::$Items=array(
     'name' =>'Leather Helmet',
     'title'=>'Leather Helmet %damaged%',
     'icon' =>'Leather_Helmet.png',
-    'damage'=>34,
+    'damage'=>56,
     'stack'=>1),
   299=>array(
     'type' =>'tool',
     'name' =>'Leather Chestplate',
     'title'=>'Leather Chestplate %damaged%',
     'icon' =>'Leather_Chestplate.png',
-    'damage'=>49,
+    'damage'=>81,
     'stack'=>1),
   300=>array(
     'type' =>'tool',
     'name' =>'Leather Leggings',
     'title'=>'Leather Leggings %damaged%',
     'icon' =>'Leather_Pants.png',
-    'damage'=>46,
+    'damage'=>76,
     'stack'=>1),
   301=>array(
     'type' =>'tool',
     'name' =>'Leather Boots',
     'title'=>'Leather Boots %damaged%',
     'icon' =>'Leather_Boots.png',
-    'damage'=>40,
+    'damage'=>66,
     'stack'=>1),
   302=>array(
     'type' =>'tool',
     'name' =>'Chain Mail Helmet',
     'title'=>'Chain Mail Helmet %damaged%',
     'icon' =>'Chain_Armor_Helmet.png',
-    'damage'=>67,
+    'damage'=>166,
     'stack'=>1),
   303=>array(
     'type' =>'tool',
     'name' =>'Chain Mail Chestplate',
     'title'=>'Chain Mail Chestplate %damaged%',
     'icon' =>'Chain_Armor_Chestplate.png',
-    'damage'=>96,
+    'damage'=>241,
     'stack'=>1),
   304=>array(
     'type' =>'tool',
     'name' =>'Chain Mail Leggings',
     'title'=>'Chain Mail Leggings %damaged%',
     'icon' =>'Chain_Armor_Leggings.png',
-    'damage'=>92,
+    'damage'=>226,
     'stack'=>1),
   305=>array(
     'type' =>'tool',
     'name' =>'Chain Mail Boots',
     'title'=>'Chain Mail Boots %damaged%',
     'icon' =>'Chain_Armor_Boots.png',
-    'damage'=>79,
+    'damage'=>196,
     'stack'=>1),
   306=>array(
     'type' =>'tool',
     'name' =>'Iron Helmet',
     'title'=>'Iron Helmet %damaged%',
     'icon' =>'Iron_Helmet.png',
-    'damage'=>136,
+    'damage'=>166,
     'stack'=>1),
   307=>array(
     'type' =>'tool',
     'name' =>'Iron Chestplate',
     'title'=>'Iron Chestplate %damaged%',
     'icon' =>'Iron_Chestplate.png',
-    'damage'=>192,
+    'damage'=>241,
     'stack'=>1),
   308=>array(
     'type' =>'tool',
     'name' =>'Iron Leggings',
     'title'=>'Iron Leggings %damaged%',
     'icon' =>'Iron_Leggings.png',
-    'damage'=>184,
+    'damage'=>226,
     'stack'=>1),
   309=>array(
     'type' =>'tool',
     'name' =>'Iron Boots',
     'title'=>'Iron Boots %damaged%',
     'icon' =>'Iron_Boots.png',
-    'damage'=>160,
+    'damage'=>196,
     'stack'=>1),
   310=>array(
     'type' =>'tool',
     'name' =>'Diamond Helmet',
     'title'=>'Diamond Helmet %damaged%',
     'icon' =>'Diamond_Helmet.png',
-    'damage'=>272,
+    'damage'=>364,
     'stack'=>1),
   311=>array(
     'type' =>'tool',
     'name' =>'Diamond Chestplate',
     'title'=>'Diamond Chestplate %damaged%',
     'icon' =>'Diamond_Chestplate.png',
-    'damage'=>384,
+    'damage'=>529,
     'stack'=>1),
   312=>array(
     'type' =>'tool',
     'name' =>'Diamond Leggings',
     'title'=>'Diamond Leggings %damaged%',
     'icon' =>'Diamond_Leggings.png',
-    'damage'=>368,
+    'damage'=>496,
     'stack'=>1),
   313=>array(
     'type' =>'tool',
     'name' =>'Diamond Boots',
     'title'=>'Diamond Boots %damaged%',
     'icon' =>'Diamond_Boots.png',
-    'damage'=>320,
+    'damage'=>430,
     'stack'=>1),
   314=>array(
     'type' =>'tool',
     'name' =>'Gold Helmet',
     'title'=>'Gold Helmet %damaged%',
     'icon' =>'Gold_Helmet.png',
-    'damage'=>68,
+    'damage'=>78,
     'stack'=>1),
   315=>array(
     'type' =>'tool',
     'name' =>'Gold Chestplate',
     'title'=>'Gold Chestplate %damaged%',
     'icon' =>'Gold_Chestplate.png',
-    'damage'=>996,
+    'damage'=>113,
     'stack'=>1),
   316=>array(
     'type' =>'tool',
     'name' =>'Gold Leggings',
     'title'=>'Gold Leggings %damaged%',
     'icon' =>'Gold_Leggings.png',
-    'damage'=>92,
+    'damage'=>106,
     'stack'=>1),
   317=>array(
     'type' =>'tool',
     'name' =>'Gold Boots',
     'title'=>'Gold Boots %damaged%',
     'icon' =>'Gold_Boots.png',
-    'damage'=>80,
+    'damage'=>92,
     'stack'=>1),
   318=>array(
     'name'=>'Flint',
@@ -1456,7 +1456,7 @@ ItemFuncs::$Items=array(
       'name'=>'Slowness Potion (4=>00)',
       'icon'=>'Potion_of_Slowness.png',
       'stack'=>1),
-   16378=>array(
+    16378=>array(
       'name'=>'Fire Resistance Splash (2=>15)',
       'icon'=>'Potion_Fire_Resistance_Splash.png',
       'stack'=>1),
@@ -1711,62 +1711,50 @@ ItemFuncs::$Items=array(
 );
 
 
+//function indent($json) {
+//    $result      = '';
+//    $pos         = 0;
+//    $strLen      = strlen($json);
+//    $indentStr   = '  ';
+//    $newLine     = "\n";
+//    $prevChar    = '';
+//    $outOfQuotes = true;
+//    for ($i=0; $i<=$strLen; $i++) {
+//        // Grab the next character in the string.
+//        $char = substr($json, $i, 1);
+//        // Are we inside a quoted string?
+//        if ($char == '"' && $prevChar != '\\') {
+//            $outOfQuotes = !$outOfQuotes;
+//        // If this character is the end of an element, 
+//        // output a new line and indent the next line.
+//        } else if(($char == '}' || $char == ']') && $outOfQuotes) {
+//            $result .= $newLine;
+//            $pos --;
+//            for ($j=0; $j<$pos; $j++) {
+//                $result .= $indentStr;
+//            }
+//        }
+//        // Add the character to the result string.
+//        $result .= $char;
+//        // If the last character was the beginning of an element, 
+//        // output a new line and indent the next line.
+//        if (($char == ',' || $char == '{' || $char == '[') && $outOfQuotes) {
+//            $result .= $newLine;
+//            if ($char == '{' || $char == '[') {
+//                $pos ++;
+//            }
+//            for ($j = 0; $j < $pos; $j++) {
+//                $result .= $indentStr;
+//            }
+//        }
+//        $prevChar = $char;
+//    }
+//    return $result;
+//}
 
 
-
-
-
-
-
-
-
-/*
-
-
-function indent($json) {
-    $result      = '';
-    $pos         = 0;
-    $strLen      = strlen($json);
-    $indentStr   = '  ';
-    $newLine     = "\n";
-    $prevChar    = '';
-    $outOfQuotes = true;
-    for ($i=0; $i<=$strLen; $i++) {
-        // Grab the next character in the string.
-        $char = substr($json, $i, 1);
-        // Are we inside a quoted string?
-        if ($char == '"' && $prevChar != '\\') {
-            $outOfQuotes = !$outOfQuotes;
-        // If this character is the end of an element, 
-        // output a new line and indent the next line.
-        } else if(($char == '}' || $char == ']') && $outOfQuotes) {
-            $result .= $newLine;
-            $pos --;
-            for ($j=0; $j<$pos; $j++) {
-                $result .= $indentStr;
-            }
-        }
-        // Add the character to the result string.
-        $result .= $char;
-        // If the last character was the beginning of an element, 
-        // output a new line and indent the next line.
-        if (($char == ',' || $char == '{' || $char == '[') && $outOfQuotes) {
-            $result .= $newLine;
-            if ($char == '{' || $char == '[') {
-                $pos ++;
-            }
-            for ($j = 0; $j < $pos; $j++) {
-                $result .= $indentStr;
-            }
-        }
-        $prevChar = $char;
-    }
-    return $result;
-}
-
-
-function itemAllowed ($itemId, $itemDamage){
-  return true; 
+//function itemAllowed ($itemId, $itemDamage){
+//  return true; 
 //  switch ($itemId){
 //    //Uncomment below to ban stone, dirt and cobblestone being sold.
 //    case 1:
@@ -1776,8 +1764,7 @@ function itemAllowed ($itemId, $itemDamage){
 //    default: 
 //      return true; 
 //  }
-}
+//}
 
 
-*/
 ?>
