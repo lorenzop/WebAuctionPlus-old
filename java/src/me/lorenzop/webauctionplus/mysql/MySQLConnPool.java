@@ -31,6 +31,7 @@ public class MySQLConnPool {
 
 	protected boolean debugSQL;
 
+
 	// get a db connection from pool
 	public Connection getConnection() {
 		// find an available connection
@@ -53,10 +54,10 @@ public class MySQLConnPool {
 		}
 		// check max pool size
 		if(connections.size() >= ConnPoolSizeHard) {
-			log.severe(logPrefix + "DB connection pool is full! Hard limit reached!  Size:" + Integer.toString(connections.size()));
+			log.severe(logPrefix+"DB connection pool is full! Hard limit reached!  Size:"+Integer.toString(connections.size()));
 			return null;
 		} else if(connections.size() >= ConnPoolSizeWarn) {
-			log.warning(logPrefix + "DB connection pool is full! Warning limit reached.  Size: " + Integer.toString(connections.size()));
+			log.warning(logPrefix+"DB connection pool is full! Warning limit reached.  Size: "+Integer.toString(connections.size()));
 		}
 		// make a new connection
 		try {
@@ -78,9 +79,10 @@ public class MySQLConnPool {
 			WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"SQL Error!");
 			e.printStackTrace();
 		}
-		log.severe(logPrefix + "Exception getting MySQL Connection");
+		log.severe(logPrefix+"Exception getting MySQL Connection");
 		return null;
 	}
+
 
 	// set connection pool size
 	public void setConnPoolSizeWarn(int size) {
@@ -89,6 +91,7 @@ public class MySQLConnPool {
 	public void setConnPoolSizeHard(int size) {
 		ConnPoolSizeHard = size;
 	}
+
 
 	// close resources
 	public void closeResources(Connection conn, Statement st, ResultSet rs) {
@@ -144,12 +147,13 @@ public class MySQLConnPool {
 			st = conn.createStatement();
 			st.executeUpdate(sql);
 		} catch (SQLException e) {
-			log.warning(logPrefix + "Exception executing raw SQL: " + sql);
+			log.warning(logPrefix+"Exception executing raw SQL: "+sql);
 			e.printStackTrace();
 		} finally {
 			closeResources(conn, st, rs);
 		}
 	}
+
 
 // TODO: cache the tables list so it only needs to load once
 	protected boolean tableExists(String tableName) {
@@ -159,12 +163,12 @@ public class MySQLConnPool {
 		ResultSet rs = null;
 		try {
 			st = conn.prepareStatement("SHOW TABLES LIKE ?");
-			st.setString(1, dbPrefix + tableName);
+			st.setString(1, dbPrefix+tableName);
 			rs = st.executeQuery();
 			while (rs.next())
 				exists = true;
 		} catch (SQLException e) {
-			log.warning(logPrefix + "Unable to check if table exists: " + tableName);
+			log.warning(logPrefix+"Unable to check if table exists: "+tableName);
 			e.printStackTrace();
 			return false;
 		} finally {
@@ -172,12 +176,13 @@ public class MySQLConnPool {
 		}
 		return exists;
 	}
-
-	protected void setTableExists(String tableName, String Sql) {
-		if (tableExists(tableName)) return;
-		log.info(logPrefix + "Creating table " + tableName);
-		executeRawSQL("CREATE TABLE `" + dbPrefix + tableName + "` ( "+Sql+" );");
+	protected boolean setTableExists(String tableName, String Sql) {
+		if (tableExists(tableName)) return false;
+		log.info(logPrefix+"Creating table "+tableName);
+		executeRawSQL("CREATE TABLE `"+dbPrefix+tableName+"` ( "+Sql+" );");
+		return true;
 	}
+
 
 	protected boolean columnExists(String tableName, String columnName) {
 		boolean exists = false;
@@ -185,7 +190,7 @@ public class MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			st = conn.prepareStatement("SHOW COLUMNS FROM `" + dbPrefix + tableName + "` LIKE ?");
+			st = conn.prepareStatement("SHOW COLUMNS FROM `"+dbPrefix+tableName+"` LIKE ?");
 			st.setString(1, columnName);
 			rs = st.executeQuery();
 			while (rs.next()) {
@@ -193,16 +198,17 @@ public class MySQLConnPool {
 				break;
 			}
 		} catch (SQLException e) {
-			log.warning(logPrefix + "Unable to check if table column exists: " + dbPrefix + tableName + "::" + columnName);
+			log.warning(logPrefix+"Unable to check if table column exists: "+dbPrefix+tableName+"::"+columnName);
 		}
 		return exists;
 	}
-
-	protected void setColumnExists(String tableName, String columnName, String Attr) {
-		if (columnExists(tableName, columnName)) {return;}
-		log.info("Adding column " + columnName + " to table " + dbPrefix + tableName);
-		executeRawSQL("ALTER TABLE `" + dbPrefix + tableName + "` ADD `" + columnName + "` " + Attr);
+	protected boolean setColumnExists(String tableName, String columnName, String Attr) {
+		if (columnExists(tableName, columnName)) {return false;}
+		log.info("Adding column "+columnName+" to table "+dbPrefix+tableName);
+		executeRawSQL("ALTER TABLE `"+dbPrefix+tableName+"` ADD `"+columnName+"` "+Attr);
+		return true;
 	}
+
 
 	// access layer
 	public boolean debugSQL() {

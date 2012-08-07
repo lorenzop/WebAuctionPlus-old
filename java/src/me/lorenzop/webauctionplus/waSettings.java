@@ -74,6 +74,7 @@ public class waSettings {
 				st.setString(1, name);
 				st.setString(2, value);
 				st.executeUpdate();
+				settingsMap.put(name, value);
 			} catch (SQLException e) {
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to add setting: " + name);
 				e.printStackTrace();

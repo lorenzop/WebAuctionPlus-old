@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 
@@ -34,6 +35,7 @@ public class MySQLTables {
 		sqlTables("SellPrice");
 		sqlTables("ShoutSigns");
 		sqlTables("Settings");
+
 		// update existing tables from original web auction
 		if (!tableExists("ItemEnchantments") && tableExists("EnchantLinks")) {
 			sqlTables("ItemEnchantments");
@@ -41,11 +43,19 @@ public class MySQLTables {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "**************************************");
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "*** Converting database to Plus... ***");
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "**************************************");
-			ConvertDatabase();
+			ConvertDatabase10();
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Finished converting database to Plus!");
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "*** You can delete these tables from the database: EnchantLinks, Enchantments, Mail ***");
 		} else
 			sqlTables("ItemEnchantments");
+
+		// update 1.0 to 1.1
+		if(setColumnExists("Players",	"Locked",		"tinyint(1)   DEFAULT '0'") ) {
+			setColumnExists("Items",	"enchantments",	"varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT ''");
+			setColumnExists("Auctions",	"enchantments",	"varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT ''");
+			ConvertDatabase11();
+		}
+
 		isOk = true;
 	}
 	public boolean isOk() {return this.isOk;}
@@ -76,23 +86,24 @@ public class MySQLTables {
 					"`itemId`			INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`itemDamage`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`qty`				INT    (11)		NOT NULL	DEFAULT '0'		, " +
+					"`enchantments`		VARCHAR(255)	NOT NULL	DEFAULT ''		, " +
 					"`price`			DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
 					"`created`			DATETIME		NOT NULL	DEFAULT '0000-00-00 00:00:00', " +
 					"`allowBids`		TINYINT(1)		NOT NULL	DEFAULT '0'		, " +
 					"`currentBid`		DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
 					"`currentWinner`	VARCHAR(16)		NULL		DEFAULT NULL	");
-		// ItemEnchantments
-		else if (tableName.equals("ItemEnchantments"))
-			if (alter)
-				WebAuctionPlus.log.severe("Shouldn't run this!");
-			else
-				setTableExists("ItemEnchantments",
-					"`id`				INT    (11)		NOT NULL	AUTO_INCREMENT	, PRIMARY KEY(`id`), " +
-					"`ItemTable`		ENUM   ('Items','Auctions','Mail') NULL DEFAULT NULL, " +
-					"`ItemTableId`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
-					"`enchName`			VARCHAR(32)		NULL		DEFAULT NULL	, " +
-					"`enchId`			INT    (11)		NOT NULL	DEFAULT '0'		, " +
-					"`level`			TINYINT(3)		UNSIGNED NOT NULL DEFAULT '0' ");
+//		// ItemEnchantments
+//		else if (tableName.equals("ItemEnchantments"))
+//			if (alter)
+//				WebAuctionPlus.log.severe("Shouldn't run this!");
+//			else
+//				setTableExists("ItemEnchantments",
+//					"`id`				INT    (11)		NOT NULL	AUTO_INCREMENT	, PRIMARY KEY(`id`), " +
+//					"`ItemTable`		ENUM   ('Items','Auctions','Mail') NULL DEFAULT NULL, " +
+//					"`ItemTableId`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
+//					"`enchName`			VARCHAR(32)		NULL		DEFAULT NULL	, " +
+//					"`enchId`			INT    (11)		NOT NULL	DEFAULT '0'		, " +
+//					"`level`			TINYINT(3)		UNSIGNED NOT NULL DEFAULT '0' ");
 		// Items
 		else if (tableName.equals("Items"))
 			if (alter) {
@@ -108,7 +119,8 @@ public class MySQLTables {
 					"`playerName`		VARCHAR(16)		NULL		DEFAULT NULL	, " +
 					"`itemId`			INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`itemDamage`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
-					"`qty`				INT    (11)		NOT NULL	DEFAULT '0'		");
+					"`qty`				INT    (11)		NOT NULL	DEFAULT '0'		, " +
+					"`enchantments`		VARCHAR(255)	NOT NULL	DEFAULT ''		");
 		// MarketPrices
 		else if (tableName.equals("MarketPrices"))
 			if (alter) {
@@ -146,7 +158,8 @@ public class MySQLTables {
 					"`itemsBought`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`earnt`			DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
 					"`spent`			DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
-					"`Permissions`		SET( 'canBuy', 'canSell', 'isAdmin' ) NULL DEFAULT NULL");
+					"`Permissions`		SET( 'canBuy', 'canSell', 'isAdmin' ) NULL DEFAULT NULL ," +
+					"`Locked`			TINYINT(1)		NOT NULL	DEFAULT '0'");
 		// RecentSigns
 		else if (tableName.equals("RecentSigns"))
 			if (alter) {
@@ -229,7 +242,7 @@ public class MySQLTables {
 	}
 
 	// convert database tables to Plus
-	private void ConvertDatabase() {
+	private void ConvertDatabase10() {
 		// update tables
 		sqlTables(true, "Auctions");
 		sqlTables(true, "Items");
@@ -270,6 +283,7 @@ public class MySQLTables {
 			e.printStackTrace();
 		} finally {
 			closeResources(conn, st, rs);
+			closeResources(stNew, rs2);
 		}
 
 		// update player permissions
@@ -314,6 +328,7 @@ public class MySQLTables {
 				e.printStackTrace();
 			} finally {
 				closeResources(conn, st, rs);
+				closeResources(stNew, rs2);
 			}
 		}
 		// move mail to items table
@@ -356,6 +371,7 @@ public class MySQLTables {
 				e.printStackTrace();
 			} finally {
 				closeResources(conn, st, rs);
+				closeResources(stNew, rs2);
 			}
 			// make sure nothing's null
 			executeRawSQL("UPDATE `"+dbPrefix+"Items` SET `ItemTable`='Items' WHERE `ItemTable` IS NULL");
@@ -427,8 +443,83 @@ public class MySQLTables {
 				e.printStackTrace();
 			} finally {
 				closeResources(conn, st, rs);
+				closeResources(stNew, rs2);
 			}
 		}
+	}
+
+
+	// update from 1.0 to 1.1
+	private void ConvertDatabase11() {
+		Connection conn			= null;
+		PreparedStatement st	= null;
+		PreparedStatement stNew	= null;
+		ResultSet rs			= null;
+		ResultSet rs2			= null;
+
+		if(tableExists("ItemEnchantments")) {
+			int totalItemEnchantments = 0;
+			int countEnchantments = 0;
+			conn = getConnection();
+			st    = null;
+			stNew = null;
+			rs    = null;
+			rs2   = null;
+			try {
+				if (debugSQL) WebAuctionPlus.log.info("WA Query: Convert ItemEnchantments");
+				// get total enchantments
+				st = conn.prepareStatement("SELECT COUNT(*) AS `count` FROM `"+dbPrefix+"ItemEnchantments`");
+				rs = st.executeQuery();
+				if (!rs.next()) {
+					WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix + "Could not get total item enchantments!");
+					return;
+				}
+				totalItemEnchantments = rs.getInt(1);
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Found " + Integer.toString(totalItemEnchantments) + " item enchantments");
+				// get old item enchantments
+				st = conn.prepareStatement("SELECT `ItemTable`, `ItemTableId`, `enchId`, `level`  FROM `"+dbPrefix+"ItemEnchantments`");
+				rs = st.executeQuery();
+				HashMap<Integer, String> enchTempAuctions = new HashMap<Integer, String>();
+				HashMap<Integer, String> enchTempItems    = new HashMap<Integer, String>();
+				while (rs.next()) {
+					// auctions table
+					if(rs.getString("ItemTable").equals("Auctions")) {
+						// add enchantment string
+						String enchStr = "";
+						if(enchTempAuctions.containsKey( rs.getInt("ItemTableId") )) enchStr = enchTempAuctions.get( rs.getInt("ItemTableId") )+",";
+						enchStr += Integer.toString(rs.getInt("enchId"))+":"+Integer.toString(rs.getInt("level"));
+						enchTempAuctions.put(rs.getInt("ItemTableId"), enchStr);
+						// update row
+						stNew = conn.prepareStatement("UPDATE `"+dbPrefix+"Auctions` SET `enchantments` = ? WHERE `id` = ? LIMIT 1");
+						stNew.setString(1, enchStr);
+						stNew.setInt   (2, rs.getInt("ItemTableId"));
+					// items table
+					} else {
+						// add enchantment string
+						String enchStr = "";
+						if(enchTempItems.containsKey( rs.getInt("ItemTableId") )) enchStr = enchTempItems.get( rs.getInt("ItemTableId") )+",";
+						enchStr += Integer.toString(rs.getInt("enchId"))+":"+Integer.toString(rs.getInt("level"));
+						enchTempItems.put(rs.getInt("ItemTableId"), enchStr);
+						// update row
+						stNew = conn.prepareStatement("UPDATE `"+dbPrefix+"Items` SET `enchantments` = ? WHERE `id` = ? LIMIT 1");
+						stNew.setString(1, enchStr);
+						stNew.setInt   (2, rs.getInt("ItemTableId"));
+					}
+					stNew.executeUpdate();
+					countEnchantments++;
+					if(totalItemEnchantments > 500) WebAuctionPlus.PrintProgress(countEnchantments, totalItemEnchantments);
+				}
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Converted " + Integer.toString(countEnchantments) + " enchantments for "+
+					Integer.toString(enchTempAuctions.size()+enchTempItems.size())+" items");
+			} catch (SQLException e) {
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to convert enchantments");
+				e.printStackTrace();
+			} finally {
+				closeResources(conn, st, rs);
+				closeResources(stNew, rs2);
+			}
+		}
+
 	}
 
 
@@ -450,14 +541,14 @@ public class MySQLTables {
 	protected boolean tableExists(String tableName) {
 		return dataQueries.tableExists(tableName);
 	}
-	protected void setTableExists(String tableName, String Sql) {
-		dataQueries.setTableExists(tableName, Sql);
+	protected boolean setTableExists(String tableName, String Sql) {
+		return dataQueries.setTableExists(tableName, Sql);
 	}
 	protected boolean columnExists(String tableName, String columnName) {
 		return dataQueries.columnExists(tableName, columnName);
 	}
-	protected void setColumnExists(String tableName, String columnName, String Attr) {
-		dataQueries.setColumnExists(tableName, columnName, Attr);
+	protected boolean setColumnExists(String tableName, String columnName, String Attr) {
+		return dataQueries.setColumnExists(tableName, columnName, Attr);
 	}
 
 
