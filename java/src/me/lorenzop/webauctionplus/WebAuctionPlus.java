@@ -262,6 +262,8 @@ public class WebAuctionPlus extends JavaPlugin {
 		try {
 			getServer().getScheduler().cancelTasks(this);
 		} catch (Exception ignore) {}
+		// close inventories
+		WebInventory.ForceCloseAll();
 		// stop json server
 //		try {
 //			if(jsonServer != null)  jsonServer.listener.close();

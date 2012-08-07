@@ -71,8 +71,12 @@ public class WebInventory {
 		}
 //		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Inventory closed & updated for "+player);
 	}
-	public static void CloseAll() {
-//TODO:
+	public static void ForceCloseAll() {
+		for(String player : openInvs.keySet()) {
+			Player p = Bukkit.getServer().getPlayerExact(player);
+			p.closeInventory();
+			WebInventory.onInventoryClose(p);
+		}
 	}
 
 

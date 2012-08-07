@@ -37,9 +37,9 @@ public class DataQueries extends MySQLConnPool {
 
 	// encode/decode enchantments for database storage
 	public static String encodeEnchantments(ItemStack stack) {
-		if(stack == null) return null;
+		if(stack == null) return "";
 		Map<Enchantment, Integer> enchantments = stack.getEnchantments();
-		if(enchantments==null || enchantments.isEmpty()) return null;
+		if(enchantments==null || enchantments.isEmpty()) return "";
 		// get enchantments
 		HashMap<Integer, Integer> enchMap = new HashMap<Integer, Integer>();
 		for(Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
