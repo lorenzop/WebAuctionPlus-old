@@ -43,7 +43,7 @@ public class waStats {
 	}
 
 
-	// update long cycle
+	// update long cycle (5 minutes)
 	private boolean updateLong() {
 		if (WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Updating stats");
 		Connection conn;
@@ -87,7 +87,7 @@ public class waStats {
 		return true;
 	}
 
-	// update short cycle
+	// update short cycle (10 seconds)
 	private void updateShort() {
 		// get max auction id
 		maxAuctionId = -1;

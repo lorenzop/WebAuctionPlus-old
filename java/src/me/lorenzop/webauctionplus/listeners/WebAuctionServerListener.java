@@ -18,15 +18,6 @@ public class WebAuctionServerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPluginEnable(PluginEnableEvent event) {
-//		// setup permissions
-//		if (plugin.permission == null) {
-//			RegisteredServiceProvider<Permission> permissionProvider = plugin.getServer().getServicesManager().getRegistration(Permission.class);
-//			if (permissionProvider != null) {
-//				plugin.permission = (Permission)permissionProvider.getProvider();
-//				plugin.log.info(plugin.logPrefix + "Permission method enabled: " + plugin.permission.getName());
-//			}
-//			return;
-//		}
 		// setup economy
 		if (plugin.economy == null) {
 			RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);

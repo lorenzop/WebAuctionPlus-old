@@ -59,6 +59,8 @@ public class waSettings {
 		addDefault("jQuery UI Pack",		"");
 		addDefault("Item Packs",			"");
 		addDefault("Max Sell Price",		10000.00);
+//		addDefault("Storage base per stack",1.0);
+//		addDefault("Storage add per item",	0.1);
 	}
 	private void addDefault(String name, String value) {
 		if(!settingsMap.containsKey(name)) {
@@ -84,10 +86,12 @@ public class waSettings {
 		if(value) addDefault(name, "true");
 		else      addDefault(name, "false");
 	}
-@SuppressWarnings("unused")
-	private void addDefault(String name, int value) {
-		addDefault(name, Integer.toString(value));
-	}
+//	private void addDefault(String name, int value) {
+//		addDefault(name, Integer.toString(value));
+//	}
+//	private void addDefault(String name, long value) {
+//		addDefault(name, Long.toString(value));
+//	}
 	private void addDefault(String name, double value) {
 		addDefault(name, Double.toString(value));
 	}

@@ -79,9 +79,8 @@ public class Language {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"No language file has been loaded!");
 		} else if(langMap.containsKey(key)) {
 			String value = langMap.get(key);
-			if(value!=null)
-				if(!value.isEmpty())
-					return value;
+			if(value!=null && !value.isEmpty())
+				return value;
 		}
 		WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Language message not found: " + key);
 		return "Message not found!";

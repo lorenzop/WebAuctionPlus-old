@@ -35,21 +35,6 @@ public class DataQueries extends MySQLConnPool {
 	}
 
 
-	// ItemTables enum
-	public enum ItemTables { Items, Auctions, Mail }
-	public String ItemTableToString(ItemTables ItemTable) {
-		// ItemTable Enum
-		if(ItemTable == ItemTables.Items) {
-			return "Items";
-		} else if (ItemTable == ItemTables.Auctions) {
-			return "Auctions";
-		} else if (ItemTable == ItemTables.Mail) {
-			return "Mail";
-		}
-		return null;
-	}
-
-
 	// encode/decode enchantments for database storage
 	public static String encodeEnchantments(ItemStack stack) {
 		if(stack == null) return null;
@@ -142,291 +127,7 @@ public class DataQueries extends MySQLConnPool {
 	}
 
 
-//	// find existing item stack
-//	public int getItemStackId(String player, ItemStack stack) {
-//		if(stack == null) return -1;
-//		int itemId = stack.getTypeId();
-//		int itemDamage = stack.getDurability();
-//		String enchStr = encodeEnchantments(stack);
-//		if(enchStr!=null && enchStr.isEmpty()) enchStr = null;
-//		int keyId = -1;
-//		if(player == null || player.isEmpty()) return -1;
-//		if(itemId < 1 || itemDamage < 0) return -1;
-//		Connection conn = getConnection();
-//		PreparedStatement st = null;
-//		ResultSet rs = null;
-//		try {
-//			if(debugSQL) log.info("WA Query: getItemStackId");
-//			st = conn.prepareStatement("SELECT `id` FROM `"+dbPrefix+"Items` WHERE "+
-//				"`ItemTable` = 'Items' AND "+
-//				"`playerName` = ? AND "+
-//				"`itemId` = ? AND "+
-//				"`itemDamage` = ? AND "+
-//				"`enchantments` "+(enchStr==null?"IS NULL":"= ?")+" "+
-//				"LIMIT 1");
-//			st.setString(1, player);
-//			st.setInt   (2, itemId);
-//			st.setInt   (3, itemDamage);
-//			if(enchStr != null)
-//				st.setString(4, enchStr);
-//			rs = st.executeQuery();
-//			// got stack id
-//			if(rs.next())
-//				keyId = rs.getInt("id");
-//		} catch(SQLException e) {
-//			log.warning(logPrefix + "Unable to get item stack id");
-//			e.printStackTrace();
-//		} finally {
-//			closeResources(conn, st, rs);
-//		}
-//		return keyId;
-//	}
-
-
-//	// add quantity
-//	public boolean AddItemQty(int TableItemId, int qty) {
-//		Connection conn = getConnection();
-//		PreparedStatement st = null;
-//		ResultSet rs = null;
-//		try {
-//			if(debugSQL) log.info("WA Query: AddItemQty " +
-//				Integer.toString(TableItemId) + " " + Integer.toString(qty) );
-//			st = conn.prepareStatement("UPDATE `"+dbPrefix+"Items` SET `qty` = `qty` + ? WHERE `id` = ? AND `ItemTable`='Items'");
-//			st.setInt(1, qty);
-//			st.setInt(2, TableItemId);
-//			st.executeUpdate();
-//		} catch(SQLException e) {
-//			log.warning(logPrefix + "Unable to update item quantity in DB");
-//			e.printStackTrace();
-//			return false;
-//		} finally {
-//			closeResources(conn, st, rs);
-//		}
-//		return true;
-//	}
-
-
-	// add new stack to db
-//	public int CreateItem(String player, ItemStack stack) {
-//		if(stack == null) return -1;
-//		int itemId = stack.getTypeId();
-//		int itemDamage = stack.getDurability();
-//		int qty = stack.getAmount();
-//		String enchStr = encodeEnchantments(stack);
-//		if(enchStr!=null && enchStr.isEmpty()) enchStr = null;
-//		int keyId = 0;
-//		Connection conn = getConnection();
-//		PreparedStatement st = null;
-//		ResultSet rs = null;
-//		try {
-//			if(debugSQL) log.info("WA Query: createItem " +
-//				Integer.toString(itemId)+":"+Integer.toString(itemDamage)+" x"+Integer.toString(qty) );
-//			st = conn.prepareStatement("INSERT INTO `"+dbPrefix+"Items` "+
-//				"(`ItemTable`, `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`) VALUES "+
-//				"('Items', ?, ?, ?, ?, "+(enchStr==null?"NULL":"?")+")",
-//				Statement.RETURN_GENERATED_KEYS);
-//			st.setString(1, player);
-//			st.setInt   (2, itemId);
-//			st.setInt   (3, itemDamage);
-//			st.setInt   (4, qty);
-//			if(enchStr != null)
-//				st.setString(5, enchStr);
-//			int affectedRows = st.executeUpdate();
-//			if(affectedRows == 0) throw new SQLException("Creating new wa item failed, no rows affected.");
-//			// get insert id
-//			rs = st.getGeneratedKeys();
-//			if(rs.next()) {
-//				keyId = rs.getInt(1);
-//				log.info(logPrefix + "Added new item; key id: "+Integer.toString(keyId)+"  "+
-//					Integer.toString(itemId)+":"+Integer.toString(itemDamage)+"  ench: "+enchStr );
-//			} else throw new SQLException("Creating new wa item failed, no generated key.");
-//		} catch(SQLException e) {
-//			log.warning(logPrefix + "Unable to create item");
-//			e.printStackTrace();
-//		} finally {
-//			closeResources(conn, st, rs);
-//		}
-//		return keyId;
-//	}
-
-
-//	public List<AuctionItem> GetItems(String player, int itemID, int damage, boolean reverseOrder) {
-//		List<AuctionItem> auctionItems = new ArrayList<AuctionItem>();
-//		Connection conn = getConnection();
-//		PreparedStatement st = null;
-//		ResultSet rs = null;
-//		try {
-//			if(debugSQL) log.info("WA Query: getItems " + player + " " +
-//				Integer.toString(itemID) + ":" + Integer.toString(damage) );
-//			st = conn.prepareStatement("SELECT `id`,`itemId`,`itemDamage`,`playerName`,`qty` " +
-//				"FROM `"+dbPrefix+"Items` WHERE " +
-//				"`ItemTable`='Items' AND `playerName` = ? AND `itemId` = ? AND `itemDamage` = ? " +
-//				"ORDER BY `id` "+(reverseOrder?"DESC":"ASC") );
-//			st.setString(1, player);
-//			st.setInt   (2, itemID);
-//			st.setInt   (3, damage);
-//			AuctionItem auctionItem;
-//			rs = st.executeQuery();
-//			while(rs.next()) {
-//				auctionItem = new AuctionItem();
-//				auctionItem.setItemId    (rs.getInt   ("id"));
-//				auctionItem.setTypeId    (rs.getInt   ("itemId"));
-//				auctionItem.setDamage    (rs.getInt   ("itemDamage"));
-//				auctionItem.setPlayerName(rs.getString("playerName"));
-//				auctionItem.setQty       (rs.getInt   ("qty"));
-//				auctionItems.add(auctionItem);
-//			}
-//		} catch(SQLException e) {
-//			log.warning(logPrefix + "Unable to get items");
-//			e.printStackTrace();
-//		} finally {
-//			closeResources(conn, st, rs);
-//		}
-//		return auctionItems;
-//	}
-
-
-	public int hasMail(String player) {
-		int mailCount = 0;
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if (debugSQL) log.info("WA Query: hasMail " + player);
-			st = conn.prepareStatement("SELECT COUNT(*) AS `count` FROM `"+dbPrefix+"Items` WHERE "+
-				"`ItemTable`='Mail' AND `playerName` = ?");
-			st.setString(1, player);
-			rs = st.executeQuery();
-			if (rs.next())
-				mailCount = rs.getInt("count");
-		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to check new mail for: " + player);
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-		return mailCount;
-	}
-
-
-//	// withdraw item
-//	public static class MailGetter {
-//		public int lastKeyId = 0;
-//		public ItemStack getPlayerMail(String player) {
-//			ItemStack stack = null;
-//			Connection conn = WebAuctionPlus.dataQueries.getConnection();
-//			PreparedStatement st = null;
-//			ResultSet rs = null;
-//			try {
-//				if(WebAuctionPlus.dataQueries.debugSQL) log.info("WA Query: getPlayerMail " + player + " lastKeyId: " + Integer.toString(lastKeyId));
-//				st = conn.prepareStatement("SELECT `id`, `ItemTable`, `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments` "+
-//					"FROM `"+WebAuctionPlus.dataQueries.dbPrefix+"Items` WHERE `ItemTable` = 'Mail' AND `playerName` = ? AND `id` > ? ORDER BY `id` ASC LIMIT 1");
-//				st.setString(1, player);
-//				st.setInt   (2, lastKeyId);
-//				rs = st.executeQuery();
-//				if(rs.next()) {
-//					// create item stack
-//					stack = new ItemStack( rs.getInt("itemId"), rs.getInt("qty"), rs.getShort("itemDamage") );
-//					// set enchantments
-//					decodeEnchantments(stack, rs.getString("enchantments"));
-//					lastKeyId = rs.getInt("id");
-//				}
-//			} catch(SQLException e) {
-//				log.warning(logPrefix+"Unable to withdraw mail for "+player);
-//				e.printStackTrace();
-//			} finally {
-//				WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
-//			}
-//			return stack;
-//		}
-//	}
-
-
-//	public void deleteMail(String player, List<Integer> delMail) {
-//		if(delMail.size() == 0) return;
-//		Connection conn = getConnection();
-//		PreparedStatement st = null;
-//		ResultSet rs = null;
-//		try {
-//			if(debugSQL) log.info("WA Query: deleteMail "+player+" "+delMail.size()+" "+delMail.toString());
-//			String sql  = "";
-//			String sql2 = "";
-//			int i = 0;
-//			for(int mailId : delMail) { i++;
-//				if (i!=1) {
-//					sql  += " OR ";
-//					sql2 += " OR ";
-//				}
-//				sql  += "`id`="          + Integer.toString(mailId);
-//				sql2 += "`ItemTableId`=" + Integer.toString(mailId);
-//			}
-//			if(sql.isEmpty() || sql2.isEmpty()) return;
-//			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"Items` " +
-//				"WHERE `ItemTable` = 'Mail' AND `playerName` = ? AND ( " + sql + " ) LIMIT 36");
-//			st.setString(1, player);
-//			st.executeUpdate();
-//			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"ItemEnchantments` " +
-//				"WHERE `ItemTable` = 'Mail' AND ( " + sql2 + " ) LIMIT 36");
-//			st.executeUpdate();
-//		} catch(SQLException e) {
-//			log.warning(logPrefix + "Unable to remove mail " + player + " " + delMail.toString());
-//			e.printStackTrace();
-//		} finally {
-//			closeResources(conn, st, rs);
-//		}
-//	}
-
-
-	public Map<Location, Integer> getShoutSignLocations() {
-		Map<Location, Integer> signLocations = new HashMap<Location, Integer>();
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if(debugSQL) log.info("WA Query: getShoutSignLocations");
-			st = conn.prepareStatement("SELECT `world`,`radius`,`x`,`y`,`z` FROM `"+dbPrefix+"ShoutSigns`");
-			Location location;
-			rs = st.executeQuery();
-			while(rs.next()) {
-				World world = Bukkit.getServer().getWorld(rs.getString("world"));
-				location = new Location(world, rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
-				signLocations.put(location,    rs.getInt("radius"));
-			}
-		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to get shout sign locations");
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-		return signLocations;
-	}
-
-
-	public Map<Location, Integer> getRecentSignLocations() {
-		Map<Location, Integer> signLocations = new HashMap<Location, Integer>();
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if(debugSQL) log.info("WA Query: getRecentSignLocations");
-			st = conn.prepareStatement("SELECT `world`,`offset`,`x`,`y`,`z` FROM `"+dbPrefix+"RecentSigns`");
-			Location location;
-			rs = st.executeQuery();
-			while(rs.next()) {
-				World world = Bukkit.getServer().getWorld(rs.getString("world"));
-				location = new Location(world, rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
-				signLocations.put(location,    rs.getInt("offset"));
-			}
-		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to get shout sign locations");
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-		return signLocations;
-	}
-
-
+	// auctions
 	public Auction getAuction(int auctionId) {
 		Auction auction = null;
 		Connection conn = getConnection();
@@ -458,30 +159,6 @@ public class DataQueries extends MySQLConnPool {
 		}
 		return auction;
 	}
-
-
-	public void removeShoutSign(Location location) {
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if(debugSQL) log.info("WA Query: removeShoutSign " + location.toString());
-			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"ShoutSigns` WHERE " +
-				"`world` = ? AND `x` = ? AND `y` = ? AND `z` = ?");
-			st.setString(1, location.getWorld().getName());
-			st.setInt   (2, (int) location.getX());
-			st.setInt   (3, (int) location.getY());
-			st.setInt   (4, (int) location.getZ());
-			st.executeUpdate();
-		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to remove shout sign at location " + location);
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-	}
-
-
 	public Auction getAuctionForOffset(int offset) {
 		Auction auction = null;
 		Connection conn = getConnection();
@@ -512,47 +189,8 @@ public class DataQueries extends MySQLConnPool {
 	}
 
 
-	public void removeRecentSign(Location location) {
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if(debugSQL) log.info("WA Query: removeRecentSign " + location.toString());
-			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"RecentSigns` WHERE "+
-				"`world` = ? AND `x` = ? AND `y` = ? AND `z` = ?");
-			st.setString(1, location.getWorld().getName());
-			st.setInt   (2, (int) location.getX());
-			st.setInt   (3, (int) location.getY());
-			st.setInt   (4, (int) location.getZ());
-			st.executeUpdate();
-		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to remove recent sign at location " + location.toString());
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-	}
 
-
-	public void updatePlayerPassword(String player, String newPass) {
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if(debugSQL) log.info("WA Query: updatePlayerPassword " + player);
-			st = conn.prepareStatement("UPDATE `"+dbPrefix+"Players` SET `password` = ? WHERE `playerName` = ? LIMIT 1");
-			st.setString(1, newPass);
-			st.setString(2, player);
-			st.executeUpdate();
-		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to update password for player: " + player);
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-	}
-
-
+	// shout sign
 	public void createShoutSign(World world, int radius, int x, int y, int z) {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
@@ -576,8 +214,52 @@ public class DataQueries extends MySQLConnPool {
 			closeResources(conn, st, rs);
 		}
 	}
+	public void removeShoutSign(Location location) {
+		Connection conn = getConnection();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			if(debugSQL) log.info("WA Query: removeShoutSign " + location.toString());
+			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"ShoutSigns` WHERE " +
+				"`world` = ? AND `x` = ? AND `y` = ? AND `z` = ?");
+			st.setString(1, location.getWorld().getName());
+			st.setInt   (2, (int) location.getX());
+			st.setInt   (3, (int) location.getY());
+			st.setInt   (4, (int) location.getZ());
+			st.executeUpdate();
+		} catch(SQLException e) {
+			log.warning(logPrefix + "Unable to remove shout sign at location " + location);
+			e.printStackTrace();
+		} finally {
+			closeResources(conn, st, rs);
+		}
+	}
+	public Map<Location, Integer> getShoutSignLocations() {
+		Map<Location, Integer> signLocations = new HashMap<Location, Integer>();
+		Connection conn = getConnection();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			if(debugSQL) log.info("WA Query: getShoutSignLocations");
+			st = conn.prepareStatement("SELECT `world`,`radius`,`x`,`y`,`z` FROM `"+dbPrefix+"ShoutSigns`");
+			Location location;
+			rs = st.executeQuery();
+			while(rs.next()) {
+				World world = Bukkit.getServer().getWorld(rs.getString("world"));
+				location = new Location(world, rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
+				signLocations.put(location,    rs.getInt("radius"));
+			}
+		} catch(SQLException e) {
+			log.warning(logPrefix + "Unable to get shout sign locations");
+			e.printStackTrace();
+		} finally {
+			closeResources(conn, st, rs);
+		}
+		return signLocations;
+	}
 
 
+	// recent sign
 	public void createRecentSign(World world, int offset, int x, int y, int z) {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
@@ -600,6 +282,49 @@ public class DataQueries extends MySQLConnPool {
 		} finally {
 			closeResources(conn, st, rs);
 		}
+	}
+	public void removeRecentSign(Location location) {
+		Connection conn = getConnection();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			if(debugSQL) log.info("WA Query: removeRecentSign " + location.toString());
+			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"RecentSigns` WHERE "+
+				"`world` = ? AND `x` = ? AND `y` = ? AND `z` = ?");
+			st.setString(1, location.getWorld().getName());
+			st.setInt   (2, (int) location.getX());
+			st.setInt   (3, (int) location.getY());
+			st.setInt   (4, (int) location.getZ());
+			st.executeUpdate();
+		} catch(SQLException e) {
+			log.warning(logPrefix + "Unable to remove recent sign at location " + location.toString());
+			e.printStackTrace();
+		} finally {
+			closeResources(conn, st, rs);
+		}
+	}
+	public Map<Location, Integer> getRecentSignLocations() {
+		Map<Location, Integer> signLocations = new HashMap<Location, Integer>();
+		Connection conn = getConnection();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			if(debugSQL) log.info("WA Query: getRecentSignLocations");
+			st = conn.prepareStatement("SELECT `world`,`offset`,`x`,`y`,`z` FROM `"+dbPrefix+"RecentSigns`");
+			Location location;
+			rs = st.executeQuery();
+			while(rs.next()) {
+				World world = Bukkit.getServer().getWorld(rs.getString("world"));
+				location = new Location(world, rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
+				signLocations.put(location,    rs.getInt("offset"));
+			}
+		} catch(SQLException e) {
+			log.warning(logPrefix + "Unable to get shout sign locations");
+			e.printStackTrace();
+		} finally {
+			closeResources(conn, st, rs);
+		}
+		return signLocations;
 	}
 
 
@@ -631,6 +356,47 @@ public class DataQueries extends MySQLConnPool {
 	}
 
 
+	public void createPlayer(AuctionPlayer waPlayer, String pass) {
+		Connection conn = getConnection();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			if(debugSQL) log.info("WA Query: createPlayer " + waPlayer.getPlayerName() +
+				" with perms: " + waPlayer.getPermsString());
+			st = conn.prepareStatement("INSERT INTO `"+dbPrefix+"Players` " +
+				"(`playerName`, `password`, `Permissions`) VALUES (?, ?, ?)");
+			st.setString(1, waPlayer.getPlayerName());
+			st.setString(2, pass);
+			st.setString(3, waPlayer.getPermsString());
+			st.executeUpdate();
+		} catch(SQLException e) {
+			log.warning(logPrefix + "Unable to update player permissions in DB");
+			e.printStackTrace();
+		} finally {
+			closeResources(conn, st, rs);
+		}
+	}
+
+
+	public void updatePlayerPassword(String player, String newPass) {
+		Connection conn = getConnection();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			if(debugSQL) log.info("WA Query: updatePlayerPassword " + player);
+			st = conn.prepareStatement("UPDATE `"+dbPrefix+"Players` SET `password` = ? WHERE `playerName` = ? LIMIT 1");
+			st.setString(1, newPass);
+			st.setString(2, player);
+			st.executeUpdate();
+		} catch(SQLException e) {
+			log.warning(logPrefix + "Unable to update password for player: " + player);
+			e.printStackTrace();
+		} finally {
+			closeResources(conn, st, rs);
+		}
+	}
+
+
 	public void updatePlayerPermissions(AuctionPlayer waPlayer, boolean canBuy, boolean canSell, boolean isAdmin) {
 		// return if update not needed
 		if(waPlayer.comparePerms(canBuy, canSell, isAdmin)) return;
@@ -656,25 +422,26 @@ public class DataQueries extends MySQLConnPool {
 	}
 
 
-	public void createPlayer(AuctionPlayer waPlayer, String pass) {
+	public int hasMail(String player) {
+		int mailCount = 0;
 		Connection conn = getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(debugSQL) log.info("WA Query: createPlayer " + waPlayer.getPlayerName() +
-				" with perms: " + waPlayer.getPermsString());
-			st = conn.prepareStatement("INSERT INTO `"+dbPrefix+"Players` " +
-				"(`playerName`, `password`, `Permissions`) VALUES (?, ?, ?)");
-			st.setString(1, waPlayer.getPlayerName());
-			st.setString(2, pass);
-			st.setString(3, waPlayer.getPermsString());
-			st.executeUpdate();
+			if (debugSQL) log.info("WA Query: hasMail " + player);
+			st = conn.prepareStatement("SELECT COUNT(*) AS `count` FROM `"+dbPrefix+"Items` WHERE "+
+				"`ItemTable`='Mail' AND `playerName` = ?");
+			st.setString(1, player);
+			rs = st.executeQuery();
+			if (rs.next())
+				mailCount = rs.getInt("count");
 		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to update player permissions in DB");
+			log.warning(logPrefix + "Unable to check new mail for: " + player);
 			e.printStackTrace();
 		} finally {
 			closeResources(conn, st, rs);
 		}
+		return mailCount;
 	}
 
 

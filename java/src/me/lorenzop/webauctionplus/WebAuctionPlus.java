@@ -297,7 +297,6 @@ public class WebAuctionPlus extends JavaPlugin {
 			);
 			dataQueries.setConnPoolSizeWarn(Config.getInt("MySQL.ConnectionPoolSizeWarn"));
 			dataQueries.setConnPoolSizeHard(Config.getInt("MySQL.ConnectionPoolSizeHard"));
-			dataQueries.start();
 			// create/update tables
 			MySQLTables dbTables = new MySQLTables(this);
 			if(!dbTables.isOk()) {
