@@ -2,19 +2,6 @@
 // general functions to handle items
 
 
-// item tables enum
-class ITEMTABLE extends Enum{
-  function __construct(){
-    self::$enumValues = array(
-      'items'    => 1,
-      'auctions' => 2,
-      'mail'     => 3
-    );
-    self::construct(func_get_args());
-  }
-}
-
-
 // item functions
 class ItemFuncs{
 
@@ -210,7 +197,6 @@ public static function getMaxStack($itemId=0, $itemDamage=0){
 public static function AddCreateItem($playerName, $Item){global $config;
   // find existing stack
   $query = "SELECT `id` FROM `".$config['table prefix']."Items` WHERE ".
-           "`ItemTable`='Items' AND ".
            "`playerName`='".mysql_san($playerName)."' AND ".
            "`itemId` = ".    ((int)$Item->getItemId())." AND ".
            "`itemDamage` = ".((int)$Item->getItemDamage())." AND ".
@@ -230,8 +216,8 @@ public static function AddCreateItem($playerName, $Item){global $config;
   }
   // create new stack
   $query = "INSERT INTO `".$config['table prefix']."Items` (".
-           "`ItemTable`, `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`) VALUES (".
-           "'Items', '".mysql_san($playerName)."', ".((int)$Item->getItemId()).", ".((int)$Item->getItemDamage()).", ".
+           "`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`) VALUES (".
+           "'".mysql_san($playerName)."', ".((int)$Item->getItemId()).", ".((int)$Item->getItemDamage()).", ".
            ((int)$Item->getItemQty()).", '".mysql_san($Item->getEnchantmentsCompressed())."')";
   $result = RunQuery($query, __file__, __line__);
   if(!$result){echo '<p style="color: red;">Error creating item stack!</p>'; exit();}
@@ -254,111 +240,6 @@ public static function RemoveItem($tableRowId, $qty=-1){global $config;
   }
   return(TRUE);
 }
-
-
-// mail item stack
-public static function MailStack($tableRowId){global $config, $user;
-  if($tableRowId < 1){$config['error'] = 'Invalid item id!'; return(FALSE);}
-  // query item
-  $Item = QueryItems::QuerySingle($user->getName(), $tableRowId);
-  if(!$Item){$config['error'] = 'Item not found!'; return(FALSE);}
-  // stack size to big
-  $stacksize = ItemFuncs::getMaxStack($Item->getItemId(), $Item->getItemDamage());
-  $didSplit = FALSE;
-  while($Item->getItemQty() > $stacksize){
-    // create split stack
-//    ItemFuncs::CreateItem('Mail', $user->getName(), $Item->itemId, $Item->itemDamage, $stacksize, $Item->getEnchantmentsArray());
-    $query = "INSERT INTO `".$config['table prefix']."Items` (".
-             "`ItemTable`, `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments` ) VALUES (".
-             "'Mail', '".mysql_san($user->getName())."', ".((int)$Item->getItemId()).", ".
-             ((int)$Item->getItemDamage()).", ".((int)$stacksize).", ".
-             (count($Item->getEnchantmentsArray())==0 ? "NULL" : "'".mysql_san($Item->getEnchantmentsCompressed())."'"). " )";
-    $result = RunQuery($query, __file__, __line__);
-    if(!$result){echo '<p style="color: red;">Error updating item stack!</p>'; exit();}
-    $Item->subtractQty($stacksize);
-    $didSplit = TRUE;
-  }
-  // move item
-  $query = "UPDATE `".$config['table prefix']."Items` SET ".
-           ($didSplit?"`qty`=".((int)$Item->getItemQty()).", ":'').
-           "`ItemTable`='Mail' ".
-           "WHERE `ItemTable`='Items' AND `id`=".((int)$tableRowId)." LIMIT 1";
-  $result = RunQuery($query, __file__, __line__);
-  if(!$result || mysql_affected_rows()!=1){$config['error'] = 'Error mailing items! '.__line__; return(FALSE);}
-  ForwardTo('./?page=myitems');
-}
-
-
-
-
-
-
-
-
-
-
-//// create item
-//public static function CreateItem($ItemTable, $playerName, &$Item){global $config;
-//  $query = "INSERT INTO `".$config['table prefix']."Items` (".
-//           "`ItemTable`, `playerName`, `itemId`, `itemDamage`, `qty`".
-//           ") VALUES (".
-//           "'".mysql_san(ItemTables::ValidateStr($ItemTable))."', ".
-//           "'".mysql_san($playerName)."', ".
-//           ((int)$Item->getItemId()).", ".
-//           ((int)$Item->getItemDamage()).", ".
-//           ((int)$Item->getItemQty()).", ".
-//           (count($Item->getEnchantmentsArray()) == 0
-//             ? "NULL" : "'".mysql_san($Item->getEnchantmentsCompressed())."'" ).
-//           ")";
-//print_r($query);
-//exit();
-//
-//  $result = RunQuery($query, __file__, __line__);
-//  if(!$result){echo '<p style="color: red;">Error creating item stack!</p>'; exit();}
-//  $ItemTableId = mysql_insert_id();
-//  $Item->setTableRowId($ItemTableId);
-//  return($ItemTableId);
-//}
-
-
-//// update qty
-//public static function UpdateQty($itemId, $qty, $fixed=TRUE){global $config;
-//  // set qty
-//  if($fixed) $query = "`qty` = ".((int)$qty);
-//  // add/subtract
-//  else $query = "`qty` = `qty` + ".((int)$qty);
-//  $query = "UPDATE `".$config['table prefix']."Items` SET ".$query." WHERE `id`=".((int)$itemId)." LIMIT 1";
-//  $result = RunQuery($query, __file__, __line__);
-//  if(!$result || mysql_affected_rows()==0){echo '<p style="color: red;">Error updating item stack! '.__line__.'</p>'; exit();}
-//  return(TRUE);
-//}
-
-
-//// delete item
-//public static function DeleteItem($itemId){global $config;
-//  $query = "DELETE FROM `".$config['table prefix']."Items` WHERE `id` = ".((int)$itemId)." LIMIT 1";
-//  $result = RunQuery($query, __file__, __line__);
-//  if(!$result || mysql_affected_rows()==0){echo '<p style="color: red;">Error removing item stack! '.__line__.'</p>'; exit();}
-//  return(TRUE);
-//}
-
-
-//// create new enchantments
-//public static function CreateEnchantments($ench, $ItemTable, $ItemTableId){global $config;
-//  if(!is_array($ench)) return(FALSE);
-//  $newEnch = array();
-//  foreach($ench as $v){
-//    $query = "INSERT INTO `".$config['table prefix']."ItemEnchantments` (".
-//             "`ItemTable`,`ItemTableId`,`enchName`,`enchId`,`level`) VALUES(".
-//             "'".mysql_san(ItemTables::ValidateStr($ItemTable))."',".((int)$ItemTableId).",".
-//             "'".mysql_san($v['enchName'])."',".((int)$v['enchId']).",".((int)$v['level']).")";
-////echo '<p>'.$query.'</p>';
-//    $result = RunQuery($query, __file__, __line__);
-//    if(!$result){echo '<p style="color: red;">Error creating enchantment!</p>'; exit();}
-//    $newEnch[mysql_insert_id()] = $v;
-//  }
-//  return($newEnch);
-//}
 
 
 }

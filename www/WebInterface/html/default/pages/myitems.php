@@ -40,7 +40,6 @@ $outputs['body top']='
 {if permission[canSell]}
       <th>Sell Item</th>
 {endif}
-      <th>Mail Item</th>
     </tr>
   </thead>
   <tbody>
@@ -56,15 +55,6 @@ $outputs['body row']='
 {if permission[canSell]}
       <td style="text-align: center;"><a href="./?page=createauction&amp;id={item row id}&amp;lastpage=page-myitems" class="button">Sell it</a></td>
 {endif}
-      <td style="text-align: center;">
-        <form action="./" method="post">
-        {token form}
-        <input type="hidden" name="page"   value="{page}" />
-        <input type="hidden" name="action" value="mailitem" />
-        <input type="hidden" name="itemid" value="{item row id}" />
-        <input type="submit" value="Mail it" class="button" />
-        </form>
-    </tr>
 ';
 //      <td style="padding-bottom: 10px; text-align: center;">'.
 //// add enchantments to this link!

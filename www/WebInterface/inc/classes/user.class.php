@@ -6,7 +6,6 @@ class UserClass{
 
 protected $UserId      = 0;
 protected $Name        = '';
-protected $numMail     = 0;
 protected $Money       = 0.0;
 protected $ItemsSold   = 0;
 protected $ItemsBought = 0;
@@ -61,11 +60,6 @@ private function doValidate($username, $password=FALSE){global $config;
     foreach(explode(',',$row['Permissions']) as $perm){
       $this->permissions[$perm] = TRUE;
     }
-    // get mail count
-    $result = RunQuery("SELECT COUNT(*) AS `count` FROM `".$config['table prefix']."Items` WHERE ".
-                     "`ItemTable`='Mail' AND LOWER(`playerName`)='".mysql_san(strtolower($this->Name))."'", __file__, __line__);
-    $row = mysql_fetch_assoc($result);
-    $this->numMail = ((int)$row['count']);
     $_SESSION[$config['session name']] = $this->Name;
   }else{
     $_SESSION[$config['session name']] = '';
@@ -115,12 +109,6 @@ public function getName(){
 }
 public function nameEquals($name){
   return(strtolower($name) == strtolower($this->getName()));
-}
-
-
-// get mail count
-public function getMailCount(){
-  return($this->numMail);
 }
 
 

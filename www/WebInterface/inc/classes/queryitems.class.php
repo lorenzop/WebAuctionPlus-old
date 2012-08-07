@@ -16,7 +16,7 @@ public static function QueryInventory($playerName){
 public static function QuerySingle($playerName, $id){
   if(empty($playerName)) {$this->result = FALSE; return(FALSE);}
   $class = new QueryItems();
-  $class->doQuery("LOWER(`playerName`) = '".mysql_san($playerName)."' AND `id` = ".((int)$id)." ");
+  $class->doQuery("LOWER(`playerName`) = '".mysql_san($playerName)."' AND `id` = ".((int)$id));
   if(!$class->result) return(FALSE);
   return($class->getNext());
 }
@@ -25,8 +25,7 @@ protected function doQuery($WHERE){global $config;
   if(empty($WHERE)) {$this->result = FALSE; return;}
   $query="SELECT `id`, `itemId`, `itemDamage`, `qty`, `enchantments` ".
          "FROM `".$config['table prefix']."Items` `Items` ".
-         "WHERE `ItemTable` = 'Items' AND ".$WHERE.
-         "ORDER BY `id` ASC";
+         "WHERE ".$WHERE." ORDER BY `id` ASC";
   $this->result = RunQuery($query, __file__, __line__);
 }
 

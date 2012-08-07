@@ -45,7 +45,6 @@ case 'default':
       ($user->hasPerms('isAdmin')?'&nbsp;<a href="admin/" style="font-size: small; font-weight: bold; color: #000000;">[ADMIN]</a>':'').'</td>
 </tr>
 <tr><td>Money:&nbsp;&nbsp;</td><td>'.FormatPrice($user->getMoney()).'</td></tr>
-<tr><td>Mail: &nbsp;&nbsp;</td><td>'. $user->getMailCount().'</td></tr>
 <tr><td colspan="2" style="font-size: 100%; font-weight: bold; text-align: center;">'.@date('jS M Y H:i:s').'</td></tr>
 </table>
 {else}
