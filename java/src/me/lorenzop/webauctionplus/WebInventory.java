@@ -157,6 +157,7 @@ public class WebInventory {
 			ItemStack[] stacks = new ItemStack[chest.getSize()];
 			int i = -1;
 			while(rs.next()) {
+				if(rs.getInt("qty") < 1) continue;
 				i++; if(i >= chest.getSize()) break;
 				tableRowIds.put(i, rs.getInt("id"));
 				stacks[i] = new ItemStack( rs.getInt("itemId"), rs.getInt("qty"), rs.getShort("itemDamage") );

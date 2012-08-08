@@ -100,13 +100,6 @@ public class PlayerAlertTask implements Runnable {
 			}
 			// alert joined player
 			if(playerJoined!=null && p!=null) {
-				// new mail
-				int mailCount = WebAuctionPlus.dataQueries.hasMail(playerJoined);
-				if (mailCount > 0) {
-// TODO: language here
-					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Player " + playerJoined + " has " + Integer.toString(mailCount) + " items in their mailbox.");
-					p.sendMessage(WebAuctionPlus.chatPrefix + "You have [ " + Integer.toString(mailCount) + " ] items in your mail!");
-				}
 				// alert admin of new version
 				if(WebAuctionPlus.newVersionAvailable && p.hasPermission("wa.webadmin"))
 					p.sendMessage(WebAuctionPlus.chatPrefix + "A new version is available! " + WebAuctionPlus.newVersion);

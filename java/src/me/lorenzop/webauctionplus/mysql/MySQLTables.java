@@ -107,7 +107,6 @@ public class MySQLTables {
 		// Items
 		else if (tableName.equals("Items"))
 			if (alter) {
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"Items`		ADD			`ItemTable`		ENUM('Items','Mail')			NULL		DEFAULT NULL");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"Items`		CHANGE		`player`		`playerName`	VARCHAR(16)		CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"Items`		CHANGE		`name`			`itemId`		INT    (11)		NOT NULL	DEFAULT '0'");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"Items`		CHANGE		`damage`		`itemDamage`	INT    (11)		NOT NULL	DEFAULT '0'");
@@ -115,7 +114,6 @@ public class MySQLTables {
 			} else
 				setTableExists("Items",
 					"`id`				INT    (11)		NOT NULL	AUTO_INCREMENT	, PRIMARY KEY(`id`), " +
-					"`ItemTable`		ENUM('Auctions','Items','Mail') NULL DEFAULT NULL, " +
 					"`playerName`		VARCHAR(16)		NULL		DEFAULT NULL	, " +
 					"`itemId`			INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`itemDamage`		INT    (11)		NOT NULL	DEFAULT '0'		, " +

@@ -422,29 +422,6 @@ public class DataQueries extends MySQLConnPool {
 	}
 
 
-	public int hasMail(String player) {
-		int mailCount = 0;
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if (debugSQL) log.info("WA Query: hasMail " + player);
-			st = conn.prepareStatement("SELECT COUNT(*) AS `count` FROM `"+dbPrefix+"Items` WHERE "+
-				"`ItemTable`='Mail' AND `playerName` = ?");
-			st.setString(1, player);
-			rs = st.executeQuery();
-			if (rs.next())
-				mailCount = rs.getInt("count");
-		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to check new mail for: " + player);
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-		return mailCount;
-	}
-
-
 	public void updatePlayerMoney(String player, double money) {
 		Connection conn = getConnection();
 		PreparedStatement st = null;
