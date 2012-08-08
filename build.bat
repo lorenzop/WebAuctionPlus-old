@@ -1,7 +1,7 @@
 @echo off
 cls
 set tempdir=\WebAuctionPlus
-set outputfile=%CD%\WebAuctionPlus-1.0.xalpha.zip
+set outputfile=%CD%\WebAuctionPlus-1.1.xalpha.zip
 
 
 IF EXIST %tempdir% (

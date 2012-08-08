@@ -1,8 +1,16 @@
 WebAuctionPlus Change Log
 
 
-2012-04- WA+ 1.0.9 alpha
+2012-08-08 WA+ 1.1.1 alpha
 ==========================
+* first update with 1.3 support!
+* added new virtual chest for deposit and withdraw of items from web auction account
+* enchantments are now stored in the database with a simpler format
+* guest visitors can now view current auctions page without logging in
+* cancel buttons work!
+* added protection against cross-site request forgery
+note: the database has a few small changes, so be sure to make a backup before running the plugin
+note: the original web interface config.php has been removed, and db.config.php has been renamed to config.php and takes its place, so you'll need to use the new config.php file and copy your database connection settings into that.
 
 
 2012-04- WA+ 1.0.8 alpha
