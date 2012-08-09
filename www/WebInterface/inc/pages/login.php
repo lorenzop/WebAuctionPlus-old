@@ -8,6 +8,8 @@ define('LOGIN_FORM_PASSWORD', 'WA_Login_Password');
 $username = trim(stripslashes( getVar(LOGIN_FORM_USERNAME,'str','post') ));
 $password =      stripslashes( getVar(LOGIN_FORM_PASSWORD,'str','post') );
 if(!empty($username) && !empty($password)){
+  if(!isset($_SESSION[CSRF::SESSION_KEY]))
+    echo '<p style="color: red;">php session seems to have failed!</p>';
   CSRF::ValidateToken();
   global $config;
   $config['user']->doLogin($username, md5($password));
@@ -31,7 +33,7 @@ function RenderPage_login(){global $config,$html;
     'messages'	=> '',
     'username'	=> $config['demo'] ? 'demo' : getVar(LOGIN_FORM_USERNAME),
     'password'	=> $config['demo'] ? 'demo' : '',
-    'lastpage'	=> getVar(LOGIN_FORM_PASSWORD),
+    'lastpage'	=> getLastPage(),
   ));
   // display error
   if(getVar('error') != '')

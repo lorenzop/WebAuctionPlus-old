@@ -33,13 +33,13 @@ public function doLogin($username, $password){global $config;
 }
 // validate session
 private function doValidate($username, $password=FALSE){global $config;
-  $this->Name = strtolower(trim($username));
+  $this->Name = trim($username);
   if(empty($this->Name)) return(FALSE);
   if($password!==FALSE && empty($password)) return(FALSE);
   // validate player
   $query = "SELECT `id`,`playerName`,`money`,`itemsSold`,`itemsBought`,`earnt`,`spent`,`Permissions` ".
            "FROM `".$config['table prefix']."Players` ".
-           "WHERE LOWER(`playerName`)='".mysql_san($this->Name)."' ".
+           "WHERE LOWER(`playerName`)='".mysql_san(strtolower($this->Name))."' ".
            ($password===FALSE?"":"AND `password`='".mysql_san($password)."' ").
            "LIMIT 1";
   $result = RunQuery($query, __file__, __line__);
@@ -50,8 +50,9 @@ private function doValidate($username, $password=FALSE){global $config;
       return(FALSE);
     }
     $row = mysql_fetch_assoc($result);
-    if($row['playerName'] != $this->Name) return(FALSE);
+    if( strtolower($row['playerName']) != strtolower($this->Name) ) return(FALSE);
     $this->UserId      = ((int)    $row['id']         );
+    $this->Name        =           $row['playerName'];
     $this->Money       = ((double) $row['money']      );
     $this->ItemsSold   = ((int)    $row['itemsSold']  );
     $this->ItemsBought = ((int)    $row['itemsBought']);

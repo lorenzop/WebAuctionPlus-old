@@ -21,7 +21,7 @@ public static function CreateAuction($id, $qty, $price, $desc){global $config, $
 //    header("Location: ../myauctions.php");
 //  }
   $maxSellPrice = SettingsClass::getDouble('Max Sell Price');
-  if($price > $maxSellPrice){$config['error'] = 'Over max sell price of $ '.$maxSellPrice.' !'; return(FALSE);}
+  if($maxSellPrice>0.0 && $price>$maxSellPrice){$config['error'] = 'Over max sell price of $ '.$maxSellPrice.' !'; return(FALSE);}
   // query item
   $Item = QueryItems::QuerySingle($user->getName(), $id);
   if(!$Item){$config['error'] = 'Item not found!'; return(FALSE);}
@@ -75,7 +75,7 @@ public static function BuyAuction($auctionId, $qty){global $config, $user;
   $maxSellPrice = SettingsClass::getDouble('Max Sell Price');
   $sellPrice = $auction->getPrice();
   $priceQty = ((int)$auction->getPrice()) * $qty;
-  if($sellPrice > $maxSellPrice) {$config['error'] = 'Over max sell price of $ '.$maxSellPrice.' !'; return(FALSE);}
+  if($maxSellPrice>0.0 && $sellPrice>$maxSellPrice) {$config['error'] = 'Over max sell price of $ '.$maxSellPrice.' !'; return(FALSE);}
   if($priceQty > $user->getMoney()) {$config['error'] = 'You don\'t have enough money!';                return(FALSE);}
   // make payment from buyer to seller
   UserClass::MakePayment(
