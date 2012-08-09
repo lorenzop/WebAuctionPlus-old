@@ -11,7 +11,7 @@ function doCheckLogin(){global $config;
   $username = trim(stripslashes( @$_POST[LOGIN_FORM_USERNAME] ));
   $password =      stripslashes( @$_POST[LOGIN_FORM_PASSWORD] );
   session_init();
-  if(!isset($_SESSION[CSRF::SESSION_KEY])){
+  if(CSRF::isEnabled() && !isset($_SESSION[CSRF::SESSION_KEY])){
     echo '<p style="color: red;">PHP Session seems to have failed!</p>';
     CSRF::ValidateToken();
     exit();
