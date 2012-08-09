@@ -8,7 +8,7 @@
 //   1. Include this file
 //   2. Add getTokenURL() to URLs with GET parameters
 //   3. Add getTokenForm() to forms
-//   4. When validating GET and POST data, execute validateCSRFToken().
+//   4. When validating GET and POST data, execute ValidateToken().
 
 
 class CSRF{
@@ -18,6 +18,7 @@ const SESSION_KEY = 'csrf_token';
 
 // get token
 public static function getToken(){
+  session_init();
   if(!isset($_SESSION[self::SESSION_KEY]) || empty($_SESSION[self::SESSION_KEY]))
     $_SESSION[self::SESSION_KEY] = self::GenerateToken();
   return($_SESSION[self::SESSION_KEY]);
@@ -37,20 +38,6 @@ protected static function GenerateToken(){
 }
 
 
-// validate token
-public static function ValidateToken(){
-  if(!self::isValidToken()){
-    echo 'Invalid CSRF Token!<br /><a href="./">Back to Web Auction Plus website</a>';
-    ForwardTo('./',2); exit();
-  }
-}
-protected static function isValidToken(){
-  $url_token = getVar(self::SESSION_KEY, 'str', array('get','post'));
-  if(empty($url_token)) return(FALSE);
-  return(self::getToken() === $url_token);
-}
-
-
 // token for url
 public static function getTokenURL(){
   return('&amp;'.self::SESSION_KEY.'='.self::getToken());
@@ -58,6 +45,23 @@ public static function getTokenURL(){
 // token for form
 public static function getTokenForm(){
   return '<input type="hidden" name="'.self::SESSION_KEY.'" value="'.self::getToken().'" />';
+}
+
+
+// validate token
+public static function ValidateToken(){
+  if(!self::isValidToken()){
+    echo 'Invalid CSRF Token!<br /><a href="./">Back to WebAuctionPlus website</a>';
+    ForwardTo('./',2); exit();
+  }
+}
+protected static function isValidToken(){
+  $url_token = '';
+  if(isset($_POST[self::SESSION_KEY])) $url_token = $_POST[self::SESSION_KEY];
+  else
+  if(isset( $_GET[self::SESSION_KEY])) $url_token =  $_GET[self::SESSION_KEY];
+  if(empty($url_token)) return(FALSE);
+  return(self::getToken() === $url_token);
 }
 
 

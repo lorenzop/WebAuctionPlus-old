@@ -4,23 +4,31 @@ define('LOGIN_FORM_USERNAME', 'WA_Login_Username');
 define('LOGIN_FORM_PASSWORD', 'WA_Login_Password');
 
 
+NoPageCache();
 // check login
-$username = trim(stripslashes( getVar(LOGIN_FORM_USERNAME,'str','post') ));
-$password =      stripslashes( getVar(LOGIN_FORM_PASSWORD,'str','post') );
-if(!empty($username) && !empty($password)){
-  if(!isset($_SESSION[CSRF::SESSION_KEY]))
-    echo '<p style="color: red;">php session seems to have failed!</p>';
+function doCheckLogin(){global $config;
+  if(!isset($_POST[LOGIN_FORM_USERNAME]) || !isset($_POST[LOGIN_FORM_PASSWORD])) return;
+  $username = trim(stripslashes( @$_POST[LOGIN_FORM_USERNAME] ));
+  $password =      stripslashes( @$_POST[LOGIN_FORM_PASSWORD] );
+  session_init();
+  if(!isset($_SESSION[CSRF::SESSION_KEY])){
+    echo '<p style="color: red;">PHP Session seems to have failed!</p>';
+    CSRF::ValidateToken();
+    exit();
+  }
   CSRF::ValidateToken();
-  global $config;
-  $config['user']->doLogin($username, md5($password));
-  if($user->isOk() && getVar('error')==''){
+  $password = md5($password);
+  $config['user']->doLogin($username, $password);
+  if($config['user']->isOk() && getVar('error')==''){
+  	// success
     $lastpage = getLastPage();
     if(strpos($lastpage,'login')!==FALSE) $lastpage = './';
     ForwardTo($lastpage);
     exit();
   }
+  unset($username, $password);
 }
-unset($username,$password);
+doCheckLogin();  
 
 
 function RenderPage_login(){global $config,$html;

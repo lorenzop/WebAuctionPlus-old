@@ -1,6 +1,5 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 // this class handles user accounts and sessions
-session_start();
 class UserClass{
 
 
@@ -15,13 +14,15 @@ protected $permissions = array();
 
 
 function __construct(){global $config;
+  session_init();
   $loginUrl = './?page=login';
+  if(empty($config['session name'])) $config['session name'] = 'WebAuctionPlus User';
   // check logged in
   if(isset($_SESSION[$config['session name']]))
     $this->doValidate( $_SESSION[$config['session name']] );
   // not logged in (and is required)
   if(SettingsClass::getBoolean('Require Login'))
-    if(!$this->isOk()){
+    if(!$this->isOk() && $config['page'] != 'login'){
       ForwardTo($loginUrl, 0); exit();}
 }
 
@@ -93,8 +94,9 @@ public function isOk(){
 
 // do logout
 public function doLogout(){global $config;
-  unset($_SESSION[$config['session name']]);
-  unset($_SESSION[CSRF::SESSION_KEY]);
+  session_init();
+  $_SESSION[$config['session name']] = '';
+  $_SESSION[CSRF::SESSION_KEY]       = '';
 }
 
 

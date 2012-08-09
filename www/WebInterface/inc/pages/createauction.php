@@ -149,8 +149,8 @@ $html->addToHeader('
 <script type="text/javascript" language="javascript">
 function updateTotal(thisfield,otherfieldid){
   otherfield = document.getElementById(otherfieldid);
-  document.getElementById("temp").innerHTML = (thisfield.value * otherfield.value);
-//  $("temp").update( thisfield.value * otherfield.value );
+  document.getElementById("pricetotal").innerHTML = (thisfield.value * otherfield.value);
+//  $("pricetotal").update( thisfield.value * otherfield.value );
 }
 </script>
 ');
@@ -200,13 +200,13 @@ $output.='
   <td><div style="position: absolute; margin-top: 8px; margin-left: 8px; font-size: larger; font-weight: bold;">'.SettingsClass::getString('Currency Prefix').'</div>'.
     '<input type="text" name="price" value="'.$priceEach.'" id="price" class="input" style="width: 160px; text-align: center;" '.
     'onkeypress="return numbersonly(this, event);" onchange="updateTotal(this,\'qty\');" />'.
-    SettingsClass::getString('Currency Postfix').'</td>
+    '<b>&nbsp;'.SettingsClass::getString('Currency Postfix').'</b></td>
 </tr>
 <tr>
   <td align="right"><b>Price Total:</b></td>
-  <td><font size="+2"><b><div style="position: absolute;">'.SettingsClass::getString('Currency Prefix').'</div>'.
-    '<div id="temp" class="temp" style="width: 185px; text-align: center;">&nbsp;'.$priceTotal.'&nbsp;</div>'.
-    SettingsClass::getString('Currency Postfix').'</b></font></td>
+  <td><div style="position: absolute; margin-top: 8px; margin-left: 8px; font-size: larger; font-weight: bold;">'.SettingsClass::getString('Currency Prefix').'</div>'.
+    '<div id="pricetotal" class="input" style="float: left; width: 160px; text-align: center; font-size: larger; font-weight: bold;">&nbsp;</div>'.
+    '<div style="margin-top: 8px;"><b>&nbsp;'.SettingsClass::getString('Currency Postfix').'</b></div></td>
 </tr>
 </table></td></tr>
 <tr><td height="20"></td></tr>

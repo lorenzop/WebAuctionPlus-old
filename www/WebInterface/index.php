@@ -2,6 +2,12 @@
 error_reporting(E_ALL | E_STRICT);
 define('DEFINE_INDEX_FILE',TRUE);
 
+if(function_exists('session_status'))
+  if(session_status() == PHP_SESSION_DISABLED){
+    echo '<p>PHP Sessions are disabled. This is a requirement, please enable this.</p>';
+    exit();
+  }
+
 // get,post,cookie (highest priority last)
 function getVar($name,$type='',$order=array('get','post')){$output='';
   if(!is_array($order)) $order = @explode(',',(string)$order);
@@ -116,7 +122,7 @@ SettingsClass::setDefault('Custom Description' , FALSE      , TRUE );
 SettingsClass::setDefault('Website Theme'      , 'default'  , TRUE );
 SettingsClass::setDefault('jQuery UI Pack'     , 'redmond'  , TRUE );
 SettingsClass::setDefault('Item Packs'         , ''         , FALSE);
-SettingsClass::setDefault('Max Sell Price'     , 10000.00   , TRUE );
+SettingsClass::setDefault('Max Sell Price'     , 10000.0    , TRUE );
 $config['language'] = SettingsClass::getString('Language');
 $config['theme']    = SettingsClass::getString('Website Theme');
 
@@ -150,6 +156,7 @@ if($page_outputs['body'] == TRUE){
 if    ($page_outputs['body'] === TRUE ) $page_outputs['body']='';
 elseif($page_outputs['body'] === FALSE) $page_outputs['body']='Unable to load page, render returned FALSE';
 $html->Display();
+@session_write_close();
 
 
 ?>

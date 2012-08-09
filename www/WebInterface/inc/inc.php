@@ -13,6 +13,29 @@ require($lpaths['classes'].'queryauctions.class.php');
 //require($lpaths['classes'].'transactions.class.php');
 
 
+// no page cache
+function NoPageCache(){
+  if(defined('NOPAGECACHE_HAS_RUN')) return;
+  if(headers_sent()) return;
+  @header('Expires: Mon, 26 Jul 1990 05:00:00 GMT');
+  @header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
+  @header('Cache-Control: no-store, no-cache, must-revalidate');
+  @header('Cache-Control: post-check=0, pre-check=0', false);
+  @header('Pragma: no-cache');
+  define('NOPAGECACHE_HAS_RUN', TRUE);
+}  
+
+
+// php sessions
+function session_init(){
+  if(defined('SESSION_INIT_HAS_RUN')) return;
+  if(function_exists('session_status'))
+    if(session_status() == PHP_SESSION_ACTIVE) return;
+  session_start();
+  define('SESSION_INIT_HAS_RUN', TRUE);
+}
+
+
 // get last page
 function getLastPage(){global $config;
   if(!empty($config['lastpage'])) return($config['lastpage']);
