@@ -30,10 +30,10 @@ function getVar($name,$type='',$order=array('get','post')){$output='';
 function toBoolean($value){
   if(gettype($value) == 'boolean') return($value);
   $tempValue = strtolower((string)$value);
-  if($tempValue=='t' || $tempValue=='true' ) return(TRUE);
-  if($tempValue=='y' || $tempValue=='yes'  ) return(TRUE);
-  if($tempValue=='f' || $tempValue=='false') return(FALSE);
-  if($tempValue=='n' || $tempValue=='no'   ) return(FALSE);
+  if($tempValue==='t' || $tempValue==='true' ) return(TRUE);
+  if($tempValue==='y' || $tempValue==='yes'  ) return(TRUE);
+  if($tempValue==='f' || $tempValue==='false') return(FALSE);
+  if($tempValue==='n' || $tempValue==='no'   ) return(FALSE);
   return( (boolean)$value );
 }
 
@@ -116,6 +116,7 @@ SettingsClass::LoadSettings();
 SettingsClass::setDefault('Version'            , 'unknown!' , TRUE );
 SettingsClass::setDefault('Language'           , 'en'       , TRUE );
 SettingsClass::setDefault('Require Login'      , FALSE      , TRUE );
+SettingsClass::setDefault('CSRF Protection'    , TRUE       , TRUE );
 SettingsClass::setDefault('Currency Prefix'    , '$ '       , FALSE);
 SettingsClass::setDefault('Currency Postfix'   , ''         , FALSE);
 SettingsClass::setDefault('Custom Description' , FALSE      , TRUE );
