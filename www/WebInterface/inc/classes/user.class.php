@@ -11,6 +11,7 @@ protected $ItemsBought = 0;
 protected $Earnt       = 0.0;
 protected $Spent       = 0.0;
 protected $permissions = array();
+protected $invLocked   = NULL;
 
 
 function __construct(){global $config;
@@ -38,7 +39,7 @@ private function doValidate($username, $password=FALSE){global $config;
   if(empty($this->Name)) return(FALSE);
   if($password!==FALSE && empty($password)) return(FALSE);
   // validate player
-  $query = "SELECT `id`,`playerName`,`money`,`itemsSold`,`itemsBought`,`earnt`,`spent`,`Permissions` ".
+  $query = "SELECT `id`,`playerName`,`money`,`itemsSold`,`itemsBought`,`earnt`,`spent`,`Permissions`,`Locked` ".
            "FROM `".$config['table prefix']."Players` ".
            "WHERE LOWER(`playerName`)='".mysql_san(strtolower($this->Name))."' ".
            ($password===FALSE?"":"AND `password`='".mysql_san($password)."' ").
@@ -59,9 +60,9 @@ private function doValidate($username, $password=FALSE){global $config;
     $this->ItemsBought = ((int)    $row['itemsBought']);
     $this->Earnt       = ((double) $row['earnt']      );
     $this->Spent       = ((double) $row['spent']      );
-    foreach(explode(',',$row['Permissions']) as $perm){
+    foreach(explode(',',$row['Permissions']) as $perm)
       $this->permissions[$perm] = TRUE;
-    }
+    $this->invLocked   = ((boolean)$row['Locked']     );
     $_SESSION[$config['session name']] = $this->Name;
   }else{
     $_SESSION[$config['session name']] = '';
@@ -127,6 +128,13 @@ public function hasPerms($perms){
     return($hasPerms);
   }
   return((boolean)@$this->permissions[$perms]);
+}
+
+
+// inventory lock
+public function isLocked(){
+  if($this->invLocked === null) return(TRUE);
+  return($this->invLocked);
 }
 
 

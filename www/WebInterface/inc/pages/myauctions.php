@@ -7,6 +7,13 @@ if(!$config['user']->isOk()) ForwardTo('./', 0);
 
 if($config['action']=='cancel'){
   CSRF::ValidateToken();
+  // inventory is locked
+  if($config['user']->isLocked()){
+    echo '<center><h2>Your inventory is currently locked.<br />Please close your in game inventory and try again.</h2><br /><a href="'.getLastPage().'">Back to last page</a></center>';
+    ForwardTo(getLastPage(), 4);
+    exit();
+  }
+  // cancel auction
   if(AuctionFuncs::CancelAuction(
     getVar('auctionid','int','post')
   )){

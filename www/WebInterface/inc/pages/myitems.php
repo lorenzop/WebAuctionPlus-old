@@ -5,17 +5,6 @@
 if(!$config['user']->isOk()) ForwardTo('./', 0);
 
 
-//// mail item stack
-//if($config['action'] == 'mailitem'){
-//  CSRF::ValidateToken();
-//  ItemFuncs::MailStack( getVar('itemid','int','post') );
-//  if(!empty($config['error'])){
-//    echo '<p style="color: red;">'.$config['error'].'</font>';
-//    exit();
-//  }
-//}
-
-
 function RenderPage_myitems(){global $config,$html;
   $UseAjaxSource = FALSE;
   $config['title'] = 'My Items';

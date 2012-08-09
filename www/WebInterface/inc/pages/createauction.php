@@ -7,6 +7,12 @@ if(!$config['user']->isOk()) ForwardTo('./', 0);
 
 if($config['action']=='newauction'){
   CSRF::ValidateToken();
+  // inventory is locked
+  if($config['user']->isLocked()){
+    echo '<center><h2>Your inventory is currently locked.<br />Please close your in game inventory and try again.</h2><br /><a href="'.getLastPage().'">Back to last page</a></center>';
+    ForwardTo(getLastPage(), 4);
+    exit();
+  }
   if(AuctionFuncs::CreateAuction(
     getVar('id'   ,'int'   ,'post'),
     getVar('qty'  ,'int'   ,'post'),
@@ -17,6 +23,13 @@ if($config['action']=='newauction'){
     ForwardTo(getLastPage(), 2);
     exit();
   }
+}
+
+// inventory is locked
+if($config['user']->isLocked()){
+  echo '<center><h2>Your inventory is currently locked.<br />Please close your in game inventory and try again.</h2><br /><a href="'.getLastPage().'">Back to last page</a></center>';
+  ForwardTo(getLastPage(), 4);
+  exit();
 }
 
 
