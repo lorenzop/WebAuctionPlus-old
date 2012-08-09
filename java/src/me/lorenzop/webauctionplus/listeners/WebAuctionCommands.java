@@ -28,54 +28,54 @@ public class WebAuctionCommands implements CommandExecutor {
 			return false;
 		// 1 arg
 		} else if (params == 1) {
-			// wa reload
-			if (args[0].equalsIgnoreCase("reload")){
-boolean temp=true;
-if(temp) {
-sender.sendMessage("/wa reload is currently broken. it will be fixed soon.");
-return true;
-}
-				if (sender instanceof Player) {
-					if (!sender.hasPermission("wa.reload")){
-						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
-						return true;
-					}
-					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("reloading"));
-				}
-				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("reloading"));
-				plugin.getServer().getScheduler().cancelTasks(plugin);
-				plugin.waCronExecutorTask.clearCronUrls();
-				plugin.waAnnouncerTask.clearMessages();
-				plugin.shoutSigns.clear();
-				plugin.recentSigns.clear();
-				WebAuctionPlus.dataQueries.forceCloseConnections();
-				plugin.reloadConfig();
-				plugin.onLoadConfig();
-				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("finished_reloading"));
-				if (sender instanceof Player)
-					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("finished_reloading"));
-				return true;
-			// wa save
-			} else if (args[0].equalsIgnoreCase("save")){
-				if (sender instanceof Player) {
-					if (!sender.hasPermission("wa.save")){
-						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
-						return true;
-					}
-				}
-				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("saving"));
-sender.sendMessage("This feature is incomplete");
-WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + ChatColor.RED + "This feature is incomplete");
-boolean temp=true;
-if(temp)
-return true;
-				plugin.saveConfig();
-				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("finished_saving"));
-				if (sender instanceof Player)
-					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("finished_saving"));
-				return true;
+//			// wa reload
+//			if (args[0].equalsIgnoreCase("reload")){
+//boolean temp=true;
+//if(temp) {
+//sender.sendMessage("/wa reload is currently broken. it will be fixed soon.");
+//return true;
+//}
+//				if (sender instanceof Player) {
+//					if (!sender.hasPermission("wa.reload")){
+//						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
+//						return true;
+//					}
+//					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("reloading"));
+//				}
+//				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("reloading"));
+//				plugin.getServer().getScheduler().cancelTasks(plugin);
+//				plugin.waAnnouncerTask.clearMessages();
+//				plugin.shoutSigns.clear();
+//				plugin.recentSigns.clear();
+//				WebAuctionPlus.dataQueries.forceCloseConnections();
+//				plugin.reloadConfig();
+//				plugin.onLoadConfig();
+//				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("finished_reloading"));
+//				if (sender instanceof Player)
+//					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("finished_reloading"));
+//				return true;
+//			// wa save
+//			} else if (args[0].equalsIgnoreCase("save")){
+//				if (sender instanceof Player) {
+//					if (!sender.hasPermission("wa.save")){
+//						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
+//						return true;
+//					}
+//				}
+//				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("saving"));
+//sender.sendMessage("This feature is incomplete");
+//WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + ChatColor.RED + "This feature is incomplete");
+//boolean temp=true;
+//if(temp)
+//return true;
+//				plugin.saveConfig();
+//				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("finished_saving"));
+//				if (sender instanceof Player)
+//					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("finished_saving"));
+//				return true;
 			// wa version
-			} else if (args[0].equalsIgnoreCase("version")) {
+//			} else
+			if (args[0].equalsIgnoreCase("version")) {
 				if(sender instanceof Player) {
 					sender.sendMessage(WebAuctionPlus.chatPrefix+"v"+plugin.getDescription().getVersion());
 					if(WebAuctionPlus.newVersionAvailable && sender.hasPermission("wa.webadmin"))

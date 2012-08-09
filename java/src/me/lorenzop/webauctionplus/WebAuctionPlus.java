@@ -24,7 +24,6 @@ import me.lorenzop.webauctionplus.listeners.WebAuctionServerListener;
 import me.lorenzop.webauctionplus.mysql.DataQueries;
 import me.lorenzop.webauctionplus.mysql.MySQLTables;
 import me.lorenzop.webauctionplus.tasks.AnnouncerTask;
-import me.lorenzop.webauctionplus.tasks.CronExecutorTask;
 import me.lorenzop.webauctionplus.tasks.PlayerAlertTask;
 import me.lorenzop.webauctionplus.tasks.RecentSignTask;
 import me.lorenzop.webauctionplus.tasks.ShoutSignTask;
@@ -74,7 +73,6 @@ public class WebAuctionPlus extends JavaPlugin {
 	public Map<Location, Integer> recentSigns = new HashMap<Location, Integer>();
 	public Map<Location, Integer> shoutSigns  = new HashMap<Location, Integer>();
 
-//	public int totalAuctionCount	= 0;
 	public int signDelay			= 0;
 	public int numberOfRecentLink	= 0;
 
@@ -88,9 +86,6 @@ public class WebAuctionPlus extends JavaPlugin {
 	// JSON Server
 	public waJSONServer jsonServer;
 
-	// cron executor
-	public CronExecutorTask waCronExecutorTask;
-	boolean cronExecutorEnabled		= false;
 
 	// announcer
 	public AnnouncerTask waAnnouncerTask;
@@ -178,19 +173,6 @@ public class WebAuctionPlus extends JavaPlugin {
 			// scheduled tasks
 			BukkitScheduler scheduler = getServer().getScheduler();
 			boolean UseMultithreads = Config.getBoolean("Development.UseMultithreads");
-
-			// cron executor (always multi-threaded)
-			cronExecutorEnabled = Config.getBoolean("CronExecutor.Enabled");
-			long cronExecutorMinutes = 20 * 60 * Config.getLong("Tasks.CronExecutorMinutes");
-			if (cronExecutorEnabled && cronExecutorMinutes>0) {
-				if(cronExecutorMinutes < 6000) cronExecutorMinutes = 6000; // minimum 5 minutes
-				waCronExecutorTask = new CronExecutorTask();
-				waCronExecutorTask.setCronUrl(Config.getString("CronExecutor.Url"));
-				// cron executor task (always multi-threaded)
-				scheduler.scheduleAsyncRepeatingTask(this, waCronExecutorTask,
-					(cronExecutorMinutes/2), cronExecutorMinutes);
-				log.info(logPrefix + "Enabled Task: Cron Executor (always multi-threaded)");
-			}
 
 			// announcer
 			announcerEnabled = Config.getBoolean("Announcer.Enabled");
@@ -331,14 +313,11 @@ public class WebAuctionPlus extends JavaPlugin {
 		Config.addDefault("Tasks.SaleAlertSeconds",			20L);
 		Config.addDefault("Tasks.ShoutSignUpdateSeconds",	20L);
 		Config.addDefault("Tasks.RecentSignUpdateSeconds",	60L);
-		Config.addDefault("Tasks.CronExecutorMinutes",		60L);
 		Config.addDefault("Tasks.AnnouncerMinutes",			60L);
 		Config.addDefault("SignLink.Enabled",				false);
 		Config.addDefault("SignLink.NumberOfLatestAuctionsToTrack", 10);
 		Config.addDefault("Development.UseMultithreads",	false);
 		Config.addDefault("Development.DebugSQL",			false);
-		Config.addDefault("CronExecutor.Enabled",			false);
-		Config.addDefault("CronExecutor.Url", "http://yourminecraftserver.com/webauctionplus/cron.php");
 		Config.addDefault("Announcer.Enabled",				false);
 		Config.addDefault("Announcer.Prefix",				"&c[Info] ");
 		Config.addDefault("Announcer.Random",				false);
