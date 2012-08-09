@@ -52,6 +52,7 @@ public class waSettings {
 		addDefault("Version",				plugin.getDescription().getVersion().toString());
 		addDefault("Language",				"en");
 		addDefault("Require Login",			false);
+		addDefault("CSRF Protection",		true);
 		addDefault("Currency Prefix",		"$ ");
 		addDefault("Currency Postfix",		"");
 		addDefault("Custom Description",	false);

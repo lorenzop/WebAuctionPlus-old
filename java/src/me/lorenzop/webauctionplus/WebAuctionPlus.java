@@ -44,7 +44,8 @@ import org.w3c.dom.NodeList;
 public class WebAuctionPlus extends JavaPlugin {
 
 	// isDev is for testing mode only
-	private static boolean isDev = true;
+//TODO: remove this
+	private static boolean isDev = false;
 	private static boolean isOk  = false;
 
 	public static final String logPrefix  = "[WebAuction+] ";

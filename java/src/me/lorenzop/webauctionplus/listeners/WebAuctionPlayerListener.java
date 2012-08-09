@@ -32,7 +32,7 @@ public class WebAuctionPlayerListener implements Listener {
 	}
 
 
-	// join
+	// player join
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		String player = event.getPlayer().getName();
@@ -41,9 +41,12 @@ public class WebAuctionPlayerListener implements Listener {
 		// run after 2 seconds
 		plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new PlayerAlertTask(player), 2 * 20);
 	}
-	// quit
+
+
+	// player quit
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerQuit(PlayerQuitEvent event) {
+		WebInventory.onInventoryClose(event.getPlayer());
 		plugin.lastSignUse.remove(event.getPlayer().getName());
 	}
 
@@ -68,6 +71,7 @@ public class WebAuctionPlayerListener implements Listener {
 //	}
 
 
+	// player interact
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		// right click only

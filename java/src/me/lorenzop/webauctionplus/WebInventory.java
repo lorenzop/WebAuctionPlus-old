@@ -27,7 +27,7 @@ public class WebInventory {
 	public WebInventory(Player p) {
 		if(p == null) return;
 		playerName = p.getName();
-		chest = Bukkit.getServer().createInventory(null, 54, "WebAuctionPlus Inventory");
+		chest = Bukkit.getServer().createInventory(null, 54, "WebAuction+ MailBox");
 		loadInventory();
 		p.openInventory(chest);
 	}
@@ -48,12 +48,12 @@ public class WebInventory {
 				p.openInventory(inventory.chest);
 			} else {
 				// create new virtual chest
-				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Inventory opened for "+player);
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Inventory opened for: "+player);
 				inventory = new WebInventory(p);
 				openInvs.put(player, inventory);
 			}
 		}
-		p.sendMessage(WebAuctionPlus.chatPrefix+"Inventory opened for player "+player);
+		p.sendMessage(WebAuctionPlus.chatPrefix+"MailBox inventory opened");
 	}
 	// close mailbox
 	public static void onInventoryClose(Player p){
@@ -69,9 +69,10 @@ public class WebInventory {
 			// unlock inventory
 			setLocked(player, false);
 		}
-//		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Inventory closed & updated for "+player);
+		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"MailBox inventory closed and saved");
 	}
 	public static void ForceCloseAll() {
+		if(openInvs==null || openInvs.size()==0) return;
 		for(String player : openInvs.keySet()) {
 			Player p = Bukkit.getServer().getPlayerExact(player);
 			p.closeInventory();
@@ -160,7 +161,12 @@ public class WebInventory {
 				if(rs.getInt("qty") < 1) continue;
 				i++; if(i >= chest.getSize()) break;
 				tableRowIds.put(i, rs.getInt("id"));
+				// create item
 				stacks[i] = new ItemStack( rs.getInt("itemId"), rs.getInt("qty"), rs.getShort("itemDamage") );
+				// add enchantments
+				String enchStr = rs.getString("enchantments");
+				if(enchStr != null && !enchStr.isEmpty())
+					DataQueries.decodeEnchantments(Bukkit.getPlayer(playerName), stacks[i], enchStr);
 			}
 			chest.setContents(stacks);
 		} catch(SQLException e) {
@@ -217,7 +223,7 @@ public class WebInventory {
 						st.setInt   (1, Item.getTypeId());
 						st.setShort (2, Item.getDurability());
 						st.setInt   (3, Item.getAmount());
-						st.setString(4, DataQueries.encodeEnchantments(Item));
+						st.setString(4, DataQueries.encodeEnchantments(Bukkit.getPlayer(playerName), Item));
 						st.setInt   (5, tableRowIds.get(i));
 						st.executeUpdate();
 					} catch(SQLException e) {
@@ -239,7 +245,7 @@ public class WebInventory {
 						st.setInt   (2, Item.getTypeId());
 						st.setShort (3, Item.getDurability());
 						st.setInt   (4, Item.getAmount());
-						st.setString(5, DataQueries.encodeEnchantments(Item));
+						st.setString(5, DataQueries.encodeEnchantments(Bukkit.getPlayer(playerName), Item));
 						st.executeUpdate();
 					} catch(SQLException e) {
 						WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Unable to insert new item to inventory!");
@@ -258,10 +264,11 @@ public class WebInventory {
 //		slotChanged.clear();
 		chest.clear();
 		tableRowIds.clear();
-		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Updated player inventory for "+playerName+
+		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Updated player inventory for: "+playerName+" ["+
 			" Inserted:"+Integer.toString(countInserted)+
 			" Updated:"+Integer.toString(countUpdated)+
-			" Deleted:"+Integer.toString(countDeleted) );
+			" Deleted:"+Integer.toString(countDeleted)+
+			" ]");
 	}
 
 

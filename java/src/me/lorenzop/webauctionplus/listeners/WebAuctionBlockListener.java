@@ -51,117 +51,141 @@ public class WebAuctionBlockListener implements Listener {
 			!lines[0].equalsIgnoreCase("[WebAuction+]") &&
 			!lines[0].equalsIgnoreCase("[wa]") ) return;
 		event.setLine(0, "[WebAuction+]");
-		boolean allowEvent = false;
 
 		// Shout sign
 		if(lines[1].equalsIgnoreCase("Shout")) {
-			if(p.hasPermission("wa.create.sign.shout")) {
-				allowEvent = true;
-				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_shout_sign"));
-				event.setLine(1, "Shout");
-				// line 2: radius
-				int radius = 20;
-				try {
-					radius = Integer.parseInt(lines[2]);
-				} catch (NumberFormatException ignore) {}
-				event.setLine(2, Integer.toString(radius));
-				event.setLine(3, "");
-				plugin.shoutSigns.put(sign.getLocation(), radius);
-				WebAuctionPlus.dataQueries.createShoutSign(world, radius, sign.getX(), sign.getY(), sign.getZ());
+			if(!p.hasPermission("wa.create.sign.shout")) {
+				NoPermission(event);
+				return;
 			}
+			event.setLine(1, "Shout");
+			// line 2: radius
+			int radius = 20;
+			try {
+				radius = Integer.parseInt(lines[2]);
+			} catch (NumberFormatException ignore) {}
+			event.setLine(2, Integer.toString(radius));
+			event.setLine(3, "");
+			plugin.shoutSigns.put(sign.getLocation(), radius);
+			WebAuctionPlus.dataQueries.createShoutSign(world, radius, sign.getX(), sign.getY(), sign.getZ());
+			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_shout_sign"));
+			return;
 		} else
 
 		// Recent sign
 		if(lines[1].equalsIgnoreCase("Recent")) {
-			if (p.hasPermission("wa.create.sign.recent")) {
-				allowEvent = true;
-				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_recent_sign"));
-				// line 2: recent offset
-				int offset = 1;
-				try {
-					offset = Integer.parseInt(lines[2]);
-				} catch (NumberFormatException ignore) {}
-				if(offset < 1)  offset = 1;
-				if(offset > 10) offset = 10;
-				// display auction
-				if(offset <= WebAuctionPlus.Stats.getTotalAuctions()) {
-					Auction offsetAuction = WebAuctionPlus.dataQueries.getAuctionForOffset(offset - 1);
-					ItemStack stack = offsetAuction.getItemStack();
-					int qty = stack.getAmount();
-					String formattedPrice = plugin.economy.format(offsetAuction.getPrice());
-					event.setLine(1, stack.getType().toString());
-					event.setLine(2, "qty: "+Integer.toString(qty));
-					event.setLine(3, formattedPrice);
-				} else {
-					event.setLine(1, "Recent");
-					event.setLine(2, Integer.toString(offset));
-					event.setLine(3, "Not Available");
-				}
-				plugin.recentSigns.put(sign.getLocation(), offset);
-				WebAuctionPlus.dataQueries.createRecentSign(world, offset, sign.getX(), sign.getY(), sign.getZ());
+			if(!p.hasPermission("wa.create.sign.recent")) {
+				NoPermission(event);
+				return;
 			}
+			// line 2: recent offset
+			int offset = 1;
+			try {
+				offset = Integer.parseInt(lines[2]);
+			} catch (NumberFormatException ignore) {}
+			if(offset < 1)  offset = 1;
+			if(offset > 10) offset = 10;
+			// display auction
+			if(offset <= WebAuctionPlus.Stats.getTotalAuctions()) {
+				Auction offsetAuction = WebAuctionPlus.dataQueries.getAuctionForOffset(offset - 1);
+				ItemStack stack = offsetAuction.getItemStack();
+				int qty = stack.getAmount();
+				String formattedPrice = plugin.economy.format(offsetAuction.getPrice());
+				event.setLine(1, stack.getType().toString());
+				event.setLine(2, "qty: "+Integer.toString(qty));
+				event.setLine(3, formattedPrice);
+			} else {
+				event.setLine(1, "Recent");
+				event.setLine(2, Integer.toString(offset));
+				event.setLine(3, "Not Available");
+			}
+			plugin.recentSigns.put(sign.getLocation(), offset);
+			WebAuctionPlus.dataQueries.createRecentSign(world, offset, sign.getX(), sign.getY(), sign.getZ());
+			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_recent_sign"));
+			return;
 		} else
 
 		// Deposit sign (money)
 		if(lines[1].equalsIgnoreCase("Deposit")) {
-			if (p.hasPermission("wa.create.sign.deposit")) {
-				allowEvent = true;
-				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_deposit_sign"));
-				event.setLine(1, "Deposit");
-				// line 2: amount
-				double amount = 100;
-				try {
-					amount = WebAuctionPlus.ParseDouble(lines[2]);
-					if(amount <= 0D) amount = 100D;
-				} catch(NumberFormatException ignore) {}
-				event.setLine(2, WebAuctionPlus.FormatPrice(amount));
-				event.setLine(3, "");
+			if(!p.hasPermission("wa.create.sign.deposit")) {
+				NoPermission(event);
+				return;
 			}
+			event.setLine(1, "Deposit");
+			// line 2: amount
+			double amount = 100.0;
+			try {
+				amount = WebAuctionPlus.ParseDouble(lines[2]);
+				if(amount <= 0.0) amount = 100.0;
+			} catch(NumberFormatException ignore) {}
+			event.setLine(2, WebAuctionPlus.FormatPrice(amount));
+			event.setLine(3, "");
+			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_deposit_sign"));
+			return;
 		} else
 
 		// Withdraw sign (money)
 		if(lines[1].equalsIgnoreCase("Withdraw")) {
-			if (p.hasPermission("wa.create.sign.withdraw")) {
-				allowEvent = true;
-				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_withdraw_sign"));
-				if(!lines[1].equals("Withdraw")) event.setLine(1,"Withdraw");
-				// line 2: amount
-				double amount = 0;
-				if(!lines[2].equalsIgnoreCase("all")) {
-					try {
-						amount = WebAuctionPlus.ParseDouble(lines[2]);
-						if(amount < 0D) amount = 0D;
-					} catch(NumberFormatException ignore) {}
-				}
-				event.setLine(2, amount==0 ? "All" : WebAuctionPlus.FormatPrice(amount) );
-				event.setLine(3, "");
+			if(!p.hasPermission("wa.create.sign.withdraw")) {
+				NoPermission(event);
+				return;
 			}
+			if(!lines[1].equals("Withdraw")) event.setLine(1,"Withdraw");
+			// line 2: amount
+			double amount = 0.0;
+			if(!lines[2].equalsIgnoreCase("all")) {
+				try {
+					amount = WebAuctionPlus.ParseDouble(lines[2]);
+					if(amount < 0.0) amount = 0.0;
+				} catch(NumberFormatException ignore) {}
+			}
+			event.setLine(2, amount==0.0 ? "All" : WebAuctionPlus.FormatPrice(amount) );
+			event.setLine(3, "");
+			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_withdraw_sign"));
+			return;
 		} else
 
 		// MailBox sign
 		if(lines[1].equalsIgnoreCase("MailBox") ||
 			lines[1].equalsIgnoreCase("Mail Box") ||
 			lines[1].equalsIgnoreCase("Mail")) {
-			if (p.hasPermission("wa.create.sign.mailbox")) {
-				allowEvent = true;
-				event.setLine(1, "MailBox");
-				event.setLine(2, "");
-				event.setLine(3, "");
-				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_deposit_mail_sign"));
+			if(!p.hasPermission("wa.create.sign.mailbox")) {
+				NoPermission(event);
+				return;
 			}
+			event.setLine(1, "MailBox");
+			event.setLine(2, "");
+			event.setLine(3, "");
+			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_deposit_mail_sign"));
+			return;
 		}
 
-		if(allowEvent) {
-//TODO: this needs to be tested
-			p.sendMessage(WebAuctionPlus.chatPrefix + "Invalid sign parameters! Please check dev bukkit for the right sign usage.");
-		} else {
-			event.setCancelled(true);
-			sign.setTypeId(0);
-			ItemStack stack = new ItemStack(323, 1);
-			p.getInventory().addItem(stack);
-			WebAuctionPlus.doUpdateInventory(p);
-			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
-		}
+		CancelEvent(event);
 	}
+
+
+	// no permission
+	private static void NoPermission(SignChangeEvent event) {
+		CancelEvent(event);
+		Player p = event.getPlayer();
+		if(p != null) p.sendMessage(WebAuctionPlus.chatPrefix+WebAuctionPlus.Lang.getString("no_permission"));
+	}
+	// invalid parameters
+//	private static void InvalidParams(SignChangeEvent event) {
+//		CancelEvent(event);
+//		Player p = event.getPlayer();
+//TODO: add to language files
+//		if(p != null) p.sendMessage(WebAuctionPlus.chatPrefix+"Invalid sign parameters! Please check dev bukkit for the right sign usage.");
+//	}
+	private static void CancelEvent(SignChangeEvent event) {
+		event.setCancelled(true);
+//		event.getBlock().setTypeId(0);
+//		Player p = event.getPlayer();
+//		if(p != null) {
+//			p.getInventory().addItem(new ItemStack(323, 1));
+//			WebAuctionPlus.doUpdateInventory(p);
+//		}
+	}
+
 
 }

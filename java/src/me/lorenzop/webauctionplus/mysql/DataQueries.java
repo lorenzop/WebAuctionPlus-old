@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class DataQueries extends MySQLConnPool {
@@ -36,17 +37,24 @@ public class DataQueries extends MySQLConnPool {
 
 
 	// encode/decode enchantments for database storage
-	public static String encodeEnchantments(ItemStack stack) {
+	public static String encodeEnchantments(Player p, ItemStack stack) {
 		if(stack == null) return "";
 		Map<Enchantment, Integer> enchantments = stack.getEnchantments();
 		if(enchantments==null || enchantments.isEmpty()) return "";
 		// get enchantments
 		HashMap<Integer, Integer> enchMap = new HashMap<Integer, Integer>();
+		boolean removedUnsafe = false;
 		for(Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
 			// check safe enchantments
-			if(!checkSafeEnchantments(stack, entry.getKey(), entry.getValue())) continue;
-			enchMap.put(entry.getKey().getId(), entry.getValue());
+			int level = checkSafeEnchantments(stack, entry.getKey(), entry.getValue() );
+			if(level == 0) {
+				removedUnsafe = true;
+				continue;
+			}
+			enchMap.put(entry.getKey().getId(), level);
 		}
+//TODO: add to language files
+		if(removedUnsafe) p.sendMessage(WebAuctionPlus.logPrefix+"Removed/modified unsafe enchantments!");
 		// sort by enchantment id
 		SortedSet<Integer> enchSorted = new TreeSet<Integer> (enchMap.keySet());
 		// build string
@@ -59,7 +67,7 @@ public class DataQueries extends MySQLConnPool {
 		return enchStr;
 	}
 	// decode enchantments from database
-	public static boolean decodeEnchantments(ItemStack stack, String enchStr) {
+	public static boolean decodeEnchantments(Player p, ItemStack stack, String enchStr) {
 		if(enchStr == null || enchStr.isEmpty()) return false;
 		Map<Enchantment, Integer> ench = new HashMap<Enchantment, Integer>();
 		String[] parts = enchStr.split(",");
@@ -87,43 +95,49 @@ public class DataQueries extends MySQLConnPool {
 				continue;
 			}
 			// check safe enchantments
-			if(!checkSafeEnchantments(stack, enchantment, level)) {
+			level = checkSafeEnchantments(stack, enchantment, level);
+			if(level == 0) {
 				removedUnsafe = true;
 				continue;
 			}
 			// add enchantment to map
 			ench.put(enchantment, level);
-			if(removedUnsafe) WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Removed/modified unsafe enchantments!");
 		}
+//TODO: add to language files
+		if(removedUnsafe) p.sendMessage(WebAuctionPlus.logPrefix+"Removed/modified unsafe enchantments!");
 		// add enchantments to stack
-		stack.addEnchantments(ench);
+		if(WebAuctionPlus.timEnabled())
+			stack.addUnsafeEnchantments(ench);
+		else
+			stack.addEnchantments(ench);
 		return removedUnsafe;
 	}
 	// check natural enchantment
-	public static boolean checkSafeEnchantments(ItemStack stack, Enchantment enchantment, int level) {
+	public static int checkSafeEnchantments(ItemStack stack, Enchantment enchantment, int level) {
+		if(stack == null || enchantment == null) return 0;
+		if(level < 1) return 0;
 		// can enchant item
 		if(!enchantment.canEnchantItem(stack)) {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Removed unsafe enchantment: "+stack.toString()+"  "+enchantment.toString());
-			return false;
+			return 0;
 		}
-		if(level < 1) return false;
 		if(WebAuctionPlus.timEnabled()) {
 			if(level > 127) level = 127;
 		} else {
-			// level to low
+			// level too low
 			if(level < enchantment.getStartLevel()) {
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Raised unsafe enchantment: "+
+					Integer.toString(level)+"  "+stack.toString()+"  "+enchantment.toString()+"  to level: "+enchantment.getStartLevel() );
 				level = enchantment.getStartLevel();
-				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Raised unsafe enchantment to level "+
-					Integer.toString(level)+"  "+stack.toString()+"  "+enchantment.toString());
 			}
-			// level to high
+			// level too high
 			if(level > enchantment.getMaxLevel()) {
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Lowered unsafe enchantment: "+
+					Integer.toString(level)+"  "+stack.toString()+"  "+enchantment.toString()+"  to level: "+enchantment.getMaxLevel() );
 				level = enchantment.getMaxLevel();
-				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Lowered unsafe enchantment to level "+
-						Integer.toString(level)+"  "+stack.toString()+"  "+enchantment.toString());
 			}
 		}
-		return true;
+		return level;
 	}
 
 
