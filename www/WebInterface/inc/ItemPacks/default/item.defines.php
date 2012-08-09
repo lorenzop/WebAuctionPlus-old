@@ -2,6 +2,7 @@
 // default - item definitions
 
 
+// enchantments
 ItemFuncs::$Enchantments=array(
   0 =>'Protection',
   1 =>'Fire Protecion',
@@ -28,6 +29,7 @@ ItemFuncs::$Enchantments=array(
 );
 
 
+// default items
 ItemFuncs::$Items=array(
   1=>array(
     'name'=>'Stone',
@@ -1352,7 +1354,7 @@ ItemFuncs::$Items=array(
     'name'=>'Nether Wart',
     'icon'=>'Seeds_Nether_Wart.png'),
   373=>array(
-    0 =>array(
+    0    =>array(
       'name'=>'Bottle of Water',
       'icon'=>'Bottle_Water.png',
       'stack'=>1),
@@ -1368,181 +1370,197 @@ ItemFuncs::$Items=array(
       'name'=>'Mundane Potion',
       'icon'=>'Potion_Mundane.png',
       'stack'=>1),
-    8193 =>array(
-      'name'=>'Regeneration Potion (0=>45)',
-      'icon'=>'Potion_of_Regeneration.png',
+    16273=>array(
+      'name'=>'Regeneration Potion (0:45)',
+      'icon'=>'Potion_Regeneration.png',
       'stack'=>1),
-    8194 =>array(
-      'name'=>'Swiftness Potion (3=>00)',
-      'icon'=>'Potion_of_Swiftness.png',
+    16274=>array(
+      'name'=>'Speed Potion (3:00)',
+      'icon'=>'Potion_Speed.png',
       'stack'=>1),
-    8195 =>array(
-      'name'=>'Fire Resistance Potion (3=>00)',
-      'icon'=>'Potion_of_Fire_Resistance.png',
+    16276=>array(
+      'name'=>'Poison Potion (0:45)',
+      'icon'=>'Potion_Poison.png',
       'stack'=>1),
-    8196 =>array(
-      'name'=>'Poison Potion (0=>45)',
-      'icon'=>'Potion_of_Poison.png',
+    16281=>array(
+      'name'=>'Strength Potion (3:00)',
+      'icon'=>'Potion_Strength.png',
       'stack'=>1),
-    8197 =>array(
-      'name'=>'Healing Potion',
-      'icon'=>'Potion_Instant_Health.png',
+    16305=>array(
+      'name'=>'Regeneration Potion II (0:22)',
+      'icon'=>'Potion_Regeneration.png',
       'stack'=>1),
-    8200 =>array(
-      'name'=>'Weakness Potion (1=>30)',
-      'icon'=>'Potion_of_Poison.png',
+    16306=>array(
+      'name'=>'Speed Potion II (1:30)',
+      'icon'=>'Potion_Speed.png',
       'stack'=>1),
-    8201 =>array(
-      'name'=>'Strength Potion (3=>00)',
-      'icon'=>'Potion_of_Strength.png',
+    16307=>array(
+      'name'=>'Fire Resistance Potion (3:00)',
+      'icon'=>'Potion_Fire_Resistance.png',
       'stack'=>1),
-    8202 =>array(
-      'name'=>'Slowness Potion (1=>30)',
-      'icon'=>'Potion_of_Slowness.png',
+    16308=>array(
+      'name'=>'Poison Potion II (0:22)',
+      'icon'=>'Potion_Poison.png',
       'stack'=>1),
-    8204 =>array(
-      'name'=>'Harming Potion',
-      'icon'=>'Potion_of_Harming.png',
+    16312=>array(
+      'name'=>'Weakness Potion (1:30)',
+      'icon'=>'Potion_Weakness.png',
       'stack'=>1),
-    8225 =>array(
-      'name'=>'Regeneration Potion II (0=>22)',
-      'icon'=>'Potion_of_Regeneration.png',
+    16313=>array(
+      'name'=>'Strength Potion II (1:30)',
+      'icon'=>'Potion_Strength.png',
       'stack'=>1),
-    8226 =>array(
-      'name'=>'Swiftness Potion II (1=>30)',
-      'icon'=>'Potion_of_Swiftness.png',
+    16314=>array(
+      'name'=>'Slowness Potion (1:30)',
+      'icon'=>'Potion_Slowness.png',
       'stack'=>1),
-    8228 =>array(
-      'name'=>'Poison Potion II (0=>22)',
-      'icon'=>'Potion_of_Poison.png',
+    16337=>array(
+      'name'=>'Regeneration Potion (2:00)',
+      'icon'=>'Potion_Regeneration.png',
       'stack'=>1),
-    8229 =>array(
-      'name'=>'Healing Potion II',
-      'icon'=>'Potion_Instant_Health.png',
+    16338=>array(
+      'name'=>'Speed Potion (8:00)',
+      'icon'=>'Potion_Speed.png',
       'stack'=>1),
-    8233 =>array(
-      'name'=>'Strength Potion II (1=>30)',
-      'icon'=>'Potion_of_Strength.png',
+    16340=>array(
+      'name'=>'Poison Potion (2:00)',
+      'icon'=>'Potion_Poison.png',
       'stack'=>1),
-    8236 =>array(
-      'name'=>'Harming Potion II',
-      'icon'=>'Potion_of_Harming.png',
+    16345=>array(
+      'name'=>'Strength Potion (8:00)',
+      'icon'=>'Potion_Strength.png',
       'stack'=>1),
-    8257 =>array(
-      'name'=>'Regeneration Potion (2=>00)',
-      'icon'=>'Potion_of_Regeneration.png',
+    16369=>array(
+      'name'=>'Regeneration Splash II (1:00)',
+      'icon'=>'Potion_Regeneration_Splash.png',
       'stack'=>1),
-    8258 =>array(
-      'name'=>'Swiftness Potion (8=>00)',
-      'icon'=>'Potion_of_Swiftness.png',
+    16370=>array(
+      'name'=>'Speed Potion II (4:00)',
+      'icon'=>'Potion_Speed.png',
       'stack'=>1),
-    8259 =>array(
-      'name'=>'Fire Resistance Potion (8=>00)',
-      'icon'=>'Potion_of_Fire_Resistance.png',
+    16371=>array(
+      'name'=>'Fire Resistance Potion (8:00)',
+      'icon'=>'Potion_Fire_Resistance.png',
       'stack'=>1),
-    8260 =>array(
-      'name'=>'Poison Potion (2=>00)',
-      'icon'=>'Potion_of_Poison.png',
+    16372=>array(
+      'name'=>'Poison Potion II (1:00)',
+      'icon'=>'Potion_Poison.png',
       'stack'=>1),
-    8264 =>array(
-      'name'=>'Weakness Potion (4=>00)',
-      'icon'=>'Potion_of_Weakness.png',
+    16376=>array(
+      'name'=>'Weakness Potion (4:00)',
+      'icon'=>'Potion_Weakness.png',
       'stack'=>1),
-    8265 =>array(
-      'name'=>'Strength Potion (8=>00)',
-      'icon'=>'Potion_of_Strength.png',
-      'stack'=>1),
-    8266 =>array(
-      'name'=>'Slowness Potion (4=>00)',
-      'icon'=>'Potion_of_Slowness.png',
+    16377=>array(
+      'name'=>'Strength Potion II (4:00)',
+      'icon'=>'Potion_Strength.png',
       'stack'=>1),
     16378=>array(
-      'name'=>'Fire Resistance Splash (2=>15)',
-      'icon'=>'Potion_Fire_Resistance_Splash.png',
+      'name'=>'Slowness Potion (4:00)',
+      'icon'=>'Potion_Slowness.png',
       'stack'=>1),
-    16385=>array(
-      'name'=>'Regeneration Splash (0=>33)',
+    32657=>array(
+      'name'=>'Splash of Regeneration (0:33)',
       'icon'=>'Potion_Regeneration_Splash.png',
       'stack'=>1),
-    16386=>array(
-      'name'=>'Swiftness Splash (2=>15)',
-      'icon'=>'Potion_Swiftness_Splash.png',
+    32658=>array(
+      'name'=>'Splash of Speed (2:15)',
+      'icon'=>'Potion_Speed_Splash.png',
       'stack'=>1),
-    16388=>array(
-      'name'=>'Poison Splash (0=>33)',
+    32660=>array(
+      'name'=>'Splash of Poison (0:33)',
       'icon'=>'Potion_Poison_Splash.png',
       'stack'=>1),
-    16389=>array(
-      'name'=>'Healing Splash',
-      'icon'=>'Potion_Healing_Splash.png',
-      'stack'=>1),
-    16392=>array(
-      'name'=>'Weakness Splash (1=>07)',
-      'icon'=>'Potion_Weakness_Splash.png',
-      'stack'=>1),
-    16393=>array(
-      'name'=>'Strength Splash (2=>15)',
+    32665=>array(
+      'name'=>'Splash of Strength (2:15)',
       'icon'=>'Potion_Strength_Splash.png',
       'stack'=>1),
-    16394=>array(
-      'name'=>'Slowness Splash (2=>15)',
-      'icon'=>'Potion_Slowness_Splash.png',
+    32689=>array(
+      'name'=>'Splash of Regeneration II (0:16)',
+      'icon'=>'Potion_Regeneration_Splash.png',
       'stack'=>1),
-    16396=>array(
-      'name'=>'Harming Splash',
-      'icon'=>'Potion_Harming_Splash.png',
+    32690=>array(
+      'name'=>'Splash of Speed II (1:07)',
+      'icon'=>'Potion_Speed_Splash.png',
       'stack'=>1),
-    16418=>array(
-      'name'=>'Swiftness Splash II (1=>07)',
-      'icon'=>'Potion_Swiftness_Splash.png',
-      'stack'=>1),
-    16420=>array(
-      'name'=>'Poison Splash II (0=>16)',
-      'icon'=>'Potion_Poison_Splash.png',
-      'stack'=>1),
-    16421=>array(
-      'name'=>'Healing Splash II',
-      'icon'=>'Potion_Healing_Splash.png',
-      'stack'=>1),
-    16425=>array(
-      'name'=>'Strength Splash II (1=>07)',
-      'icon'=>'Potion_Strength_Splash.png',
-      'stack'=>1),
-    16428=>array(
-      'name'=>'Harming Splash II',
-      'icon'=>'Potion_Harming_Splash.png',
-      'stack'=>1),
-    16449=>array(
-      'name'=>'Regeneration Splash (1=>30)',
-      'icon'=>'Potion_Regneration_Splash.png',
-      'stack'=>1),
-    16450=>array(
-      'name'=>'Swiftness Splash (6=>00)',
-      'icon'=>'Potion_Swiftness_Splash.png',
-      'stack'=>1),
-    16451=>array(
-      'name'=>'Fire Resistance Splash (6=>00)',
+    32691=>array(
+      'name'=>'Splash of Fire Resistance (2:15)',
       'icon'=>'Potion_Fire_Resistance_Splash.png',
       'stack'=>1),
-    16452=>array(
-      'name'=>'Poison Splash (1=>30)',
+    32692=>array(
+      'name'=>'Splash of Poison II (0:16)',
       'icon'=>'Potion_Poison_Splash.png',
       'stack'=>1),
-    16456=>array(
-      'name'=>'Weakness Splash (3=>00)',
+    32696=>array(
+      'name'=>'Splash of Weakness (1:07)',
       'icon'=>'Potion_Weakness_Splash.png',
       'stack'=>1),
-    16457=>array(
-      'name'=>'Strength Splash (6=>00)',
+    32697=>array(
+      'name'=>'Splash of Strength II (1:07)',
       'icon'=>'Potion_Strength_Splash.png',
       'stack'=>1),
-    16458=>array(
-      'name'=>'Slowness Splash (3=>00)',
+    32698=>array(
+      'name'=>'Splash of Slowness (1:07)',
       'icon'=>'Potion_Slowness_Splash.png',
       'stack'=>1),
-    16471=>array(
-      'name'=>'Regeneration Splash II (0=>16)',
+    32721=>array(
+      'name'=>'Splash of Regeneration (1:30)',
       'icon'=>'Potion_Regeneration_Splash.png',
+      'stack'=>1),
+    32722=>array(
+      'name'=>'Splash of Speed (6:00)',
+      'icon'=>'Potion_Speed_Splash.png',
+      'stack'=>1),
+    32724=>array(
+      'name'=>'Splash of Poison (1:30)',
+      'icon'=>'Potion_Poison_Splash.png',
+      'stack'=>1),
+    32725=>array(
+      'name'=>'Instant Health',
+      'icon'=>'Potion_Healing_Splash.png',
+      'stack'=>1),
+    32729=>array(
+      'name'=>'Splash of Strength (6:00)',
+      'icon'=>'Potion_Strength_Splash.png',
+      'stack'=>1),
+    32732=>array(
+      'name'=>'Instant Damage',
+      'icon'=>'Potion_Harming_Splash.png',
+      'stack'=>1),
+    32753=>array(
+      'name'=>'Splash of Regeneration II (0:45)',
+      'icon'=>'Potion_Regeneration_Splash.png',
+      'stack'=>1),
+    32754=>array(
+      'name'=>'Splash of Speed II (3:00)',
+      'icon'=>'Potion_Speed_Splash.png',
+      'stack'=>1),
+    32755=>array(
+      'name'=>'Splash of Fire Resistance (6:00)',
+      'icon'=>'Potion_Fire_Resistance_Splash.png',
+      'stack'=>1),
+    32756=>array(
+      'name'=>'Splash of Poison II (0:45)',
+      'icon'=>'Potion_Poison_Splash.png',
+      'stack'=>1),
+    32757=>array(
+      'name'=>'Instant Health II',
+      'icon'=>'Potion_Instant_Health.png',
+      'stack'=>1),
+    32760=>array(
+      'name'=>'Splash of Weakness (3:00)',
+      'icon'=>'Potion_Weakness_Splash.png',
+      'stack'=>1),
+    32761=>array(
+      'name'=>'Splash of Strength II (3:00)',
+      'icon'=>'Potion_Strength_Splash.png',
+      'stack'=>1),
+    32762=>array(
+      'name'=>'Splash of Slowness (3:00)',
+      'icon'=>'Potion_Slowness_Splash.png',
+      'stack'=>1),
+    32764=>array(
+      'name'=>'Instant Damage II',
+      'icon'=>'Potion_Harming_Splash.png',
       'stack'=>1),
     -1   =>array(
       'name'=>'Unknown Potion',
