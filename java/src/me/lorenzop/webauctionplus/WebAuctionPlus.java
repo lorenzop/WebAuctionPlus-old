@@ -43,9 +43,6 @@ import org.w3c.dom.NodeList;
 
 public class WebAuctionPlus extends JavaPlugin {
 
-	// isDev is for testing mode only
-//TODO: remove this
-	private static boolean isDev = false;
 	private static boolean isOk  = false;
 
 	public static final String logPrefix  = "[WebAuction+] ";
@@ -107,14 +104,6 @@ public class WebAuctionPlus extends JavaPlugin {
 		isOk = false;
 		currentVersion = getDescription().getVersion();
 
-//		log.info(logPrefix + "WebAuctionPlus is initializing.");
-		if(isDev) {
-			getServer().getConsoleSender().sendMessage(ChatColor.RED+"******************************");
-			getServer().getConsoleSender().sendMessage(ChatColor.RED+"*** Running in dev mode!!! ***");
-			getServer().getConsoleSender().sendMessage(ChatColor.RED+"***    for testing only    ***");
-			getServer().getConsoleSender().sendMessage(ChatColor.RED+"******************************");
-		}
-
 		// Command listener
 		getCommand("wa").setExecutor(WebAuctionCommandsListener);
 
@@ -160,7 +149,6 @@ public class WebAuctionPlus extends JavaPlugin {
 		isOk = true;
 	}
 	public boolean isOk() {return isOk;}
-	public static boolean isDev() {return isDev;}
 
 
 	public boolean onLoadConfig() {
@@ -278,7 +266,7 @@ public class WebAuctionPlus extends JavaPlugin {
 				Config.getString("MySQL.Password"),
 				Config.getString("MySQL.Database"),
 				Config.getString("MySQL.TablePrefix"),
-				Config.getBoolean("Development.DebugSQL") || isDev
+				Config.getBoolean("Development.DebugSQL")
 			);
 			dataQueries.setConnPoolSizeWarn(Config.getInt("MySQL.ConnectionPoolSizeWarn"));
 			dataQueries.setConnPoolSizeHard(Config.getInt("MySQL.ConnectionPoolSizeHard"));
@@ -501,7 +489,6 @@ public class WebAuctionPlus extends JavaPlugin {
 	public void onLoadMetrics() {
 		// usage stats
 		try {
-			Metrics.isDev = isDev;
 			metrics = new Metrics(this);
 			metrics.setBaseUrl("http://metrics.poixson.com");
 			if(metrics.isOptOut()) {
@@ -535,7 +522,7 @@ public class WebAuctionPlus extends JavaPlugin {
 			metrics.start();
 		} catch (IOException e) {
 			// Failed to submit the stats :-(
-			if(isDev) {
+			if(dataQueries.debugSQL()) {
 				log.severe(e.getMessage());
 				e.printStackTrace();
 			}

@@ -21,7 +21,7 @@ public class ShoutSignTask implements Runnable {
 		this.plugin = plugin;
 		// Get current auction ID
 		lastAuction = WebAuctionPlus.Stats.getMaxAuctionID();
-		if(WebAuctionPlus.isDev()) WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Current Auction id = " + lastAuction);
+		if(WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Current Auction id = " + lastAuction);
 	}
 
 	public void run() {
@@ -29,7 +29,7 @@ public class ShoutSignTask implements Runnable {
 		int latestAuctionID = WebAuctionPlus.Stats.getMaxAuctionID();
 		if (lastAuction >= latestAuctionID) return;
 		lastAuction = latestAuctionID;
-		if(WebAuctionPlus.isDev()) WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Current Auction id = " + lastAuction);
+		if(WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Current Auction id = " + lastAuction);
 		if (plugin.getServer().getOnlinePlayers().length == 0) return;
 
 		List<Location> toRemove = new ArrayList<Location>();
