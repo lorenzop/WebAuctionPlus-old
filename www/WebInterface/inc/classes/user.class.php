@@ -174,6 +174,7 @@ public function getMoney(){
 //}
 
 
+//TODO: this code doesn't check for failures
 public static function MakePayment($fromPlayer, $toPlayer, $amount, $desc=''){
   if(empty($fromPlayer) || empty($toPlayer) || $amount<=0){echo 'Invalid payment amount!'; exit();}
   self::PaymentQuery($toPlayer,     $amount);

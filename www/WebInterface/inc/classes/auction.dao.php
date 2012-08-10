@@ -37,6 +37,9 @@ public function getSeller(){
 public function getItem(){
   return($this->Item);
 }
+public function getItemCopy(){
+  return($this->Item->getCopy());
+}
 // get price
 public function getPrice(){
   return( (float)$this->price );

@@ -1,6 +1,7 @@
 <?php
 error_reporting(E_ALL | E_STRICT);
 define('DEFINE_INDEX_FILE',TRUE);
+define('CURRENT_VERSION', '1.1.3');
 
 if(function_exists('session_status'))
   if(session_status() == PHP_SESSION_DISABLED){
@@ -96,6 +97,7 @@ require($lpaths['config']);
 
 
 
+// these lines are temp
 $config['site title'] = 'WebAuctionPlus';
 if(!isset($config['iConomy']['use']))   $config['iConomy']['use']   = 'auto';
 if(!isset($config['iConomy']['table'])) $config['iConomy']['table'] = 'iConomy';
@@ -126,6 +128,15 @@ SettingsClass::setDefault('Item Packs'         , ''         , FALSE);
 SettingsClass::setDefault('Max Sell Price'     , 10000.0    , TRUE );
 $config['language'] = SettingsClass::getString('Language');
 $config['theme']    = SettingsClass::getString('Website Theme');
+
+// check website version
+if(SettingsClass::getString('Version') != CURRENT_VERSION){
+  echo '<center><h2>Please update the WebAuctionPlus website to match the plugin version you\'re running.</h2>'.
+       '<b>Plugin is running: '.SettingsClass::getString('Version').'</b><br />'.
+       '<b>Website is running: '.CURRENT_VERSION.'</b></center>';
+  exit();
+}
+
 
 // jquery ui path
 $lpaths['static jquery'] = $lpaths['static'].'jquery/'.SanFilename(SettingsClass::getString('jQuery UI Pack')).'/';

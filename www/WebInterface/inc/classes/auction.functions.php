@@ -62,7 +62,7 @@ public static function BuyAuction($auctionId, $qty){global $config, $user;
   // query auction
   $auction = QueryAuctions::QuerySingle($auctionId);
   if(!$auction) {$config['error'] = 'Auction not found!'; return(FALSE);}
-  $Item = $auction->getItem();
+  $Item = $auction->getItemCopy();
 //  // is item allowed
 //  if (!itemAllowed($item->name, $item->damage)){
 //    $_SESSION['error'] = $item->fullname.' is not allowed to be sold.';
@@ -70,11 +70,10 @@ public static function BuyAuction($auctionId, $qty){global $config, $user;
 //  }
   // buying validation
   if($auction->getSeller()==$user->getName()){$config['error'] = 'Can\'t buy from yourself!'; return(FALSE);}
-  if($qty > $Item->getItemQty()) {$qty = $Item->getItemQty(); $config['error'] = 'Not that many for sale!'; return(FALSE);}
-//  $priceTotal = $auction->getPriceTotal();
+  if($qty > $auction->getItem()->getItemQty()) {$qty = $auction->getItem()->getItemQty(); $config['error'] = 'Not that many for sale!'; return(FALSE);}
   $maxSellPrice = SettingsClass::getDouble('Max Sell Price');
   $sellPrice = $auction->getPrice();
-  $priceQty = ((int)$auction->getPrice()) * $qty;
+  $priceQty = $sellPrice * ((float)$qty);
   if($maxSellPrice>0.0 && $sellPrice>$maxSellPrice) {$config['error'] = 'Over max sell price of $ '.$maxSellPrice.' !'; return(FALSE);}
   if($priceQty > $user->getMoney()) {$config['error'] = 'You don\'t have enough money!';                return(FALSE);}
   // make payment from buyer to seller
@@ -88,6 +87,7 @@ public static function BuyAuction($auctionId, $qty){global $config, $user;
   if(!self::RemoveAuction($auctionId, ($qty<$Item->getItemQty() ? $qty : -1) )){
     echo '<p style="color: red;">Error removing/updating auction!</p>'; exit();}
   // add to inventory
+  $Item->setItemQty($qty);
   $tableRowId = ItemFuncs::AddCreateItem($user->getName(), $Item);
   if(!$tableRowId){echo '<p style="color: red;">Error adding item to your inventory!</p>'; exit();}
   // transaction log

@@ -19,6 +19,21 @@ function __construct($tableRowId=0, $itemId=0, $itemDamage=0, $qty=0, $enchantme
 }
 
 
+// copy item object
+public function getCopy(){
+  return(self::makeCopy($this));
+}
+public static function makeCopy($Item){
+  return(new ItemDAO(
+    $Item->getTableRowId(),
+    $Item->getItemId(),
+    $Item->getItemDamage(),
+    $Item->getItemQty(),
+    $Item->getEnchantmentsArray()
+  ));
+}
+
+
 // table row id
 public function getTableRowId(){
   return((int)$this->tableRowId);
@@ -39,9 +54,10 @@ public function getItemDamage(){
 public function getItemQty(){
   return((int)$this->qty);
 }
-//public function setItemQty($qty){
-//  $this->qty = $qty;
-//}
+public function setItemQty($qty){
+  if($qty < 0) $qty = 0;
+  $this->qty = $qty;
+}
 public function subtractQty($qty){
   $this->qty -= $qty;
   if($this->qty < 0) $this->qty = 0;
