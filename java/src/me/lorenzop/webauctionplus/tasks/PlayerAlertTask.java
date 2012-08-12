@@ -68,9 +68,9 @@ public class PlayerAlertTask implements Runnable {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if (WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: SaleAlertTask::SaleAlerts " + playersMap.toString());
-			st = conn.prepareStatement("SELECT `id`,`seller`,`qty`,`price`,`buyer`,`item` FROM `" +
-				WebAuctionPlus.dataQueries.dbPrefix()+"SaleAlerts` WHERE ( " + whereSql + " ) AND `alerted` = 0");
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: SaleAlertTask::SaleAlerts " + playersMap.toString());
+			st = conn.prepareStatement("SELECT `id`, `saleType`, `itemType`, `itemTitle`, `seller`,`buyer`,`qty`,`price` FROM `" +
+				WebAuctionPlus.dataQueries.dbPrefix()+"LogSales` WHERE ( " + whereSql + " ) AND `logType` = 'sale' AND `alert` != 0");
 			for(Map.Entry<Integer, String> entry : playersMap.entrySet()) {
 				st.setString(entry.getKey(), entry.getValue());
 			}
@@ -82,7 +82,7 @@ public class PlayerAlertTask implements Runnable {
 // TODO: language here
 					p.sendMessage(WebAuctionPlus.chatPrefix+"You sold " +
 						rs.getInt   ("qty") + " " +
-						rs.getString("item") + " to " +
+						rs.getString("itemTitle") + " to " +
 						rs.getString("buyer") + " for " +
 						WebAuctionPlus.FormatPrice(rs.getDouble("price")) + " each, " +
 						WebAuctionPlus.FormatPrice(rs.getDouble("price") * rs.getDouble("qty")) + " total.");
@@ -93,8 +93,8 @@ public class PlayerAlertTask implements Runnable {
 			}
 			// mark seen
 			if(!markSeenSql.isEmpty()) {
-				if (WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: SaleAlertTask::SaleAlerts " + playersMap.toString());
-				st = conn.prepareStatement("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+"SaleAlerts` SET `alerted` = 1 WHERE " + markSeenSql);
+				if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: SaleAlertTask::SaleAlerts " + playersMap.toString());
+				st = conn.prepareStatement("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+"LogSales` SET `alert` = 0 WHERE " + markSeenSql);
 				if(st.executeUpdate() == 0)
 					WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Failed to mark sale alerts seen!");
 			}

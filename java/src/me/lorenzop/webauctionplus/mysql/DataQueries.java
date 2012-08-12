@@ -24,7 +24,7 @@ public class DataQueries extends MySQLConnPool {
 
 
 	public DataQueries(String dbHost, int dbPort, String dbUser,
-			String dbPass, String dbName, String dbPrefix, boolean debugSQL) {
+			String dbPass, String dbName, String dbPrefix) {
 		DataQueries.logPrefix = WebAuctionPlus.logPrefix;
 		this.dbHost = dbHost;
 		this.dbPort = dbPort;
@@ -32,7 +32,6 @@ public class DataQueries extends MySQLConnPool {
 		this.dbPass = dbPass;
 		this.dbName = dbName;
 		this.dbPrefix = dbPrefix;
-		this.debugSQL = debugSQL;
 	}
 
 
@@ -54,7 +53,7 @@ public class DataQueries extends MySQLConnPool {
 			enchMap.put(entry.getKey().getId(), level);
 		}
 //TODO: add to language files
-		if(removedUnsafe) p.sendMessage(WebAuctionPlus.logPrefix+"Removed/modified unsafe enchantments!");
+		if(removedUnsafe && p != null) p.sendMessage(WebAuctionPlus.logPrefix+"Removed/modified unsafe enchantments!");
 		// sort by enchantment id
 		SortedSet<Integer> enchSorted = new TreeSet<Integer> (enchMap.keySet());
 		// build string
@@ -148,16 +147,19 @@ public class DataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if (debugSQL) log.info("WA Query: getAuction " + Integer.toString(auctionId));
-			st = conn.prepareStatement("SELECT `itemId`,`itemDamage`,`playerName`,`qty`,`price`," +
-				"`allowBids`,`currentBid`,`currentWinner` FROM `WA_Auctions` WHERE `id` = ? LIMIT 1");
+			if(isDebug()) log.info("WA Query: getAuction "+Integer.toString(auctionId));
+			st = conn.prepareStatement("SELECT `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle`, "+
+				"`price`, `allowBids`, `currentBid`, `currentWinner` FROM `WA_Auctions` WHERE `id` = ? LIMIT 1");
 //UNIX_TIMESTANP(`created`) AS `created`,
 			st.setInt(1, auctionId);
 			rs = st.executeQuery();
 			if(rs.next()) {
 				auction = new Auction();
-				auction.setAuctionId(auctionId);
-				auction.setItemStack(new ItemStack(rs.getInt("itemId"), rs.getInt("qty"), rs.getShort("itemDamage")));
+				auction.setOffset(auctionId);
+				ItemStack stack = new ItemStack(rs.getInt("itemId"), rs.getInt("qty"), rs.getShort("itemDamage"));
+				encodeEnchantments(null, stack);
+				auction.setItemStack(stack);
+				auction.setItemTitle(rs.getString("itemTitle"));
 				auction.setPlayerName(rs.getString("playerName"));
 				auction.setPrice(rs.getDouble("price"));
 //				auction.setCreated(rs.getInt("created"));
@@ -173,34 +175,6 @@ public class DataQueries extends MySQLConnPool {
 		}
 		return auction;
 	}
-	public Auction getAuctionForOffset(int offset) {
-		Auction auction = null;
-		Connection conn = getConnection();
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		try {
-			if(debugSQL) log.info("WA Query: getAuctionForOffset " + Integer.toString(offset));
-			st = conn.prepareStatement("SELECT `itemId`,`itemDamage`,`playerName`,`qty`,`price` " +
-				"FROM `"+dbPrefix+"Auctions` ORDER BY `id` DESC LIMIT ?, 1");
-//,UNIX_TIMESTAMP(`created`) AS `created`
-			st.setInt(1, offset);
-			rs = st.executeQuery();
-			if(rs.next()) {
-				auction = new Auction();
-				auction.setAuctionId(offset);
-				auction.setItemStack(new ItemStack(rs.getInt("itemId"), rs.getInt("qty"), rs.getShort("itemDamage")));
-				auction.setPlayerName(rs.getString("playerName"));
-				auction.setPrice(rs.getDouble("price"));
-//				auction.setCreated(rs.getInt("created"));
-			}
-		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to get auction # " + offset);
-			e.printStackTrace();
-		} finally {
-			closeResources(conn, st, rs);
-		}
-		return auction;
-	}
 
 
 
@@ -210,7 +184,7 @@ public class DataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(debugSQL) log.info("WA Query: createShoutSign " +
+			if(isDebug()) log.info("WA Query: createShoutSign " +
 				Integer.toString(radius) + " " + Integer.toString(x) + "," +
 				Integer.toString(y) + "," + Integer.toString(z) );
 			st = conn.prepareStatement("INSERT INTO `"+dbPrefix+"ShoutSigns` " +
@@ -233,7 +207,7 @@ public class DataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(debugSQL) log.info("WA Query: removeShoutSign " + location.toString());
+			if(isDebug()) log.info("WA Query: removeShoutSign " + location.toString());
 			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"ShoutSigns` WHERE " +
 				"`world` = ? AND `x` = ? AND `y` = ? AND `z` = ?");
 			st.setString(1, location.getWorld().getName());
@@ -254,7 +228,7 @@ public class DataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(debugSQL) log.info("WA Query: getShoutSignLocations");
+			if(isDebug()) log.info("WA Query: getShoutSignLocations");
 			st = conn.prepareStatement("SELECT `world`,`radius`,`x`,`y`,`z` FROM `"+dbPrefix+"ShoutSigns`");
 			Location location;
 			rs = st.executeQuery();
@@ -279,7 +253,7 @@ public class DataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(debugSQL) log.info("WA Query: createRecentSign " +
+			if(isDebug()) log.info("WA Query: createRecentSign " +
 				world.getName() + " " + Integer.toString(offset) + " " +
 				Integer.toString(x) + "," + Integer.toString(y) + "," + Integer.toString(z) );
 			st = conn.prepareStatement("INSERT INTO `"+dbPrefix+"RecentSigns` " +
@@ -302,7 +276,7 @@ public class DataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(debugSQL) log.info("WA Query: removeRecentSign " + location.toString());
+			if(isDebug()) log.info("WA Query: removeRecentSign " + location.toString());
 			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"RecentSigns` WHERE "+
 				"`world` = ? AND `x` = ? AND `y` = ? AND `z` = ?");
 			st.setString(1, location.getWorld().getName());
@@ -323,7 +297,7 @@ public class DataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(debugSQL) log.info("WA Query: getRecentSignLocations");
+			if(isDebug()) log.info("WA Query: getRecentSignLocations");
 			st = conn.prepareStatement("SELECT `world`,`offset`,`x`,`y`,`z` FROM `"+dbPrefix+"RecentSigns`");
 			Location location;
 			rs = st.executeQuery();
@@ -348,7 +322,7 @@ public class DataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(debugSQL) log.info("WA Query: getPlayer " + player);
+			if(isDebug()) log.info("WA Query: getPlayer " + player);
 			st = conn.prepareStatement("SELECT `id`,`playerName`,`money`,`Permissions` " +
 				"FROM `"+dbPrefix+"Players` WHERE `playerName` = ? LIMIT 1");
 			st.setString(1, player);
@@ -375,7 +349,7 @@ public class DataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(debugSQL) log.info("WA Query: createPlayer " + waPlayer.getPlayerName() +
+			if(isDebug()) log.info("WA Query: createPlayer " + waPlayer.getPlayerName() +
 				" with perms: " + waPlayer.getPermsString());
 			st = conn.prepareStatement("INSERT INTO `"+dbPrefix+"Players` " +
 				"(`playerName`, `password`, `Permissions`) VALUES (?, ?, ?)");
@@ -397,7 +371,7 @@ public class DataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(debugSQL) log.info("WA Query: updatePlayerPassword " + player);
+			if(isDebug()) log.info("WA Query: updatePlayerPassword " + player);
 			st = conn.prepareStatement("UPDATE `"+dbPrefix+"Players` SET `password` = ? WHERE `playerName` = ? LIMIT 1");
 			st.setString(1, newPass);
 			st.setString(2, player);
@@ -420,7 +394,7 @@ public class DataQueries extends MySQLConnPool {
 		try {
 			// update player permissions for website
 			waPlayer.setPerms(canBuy, canSell, isAdmin);
-			if(debugSQL) log.info("WA Query: updatePlayerPermissions " + waPlayer.getPlayerName() +
+			if(isDebug()) log.info("WA Query: updatePlayerPermissions " + waPlayer.getPlayerName() +
 				" with perms: " + waPlayer.getPermsString());
 			st = conn.prepareStatement("UPDATE `"+dbPrefix+"Players` SET " +
 				"`Permissions` = ? WHERE `playerName` = ? LIMIT 1");
@@ -441,7 +415,7 @@ public class DataQueries extends MySQLConnPool {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(debugSQL) log.info("WA Query: updatePlayerMoney " + player);
+			if(isDebug()) log.info("WA Query: updatePlayerMoney " + player);
 			st = conn.prepareStatement("UPDATE `"+dbPrefix+"Players` SET `money` = ? WHERE `playerName` = ?");
 			st.setDouble(1, money);
 			st.setString(2, player);

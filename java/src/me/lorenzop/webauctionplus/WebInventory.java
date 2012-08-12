@@ -103,7 +103,7 @@ public class WebInventory {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: isLocked");
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: isLocked");
 			st = conn.prepareStatement("SELECT `Locked` FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Players` "+
 				"WHERE `playerName` = ? LIMIT 1");
 			st.setString(1, player);
@@ -124,7 +124,7 @@ public class WebInventory {
 		Connection conn = WebAuctionPlus.dataQueries.getConnection();
 		PreparedStatement st = null;
 		try {
-			if(WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: setLocked "+(locked?"engaged":"released"));
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: setLocked "+(locked?"engaged":"released"));
 			st = conn.prepareStatement("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+"Players` "+
 				"SET `Locked` = ? WHERE `playerName` = ? LIMIT 1");
 			if(locked) st.setInt   (1, 1);
@@ -149,7 +149,7 @@ public class WebInventory {
 		chest.clear();
 		tableRowIds.clear();
 		try {
-			if(WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: isLocked");
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: isLocked");
 			st = conn.prepareStatement("SELECT `id`, `itemId`, `itemDamage`, `qty`, `enchantments` "+
 				"FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Items` WHERE `playerName` = ? ORDER BY `id` ASC LIMIT ?");
 			st.setString(1, playerName);
@@ -193,7 +193,7 @@ public class WebInventory {
 				// delete item
 				if(tableRowIds.containsKey(i)) {
 					try {
-						if(WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: saveInventory::delete slot "+Integer.toString(i));
+						if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: saveInventory::delete slot "+Integer.toString(i));
 						st = conn.prepareStatement("DELETE FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Items` WHERE `id` = ? LIMIT 1");
 						st.setInt(1, tableRowIds.get(i));
 						st.executeUpdate();
@@ -217,7 +217,7 @@ public class WebInventory {
 				// update existing item
 				if(tableRowIds.containsKey(i)) {
 					try {
-						if(WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: saveInventory::update slot "+Integer.toString(i));
+						if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: saveInventory::update slot "+Integer.toString(i));
 						st = conn.prepareStatement("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+"Items` SET "+
 							"`itemId` = ?, `itemDamage` = ?, `qty` = ?, `enchantments` = ? WHERE `id` = ? LIMIT 1");
 						st.setInt   (1, Item.getTypeId());
@@ -238,7 +238,7 @@ public class WebInventory {
 				// insert new item
 				} else {
 					try {
-						if(WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: saveInventory::insert slot "+Integer.toString(i));
+						if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: saveInventory::insert slot "+Integer.toString(i));
 						st = conn.prepareStatement("INSERT INTO `"+WebAuctionPlus.dataQueries.dbPrefix()+"Items` ( "+
 							"`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments` )VALUES( ?, ?, ?, ?, ? )");
 						st.setString(1, playerName);

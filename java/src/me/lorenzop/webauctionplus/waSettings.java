@@ -25,7 +25,7 @@ public class waSettings {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: LoadSettings");
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: LoadSettings");
 			st = conn.prepareStatement("SELECT `name`, `value` FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Settings`");
 			rs = st.executeQuery();
 			while (rs.next()) {
@@ -145,7 +145,7 @@ public class waSettings {
 		Connection conn = WebAuctionPlus.dataQueries.getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
-		if (WebAuctionPlus.dataQueries.debugSQL()) WebAuctionPlus.log.info("WA Query: Update setting: " + name);
+		if (WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Update setting: " + name);
 		try {
 			st = conn.prepareStatement("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+"Settings` SET `value` = ? WHERE `name` = ? LIMIT 1");
 			st.setString(1, value);

@@ -4,8 +4,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class Auction {
 
-	private int AuctionId		= 0;
+	private int Offset			= -1;
 	private ItemStack stack		= null;
+	private String itemTitle	= null;
 	private String player		= null;
 	private double price		= 0D;
 //	private long created		= 0;
@@ -17,11 +18,11 @@ public class Auction {
 	}
 
 	// auction id
-	public int getAuctionId() {
-		return AuctionId;
+	public int getOffset() {
+		return Offset;
 	}
-	public void setAuctionId(int AuctionId) {
-		this.AuctionId = AuctionId;
+	public void setOffset(int Offset) {
+		this.Offset = Offset;
 	}
 
 	// item stack
@@ -30,6 +31,16 @@ public class Auction {
 	}
 	public void setItemStack(ItemStack stack) {
 		this.stack = stack;
+	}
+
+	// item title
+	public String getItemTitle() {
+		if(itemTitle == null || itemTitle.isEmpty())
+			if(stack != null) return stack.getType().name();
+		return itemTitle;
+	}
+	public void setItemTitle(String itemTitle) {
+		this.itemTitle = itemTitle;
 	}
 
 	// player name

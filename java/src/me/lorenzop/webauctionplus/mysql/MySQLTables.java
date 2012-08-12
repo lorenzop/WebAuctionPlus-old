@@ -12,7 +12,6 @@ import me.lorenzop.webauctionplus.WebAuctionPlus;
 public class MySQLTables {
 
 	protected final String dbPrefix;
-	protected final boolean debugSQL;
 	protected final DataQueries dataQueries;
 
 	protected final WebAuctionPlus plugin;
@@ -22,7 +21,6 @@ public class MySQLTables {
 		this.plugin = plugin;
 		this.dataQueries = WebAuctionPlus.dataQueries;
 		this.dbPrefix = dataQueries.dbPrefix;
-		this.debugSQL = dataQueries.debugSQL;
 		isOk = false;
 
 		// create new tables
@@ -31,19 +29,19 @@ public class MySQLTables {
 		sqlTables("MarketPrices");
 		sqlTables("Players");
 		sqlTables("RecentSigns");
-		sqlTables("SaleAlerts");
 		sqlTables("SellPrice");
 		sqlTables("ShoutSigns");
 		sqlTables("Settings");
+		sqlTables("LogSales");
 
 		// update existing tables from original web auction
-		if (!tableExists("ItemEnchantments") && tableExists("EnchantLinks")) {
+		if(!tableExists("ItemEnchantments") && tableExists("EnchantLinks")) {
 			sqlTables("ItemEnchantments");
 			// convert database tables to Plus
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "**************************************");
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "*** Converting database to Plus... ***");
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "**************************************");
-			ConvertDatabase10();
+			ConvertDatabase1_0();
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Finished converting database to Plus!");
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "*** You can delete these tables from the database: EnchantLinks, Enchantments, Mail ***");
 		} else
@@ -51,10 +49,12 @@ public class MySQLTables {
 
 		// update 1.0 to 1.1
 		if(setColumnExists("Players",	"Locked",		"tinyint(1)   DEFAULT '0'") ) {
-			setColumnExists("Items",	"enchantments",	"varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT ''");
-			setColumnExists("Auctions",	"enchantments",	"varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT ''");
-			ConvertDatabase11();
+			setColumnExists("Auctions",	"enchantments",	"varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
+			setColumnExists("Items",	"enchantments",	"varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
+			ConvertDatabase1_1_1();
 		}
+		setColumnExists("Auctions",	"itemTitle",	"varchar(32) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
+		setColumnExists("Items",	"itemTitle",	"varchar(32) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
 
 		isOk = true;
 	}
@@ -66,7 +66,7 @@ public class MySQLTables {
 	}
 	private void sqlTables(boolean alter, String tableName) {
 		if(alter)
-			if (debugSQL) WebAuctionPlus.log.info("WA Query: sqlTables " + (alter?"Alter":"Create") + " " + tableName);
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: sqlTables " + (alter?"Alter":"Create") + " " + tableName);
 		// auctions
 		if (tableName.equals("Auctions"))
 			if (alter) {
@@ -74,10 +74,10 @@ public class MySQLTables {
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"Auctions`	CHANGE		`name`			`itemId`		INT    (11)		NOT NULL	DEFAULT '0'");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"Auctions`	CHANGE		`damage`		`itemDamage`	INT    (11)		NOT NULL	DEFAULT '0'");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"Auctions`	CHANGE		`quantity`		`qty`			INT    (11)		NOT NULL	DEFAULT '0'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"Auctions`	CHANGE		`price`			`price`			DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'");
+				executeRawSQL("ALTER TABLE `"+dbPrefix+"Auctions`	CHANGE		`price`			`price`			DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"Auctions`	CHANGE		`created`		`created`		DATETIME		NOT NULL	DEFAULT '0000-00-00 00:00:00'");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"Auctions`	CHANGE		`allowBids`		`allowBids`		TINYINT(1)		NOT NULL	DEFAULT '0'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"Auctions`	CHANGE		`currentBid`	`currentBid`	DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'");
+				executeRawSQL("ALTER TABLE `"+dbPrefix+"Auctions`	CHANGE		`currentBid`	`currentBid`	DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"Auctions`	CHANGE		`currentWinner` `currentWinner`	VARCHAR(16)		CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
 			} else
 				setTableExists("Auctions",
@@ -86,24 +86,12 @@ public class MySQLTables {
 					"`itemId`			INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`itemDamage`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`qty`				INT    (11)		NOT NULL	DEFAULT '0'		, " +
-					"`enchantments`		VARCHAR(255)	NOT NULL	DEFAULT ''		, " +
-					"`price`			DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
+					"`enchantments`		VARCHAR(255)	NULL		DEFAULT NULL	, " +
+					"`price`			DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'	, " +
 					"`created`			DATETIME		NOT NULL	DEFAULT '0000-00-00 00:00:00', " +
 					"`allowBids`		TINYINT(1)		NOT NULL	DEFAULT '0'		, " +
-					"`currentBid`		DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
+					"`currentBid`		DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'	, " +
 					"`currentWinner`	VARCHAR(16)		NULL		DEFAULT NULL	");
-//		// ItemEnchantments
-//		else if (tableName.equals("ItemEnchantments"))
-//			if (alter)
-//				WebAuctionPlus.log.severe("Shouldn't run this!");
-//			else
-//				setTableExists("ItemEnchantments",
-//					"`id`				INT    (11)		NOT NULL	AUTO_INCREMENT	, PRIMARY KEY(`id`), " +
-//					"`ItemTable`		ENUM   ('Items','Auctions','Mail') NULL DEFAULT NULL, " +
-//					"`ItemTableId`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
-//					"`enchName`			VARCHAR(32)		NULL		DEFAULT NULL	, " +
-//					"`enchId`			INT    (11)		NOT NULL	DEFAULT '0'		, " +
-//					"`level`			TINYINT(3)		UNSIGNED NOT NULL DEFAULT '0' ");
 		// Items
 		else if (tableName.equals("Items"))
 			if (alter) {
@@ -118,14 +106,15 @@ public class MySQLTables {
 					"`itemId`			INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`itemDamage`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`qty`				INT    (11)		NOT NULL	DEFAULT '0'		, " +
-					"`enchantments`		VARCHAR(255)	NOT NULL	DEFAULT ''		");
+					"`enchantments`		VARCHAR(255)	NULL		DEFAULT NULL	, " +
+					"`itemTitle`		VARCHAR(32)		NULL		DEFAULT NULL	");
 		// MarketPrices
 		else if (tableName.equals("MarketPrices"))
 			if (alter) {
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`name`			`itemId`		INT    (11)		NOT NULL	DEFAULT '0'");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`damage`		`itemDamage`	INT    (11)		NOT NULL	DEFAULT '0'");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`time`			`time`			DATETIME		NOT NULL	DEFAULT '0000-00-00 00:00:00'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`marketprice`	`marketprice`	DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'");
+				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`marketprice`	`marketprice`	DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`ref`			`ref`			INT    (11)		NOT NULL	DEFAULT '0'");
 			} else
 				setTableExists("MarketPrices",
@@ -133,29 +122,29 @@ public class MySQLTables {
 					"`itemId`			INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`itemDamage`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`time`				DATETIME		NOT NULL	DEFAULT '0000-00-00 00:00:00', " +
-					"`marketprice`		DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
+					"`marketprice`		DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'	, " +
 					"`ref`				INT    (11)		NOT NULL	DEFAULT '0'		");
 		// Players
 		else if (tableName.equals("Players"))
 			if (alter) {
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"Players`	CHANGE		`name`			`playerName`	VARCHAR(16)		CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"Players`	CHANGE		`pass`			`password`		VARCHAR(32)		CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"Players`	CHANGE		`money`			`money`			DOUBLE (11,2) 	NOT NULL	DEFAULT '0.00'");
+				executeRawSQL("ALTER TABLE `"+dbPrefix+"Players`	CHANGE		`money`			`money`			DECIMAL(11,2) 	NOT NULL	DEFAULT '0.00'");
 				executeRawSQL("ALTER IGNORE TABLE `"+dbPrefix+"Players`	CHANGE		`itemsSold`		`itemsSold`		INT    (11)		NOT NULL	DEFAULT '0'");
 				executeRawSQL("ALTER IGNORE TABLE `"+dbPrefix+"Players`	CHANGE		`itemsBought`	`itemsBought`	INT    (11)		NOT NULL	DEFAULT '0'");
-				executeRawSQL("ALTER IGNORE TABLE `"+dbPrefix+"Players`	CHANGE		`earnt`			`earnt`			DOUBLE (11,2) 	NOT NULL	DEFAULT '0.00'");
-				executeRawSQL("ALTER IGNORE TABLE `"+dbPrefix+"Players`	CHANGE		`spent`			`spent`			DOUBLE (11,2) 	NOT NULL	DEFAULT '0.00'");
+				executeRawSQL("ALTER IGNORE TABLE `"+dbPrefix+"Players`	CHANGE		`earnt`			`earnt`			DECIMAL(11,2) 	NOT NULL	DEFAULT '0.00'");
+				executeRawSQL("ALTER IGNORE TABLE `"+dbPrefix+"Players`	CHANGE		`spent`			`spent`			DECIMAL(11,2) 	NOT NULL	DEFAULT '0.00'");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"Players`	ADD			`Permissions`	SET( 'canBuy', 'canSell', 'isAdmin' )	NULL	DEFAULT NULL");
 			} else
 				setTableExists("Players",
 					"`id`				INT    (11)		NOT NULL	AUTO_INCREMENT	, PRIMARY KEY(`id`), " +
 					"`playerName`		VARCHAR(16)		NULL		DEFAULT NULL	, " +
 					"`password`			VARCHAR(32)		NULL		DEFAULT NULL	, " +
-					"`money`			DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
+					"`money`			DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'	, " +
 					"`itemsSold`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`itemsBought`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
-					"`earnt`			DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
-					"`spent`			DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
+					"`earnt`			DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'	, " +
+					"`spent`			DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'	, " +
 					"`Permissions`		SET( 'canBuy', 'canSell', 'isAdmin' ) NULL DEFAULT NULL ," +
 					"`Locked`			TINYINT(1)		NOT NULL	DEFAULT '0'");
 		// RecentSigns
@@ -174,24 +163,6 @@ public class MySQLTables {
 					"`x`				INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`y`				INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`z`				INT    (11)		NOT NULL	DEFAULT '0'		");
-		// SaleAlerts
-		else if (tableName.equals("SaleAlerts"))
-			if (alter) {
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SaleAlerts`	CHANGE		`seller`		`seller`	VARCHAR(16)			CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SaleAlerts`	CHANGE		`quantity`		`qty`		INT    (11)			NOT NULL	DEFAULT '0'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SaleAlerts`	CHANGE		`price`			`price`		DOUBLE (11,2)		NOT	NULL	DEFAULT '0.00'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SaleAlerts`	CHANGE		`buyer`			`buyer`		VARCHAR(16)			CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SaleAlerts`	CHANGE		`item`			`item`		VARCHAR(16)			CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SaleAlerts`	CHANGE		`alerted`		`alerted`	TINYINT(1)			NOT NULL	DEFAULT '0'");
-			} else
-				setTableExists("SaleAlerts",
-					"`id`				INT    (11)		NOT NULL	AUTO_INCREMENT	, PRIMARY KEY(`id`), " +
-					"`seller`			VARCHAR(16)		NULL		DEFAULT NULL	, " +
-					"`qty`				INT    (11)		NOT NULL	DEFAULT '0'		, " +
-					"`price`			DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
-					"`buyer`			VARCHAR(16)		NULL		DEFAULT NULL	, " +
-					"`item`				VARCHAR(16)		NULL		DEFAULT NULL	, " +
-					"`alerted`			TINYINT(1)		NOT NULL	DEFAULT '0'		");
 		// SellPrice
 		else if (tableName.equals("SellPrice"))
 			if (alter) {
@@ -199,7 +170,7 @@ public class MySQLTables {
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`damage`		`itemDamage` INT   (11)			NOT NULL	DEFAULT '0'");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`time`			`time`		DATETIME			NOT NULL	DEFAULT '0000-00-00 00:00:00'");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`quantity`		`qty`		INT    (11)			NOT NULL	DEFAULT '0'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`price`			`price`		DOUBLE (11,2)		NOT NULL	DEFAULT '0.00'");
+				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`price`			`price`		DECIMAL(11,2)		NOT NULL	DEFAULT '0.00'");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`seller`		`seller`	VARCHAR(16)			CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
 				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`buyer`			`buyer`		VARCHAR(16)			CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
 			} else
@@ -209,7 +180,7 @@ public class MySQLTables {
 					"`itemDamage`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`time`				DATETIME		NOT NULL	DEFAULT '0000-00-00 00:00:00', " +
 					"`qty`				INT    (11)		NOT NULL	DEFAULT '0'		, " +
-					"`price`			DOUBLE (11,2)	NOT NULL	DEFAULT '0.00'	, " +
+					"`price`			DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'	, " +
 					"`seller`			VARCHAR(16)		NULL		DEFAULT NULL	, " +
 					"`buyer`			VARCHAR(16)		NULL		DEFAULT NULL	");
 		// Settings
@@ -237,17 +208,36 @@ public class MySQLTables {
 					"`x`				INT(11)			NOT NULL	DEFAULT '0'		, " +
 					"`y`				INT(11)			NOT NULL	DEFAULT '0'		, " +
 					"`z`				INT(11)			NOT NULL	DEFAULT '0'		");
+		// LogSales
+		else if (tableName.equals("LogSales"))
+			if (alter) {
+				WebAuctionPlus.log.severe("Shouldn't run this!");
+			} else
+				setTableExists("LogSales",
+					"`id`				INT(11)			NOT NULL	AUTO_INCREMENT	, PRIMARY KEY(`id`), " +
+					"`logType`			ENUM('new','sale','cancel')	NULL	DEFAULT NULL	, " +
+					"`saleType`			ENUM('buynow','auction')	NULL	DEFAULT NULL	, " +
+					"`timestamp`		DATETIME		NOT NULL	DEFAULT '0000-00-00 00:00:00'	, " +
+					"`itemType`			ENUM('tool','map','book')	NULL	DEFAULT NULL	, " +
+					"`itemId`			INT(11)			NOT NULL	DEFAULT 0		, " +
+					"`itemDamage`		INT(11)			NOT NULL	DEFAULT 0		, " +
+					"`enchantments`		VARCHAR(255)	NULL		DEFAULT NULL	, " +
+					"`itemTitle`		VARCHAR(32)		NULL		DEFAULT NULL	, " +
+					"`seller`			VARCHAR(16)		NULL		DEFAULT NULL	, " +
+					"`buyer`			VARCHAR(16)		NULL		DEFAULT NULL	, " +
+					"`qty`				INT(11)			NOT NULL	DEFAULT 0		, " +
+					"`price`			DECIMAL(11,2)	NOT NULL	DEFAULT 0.00	, " +
+					"`alert`			TINYINT(1)		NOT NULL	DEFAULT 0	");
 	}
 
 	// convert database tables to Plus
-	private void ConvertDatabase10() {
+	private void ConvertDatabase1_0() {
 		// update tables
 		sqlTables(true, "Auctions");
 		sqlTables(true, "Items");
 		sqlTables(true, "MarketPrices");
 		sqlTables(true, "Players");
 		sqlTables(true, "RecentSigns");
-		sqlTables(true, "SaleAlerts");
 		sqlTables(true, "SellPrice");
 		sqlTables(true, "ShoutSigns");
 
@@ -260,7 +250,7 @@ public class MySQLTables {
 		// check if already updated
 		try {
 			conn  = getConnection();
-			if (debugSQL) WebAuctionPlus.log.info("WA Query: Count Database Settings");
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Count Database Settings");
 			st = conn.prepareStatement("SELECT COUNT(*) AS `count` FROM `"+dbPrefix+"Settings`");
 			rs = st.executeQuery();
 			if (!rs.next()) {
@@ -272,7 +262,7 @@ public class MySQLTables {
 				return;
 			}
 			// add a setting
-			if (debugSQL) WebAuctionPlus.log.info("WA Query: Insert Version Setting");
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Insert Version Setting");
 			st = conn.prepareStatement("INSERT INTO `"+dbPrefix+"Settings` (`name`,`value`) VALUES ('Version',?)");
 			st.setString(1, plugin.getDescription().getVersion().toString());
 			st.executeUpdate();
@@ -294,7 +284,7 @@ public class MySQLTables {
 			rs    = null;
 			rs2   = null;
 			try {
-				if (debugSQL) WebAuctionPlus.log.info("WA Query: Convert Database Players");
+				if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Convert Database Players");
 				// get total players
 				st = conn.prepareStatement("SELECT COUNT(*) AS `count` FROM `"+dbPrefix+"Players`");
 				rs = st.executeQuery();
@@ -339,7 +329,7 @@ public class MySQLTables {
 			rs    = null;
 			rs2   = null;
 			try {
-				if (debugSQL) WebAuctionPlus.log.info("WA Query: Convert Database Mail");
+				if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Convert Database Mail");
 				// get total mail
 				st = conn.prepareStatement("SELECT COUNT(*) AS `count` FROM `"+dbPrefix+"Mail`");
 				rs = st.executeQuery();
@@ -384,7 +374,7 @@ public class MySQLTables {
 			rs    = null;
 			rs2   = null;
 			try {
-				if (debugSQL) WebAuctionPlus.log.info("WA Query: Convert Database Enchantments");
+				if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Convert Database Enchantments");
 				// get total enchantments
 				st = conn.prepareStatement("SELECT COUNT(*) AS `count` FROM `"+dbPrefix+"EnchantLinks`");
 				rs = st.executeQuery();
@@ -447,8 +437,8 @@ public class MySQLTables {
 	}
 
 
-	// update from 1.0 to 1.1
-	private void ConvertDatabase11() {
+	// update from 1.0 to 1.1.1
+	private void ConvertDatabase1_1_1() {
 		Connection conn			= null;
 		PreparedStatement st	= null;
 		PreparedStatement stNew	= null;
@@ -464,7 +454,7 @@ public class MySQLTables {
 			rs    = null;
 			rs2   = null;
 			try {
-				if (debugSQL) WebAuctionPlus.log.info("WA Query: Convert ItemEnchantments");
+				if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Convert ItemEnchantments");
 				// get total enchantments
 				st = conn.prepareStatement("SELECT COUNT(*) AS `count` FROM `"+dbPrefix+"ItemEnchantments`");
 				rs = st.executeQuery();
@@ -475,7 +465,7 @@ public class MySQLTables {
 				totalItemEnchantments = rs.getInt(1);
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Found " + Integer.toString(totalItemEnchantments) + " item enchantments");
 				// get old item enchantments
-				st = conn.prepareStatement("SELECT `ItemTable`, `ItemTableId`, `enchId`, `level`  FROM `"+dbPrefix+"ItemEnchantments`");
+				st = conn.prepareStatement("SELECT `ItemTable`, `ItemTableId`, `enchId`, `level`  FROM `"+dbPrefix+"ItemEnchantments` ORDER BY `enchId` ASC");
 				rs = st.executeQuery();
 				HashMap<Integer, String> enchTempAuctions = new HashMap<Integer, String>();
 				HashMap<Integer, String> enchTempItems    = new HashMap<Integer, String>();

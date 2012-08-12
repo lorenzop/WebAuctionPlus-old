@@ -20,13 +20,13 @@ public class WebAuctionCommands implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		int params = args.length;
 		String player = "";
-		if (sender instanceof Player)
-			player = ((Player) sender).getName();
+		if(sender instanceof Player) player = ((Player) sender).getName();
 		// 0 args
-		if (params == 0) {
+		if(params == 0) {
 			return false;
+		}
 		// 1 arg
-		} else if (params == 1) {
+		if(params == 1) {
 //			// wa reload
 //			if (args[0].equalsIgnoreCase("reload")){
 //boolean temp=true;
@@ -87,11 +87,17 @@ public class WebAuctionCommands implements CommandExecutor {
 					}
 				}
 				return true;
+			// wa update
+			} else if(args[0].equalsIgnoreCase("update")){
+				WebAuctionPlus.recentSignTask.run();
+				sender.sendMessage(WebAuctionPlus.chatPrefix+"Updated recent signs.");
+				return true;
 			}
 			return false;
+		}
+		if(!WebAuctionPlus.isOk()) {sender.sendMessage(WebAuctionPlus.chatPrefix+"Plugin isn't loaded"); return true;}
 		// 2 args
-		} else if (params == 2 || params == 3) {
-			if(!plugin.isOk()) {sender.sendMessage(WebAuctionPlus.chatPrefix+"Plugin isn't loaded"); return true;}
+		if(params == 2 || params == 3) {
 			// wa password
 			if (args[0].equalsIgnoreCase("password") ||
 				args[0].equalsIgnoreCase("pass")     ||
@@ -154,11 +160,15 @@ public class WebAuctionCommands implements CommandExecutor {
 				}
 				return true;
 			}
-//		} else if (params == 4) {
+			return false;
+		}
+		// 4 args
+		if(params == 4) {
 //			// wa give <player> <item> <count>
 //			if (args[0].equals("give")) {
 // /wa give lorenzop diamond 3
 //			}
+			return false;
 		}
 		return false;
 	}

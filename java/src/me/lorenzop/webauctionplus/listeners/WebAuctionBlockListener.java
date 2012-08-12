@@ -1,7 +1,6 @@
 package me.lorenzop.webauctionplus.listeners;
 
 import me.lorenzop.webauctionplus.WebAuctionPlus;
-import me.lorenzop.webauctionplus.dao.Auction;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -12,7 +11,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.inventory.ItemStack;
 
 public class WebAuctionBlockListener implements Listener {
 
@@ -86,19 +84,19 @@ public class WebAuctionBlockListener implements Listener {
 			if(offset < 1)  offset = 1;
 			if(offset > 10) offset = 10;
 			// display auction
-			if(offset <= WebAuctionPlus.Stats.getTotalAuctions()) {
-				Auction offsetAuction = WebAuctionPlus.dataQueries.getAuctionForOffset(offset - 1);
-				ItemStack stack = offsetAuction.getItemStack();
-				int qty = stack.getAmount();
-				String formattedPrice = plugin.economy.format(offsetAuction.getPrice());
-				event.setLine(1, stack.getType().toString());
-				event.setLine(2, "qty: "+Integer.toString(qty));
-				event.setLine(3, formattedPrice);
-			} else {
+//			if(offset <= WebAuctionPlus.Stats.getTotalAuctions()) {
+//				Auction offsetAuction = WebAuctionPlus.dataQueries.getAuctionForOffset(offset - 1);
+//				ItemStack stack = offsetAuction.getItemStack();
+//				int qty = stack.getAmount();
+//				String formattedPrice = plugin.economy.format(offsetAuction.getPrice());
+//				event.setLine(1, stack.getType().toString());
+//				event.setLine(2, "qty: "+Integer.toString(qty));
+//				event.setLine(3, formattedPrice);
+//			} else {
 				event.setLine(1, "Recent");
 				event.setLine(2, Integer.toString(offset));
-				event.setLine(3, "Not Available");
-			}
+				event.setLine(3, "<New Sign>");
+//			}
 			plugin.recentSigns.put(sign.getLocation(), offset);
 			WebAuctionPlus.dataQueries.createRecentSign(world, offset, sign.getX(), sign.getY(), sign.getZ());
 			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_recent_sign"));

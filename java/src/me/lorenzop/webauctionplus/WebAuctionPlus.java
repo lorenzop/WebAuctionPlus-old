@@ -43,7 +43,8 @@ import org.w3c.dom.NodeList;
 
 public class WebAuctionPlus extends JavaPlugin {
 
-	private static boolean isOk  = false;
+	private static boolean isOk    = false;
+	private static boolean isDebug = false;
 
 	public static final String logPrefix  = "[WebAuction+] ";
 	public static final String chatPrefix = ChatColor.DARK_GREEN+"["+ChatColor.WHITE+"WebAuction+"+ChatColor.DARK_GREEN+"] ";
@@ -80,10 +81,14 @@ public class WebAuctionPlus extends JavaPlugin {
 	private static boolean useSignLink = false;
 	// tim the enchanter
 	private static boolean timEnabled = false;
+	// globally announce new auctions (vs using shout signs)
+	private static boolean announceGlobal = false;
 
 	// JSON Server
 	public waJSONServer jsonServer;
 
+	// recent sign task
+	public static RecentSignTask recentSignTask = null;
 
 	// announcer
 	public AnnouncerTask waAnnouncerTask;
@@ -91,8 +96,10 @@ public class WebAuctionPlus extends JavaPlugin {
 
 	public Economy economy			= null;
 
+
 	public WebAuctionPlus() {
 	}
+
 
 	public void onEnable() {
 		if(isOk) {
@@ -126,8 +133,10 @@ public class WebAuctionPlus extends JavaPlugin {
 		if(!settings.isOk()) {onDisable(); return;}
 
 		// update the version in db
-		if(! currentVersion.equals(settings.getString("Version")) )
+		if(! currentVersion.equals(settings.getString("Version")) ){
 			settings.setString("Version", currentVersion);
+			log.info(logPrefix+"Updated version to "+currentVersion);
+		}
 
 		// load language file
 		Lang = new Language(this);
@@ -148,14 +157,17 @@ public class WebAuctionPlus extends JavaPlugin {
 		pm.registerEvents(new WebAuctionServerListener(this), this);
 		isOk = true;
 	}
-	public boolean isOk() {return isOk;}
+	public static boolean isOk() {return isOk;}
+	public static boolean isDebug() {return isDebug;}
 
 
 	public boolean onLoadConfig() {
 		try {
+			isDebug = Config.getBoolean("Development.Debug");
 //			addComment("debug_mode", Arrays.asList("# This is where you enable debug mode"))
 			signDelay          = Config.getInt    ("Misc.SignClickDelay");
 			timEnabled         = Config.getBoolean("Misc.UnsafeEnchantments");
+			announceGlobal     = Config.getBoolean("Misc.AnnounceGlobally");
 			useSignLink        = Config.getBoolean("SignLink.Enabled");
 			numberOfRecentLink = Config.getInt    ("SignLink.NumberOfLatestAuctionsToTrack");
 
@@ -191,7 +203,7 @@ public class WebAuctionPlus extends JavaPlugin {
 
 			// report sales to players (always multi-threaded)
 			if (saleAlertSeconds > 0) {
-				if(saleAlertSeconds < 3) saleAlertSeconds = 3;
+				if(saleAlertSeconds < 3*20) saleAlertSeconds = 3*20;
 				scheduler.scheduleAsyncRepeatingTask(this, new PlayerAlertTask(),
 					saleAlertSeconds, saleAlertSeconds);
 				log.info(logPrefix + "Enabled Task: Sale Alert (always multi-threaded)");
@@ -200,20 +212,21 @@ public class WebAuctionPlus extends JavaPlugin {
 			if (shoutSignUpdateSeconds > 0) {
 				if (UseMultithreads)
 					scheduler.scheduleAsyncRepeatingTask(this, new ShoutSignTask(this),
-						(shoutSignUpdateSeconds*2), shoutSignUpdateSeconds);
+						shoutSignUpdateSeconds, shoutSignUpdateSeconds);
 				else
 					scheduler.scheduleSyncRepeatingTask (this, new ShoutSignTask(this),
-						(shoutSignUpdateSeconds*2), shoutSignUpdateSeconds);
+						shoutSignUpdateSeconds, shoutSignUpdateSeconds);
 				log.info(logPrefix + "Enabled Task: Shout Sign (using " + (UseMultithreads?"multiple threads":"single thread") + ")");
 			}
 			// update recent signs
-			if (recentSignUpdateSeconds > 0 && useOriginalRecent) {
+			if(recentSignUpdateSeconds > 0 && useOriginalRecent) {
+				recentSignTask = new RecentSignTask(this);
 				if (UseMultithreads)
-					scheduler.scheduleAsyncRepeatingTask(this, new RecentSignTask(this),
-						recentSignUpdateSeconds+(recentSignUpdateSeconds/2), recentSignUpdateSeconds);
+					scheduler.scheduleAsyncRepeatingTask(this, recentSignTask,
+						5*20, recentSignUpdateSeconds);
 				else
-					scheduler.scheduleSyncRepeatingTask (this, new RecentSignTask(this),
-						recentSignUpdateSeconds+(recentSignUpdateSeconds/2), recentSignUpdateSeconds);
+					scheduler.scheduleSyncRepeatingTask (this, recentSignTask,
+						5*20, recentSignUpdateSeconds);
 				log.info(logPrefix + "Enabled Task: Recent Sign (using " + (UseMultithreads?"multiple threads":"single thread") + ")");
 			}
 		} catch (Exception e) {
@@ -265,8 +278,7 @@ public class WebAuctionPlus extends JavaPlugin {
 				Config.getString("MySQL.Username"),
 				Config.getString("MySQL.Password"),
 				Config.getString("MySQL.Database"),
-				Config.getString("MySQL.TablePrefix"),
-				Config.getBoolean("Development.DebugSQL")
+				Config.getString("MySQL.TablePrefix")
 			);
 			dataQueries.setConnPoolSizeWarn(Config.getInt("MySQL.ConnectionPoolSizeWarn"));
 			dataQueries.setConnPoolSizeHard(Config.getInt("MySQL.ConnectionPoolSizeHard"));
@@ -299,6 +311,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		Config.addDefault("Misc.UseOriginalRecentSigns",	true);
 		Config.addDefault("Misc.SignClickDelay",			500);
 		Config.addDefault("Misc.UnsafeEnchantments",		false);
+		Config.addDefault("Misc.AnnounceGlobally",			true);
 		Config.addDefault("Tasks.SaleAlertSeconds",			20L);
 		Config.addDefault("Tasks.ShoutSignUpdateSeconds",	20L);
 		Config.addDefault("Tasks.RecentSignUpdateSeconds",	60L);
@@ -306,7 +319,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		Config.addDefault("SignLink.Enabled",				false);
 		Config.addDefault("SignLink.NumberOfLatestAuctionsToTrack", 10);
 		Config.addDefault("Development.UseMultithreads",	false);
-		Config.addDefault("Development.DebugSQL",			false);
+		Config.addDefault("Development.Debug",				false);
 		Config.addDefault("Announcer.Enabled",				false);
 		Config.addDefault("Announcer.Prefix",				"&c[Info] ");
 		Config.addDefault("Announcer.Random",				false);
@@ -324,6 +337,9 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 	public static boolean timEnabled() {
 		return timEnabled;
+	}
+	public static boolean announceGlobal() {
+		return announceGlobal;
 	}
 
 
@@ -361,7 +377,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		return settings.getString("Currency Prefix") + FormatDouble(value) + settings.getString("Currency Postfix");
 	}
 	public static String FormatDouble(double value) {
-		DecimalFormat decim = new DecimalFormat("0.00");
+		DecimalFormat decim = new DecimalFormat("##,###,##0.00");
 		return decim.format(value);
 	}
 	public static double ParseDouble(String value) {
@@ -522,7 +538,7 @@ public class WebAuctionPlus extends JavaPlugin {
 			metrics.start();
 		} catch (IOException e) {
 			// Failed to submit the stats :-(
-			if(dataQueries.debugSQL()) {
+			if(WebAuctionPlus.isDebug) {
 				log.severe(e.getMessage());
 				e.printStackTrace();
 			}

@@ -29,8 +29,6 @@ public class MySQLConnPool {
 	protected static Logger log = Logger.getLogger("Minecraft");
 	protected static String logPrefix = "";
 
-	protected boolean debugSQL;
-
 
 	// get a db connection from pool
 	public Connection getConnection() {
@@ -112,8 +110,9 @@ public class MySQLConnPool {
 		}
 		synchronized(inuse) {
 			int i = connections.indexOf(conn);
-			inuse.set(i, false);
-			if(!valid) {
+			if (valid) {
+				inuse.set(i, false);
+			} else {
 				inuse.remove(i);
 				connections.remove(i);
 			}
@@ -123,11 +122,13 @@ public class MySQLConnPool {
 		if (rs != null) {
 			try {
 				rs.close();
+				rs = null;
 			} catch (SQLException ignore) {}
 		}
 		if (st != null) {
 			try {
 				st.close();
+				st = null;
 			} catch (SQLException ignore) {}
 		}
 	}
@@ -211,8 +212,8 @@ public class MySQLConnPool {
 
 
 	// access layer
-	public boolean debugSQL() {
-		return debugSQL;
+	public boolean isDebug() {
+		return WebAuctionPlus.isDebug();
 	}
 	public String dbPrefix() {
 		return dbPrefix;
