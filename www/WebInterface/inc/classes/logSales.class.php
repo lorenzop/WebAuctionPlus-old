@@ -12,9 +12,10 @@ const SALE_AUCTION = 'auction';
 
 public static function addLog($logType, $saleType, $sellerName, $buyerName, $Item, $price, $allowBids, $currentWinner, $alert=0){global $config;
   $query = "INSERT INTO `".$config['table prefix']."LogSales` ( ".
-           "`logType`, `saleType`, `itemType`, `itemId`, `itemDamage`, `itemTitle`, `enchantments`, `seller`, `buyer`, `qty`, `price`, `alert` ) VALUES ( ".
+           "`logType`, `saleType`, `timestamp`, `itemType`, `itemId`, `itemDamage`, `itemTitle`, `enchantments`, `seller`, `buyer`, `qty`, `price`, `alert` ) VALUES ( ".
            (($logType=='new' || $logType=='sale' || $logType=='cancel') ? "'".mysql_san($logType)."'" : 'NULL' ).", ".
            (($saleType=='' || $saleType=='') ? "'".mysql_san($saleType)."'" : 'NULL' ).", ".
+           "NOW(), ".
            "'".mysql_san($Item->getItemType())."', ".
            ((int) $Item->getItemId()).", ".
            ((int) $Item->getItemDamage()).", ".

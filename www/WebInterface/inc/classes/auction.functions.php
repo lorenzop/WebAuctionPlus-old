@@ -106,7 +106,7 @@ public static function BuyAuction($auctionId, $qty){global $config, $user;
     $auction->getSeller(),
     $user->getName(),
     $Item,
-    $priceQty,
+    $sellPrice,
     FALSE,
     '',
     TRUE);
