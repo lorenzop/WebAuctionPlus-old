@@ -216,9 +216,9 @@ public static function AddCreateItem($playerName, $Item){global $config;
   }
   // create new stack
   $query = "INSERT INTO `".$config['table prefix']."Items` (".
-           "`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`) VALUES (".
+           "`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle`) VALUES (".
            "'".mysql_san($playerName)."', ".((int)$Item->getItemId()).", ".((int)$Item->getItemDamage()).", ".
-           ((int)$Item->getItemQty()).", '".mysql_san($Item->getEnchantmentsCompressed())."')";
+           ((int)$Item->getItemQty()).", '".mysql_san($Item->getEnchantmentsCompressed())."', '".$Item->getItemTitle()."')";
   $result = RunQuery($query, __file__, __line__);
   if(!$result){echo '<p style="color: red;">Error creating item stack!</p>'; exit();}
   $tableRowId = mysql_insert_id();

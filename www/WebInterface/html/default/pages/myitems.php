@@ -53,7 +53,7 @@ $outputs['body row']='
       <td style="text-align: center;">{market price each}</td>
       <td style="text-align: center;">{market price total}</td>
 {if permission[canSell]}
-      <td style="text-align: center;"><a href="./?page=createauction&amp;id={item row id}&amp;lastpage=page-myitems" class="button">Sell it</a></td>
+      <td style="text-align: center;"><a href="./?page=sell&amp;id={item row id}&amp;lastpage=page-myitems" class="button">Sell it</a></td>
 {endif}
 ';
 //      <td style="padding-bottom: 10px; text-align: center;">'.

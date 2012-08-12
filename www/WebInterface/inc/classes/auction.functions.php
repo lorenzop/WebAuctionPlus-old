@@ -3,8 +3,8 @@
 class AuctionFuncs{
 
 
-// create new auction
-public static function CreateAuction($id, $qty, $price, $desc){global $config, $user;
+// create new auction/buynow
+public static function Sell($id, $qty, $price, $desc){global $config, $user;
   if($id < 1) return(FALSE);
   // has canSell permissions
   if(!$user->hasPerms('canSell')) {$config['error'] = 'You don\'t have permission to sell.'; return(FALSE);}
@@ -27,30 +27,39 @@ public static function CreateAuction($id, $qty, $price, $desc){global $config, $
   if(!$Item){$config['error'] = 'Item not found!'; return(FALSE);}
   if($qty > $Item->getItemQty()){$qty = $Item->getItemQty(); $config['error'] = 'You don\'t have that many!'; return(FALSE);}
   // merge with existing auction
-///////////////////////////////////////////////////////////
 //TODO: will have a function to check for existing auctions
-///////////////////////////////////////////////////////////
-
   // create auction
   $query = "INSERT INTO `".$config['table prefix']."Auctions` (".
-           "`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `price`, `created` )VALUES( ".
-           "'".mysql_san($user->getName())."', ".((int)$Item->getItemId()).", ".((int)$Item->getItemDamage()).", ".
-           ((int)$qty).", '".mysql_san($Item->getEnchantmentsCompressed())."', ".((float)$price).", NOW() )";
+           "`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle`, `price`, `created` )VALUES( ".
+           "'".mysql_san($user->getName())."', ".
+           ((int)$Item->getItemId()).", ".
+           ((int)$Item->getItemDamage()).", ".
+           ((int)$qty).", ".
+           "'".mysql_san($Item->getEnchantmentsCompressed())."', ".
+           "'".ItemFuncs::getItemTitle($Item->getItemId(), $Item->getItemDamage())."', ".
+           ((float)$price).", NOW() )";
   $result = RunQuery($query, __file__, __line__);
   if(!$result) {echo '<p style="color: red;">Error creating auction!</p>'; exit();}
   $auctionId = mysql_insert_id();
   // update qty / remove item stack
   if(!ItemFuncs::RemoveItem( $Item->getTableRowId(), ($qty<$Item->getItemQty() ? $qty : -1) )){
     echo '<p style="color: red;">Error removing item stack quantity!</p>'; exit();}
-  // add transaction log
-//TODO: this needs to be done yet
-//  $Item->qty = $qty;
-//  TransactionsClass::addTransactionLog(TransactionType::Create_BuyNow, $Item, $user->getName(), '', $price);
+  // add sale log
+  $Item->setItemQty($qty);
+  LogSales::addLog(
+    LogSales::LOG_NEW,
+    LogSales::SALE_BUYNOW,
+    $user->getName(),
+    NULL,
+    $Item,
+    $price,
+    FALSE,
+    '');
   return(TRUE);
 }
 
 
-// buy auction
+// buy auction/buynow
 public static function BuyAuction($auctionId, $qty){global $config, $user;
   // validate args
   $auctionId = (int) $auctionId;
@@ -90,10 +99,22 @@ public static function BuyAuction($auctionId, $qty){global $config, $user;
   $Item->setItemQty($qty);
   $tableRowId = ItemFuncs::AddCreateItem($user->getName(), $Item);
   if(!$tableRowId){echo '<p style="color: red;">Error adding item to your inventory!</p>'; exit();}
-  // transaction log
-//TODO: TransactionLog::addLog();
+  // add sale log
+  LogSales::addLog(
+    LogSales::LOG_SALE,
+    LogSales::SALE_BUYNOW,
+    $auction->getSeller(),
+    $user->getName(),
+    $Item,
+    $priceQty,
+    FALSE,
+    '',
+    TRUE);
   return(TRUE);
 }
+
+
+// cancel auction/buynow
 public static function CancelAuction($auctionId){global $config, $user;
   // validate args
   $auctionId = floor((int)$auctionId);
@@ -108,11 +129,22 @@ public static function CancelAuction($auctionId){global $config, $user;
   self::RemoveAuction($auctionId, -1);
   // add item to inventory
   $tableRowId = ItemFuncs::AddCreateItem($auction->getSeller(), $auction->getItem());
-  // transaction log
-//TODO: TransactionLog::addLog();
+  // add sale log
+  $Item = $auction->getItem();
+  LogSales::addLog(
+    LogSales::LOG_CANCEL,
+    LogSales::SALE_BUYNOW,
+    $user->getName(),
+    NULL,
+    $Item,
+    0.0,
+    FALSE,
+    '');
   return(TRUE);
 }
-// update qty / remove auction
+
+
+// update qty / remove auction/buynow
 protected static function RemoveAuction($auctionId, $qty=-1){global $config;
   if($auctionId < 1) return(FALSE);
   // remove auction

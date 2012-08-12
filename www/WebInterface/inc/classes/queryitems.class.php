@@ -24,7 +24,7 @@ public static function QuerySingle($playerName, $id){
 protected function doQuery($WHERE){global $config;
   if(empty($WHERE)) {$this->result = FALSE; return;}
   $query="SELECT `id`, `itemId`, `itemDamage`, `qty`, `enchantments` ".
-         "FROM `".$config['table prefix']."Items` `Items` ".
+         "FROM `".$config['table prefix']."Items` ".
          "WHERE ".$WHERE." ORDER BY `id` ASC";
   $this->result = RunQuery($query, __file__, __line__);
 }

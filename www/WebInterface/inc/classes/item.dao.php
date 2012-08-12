@@ -42,6 +42,10 @@ public function setTableRowId($rowId){
   if($rowId < 1) $rowId = -1;
   $this->tableRowId = (int)$rowId;
 }
+// item type
+public function getItemType(){
+  ItemFuncs::getItemType($this->itemId);
+}
 // item type id
 public function getItemId(){
   return((int)$this->itemId);

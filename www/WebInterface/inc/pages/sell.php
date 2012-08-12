@@ -13,7 +13,7 @@ if($config['action']=='newauction'){
     ForwardTo(getLastPage(), 4);
     exit();
   }
-  if(AuctionFuncs::CreateAuction(
+  if(AuctionFuncs::Sell(
     getVar('id'   ,'int'   ,'post'),
     getVar('qty'  ,'int'   ,'post'),
     getVar('price','double','post'),
@@ -143,7 +143,7 @@ if($config['user']->isLocked()){
 //	}
 
 
-function RenderPage_createauction(){global $config,$html,$user,$settings; $output='';
+function RenderPage_sell(){global $config,$html,$user,$settings; $output='';
   $id        = getVar('id', 'int');
   $qty       = getVar('qty');
   $priceEach = getVar('price', 'double');

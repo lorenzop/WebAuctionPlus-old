@@ -10,7 +10,7 @@ require($lpaths['classes'].'item.functions.php');
 require($lpaths['classes'].'auction.functions.php');
 require($lpaths['classes'].'queryitems.class.php');
 require($lpaths['classes'].'queryauctions.class.php');
-//require($lpaths['classes'].'transactions.class.php');
+require($lpaths['classes'].'logSales.class.php');
 
 
 // no page cache
