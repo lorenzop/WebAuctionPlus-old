@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import me.lorenzop.webauctionplus.dao.waStats;
-import me.lorenzop.webauctionplus.jsonserver.waJSONServer;
 import me.lorenzop.webauctionplus.listeners.WebAuctionBlockListener;
 import me.lorenzop.webauctionplus.listeners.WebAuctionCommands;
 import me.lorenzop.webauctionplus.listeners.WebAuctionPlayerListener;
@@ -29,6 +28,7 @@ import me.lorenzop.webauctionplus.tasks.RecentSignTask;
 import me.lorenzop.webauctionplus.tasks.ShoutSignTask;
 import net.milkbowl.vault.economy.Economy;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -59,13 +59,13 @@ public class WebAuctionPlus extends JavaPlugin {
 	public static boolean newVersionAvailable = false;
 
 	// config
-	public FileConfiguration Config;
-	public static waSettings settings;
+	public FileConfiguration config = null;
+	public static waSettings settings = null;
 
 	// language
 	public static Language Lang;
 
-	public static DataQueries dataQueries;
+	public static DataQueries dataQueries = null;
 	public WebAuctionCommands WebAuctionCommandsListener = new WebAuctionCommands(this);
 
 	public Map<String,   Long>    lastSignUse = new HashMap<String , Long>();
@@ -85,7 +85,7 @@ public class WebAuctionPlus extends JavaPlugin {
 	private static boolean announceGlobal = false;
 
 	// JSON Server
-	public waJSONServer jsonServer;
+//	public waJSONServer jsonServer;
 
 	// recent sign task
 	public static RecentSignTask recentSignTask = null;
@@ -114,35 +114,6 @@ public class WebAuctionPlus extends JavaPlugin {
 		// Command listener
 		getCommand("wa").setExecutor(WebAuctionCommandsListener);
 
-		// init configs
-		Config = getConfig();
-		initConfig();
-
-		// connect MySQL
-		if (!ConnectDB()) {
-			log.severe(logPrefix+"*** Failed to load WebAuctionPlus. Please check your config.");
-			onDisable();
-			return;
-		}
-
-		Stats = new waStats();
-
-		// load settings from db
-		settings = new waSettings(this);
-		settings.LoadSettings();
-		if(!settings.isOk()) {onDisable(); return;}
-
-		// update the version in db
-		if(! currentVersion.equals(settings.getString("Version")) ){
-			settings.setString("Version", currentVersion);
-			log.info(logPrefix+"Updated version to "+currentVersion);
-		}
-
-		// load language file
-		Lang = new Language(this);
-		Lang.loadLanguage(settings.getString("Language"));
-		if(!Lang.isOk()) {onDisable(); return;}
-
 		// load config.yml
 		if(!onLoadConfig()) {onDisable(); return;}
 
@@ -157,42 +128,127 @@ public class WebAuctionPlus extends JavaPlugin {
 		pm.registerEvents(new WebAuctionServerListener(this), this);
 		isOk = true;
 	}
-	public static boolean isOk() {return isOk;}
+
+
+	public void onDisable() {
+		isOk = false;
+		// stop schedulers
+		try {
+			getServer().getScheduler().cancelTasks(this);
+		} catch (Exception ignore) {}
+		waAnnouncerTask.clearMessages();
+		shoutSigns.clear();
+		recentSigns.clear();
+		// close inventories
+		WebInventory.ForceCloseAll();
+		// stop json server
+//		try {
+//			if(jsonServer != null)  jsonServer.listener.close();
+//		} catch (Exception ignore) {}
+		// close mysql connection
+		try {
+			if(dataQueries != null) dataQueries.forceCloseConnections();
+		} catch (Exception ignore) {}
+		log.info(logPrefix + "Disabled, bye for now :-)");
+		// close config
+		try {
+			if(config != null) config = null;
+		} catch (Exception ignore) {}
+		settings = null;
+		Lang = null;
+	}
+
+
+	public void onReload() {
+		if(!isOk) {
+			onDisable();
+			onEnable();
+			return;
+		}
+		onDisable();
+		// load config.yml
+		if(!onLoadConfig()) {onDisable(); return;}
+//		// load more services
+//		onLoadJSONServer();
+		isOk = true;
+	}
+
+
+	public static boolean isOk()    {return isOk;}
 	public static boolean isDebug() {return isDebug;}
 
 
 	public boolean onLoadConfig() {
+		// init configs
+		if(config != null) config = null;
+		config = getConfig();
+		configDefaults();
+
+		// connect MySQL
+		if(dataQueries == null)
+			if(!ConnectDB()) {
+				log.severe(logPrefix+"*** Failed to load WebAuctionPlus. Please check your config.");
+				onDisable();
+				return false;
+			}
+
+		// load stats class
+		if(Stats == null) Stats = new waStats();
+
+		// load settings from db
+		if(settings != null) settings = null;
+		settings = new waSettings(this);
+		settings.LoadSettings();
+		if(!settings.isOk()) {onDisable(); return false;}
+
+		// update the version in db
+		if(! currentVersion.equals(settings.getString("Version")) ){
+			settings.setString("Version", currentVersion);
+			log.info(logPrefix+"Updated version to "+currentVersion);
+		}
+
+		// load language file
+		if(Lang != null) Lang = null;
+		Lang = new Language(this);
+		Lang.loadLanguage(settings.getString("Language"));
+		if(!Lang.isOk()) {onDisable(); return false;}
+
 		try {
-			isDebug = Config.getBoolean("Development.Debug");
+			isDebug = config.getBoolean("Development.Debug");
 //			addComment("debug_mode", Arrays.asList("# This is where you enable debug mode"))
-			signDelay          = Config.getInt    ("Misc.SignClickDelay");
-			timEnabled         = Config.getBoolean("Misc.UnsafeEnchantments");
-			announceGlobal     = Config.getBoolean("Misc.AnnounceGlobally");
-			useSignLink        = Config.getBoolean("SignLink.Enabled");
-			numberOfRecentLink = Config.getInt    ("SignLink.NumberOfLatestAuctionsToTrack");
+			signDelay          = config.getInt    ("Misc.SignClickDelay");
+			timEnabled         = config.getBoolean("Misc.UnsafeEnchantments");
+			announceGlobal     = config.getBoolean("Misc.AnnounceGlobally");
+			numberOfRecentLink = config.getInt    ("SignLink.NumberOfLatestAuctionsToTrack");
+			useSignLink        = config.getBoolean("SignLink.Enabled");
+			if(useSignLink)
+				if(!Bukkit.getPluginManager().getPlugin("SignLink").isEnabled()) {
+					log.warning(logPrefix+"SignLink is enabled but plugin is not loaded!");
+					useSignLink = false;
+				}
 
 			// scheduled tasks
-			BukkitScheduler scheduler = getServer().getScheduler();
-			boolean UseMultithreads = Config.getBoolean("Development.UseMultithreads");
+			BukkitScheduler scheduler = Bukkit.getScheduler();
+			boolean UseMultithreads = config.getBoolean("Development.UseMultithreads");
 
 			// announcer
-			announcerEnabled = Config.getBoolean("Announcer.Enabled");
-			long announcerMinutes = 20 * 60 * Config.getLong("Tasks.AnnouncerMinutes");
+			announcerEnabled = config.getBoolean("Announcer.Enabled");
+			long announcerMinutes = 20 * 60 * config.getLong("Tasks.AnnouncerMinutes");
 			if(announcerEnabled) waAnnouncerTask = new AnnouncerTask(this);
 			if (announcerEnabled && announcerMinutes>0) {
 				if(announcerMinutes < 6000) announcerMinutes = 6000; // minimum 5 minutes
-				waAnnouncerTask.chatPrefix     = Config.getString ("Announcer.Prefix");
-				waAnnouncerTask.announceRandom = Config.getBoolean("Announcer.Random");
-				waAnnouncerTask.addMessages(     Config.getStringList("Announcements"));
+				waAnnouncerTask.chatPrefix     = config.getString ("Announcer.Prefix");
+				waAnnouncerTask.announceRandom = config.getBoolean("Announcer.Random");
+				waAnnouncerTask.addMessages(     config.getStringList("Announcements"));
 				scheduler.scheduleAsyncRepeatingTask(this, waAnnouncerTask,
 					(announcerMinutes/2), announcerMinutes);
 				log.info(logPrefix + "Enabled Task: Announcer (always multi-threaded)");
 			}
 
-			long saleAlertSeconds        = 20 * Config.getLong("Tasks.SaleAlertSeconds");
-			long shoutSignUpdateSeconds  = 20 * Config.getLong("Tasks.ShoutSignUpdateSeconds");
-			long recentSignUpdateSeconds = 20 * Config.getLong("Tasks.RecentSignUpdateSeconds");
-			useOriginalRecent            =   Config.getBoolean("Misc.UseOriginalRecentSigns");
+			long saleAlertSeconds        = 20 * config.getLong("Tasks.SaleAlertSeconds");
+			long shoutSignUpdateSeconds  = 20 * config.getLong("Tasks.ShoutSignUpdateSeconds");
+			long recentSignUpdateSeconds = 20 * config.getLong("Tasks.RecentSignUpdateSeconds");
+			useOriginalRecent            =      config.getBoolean("Misc.UseOriginalRecentSigns");
 
 			// Build shoutSigns map
 			if (shoutSignUpdateSeconds > 0)
@@ -240,28 +296,10 @@ public class WebAuctionPlus extends JavaPlugin {
 	public void onSaveConfig() {
 	}
 
-	public void onDisable() {
-		isOk = false;
-		// stop schedulers
-		try {
-			getServer().getScheduler().cancelTasks(this);
-		} catch (Exception ignore) {}
-		// close inventories
-		WebInventory.ForceCloseAll();
-		// stop json server
-//		try {
-//			if(jsonServer != null)  jsonServer.listener.close();
-//		} catch (Exception ignore) {}
-		// close mysql connection
-		try {
-			if(dataQueries != null) dataQueries.forceCloseConnections();
-		} catch (Exception ignore) {}
-		log.info(logPrefix + "Disabled, bye for now :-)");
-	}
 
 	// Init database
 	public synchronized boolean ConnectDB() {
-		if ( ((String)Config.getString("MySQL.Password")).equals("password123") )
+		if(config.getString("MySQL.Password").equals("password123"))
 			return false;
 		log.info(logPrefix + "MySQL Initializing.");
 		if(dataQueries != null) {
@@ -269,19 +307,19 @@ public class WebAuctionPlus extends JavaPlugin {
 			return false;
 		}
 		try {
-			int port = Config.getInt("MySQL.Port");
-			if(port < 1) port = Integer.valueOf(Config.getString("MySQL.Port"));
+			int port = config.getInt("MySQL.Port");
+			if(port < 1) port = Integer.valueOf(config.getString("MySQL.Port"));
 			if(port < 1) port = 3306;
 			dataQueries = new DataQueries(
-				Config.getString("MySQL.Host"),
+				config.getString("MySQL.Host"),
 				port,
-				Config.getString("MySQL.Username"),
-				Config.getString("MySQL.Password"),
-				Config.getString("MySQL.Database"),
-				Config.getString("MySQL.TablePrefix")
+				config.getString("MySQL.Username"),
+				config.getString("MySQL.Password"),
+				config.getString("MySQL.Database"),
+				config.getString("MySQL.TablePrefix")
 			);
-			dataQueries.setConnPoolSizeWarn(Config.getInt("MySQL.ConnectionPoolSizeWarn"));
-			dataQueries.setConnPoolSizeHard(Config.getInt("MySQL.ConnectionPoolSizeHard"));
+			dataQueries.setConnPoolSizeWarn(config.getInt("MySQL.ConnectionPoolSizeWarn"));
+			dataQueries.setConnPoolSizeHard(config.getInt("MySQL.ConnectionPoolSizeHard"));
 			// create/update tables
 			MySQLTables dbTables = new MySQLTables(this);
 			if(!dbTables.isOk()) {
@@ -298,33 +336,33 @@ public class WebAuctionPlus extends JavaPlugin {
 		return true;
 	}
 
-	private void initConfig() {
-		Config.addDefault("MySQL.Host",						"localhost");
-		Config.addDefault("MySQL.Username",					"minecraft");
-		Config.addDefault("MySQL.Password",					"password123");
-		Config.addDefault("MySQL.Port",						3306);
-		Config.addDefault("MySQL.Database",					"minecraft");
-		Config.addDefault("MySQL.TablePrefix",				"WA_");
-		Config.addDefault("MySQL.ConnectionPoolSizeWarn",	5);
-		Config.addDefault("MySQL.ConnectionPoolSizeHard",	10);
-		Config.addDefault("Misc.ReportSales",				true);
-		Config.addDefault("Misc.UseOriginalRecentSigns",	true);
-		Config.addDefault("Misc.SignClickDelay",			500);
-		Config.addDefault("Misc.UnsafeEnchantments",		false);
-		Config.addDefault("Misc.AnnounceGlobally",			true);
-		Config.addDefault("Tasks.SaleAlertSeconds",			20L);
-		Config.addDefault("Tasks.ShoutSignUpdateSeconds",	20L);
-		Config.addDefault("Tasks.RecentSignUpdateSeconds",	60L);
-		Config.addDefault("Tasks.AnnouncerMinutes",			60L);
-		Config.addDefault("SignLink.Enabled",				false);
-		Config.addDefault("SignLink.NumberOfLatestAuctionsToTrack", 10);
-		Config.addDefault("Development.UseMultithreads",	false);
-		Config.addDefault("Development.Debug",				false);
-		Config.addDefault("Announcer.Enabled",				false);
-		Config.addDefault("Announcer.Prefix",				"&c[Info] ");
-		Config.addDefault("Announcer.Random",				false);
-		Config.addDefault("Announcements", new String[]{"This server is running WebAuctionPlus!"} );
-		Config.options().copyDefaults(true);
+	private void configDefaults() {
+		config.addDefault("MySQL.Host",						"localhost");
+		config.addDefault("MySQL.Username",					"minecraft");
+		config.addDefault("MySQL.Password",					"password123");
+		config.addDefault("MySQL.Port",						3306);
+		config.addDefault("MySQL.Database",					"minecraft");
+		config.addDefault("MySQL.TablePrefix",				"WA_");
+		config.addDefault("MySQL.ConnectionPoolSizeWarn",	5);
+		config.addDefault("MySQL.ConnectionPoolSizeHard",	10);
+		config.addDefault("Misc.ReportSales",				true);
+		config.addDefault("Misc.UseOriginalRecentSigns",	true);
+		config.addDefault("Misc.SignClickDelay",			500);
+		config.addDefault("Misc.UnsafeEnchantments",		false);
+		config.addDefault("Misc.AnnounceGlobally",			true);
+		config.addDefault("Tasks.SaleAlertSeconds",			20L);
+		config.addDefault("Tasks.ShoutSignUpdateSeconds",	20L);
+		config.addDefault("Tasks.RecentSignUpdateSeconds",	60L);
+		config.addDefault("Tasks.AnnouncerMinutes",			60L);
+		config.addDefault("SignLink.Enabled",				false);
+		config.addDefault("SignLink.NumberOfLatestAuctionsToTrack", 10);
+		config.addDefault("Development.UseMultithreads",	false);
+		config.addDefault("Development.Debug",				false);
+		config.addDefault("Announcer.Enabled",				false);
+		config.addDefault("Announcer.Prefix",				"&c[Info] ");
+		config.addDefault("Announcer.Random",				false);
+		config.addDefault("Announcements", new String[]{"This server is running WebAuctionPlus!"} );
+		config.options().copyDefaults(true);
 		saveConfig();
 	}
 
@@ -488,18 +526,18 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 	public void onLoadJSONServer() {
-		// Initialize the listener
-		try {
-			jsonServer = new waJSONServer(this, "*", 8420);
-			if(jsonServer == null) {
-				WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Failed to start JSON server!");
-				return;
-			}
-			jsonServer.start();
-		} catch(IOException e) {
-			WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Failed to start JSON server!");
-			e.printStackTrace();
-		}
+//		// Initialize the listener
+//		try {
+//			jsonServer = new waJSONServer(this, "*", 8420);
+//			if(jsonServer == null) {
+//				WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Failed to start JSON server!");
+//				return;
+//			}
+//			jsonServer.start();
+//		} catch(IOException e) {
+//			WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Failed to start JSON server!");
+//			e.printStackTrace();
+//		}
 	}
 
 	public void onLoadMetrics() {

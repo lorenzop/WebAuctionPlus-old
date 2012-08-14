@@ -55,6 +55,8 @@ public class waStats {
 		// total auctions
 		totalAuctionCount = 0;
 		try {
+			st = null;
+			rs = null;
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Stats::count auctions");
 			st = conn.prepareStatement("SELECT COUNT(*) FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Auctions` WHERE `allowBids` != 0");
 			rs = st.executeQuery();
@@ -69,6 +71,8 @@ public class waStats {
 		// get max auction id
 		maxAuctionId = -1;
 		try {
+			st = null;
+			rs = null;
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Stats::getMaxAuctionID");
 			st = conn.prepareStatement("SELECT MAX(`id`) AS `id` FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Auctions`");
 			rs = st.executeQuery();
@@ -79,8 +83,8 @@ public class waStats {
 		} finally {
 			WebAuctionPlus.dataQueries.closeResources(st, rs);
 		}
-		WebAuctionPlus.dataQueries.closeResources(conn);
 
+		WebAuctionPlus.dataQueries.closeResources(conn);
 	}
 
 

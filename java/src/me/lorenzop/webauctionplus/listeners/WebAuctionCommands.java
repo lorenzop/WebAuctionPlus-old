@@ -27,53 +27,30 @@ public class WebAuctionCommands implements CommandExecutor {
 		}
 		// 1 arg
 		if(params == 1) {
-//			// wa reload
-//			if (args[0].equalsIgnoreCase("reload")){
-//boolean temp=true;
-//if(temp) {
-//sender.sendMessage("/wa reload is currently broken. it will be fixed soon.");
-//return true;
-//}
-//				if (sender instanceof Player) {
-//					if (!sender.hasPermission("wa.reload")){
-//						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
-//						return true;
-//					}
-//					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("reloading"));
-//				}
-//				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("reloading"));
-//				plugin.getServer().getScheduler().cancelTasks(plugin);
-//				plugin.waAnnouncerTask.clearMessages();
-//				plugin.shoutSigns.clear();
-//				plugin.recentSigns.clear();
-//				WebAuctionPlus.dataQueries.forceCloseConnections();
-//				plugin.reloadConfig();
-//				plugin.onLoadConfig();
-//				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("finished_reloading"));
-//				if (sender instanceof Player)
-//					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("finished_reloading"));
-//				return true;
-//			// wa save
-//			} else if (args[0].equalsIgnoreCase("save")){
-//				if (sender instanceof Player) {
-//					if (!sender.hasPermission("wa.save")){
-//						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
-//						return true;
-//					}
-//				}
-//				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("saving"));
-//sender.sendMessage("This feature is incomplete");
-//WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + ChatColor.RED + "This feature is incomplete");
-//boolean temp=true;
-//if(temp)
-//return true;
-//				plugin.saveConfig();
-//				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("finished_saving"));
-//				if (sender instanceof Player)
-//					((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("finished_saving"));
-//				return true;
+			// wa reload
+			if(args[0].equalsIgnoreCase("reload")){
+				if(sender instanceof Player) {
+					if(!sender.hasPermission("wa.reload")){
+						((Player)sender).sendMessage(WebAuctionPlus.chatPrefix+WebAuctionPlus.Lang.getString("no_permission"));
+						return true;
+					}
+				}
+				if(sender instanceof Player)
+					sender.sendMessage(WebAuctionPlus.chatPrefix+WebAuctionPlus.Lang.getString("reloading"));
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+WebAuctionPlus.Lang.getString("reloading"));
+				plugin.onReload();
+				if(WebAuctionPlus.isOk()) {
+					if(sender instanceof Player)
+						sender.sendMessage(WebAuctionPlus.chatPrefix+WebAuctionPlus.Lang.getString("finished_reloading"));
+					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+WebAuctionPlus.Lang.getString("finished_reloading"));
+				} else {
+					if(sender instanceof Player)
+						sender.sendMessage(WebAuctionPlus.chatPrefix+"Failed to reload!");
+					WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Failed to reload!");
+				}
+				return true;
+			}
 			// wa version
-//			} else
 			if (args[0].equalsIgnoreCase("version")) {
 				if(sender instanceof Player) {
 					sender.sendMessage(WebAuctionPlus.chatPrefix+"v"+plugin.getDescription().getVersion());
@@ -87,10 +64,17 @@ public class WebAuctionCommands implements CommandExecutor {
 					}
 				}
 				return true;
+			}
 			// wa update
-			} else if(args[0].equalsIgnoreCase("update")){
+			if(args[0].equalsIgnoreCase("update")){
+				if(!sender.hasPermission("wa.reload")){
+					sender.sendMessage(WebAuctionPlus.chatPrefix+WebAuctionPlus.Lang.getString("no_permission"));
+					return true;
+				}
 				WebAuctionPlus.recentSignTask.run();
-				sender.sendMessage(WebAuctionPlus.chatPrefix+"Updated recent signs.");
+				if(sender instanceof Player)
+					sender.sendMessage(WebAuctionPlus.chatPrefix+"Updated recent signs.");
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Updated recent signs.");
 				return true;
 			}
 			return false;
@@ -122,10 +106,10 @@ public class WebAuctionCommands implements CommandExecutor {
 					pass = WebAuctionPlus.MD5(args[2]);
 					args[2] = "";
 				}
-				if (player.isEmpty()) return false;
+				if(player.isEmpty()) return false;
 				AuctionPlayer waPlayer = WebAuctionPlus.dataQueries.getPlayer(player);
 				// create that person in database
-				if (waPlayer == null) {
+				if(waPlayer == null) {
 					// permission to create an account
 					if (isPlayer) {
 						if (!sender.hasPermission("wa.password.create")){
@@ -140,21 +124,21 @@ public class WebAuctionCommands implements CommandExecutor {
 						sender.hasPermission("wa.webadmin") && isPlayer
 					);
 					WebAuctionPlus.dataQueries.createPlayer(waPlayer, pass);
-					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("account_created") + " " + player +
-							" with perms: " + waPlayer.getPermsString());
 					if (sender instanceof Player)
 						sender.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_created"));
+					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("account_created") + " " + player +
+							" with perms: " + waPlayer.getPermsString());
 				// change password for an existing account
 				} else {
 					// permission to change password
-					if (sender instanceof Player) {
+					if(sender instanceof Player) {
 						if (!sender.hasPermission("wa.password.change")){
 							((Player)sender).sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
 							return true;
 						}
 					}
 					WebAuctionPlus.dataQueries.updatePlayerPassword(player, pass);
-					if (sender instanceof Player)
+					if(sender instanceof Player)
 						sender.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("password_changed"));
 					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("password_changed") + " " + player);
 				}

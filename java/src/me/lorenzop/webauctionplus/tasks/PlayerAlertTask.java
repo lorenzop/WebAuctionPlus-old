@@ -81,11 +81,11 @@ public class PlayerAlertTask implements Runnable {
 				if(p != null) {
 // TODO: language here
 					p.sendMessage(WebAuctionPlus.chatPrefix+"You sold " +
-						rs.getInt   ("qty") + " " +
-						rs.getString("itemTitle") + " to " +
-						rs.getString("buyer") + " for " +
-						WebAuctionPlus.FormatPrice(rs.getDouble("price")) + " each, " +
-						WebAuctionPlus.FormatPrice(rs.getDouble("price") * rs.getDouble("qty")) + " total.");
+						rs.getInt   ("qty")+"x "+
+						rs.getString("itemTitle")+" to "+
+						rs.getString("buyer")+" for "+
+						WebAuctionPlus.FormatPrice(rs.getDouble("price"))+
+						(rs.getInt("qty")>1 ? " each, "+WebAuctionPlus.FormatPrice(rs.getDouble("price")*rs.getDouble("qty"))+" total." : "") );
 					// mark seen sql
 					if(!markSeenSql.isEmpty()) markSeenSql += " OR ";
 					markSeenSql += "`id` = " + Integer.toString(rs.getInt("id"));

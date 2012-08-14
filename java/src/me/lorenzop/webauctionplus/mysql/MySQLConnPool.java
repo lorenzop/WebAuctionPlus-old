@@ -89,6 +89,12 @@ public class MySQLConnPool {
 	public void setConnPoolSizeHard(int size) {
 		ConnPoolSizeHard = size;
 	}
+	public int getCountInUse() {
+		int count = 0;
+		for(boolean used : inuse)
+			if(used) count++;
+		return count;
+	}
 
 
 	// close resources
@@ -200,6 +206,8 @@ public class MySQLConnPool {
 			}
 		} catch (SQLException e) {
 			log.warning(logPrefix+"Unable to check if table column exists: "+dbPrefix+tableName+"::"+columnName);
+		} finally {
+			closeResources(conn, st, rs);
 		}
 		return exists;
 	}

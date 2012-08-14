@@ -146,7 +146,7 @@ public class MySQLTables {
 					"`earnt`			DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'	, " +
 					"`spent`			DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'	, " +
 					"`Permissions`		SET( 'canBuy', 'canSell', 'isAdmin' ) NULL DEFAULT NULL ," +
-					"`Locked`			TINYINT(1)		NOT NULL	DEFAULT '0'");
+					"`Locked`			TINYINT(1)		NOT NULL	DEFAULT '0'		");
 		// RecentSigns
 		else if (tableName.equals("RecentSigns"))
 			if (alter) {
@@ -227,7 +227,7 @@ public class MySQLTables {
 					"`buyer`			VARCHAR(16)		NULL		DEFAULT NULL	, " +
 					"`qty`				INT(11)			NOT NULL	DEFAULT 0		, " +
 					"`price`			DECIMAL(11,2)	NOT NULL	DEFAULT 0.00	, " +
-					"`alert`			TINYINT(1)		NOT NULL	DEFAULT 0	");
+					"`alert`			TINYINT(1)		NOT NULL	DEFAULT 0		");
 	}
 
 	// convert database tables to Plus
@@ -241,7 +241,7 @@ public class MySQLTables {
 		sqlTables(true, "SellPrice");
 		sqlTables(true, "ShoutSigns");
 
-		Connection conn			= null;
+		Connection conn			= getConnection();
 		PreparedStatement st	= null;
 		PreparedStatement stNew	= null;
 		ResultSet rs			= null;
@@ -249,7 +249,6 @@ public class MySQLTables {
 
 		// check if already updated
 		try {
-			conn  = getConnection();
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Count Database Settings");
 			st = conn.prepareStatement("SELECT COUNT(*) AS `count` FROM `"+dbPrefix+"Settings`");
 			rs = st.executeQuery();
@@ -270,7 +269,7 @@ public class MySQLTables {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to update Players table!");
 			e.printStackTrace();
 		} finally {
-			closeResources(conn, st, rs);
+			closeResources(st, rs);
 			closeResources(stNew, rs2);
 		}
 
@@ -278,7 +277,6 @@ public class MySQLTables {
 		if (tableExists("Players")) {
 			int countPlayers = 0;
 			int totalPlayers = 0;
-			conn  = getConnection();
 			st    = null;
 			stNew = null;
 			rs    = null;
@@ -315,7 +313,7 @@ public class MySQLTables {
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to update Players table!");
 				e.printStackTrace();
 			} finally {
-				closeResources(conn, st, rs);
+				closeResources(st, rs);
 				closeResources(stNew, rs2);
 			}
 		}
@@ -323,7 +321,6 @@ public class MySQLTables {
 		if (tableExists("Mail")) {
 			int countMail = 0;
 			int totalMail = 0;
-			conn = getConnection();
 			st    = null;
 			stNew = null;
 			rs    = null;
@@ -358,7 +355,7 @@ public class MySQLTables {
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to update Mail table");
 				e.printStackTrace();
 			} finally {
-				closeResources(conn, st, rs);
+				closeResources(st, rs);
 				closeResources(stNew, rs2);
 			}
 			// make sure nothing's null
@@ -368,7 +365,6 @@ public class MySQLTables {
 		if (tableExists("EnchantLinks")) {
 			int countEnchantments = 0;
 			int totalEnchantments = 0;
-			conn = getConnection();
 			st    = null;
 			stNew = null;
 			rs    = null;
@@ -430,16 +426,17 @@ public class MySQLTables {
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to update Enchantments table");
 				e.printStackTrace();
 			} finally {
-				closeResources(conn, st, rs);
+				closeResources(st, rs);
 				closeResources(stNew, rs2);
 			}
 		}
+		closeResources(conn);
 	}
 
 
 	// update from 1.0 to 1.1.1
 	private void ConvertDatabase1_1_1() {
-		Connection conn			= null;
+		Connection conn			= getConnection();
 		PreparedStatement st	= null;
 		PreparedStatement stNew	= null;
 		ResultSet rs			= null;
@@ -448,7 +445,6 @@ public class MySQLTables {
 		if(tableExists("ItemEnchantments")) {
 			int totalItemEnchantments = 0;
 			int countEnchantments = 0;
-			conn = getConnection();
 			st    = null;
 			stNew = null;
 			rs    = null;
@@ -503,11 +499,11 @@ public class MySQLTables {
 				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to convert enchantments");
 				e.printStackTrace();
 			} finally {
-				closeResources(conn, st, rs);
+				closeResources(st, rs);
 				closeResources(stNew, rs2);
 			}
 		}
-
+		closeResources(conn);
 	}
 
 

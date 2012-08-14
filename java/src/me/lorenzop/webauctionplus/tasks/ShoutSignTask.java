@@ -65,7 +65,7 @@ public class ShoutSignTask implements Runnable {
 				}
 				Double xValue = key.getX();
 				Double zValue = key.getZ();
-				int radius = (Integer)plugin.shoutSigns.get(key);
+				int radius = plugin.shoutSigns.get(key);
 				for(Player player : playerList) {
 					Double playerX = player.getLocation().getX();
 					Double playerZ = player.getLocation().getZ();
