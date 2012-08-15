@@ -192,6 +192,8 @@ public static function PaymentQuery($playerName, $amount){global $config;
              "WHERE LOWER(`playerName`)='".mysql_san(strtolower($playerName))."' LIMIT 1";
   }
   $result = RunQuery($query, __file__, __line__);
+  global $db;
+  if(mysql_affected_rows($db) != 1) echo '<p>Failed to make payment to/from: '.$playerName.'!</p>';
 }
 
 

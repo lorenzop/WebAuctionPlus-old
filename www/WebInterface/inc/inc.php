@@ -216,38 +216,38 @@ function numberToRoman($num){
 }
 
 
-// send email
-function send_mail($to_email,$body,$subject,$from_email,$from_name=''){$headers='';
-  // Common Headers
-  if($from_name==''){$from=$from_email;}else{$from=$from_name.' <'.$from_email.'>';}
-  $headers.='From: '.       $from."\r\n";
-  $headers.='Reply-To: '.   $from."\r\n";
-  $headers.='Return-Path: '.$from."\r\n";
-  $headers.='Message-ID: <'.time().'-'.$from_email.">\r\n";
-  $headers.='X-Mailer: PHP v'.phpversion()."\r\n"; // help avoid spam-filters
-  // prep text
-  $body=strip_tags(str_replace("\r",'',$body));
-  $body=str_replace("<br>\r\n","\n",$body)."\r\n\r\n";
-  // send the email
-  ini_set('sendmail_from',$from_email); // force the from address
-  $mail_sent=mail($to_email,$subject,"\r\n".$body,$headers);
-  ini_restore('sendmail_from');
-  return($mail_sent);
-}
+//// send email
+//function send_mail($to_email,$body,$subject,$from_email,$from_name=''){$headers='';
+//  // Common Headers
+//  if($from_name==''){$from=$from_email;}else{$from=$from_name.' <'.$from_email.'>';}
+//  $headers.='From: '.       $from."\r\n";
+//  $headers.='Reply-To: '.   $from."\r\n";
+//  $headers.='Return-Path: '.$from."\r\n";
+//  $headers.='Message-ID: <'.time().'-'.$from_email.">\r\n";
+//  $headers.='X-Mailer: PHP v'.phpversion()."\r\n"; // help avoid spam-filters
+//  // prep text
+//  $body=strip_tags(str_replace("\r",'',$body));
+//  $body=str_replace("<br>\r\n","\n",$body)."\r\n\r\n";
+//  // send the email
+//  ini_set('sendmail_from',$from_email); // force the from address
+//  $mail_sent=mail($to_email,$subject,"\r\n".$body,$headers);
+//  ini_restore('sendmail_from');
+//  return($mail_sent);
+//}
 
 
-// get root domain for cookies
-function GetCookieDomain(){
-  $cookie_domain=$_SERVER['SERVER_NAME'];
-  if($cookie_domain==''){$cookie_domain=$_SERVER['HTTP_HOST'];}
-  while(substr($cookie_domain,0,1)=='.'){$cookie_domain=substr($cookie_domain,1);}
-  while(substr($cookie_domain,-1)=='.'){$cookie_domain=substr($cookie_domain,0,-1);}
-  $a=explode('.',$cookie_domain);
-  if(count($a)>2){$cookie_domain=$a[count($a)-2].'.'.$a[count($a)-1];
-  }else{          $cookie_domain=implode('.',$a);} $a='';
-  if(empty($cookie_domain)) return('');
-  else                      return('.'.$cookie_domain);
-}
+//// get root domain for cookies
+//function GetCookieDomain(){
+//  $cookie_domain=$_SERVER['SERVER_NAME'];
+//  if($cookie_domain==''){$cookie_domain=$_SERVER['HTTP_HOST'];}
+//  while(substr($cookie_domain,0,1)=='.'){$cookie_domain=substr($cookie_domain,1);}
+//  while(substr($cookie_domain,-1)=='.'){$cookie_domain=substr($cookie_domain,0,-1);}
+//  $a=explode('.',$cookie_domain);
+//  if(count($a)>2){$cookie_domain=$a[count($a)-2].'.'.$a[count($a)-1];
+//  }else{          $cookie_domain=implode('.',$a);} $a='';
+//  if(empty($cookie_domain)) return('');
+//  else                      return('.'.$cookie_domain);
+//}
 
 
 ?>

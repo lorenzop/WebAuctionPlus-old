@@ -206,13 +206,13 @@ $output.='
   <td align="right"><b>Quantity:</b></td>
   <td><div style="position: absolute; margin-top: 10px; margin-left: 8px; font-size: larger; font-weight: bold;">x</div>'.
     '<input type="text" name="qty" value="'.((int)$qty).'" id="qty" class="input" style="width: 160px; text-align: center;" '.
-    'onkeypress="return numbersonly(this, event);" onchange="updateTotal(this,\'price\');" /></td>
+    'onkeypress="return numbersonly(this, event);" onkeyup="updateTotal(this,\'price\');" /></td>
 </tr>
 <tr>
   <td align="right"><b>Price Each:</b></td>
   <td><div style="position: absolute; margin-top: 8px; margin-left: 8px; font-size: larger; font-weight: bold;">'.SettingsClass::getString('Currency Prefix').'</div>'.
     '<input type="text" name="price" value="'.$priceEach.'" id="price" class="input" style="width: 160px; text-align: center;" '.
-    'onkeypress="return numbersonly(this, event);" onchange="updateTotal(this,\'qty\');" />'.
+    'onkeypress="return numbersonly(this, event);" onkeyup="updateTotal(this,\'qty\');" />'.
     '<b>&nbsp;'.SettingsClass::getString('Currency Postfix').'</b></td>
 </tr>
 <tr>
