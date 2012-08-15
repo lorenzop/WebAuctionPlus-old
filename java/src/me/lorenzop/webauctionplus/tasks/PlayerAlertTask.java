@@ -63,18 +63,18 @@ public class PlayerAlertTask implements Runnable {
 		}
 		if(playersMap.size() == 0) return;
 		// run the querys
-		String markSeenSql = "";
 		Connection conn = WebAuctionPlus.dataQueries.getConnection();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: SaleAlertTask::SaleAlerts " + playersMap.toString());
 			st = conn.prepareStatement("SELECT `id`, `saleType`, `itemType`, `itemTitle`, `seller`,`buyer`,`qty`,`price` FROM `" +
-				WebAuctionPlus.dataQueries.dbPrefix()+"LogSales` WHERE ( " + whereSql + " ) AND `logType` = 'sale' AND `alert` != 0");
+				WebAuctionPlus.dataQueries.dbPrefix()+"LogSales` WHERE ( " + whereSql + " ) AND `logType` = 'sale' AND `alert` != 0 LIMIT 4");
 			for(Map.Entry<Integer, String> entry : playersMap.entrySet()) {
 				st.setString(entry.getKey(), entry.getValue());
 			}
 			rs = st.executeQuery();
+			String markSeenSql = "";
 			while (rs.next()) {
 				if(playerJoined == null)
 					p = Bukkit.getPlayerExact(rs.getString("seller"));

@@ -41,10 +41,10 @@ public class RecentSignTask implements Runnable {
 			varQtyPrice	= Variables.get("waPrice");
 			varSeller	= Variables.get("waSeller");
 			varType		= Variables.get("waType");
-			varTitle.setDefault		("N/A");
-			varQtyPrice.setDefault	("N/A");
-			varSeller.setDefault	("N/A");
-			varType.setDefault		("N/A");
+			varTitle.setDefault		("N/A       ");
+			varQtyPrice.setDefault	("N/A       ");
+			varSeller.setDefault	("N/A       ");
+			varType.setDefault		("N/A       ");
 			varTitle.getTicker().interval	= 10;
 			varQtyPrice.getTicker().interval= 10;
 			varSeller.getTicker().interval	= 10;
@@ -80,12 +80,12 @@ public class RecentSignTask implements Runnable {
 			while(rs.next()) {
 				offset++;
 				String strTitle		= rs.getString("itemTitle");
-				if(strTitle==null || strTitle.isEmpty()) strTitle = "N/A";
+				if(strTitle==null || strTitle.isEmpty()) strTitle = "N/A       ";
 				int    qty			= rs.getInt("qty");
 				String strPrice		= WebAuctionPlus.FormatPrice(rs.getFloat("price"));
 				String strQtyPrice	= Integer.toString(qty)+"x "+strPrice;
 				String strSeller	= rs.getString("playerName");
-				if(strSeller==null || strSeller.isEmpty()) strSeller = "N/A";
+				if(strSeller==null || strSeller.isEmpty()) strSeller = "N/A       ";
 				String strType = "";
 				if(rs.getInt("allowBids") == 0)	strType = "Buy Now";
 				else							strType = "Auction";
