@@ -42,7 +42,7 @@ $Items[27584]=array(
     'icon'=>'Ring_Of_Arcana_0.png',
     'pack'=>$pack),
 );
-	
+
 $Items[27528]=array(
   'name'=>'Iron Band',
   'icon'=>'Iron_Band.png',
@@ -61,7 +61,7 @@ $Items[27532]=array(
     'icon'=>'Black_Hole_Band_2.png',
     'pack'=>$pack),
   -1=>array(
-    'name'=>'Unknown Band',
+    'name'=>'Unknown Black Hole Band',
     'icon'=>'Black_Hole_Band_1.png',
     'pack'=>$pack),
 );
@@ -82,15 +82,15 @@ $Items[27537]=array(
 $Items[27533]=array(
   0 =>array(
     'name'=>'Ring Of Ignition',
-    'icon'=>'Ring_Of_Ignition.png',
+    'icon'=>'Ring_Of_Ignition_0.png',
     'pack'=>$pack),
   1 =>array(
     'name'=>'Ring Of Ignition',
-    'icon'=>'Ring_Of_Ignition.png',
+    'icon'=>'Ring_Of_Ignition_1.png',
     'pack'=>$pack),
   -1=>array(
-    'name'=>'Unknown Item',
-    'icon'=>'Ring_Of_Ignition.png',
+    'name'=>'Unknown Ring Of Ignition',
+    'icon'=>'Ring_Of_Ignition_0.png',
     'pack'=>$pack),
 );
 $Items[27536]=array(
@@ -132,15 +132,15 @@ $Items[27593]=array(
 $Items[27574]=array(
   0 =>array(
     'name'=>'Zero Ring',
-    'icon'=>'Zero_Ring.png',
+    'icon'=>'Zero_Ring_0.png',
     'pack'=>$pack),
   1 =>array(
     'name'=>'Zero Ring',
-    'icon'=>'Zero_Ring.png',
+    'icon'=>'Zero_Ring_1.png',
     'pack'=>$pack),
   -1=>array(
-    'name'=>'Unknown Item',
-    'icon'=>'Teleporter.png',
+    'name'=>'Unknown Zero Ring',
+    'icon'=>'Zero_Ring_0.png',
     'pack'=>$pack),
 );
 
@@ -365,11 +365,11 @@ $Items[27582]=array(
 // Transmutation Tablet Progression
 $Items[130]=array(
   'name'=>'Transmutation Tablet',
-  'icon'=>'Transmutation_Tablet.png',
+  'icon'=>'Transmutation_Tablet_0.png',
   'pack'=>$pack);
 $Items[27592]=array(
   'name'=>'Transmutation Tablet',
-  'icon'=>'Transmutation_Tablet2.png',
+  'icon'=>'Transmutation_Tablet_1.png',
   'pack'=>$pack);
 $Items[27594]=array(
   'name'=>'Alchemical Tome',
@@ -559,6 +559,12 @@ $Items[27591]=array(
   'icon'=>'Klein_Star_Omega.png',
   'pack'=>$pack);
 
+//Debug Item
+$Items[30104]=array(
+  'name'=>'Debug Item',
+  'icon'=>'Debug_Item.png',
+  'pack'=>$pack);
+
 // Alchemical Blocks
 $Items[128]=array(
   0 =>array(
@@ -570,7 +576,7 @@ $Items[128]=array(
     'icon'=>'Energy_Condenser.png',
     'pack'=>$pack),
   -1=>array(
-    'name'=>'Unknown Item',
+    'name'=>'Unknown Alchemical Item',
     'icon'=>'Alchemical_Chest.png',
     'pack'=>$pack),
 );
