@@ -63,6 +63,16 @@ $Items[19762]=array(
   'icon'=>'Chest_Upgrade_Diamond_to_Crystal.png',
   'stack'=>1,
   'pack'=>$pack);
+$Items[29763]=array(
+  'name'=>'Normal chest to Iron Chest Upgrade',
+  'icon'=>'Chest_Upgrade_Normal_to_Iron.png',
+  'stack'=>1,
+  'pack'=>$pack);
+$Items[29764]=array(
+  'name'=>'Normal chest to Copper Chest Upgrade',
+  'icon'=>'Chest_Upgrade_Normal_to_Copper.png',
+  'stack'=>1,
+  'pack'=>$pack);
 
 unset($Items);
 ?>

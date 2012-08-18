@@ -16,11 +16,27 @@ $Items[194]=array(
     'name'=>'Black Hole Chest',
     'icon'=>'Black_Hole_Chest.png',
     'pack'=>$pack),
+  3 =>array(
+    'name'=>'Incinerator',
+    'icon'=>'Incinerator.png',
+    'pack'=>$pack),
+  4 =>array(
+    'name'=>'Duplicator',
+    'icon'=>'Duplicator.png',
+    'pack'=>$pack),
+  5 =>array(
+    'name'=>'Retrievulator',
+    'icon'=>'Retrievulator.png',
+    'pack'=>$pack),
   -1=>array(
     'name'=>'Unknown Item',
     'icon'=>'Automatic_Crafting_Table_MkII.png',
     'pack'=>$pack),
 );
+$Items[7614]=array(
+  'name'=>'Retriever Jammer',
+  'icon'=>'Retriever_Jammer.png',
+  'pack'=>$pack);
 
 unset($Items);
 ?>
