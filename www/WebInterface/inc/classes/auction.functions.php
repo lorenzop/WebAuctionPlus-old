@@ -26,8 +26,6 @@ public static function Sell($id, $qty, $price, $desc){global $config, $user;
   $Item = QueryItems::QuerySingle($user->getName(), $id);
   if(!$Item){$config['error'] = 'Item not found!'; return(FALSE);}
   if($qty > $Item->getItemQty()){$qty = $Item->getItemQty(); $config['error'] = 'You don\'t have that many!'; return(FALSE);}
-  // merge with existing auction
-//TODO: will have a function to check for existing auctions
   // create auction
   $query = "INSERT INTO `".$config['table prefix']."Auctions` (".
            "`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle`, `price`, `created` )VALUES( ".
@@ -36,7 +34,7 @@ public static function Sell($id, $qty, $price, $desc){global $config, $user;
            ((int)$Item->getItemDamage()).", ".
            ((int)$qty).", ".
            "'".mysql_san($Item->getEnchantmentsCompressed())."', ".
-           "'".ItemFuncs::getItemTitle($Item->getItemId(), $Item->getItemDamage())."', ".
+           "'".mysql_san(ItemFuncs::getItemTitle($Item->getItemId(), $Item->getItemDamage()))."', ".
            ((float)$price).", NOW() )";
   $result = RunQuery($query, __file__, __line__);
   if(!$result) {echo '<p style="color: red;">Error creating auction!</p>'; exit();}

@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ALL | E_STRICT);
 define('DEFINE_INDEX_FILE',TRUE);
-define('CURRENT_VERSION', '1.1.3');
+define('CURRENT_VERSION', '1.1.4');
 
 if(function_exists('session_status'))
   if(session_status() == PHP_SESSION_DISABLED){
