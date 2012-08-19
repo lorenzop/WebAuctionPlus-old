@@ -540,6 +540,24 @@ public class WebAuctionPlus extends JavaPlugin {
 //		}
 	}
 
+
+	// announce radius
+	public static void BroadcastRadius(String msg, Location loc, int radius) {
+		Player[] playerList = Bukkit.getOnlinePlayers();
+		Double x = loc.getX();
+		Double z = loc.getZ();
+		for(Player player : playerList) {
+			Double playerX = player.getLocation().getX();
+			Double playerZ = player.getLocation().getZ();
+			if( (playerX < x + (double)radius ) &&
+				(playerX > x - (double)radius ) &&
+				(playerZ < z + (double)radius ) &&
+				(playerZ > z - (double)radius ) )
+					player.sendMessage(WebAuctionPlus.chatPrefix+msg);
+		}
+	}
+
+
 	public void onLoadMetrics() {
 		// usage stats
 		try {

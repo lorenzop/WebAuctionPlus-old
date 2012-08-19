@@ -8,8 +8,8 @@ import me.lorenzop.webauctionplus.WebInventory;
 import me.lorenzop.webauctionplus.dao.AuctionPlayer;
 import me.lorenzop.webauctionplus.tasks.PlayerAlertTask;
 
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -100,7 +100,7 @@ public class WebAuctionPlayerListener implements Listener {
 
 		// Shout sign
 		if(lines[1].equals("Shout")) {
-			clickSignShout();
+			clickSignShout(block.getLocation());
 			return;
 		}
 
@@ -197,24 +197,27 @@ public class WebAuctionPlayerListener implements Listener {
 
 	// shout sign
 	private static long lastUseShout = 0;
-	public static void clickSignShout() {
+	public static void clickSignShout(Location loc) {
 		if(lastUseShout+(10*60*1000) > WebAuctionPlus.getCurrentMilli()) return;
 		lastUseShout = WebAuctionPlus.getCurrentMilli();
+		WebAuctionPlus.BroadcastRadius(getShoutMessage(), loc, 20);
+	}
+	protected static String getShoutMessage() {
 		Random generator = new Random();
 		while(true) {
 			int roll = generator.nextInt(11);
 			switch(roll) {
-				case 0: Bukkit.getServer().broadcastMessage(WebAuctionPlus.chatPrefix+"All your base are belong to Notch!"); return;
-				case 1: Bukkit.getServer().broadcastMessage(WebAuctionPlus.chatPrefix+"Mmmmm, chocolate milk."); return;
-				case 2: Bukkit.getServer().broadcastMessage(WebAuctionPlus.chatPrefix+"I like potatos."); return;
-				case 3: Bukkit.getServer().broadcastMessage(WebAuctionPlus.chatPrefix+"99% mime free!"); return;
-				case 4: Bukkit.getServer().broadcastMessage(WebAuctionPlus.chatPrefix+"BAGOCK! I sorry, I thought you was corn."); return;
-				case 5: Bukkit.getServer().broadcastMessage(WebAuctionPlus.chatPrefix+"Hey, there's a creeper behind you! jk"); return;
-				case 6: Bukkit.getServer().broadcastMessage(WebAuctionPlus.chatPrefix+"It's a trap!"); return;
-				case 7: Bukkit.getServer().broadcastMessage(WebAuctionPlus.chatPrefix+"Who's Mary Ann?!"); return;
-				case 8: Bukkit.getServer().broadcastMessage(WebAuctionPlus.chatPrefix+"It's like forgetting the words to your favorite song."); return;
-				case 9: Bukkit.getServer().broadcastMessage(WebAuctionPlus.chatPrefix+"Vote for net neutrality!"); return;
-				case 10:Bukkit.getServer().broadcastMessage(WebAuctionPlus.chatPrefix+"That creeper stole your wallet!"); return;
+				case 0: return "All your base are belong to Notch!";
+				case 1: return "Mmmmm, chocolate milk.";
+				case 2: return "I like potatos.";
+				case 3: return "99% mime free!";
+				case 4: return "BAGOCK! I sorry, I thought you was corn.";
+				case 5: return "Hey, there's a creeper behind you! jk";
+				case 6: return "It's a trap!";
+				case 7: return "Who's Mary Ann?!";
+				case 8: return "It's like forgetting the words to your favorite song.";
+				case 9: return "Vote for net neutrality!";
+				case 10:return "That creeper stole your wallet!";
 			}
 		}
 	}
