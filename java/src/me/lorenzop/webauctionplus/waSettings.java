@@ -56,10 +56,12 @@ public class waSettings {
 		addDefault("Currency Prefix",		"$ ");
 		addDefault("Currency Postfix",		"");
 		addDefault("Custom Description",	false);
+		addDefault("Inventory Rows",		6);
 		addDefault("Website Theme",			"");
 		addDefault("jQuery UI Pack",		"");
 		addDefault("Item Packs",			"");
 		addDefault("Max Sell Price",		10000.00);
+//		addDefault("Max Selling Per Player",20);
 //		addDefault("Storage base per stack",1.0);
 //		addDefault("Storage add per item",	0.1);
 	}
@@ -88,9 +90,9 @@ public class waSettings {
 		if(value) addDefault(name, "true");
 		else      addDefault(name, "false");
 	}
-//	private void addDefault(String name, int value) {
-//		addDefault(name, Integer.toString(value));
-//	}
+	private void addDefault(String name, int value) {
+		addDefault(name, Integer.toString(value));
+	}
 //	private void addDefault(String name, long value) {
 //		addDefault(name, Long.toString(value));
 //	}

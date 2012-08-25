@@ -118,7 +118,6 @@ public class WebAuctionPlus extends JavaPlugin {
 		if(!onLoadConfig()) {onDisable(); return;}
 
 		// load more services
-//		onLoadJSONServer();
 		onLoadMetrics();
 		checkUpdateAvailable();
 
@@ -141,10 +140,6 @@ public class WebAuctionPlus extends JavaPlugin {
 		recentSigns.clear();
 		// close inventories
 		WebInventory.ForceCloseAll();
-		// stop json server
-//		try {
-//			if(jsonServer != null)  jsonServer.listener.close();
-//		} catch (Exception ignore) {}
 		// close mysql connection
 		try {
 			if(dataQueries != null) dataQueries.forceCloseConnections();
@@ -160,16 +155,9 @@ public class WebAuctionPlus extends JavaPlugin {
 
 
 	public void onReload() {
-		if(!isOk) {
-			onDisable();
-			onEnable();
-			return;
-		}
 		onDisable();
 		// load config.yml
-		if(!onLoadConfig()) {onDisable(); return;}
-//		// load more services
-//		onLoadJSONServer();
+		if(!onLoadConfig()) return;
 		isOk = true;
 	}
 
@@ -524,22 +512,6 @@ public class WebAuctionPlus extends JavaPlugin {
 	public static void PrintProgress(int count, int total) {
 		PrintProgress(count, total, 20);
 	}
-
-	public void onLoadJSONServer() {
-//		// Initialize the listener
-//		try {
-//			jsonServer = new waJSONServer(this, "*", 8420);
-//			if(jsonServer == null) {
-//				WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Failed to start JSON server!");
-//				return;
-//			}
-//			jsonServer.start();
-//		} catch(IOException e) {
-//			WebAuctionPlus.log.severe(WebAuctionPlus.logPrefix+"Failed to start JSON server!");
-//			e.printStackTrace();
-//		}
-	}
-
 
 	// announce radius
 	public static void BroadcastRadius(String msg, Location loc, int radius) {

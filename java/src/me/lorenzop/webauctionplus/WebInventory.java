@@ -27,7 +27,8 @@ public class WebInventory {
 	public WebInventory(Player p) {
 		if(p == null) return;
 		playerName = p.getName();
-		chest = Bukkit.getServer().createInventory(null, 54, "WebAuction+ MailBox");
+		int numSlots = WebAuctionPlus.MinMax( WebAuctionPlus.settings.getInteger("Inventory Rows"), 1, 6) * 9;
+		chest = Bukkit.getServer().createInventory(null, numSlots, "WebAuction+ MailBox");
 		loadInventory();
 		p.openInventory(chest);
 	}
