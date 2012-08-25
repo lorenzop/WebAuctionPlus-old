@@ -59,9 +59,9 @@
 //    <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
 //    <style type="text/css" title="currentStyle">
 //      @import "css/table_jui.css";
-//      @import "css/<?php echo $uiPack?>/jquery-ui-1.8.18.custom.css";
+//      @import "css/<?php echo $uiPack? >/jquery-ui-1.8.18.custom.css";
 //    </style>
-//    <link rel="stylesheet" type="text/css" href="css/<?php echo $cssFile?>.css" />
+//    <link rel="stylesheet" type="text/css" href="css/<?php echo $cssFile? >.css" />
 //    <script type="text/javascript" language="javascript" src="js/jquery-1.7.2.min.js"></script>
 //    <script type="text/javascript" language="javascript" src="js/jquery.dataTables-1.9.0.min.js"></script>
 //    <script language="javascript" type="text/javascript" src="graph/jquery.jqplot-1.0.0b2_r1012.js"></script>
@@ -79,12 +79,12 @@
 //    </script>
 //    <script class="code" type="text/javascript">
 //      $(document).ready(function() {
-//        var line1=<?php echo $jsArrayString ?>;
+//        var line1=<?php echo $jsArrayString ? >;
 //        var plot1=$.jqplot(
 //          'chart1',
 //          [line1],
 //          {
-//            title: '<?php echo $itemFullName ?> Market Price',
+//            title: '<?php echo $itemFullName ? > Market Price',
 //            axes: {
 //            xaxis: {
 //              renderer: $.jqplot.DateAxisRenderer,
