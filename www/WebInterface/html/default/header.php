@@ -13,11 +13,10 @@ $output.=
   <link rel="icon" type="image/x-icon" href="{path=static}favicon.ico" />
 ';
 // css
-RenderHTML::LoadCss('main.css');
-RenderHTML::LoadCss('table_jui.css');
-RenderHTML::LoadCss($config['paths']['local']['static jquery'].'jquery-ui-1.8.19.custom.css');
-//RenderHTML::LoadCss($cssFile.'.css');
 $output.='
+<link rel="stylesheet" type="text/css" href="{path=theme}main.css" />
+<link rel="stylesheet" type="text/css" href="{path=theme}table_jui.css" />
+<link rel="stylesheet" type="text/css" href="{path=static jquery}jquery-ui-1.8.19.custom.css" />
 <style type="text/css">
 {css}
 </style>

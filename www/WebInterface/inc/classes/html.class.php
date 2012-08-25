@@ -31,7 +31,10 @@ public function Display(){global $config,$lpaths;
   $this->outputs['footer'] = RenderHTML::LoadHTML('footer.php');
   $this->outputs['header'] = str_replace('{AddToHeader}',$this->tempHeader,$this->outputs['header']);
   // insert css
-  $this->outputs['header'] = str_replace('{css}', "\n".$this->outputs['css']."\n", $this->outputs['header']);
+  $this->outputs['css'] = trim($this->outputs['css']);
+  if(!empty($this->outputs['css']))
+    $this->outputs['css'] = "\n".$this->outputs['css']."\n";
+  $this->outputs['header'] = str_replace('{css}', $this->outputs['css'], $this->outputs['header']);
   // common tags
   $this->tags['site title']     = $config['site title'];
   $this->tags['page title']     = $config['title'];

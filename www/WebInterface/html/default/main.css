@@ -2,7 +2,7 @@
 
 body{
   background-color:      #53568B;
-  background-image:      url('{path=images}wa_bg.jpg');
+  background-image:      url('images/wa_bg.jpg');
   background-repeat:     no-repeat;
   background-attachment: fixed;
   background-position:   top;

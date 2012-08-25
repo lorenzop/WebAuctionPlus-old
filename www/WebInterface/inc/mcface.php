@@ -1,4 +1,5 @@
 <?php
+//http://s3.amazonaws.com/MinecraftSkins/%player%.png
 
 
 $username = @$_GET['username'];
