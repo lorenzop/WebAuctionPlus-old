@@ -1,13 +1,7 @@
 <?php
 error_reporting(E_ALL | E_STRICT);
 define('DEFINE_INDEX_FILE',TRUE);
-define('CURRENT_VERSION', '1.1.4');
-
-if(function_exists('session_status'))
-  if(session_status() == PHP_SESSION_DISABLED){
-    echo '<p>PHP Sessions are disabled. This is a requirement, please enable this.</p>';
-    exit();
-  }
+define('CURRENT_VERSION', '1.1.5');
 
 // get,post,cookie (highest priority last)
 function getVar($name,$type='',$order=array('get','post')){$output='';
@@ -37,6 +31,9 @@ function toBoolean($value){
   if($tempValue==='n' || $tempValue==='no'   ) return(FALSE);
   return( (boolean)$value );
 }
+
+define('LOGIN_FORM_USERNAME', 'WA_Login_Username');
+define('LOGIN_FORM_PASSWORD', 'WA_Login_Password');
 
 // get page name
 $page   = getVar('page');
@@ -94,6 +91,9 @@ $wpaths['images']     = 'html/{theme}/images/';
 $wpaths['item packs'] = 'inc/ItemPacks/{pack}/icons/';
 // load config
 require($lpaths['config']);
+// connect to database
+//$dbi = FALSE;
+ConnectDB();
 
 
 
@@ -101,8 +101,8 @@ require($lpaths['config']);
 $config['site title'] = 'WebAuctionPlus';
 if(!isset($config['iConomy']['use']))   $config['iConomy']['use']   = 'auto';
 if(!isset($config['iConomy']['table'])) $config['iConomy']['table'] = 'iConomy';
-if(!date_default_timezone_get())
-  date_default_timezone_set('America/New_York');
+if(!@date_default_timezone_get())
+  @date_default_timezone_set('America/New_York');
 
 
 
@@ -110,6 +110,14 @@ if(!date_default_timezone_get())
 require($lpaths['includes'].'inc.php');
 $qtime = GetTimestamp();
 $page=SanFilename($page);
+
+// php session
+if(function_exists('session_status'))
+  if(session_status() == PHP_SESSION_DISABLED){
+    echo '<p>PHP Sessions are disabled. This is a requirement, please enable this.</p>';
+    exit();
+  }
+session_init();
 
 // load settings
 require($lpaths['classes'].'settings.class.php');
@@ -126,6 +134,7 @@ SettingsClass::setDefault('Website Theme'      , 'default'  , TRUE );
 SettingsClass::setDefault('jQuery UI Pack'     , 'redmond'  , TRUE );
 SettingsClass::setDefault('Item Packs'         , ''         , FALSE);
 SettingsClass::setDefault('Max Sell Price'     , 10000.0    , TRUE );
+//SettingsClass::setDefault('Max Selling Per Player', 20      , TRUE );
 $config['language'] = SettingsClass::getString('Language');
 $config['theme']    = SettingsClass::getString('Website Theme');
 

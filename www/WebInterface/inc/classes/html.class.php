@@ -35,6 +35,7 @@ public function Display(){global $config,$lpaths;
   // common tags
   $this->tags['site title']     = $config['site title'];
   $this->tags['page title']     = $config['title'];
+  $this->tags['lastpage']       = getLastPage();
   $this->tags['sitepage title'] = $config['site title'].(empty($config['title'])?'':' - '.$config['title']);
   $this->tags['token']          = CSRF::getTokenURL();
   $this->tags['token form']     = CSRF::getTokenForm();

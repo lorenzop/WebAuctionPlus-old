@@ -62,7 +62,7 @@ function RenderPage_myauctions(){global $config,$html; $output='';
       'price total'	=> FormatPrice($auction->getPriceTotal()),
       'created'     => $auction->getCreated(),
       'expire'      => $auction->getExpire(),
-      'market price percent' => 'market price<br />goes here',
+      'market price percent' => '--',
       'rowclass'    => 'gradeU',
 //TODO:
 //allowBids

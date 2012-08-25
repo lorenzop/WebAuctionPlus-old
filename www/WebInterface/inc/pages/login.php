@@ -1,7 +1,5 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 // login page
-define('LOGIN_FORM_USERNAME', 'WA_Login_Username');
-define('LOGIN_FORM_PASSWORD', 'WA_Login_Password');
 
 
 NoPageCache();
@@ -41,7 +39,6 @@ function RenderPage_login(){global $config,$html;
     'messages'	=> '',
     'username'	=> $config['demo'] ? 'demo' : getVar(LOGIN_FORM_USERNAME),
     'password'	=> $config['demo'] ? 'demo' : '',
-    'lastpage'	=> getLastPage(),
   ));
   // display error
   if(getVar('error') != '')

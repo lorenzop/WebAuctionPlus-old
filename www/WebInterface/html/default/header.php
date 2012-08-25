@@ -24,9 +24,9 @@ $output.='
 ';
 // finish header
 $output.='
-  <script type="text/javascript" language="javascript" src="{path=static}js/jquery-1.7.2.min.js"></script>
-  <script type="text/javascript" language="javascript" src="{path=static}js/jquery.dataTables-1.9.0.min.js"></script>
-  <script type="text/javascript" language="javascript" src="{path=static}js/inputfunc.js"></script>
+<script type="text/javascript" language="javascript" src="{path=static}js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" language="javascript" src="{path=static}js/jquery.dataTables-1.9.0.min.js"></script>
+<script type="text/javascript" language="javascript" src="{path=static}js/inputfunc.js"></script>
 {AddToHeader}
 </head>
 <body>
@@ -37,20 +37,49 @@ case 'default':
   $output.='
 <div id="holder">
 <div id="profile-box">
+
 {if logged in}
-<table border="0" cellspacing="0" cellpadding="0">
+
+<table border="0" cellspacing="0" cellpadding="0" style="margin-top: 15px; padding-bottom: 2px; text-align:  left; font-size:   20px; font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;">
 <tr>
   <td rowspan="4"><img src="http://minotar.net/avatar/'.$user->getName().'" alt="" width="64" height="64" id="mcface" /></td>
   <td>Name:</td><td>'.$user->getName().
       ($user->hasPerms('isAdmin')?'&nbsp;<a href="admin/" style="font-size: small; font-weight: bold; color: #000000;">[ADMIN]</a>':'').'</td>
 </tr>
 <tr><td>Money:&nbsp;&nbsp;</td><td>'.FormatPrice($user->getMoney()).'</td></tr>
-<tr><td colspan="2" style="font-size: 100%; font-weight: bold; text-align: center;">'.@date('jS M Y H:i:s').'</td></tr>
+<tr><td colspan="2" align="center" style="font-size: smaller;">'.@date('jS M Y H:i:s').'</td></tr>
 </table>
+
 {else}
-<center style="font-size: 30px; margin-top: 10px;"><a href="./?page=login"><u>Login here!</u></a></center>
-<center style="font-size: small;">If you don\'t have an account, you can create one using the command \'/wa password <somepassword>\' in game.</center>
+
+<form action="./" name="loginform" method="post">
+{token form}
+<input type="hidden" name="page"     value="login" />
+<input type="hidden" name="lastpage" value="{lastpage}" />
+<table border="0" cellspacing="0" cellpadding="0" style="margin-top: -10px;width: 585px;">
+<tr>
+  <td align="right"><label for="'.LOGIN_FORM_USERNAME.'">Username:&nbsp;</label></td>
+  <td width="290"><input type="text"  name="'.LOGIN_FORM_USERNAME.'" value="" class="input" size="30" tabindex="1" id="'.LOGIN_FORM_USERNAME.'" /></td>
+  <td rowspan="3"><input type="submit" name="Submit" value="Submit" class="button" tabindex="3" /></td>
+</tr>
+<tr><td style="height: 5px;"></td></tr>
+<tr>
+  <td align="right"><label    for="'.LOGIN_FORM_PASSWORD.'">Password:&nbsp;</label></td>
+  <td><input type="password" name="'.LOGIN_FORM_PASSWORD.'" value="" class="input" size="30" tabindex="2" id="'.LOGIN_FORM_PASSWORD.'" /></td>
+</tr>
+<tr><td style="height: 5px;"></td></tr>
+<tr><td colspan="3" align="center" style="font-size: small;">If you don\'t have an account, you can create one using the command:<br />/wa password &lt;somepassword&gt;</td></tr>
+</table>
+</form>
+<script type="text/javascript">
+function formfocus() {
+  document.getElementById(\''.LOGIN_FORM_USERNAME.'\').focus();
+}
+window.onload = formfocus;
+</script>
+
 {endif}
+
 </div>
 <div id="menu-box">
 

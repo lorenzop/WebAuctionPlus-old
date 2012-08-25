@@ -11,6 +11,7 @@ public static function Sell($id, $qty, $price, $desc){global $config, $user;
   // sanitize args
   $qty = floor((int)$qty);
   if($qty   <= 0){  $config['error'] = 'Invalid qty!';   return(FALSE);}
+  $price = floor($price * 100.0) / 100.0;
   if($price <= 0.0){$config['error'] = 'Invalid price!'; return(FALSE);}
   if(!empty($desc)){
     $desc = preg_replace('/<[^>]*>/', '', $desc);

@@ -36,8 +36,8 @@ function RenderPage_myitems(){global $config,$html;
       'item display'       => $Item->getDisplay(),
       'item row id'        => $Item->getTableRowId(),
       'item qty'           => $Item->getItemQty(),
-      'market price each'  => 'market price<br />goes here',
-      'market price total' => 'market price<br />goes here',
+      'market price each'  => '--',
+      'market price total' => '--',
 //number_format((double)$auction['price'],2)
 //number_format((double)($auction['price'] * $Item->qty),2)
 //  $marketPrice=getMarketPrice($id, 0);

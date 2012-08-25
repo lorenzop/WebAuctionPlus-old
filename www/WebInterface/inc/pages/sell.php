@@ -162,7 +162,7 @@ $html->addToHeader('
 <script type="text/javascript" language="javascript">
 function updateTotal(thisfield,otherfieldid){
   otherfield = document.getElementById(otherfieldid);
-  document.getElementById("pricetotal").innerHTML = (thisfield.value * otherfield.value);
+  document.getElementById("pricetotal").innerHTML = (thisfield.value * otherfield.value).toFixed(2);
 //  $("pricetotal").update( thisfield.value * otherfield.value );
 }
 </script>

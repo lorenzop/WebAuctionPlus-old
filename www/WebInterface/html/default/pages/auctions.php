@@ -4,23 +4,23 @@ $outputs=array();
 
 
 $outputs['header']='
-  <script type="text/javascript" language="javascript" charset="utf-8">
-  $(document).ready(function() {
-    oTable = $(\'#mainTable\').dataTable({
-      "oLanguage": {
-        "sEmptyTable"     : "&nbsp;<br />No auctions to display<br />&nbsp;",
-        "sZeroRecords"    : "&nbsp;<br />No auctions to display<br />&nbsp;",
-      },
-      "bJQueryUI"         : true,
-      "bStateSave"        : true,
-      "iDisplayLength"    : 5,
-      "aLengthMenu"       : [[5, 10, 30, 100, -1], [5, 10, 30, 100, "All"]],
-      "sPaginationType"   : "full_numbers",
-      "sPagePrevEnabled"  : true,
-      "sPageNextEnabled"  : true,
-    });
-  } );
-  </script>
+<script type="text/javascript" language="javascript" charset="utf-8">
+$(document).ready(function() {
+  oTable = $(\'#mainTable\').dataTable({
+    "oLanguage": {
+      "sEmptyTable"     : "&nbsp;<br />No auctions to display<br />&nbsp;",
+      "sZeroRecords"    : "&nbsp;<br />No auctions to display<br />&nbsp;",
+    },
+    "bJQueryUI"         : true,
+    "bStateSave"        : true,
+    "iDisplayLength"    : 5,
+    "aLengthMenu"       : [[5, 10, 30, 100, -1], [5, 10, 30, 100, "All"]],
+    "sPaginationType"   : "full_numbers",
+    "sPagePrevEnabled"  : true,
+    "sPageNextEnabled"  : true,
+  });
+} );
+</script>
 ';
 //      "bProcessing"       : true,
 //      "sAjaxSource"       : "./?page={page}&server_processing=true",
