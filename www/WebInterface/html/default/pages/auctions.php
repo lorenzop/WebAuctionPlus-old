@@ -55,7 +55,7 @@ $outputs['body top']='
 $outputs['body row']='
     <tr class="{rowclass}" style="height: 120px;">
       <td style="padding-bottom: 10px; text-align: center;">{item}</td>
-      <td style="text-align: center;"><img src="http://minotar.net/avatar/{seller name}" width="32" alt="" /><br />{seller name}</td>
+      <td style="text-align: center;"><img src="./?page=mcskin&user={seller name}" width="32" height="32" alt="" /><br />{seller name}</td>
 <!--      <td style="text-align: center;">{expire}</td>-->
       <td style="text-align: center;">{price each}</td>
       <td style="text-align: center;">{price total}</td>

@@ -40,8 +40,8 @@ $page   = getVar('page');
 $action = getVar('action');
 if(empty($page)) $page='home';
 
-// mcface
-if($page=='mcface'){require('inc/mcface.php'); exit();}
+// render skin
+if($page=='mcskin'){require('inc/mcskin.php'); exit();}
 
 // set defaults
 $config=array(

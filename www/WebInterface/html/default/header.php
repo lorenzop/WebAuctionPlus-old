@@ -39,11 +39,11 @@ case 'default':
 
 {if logged in}
 
-<table border="0" cellspacing="0" cellpadding="0" style="margin-top: 15px; padding-bottom: 2px; text-align:  left; font-size:   20px; font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;">
+<table border="0" cellspacing="0" cellpadding="0" style="padding-bottom: 2px; text-align:  left; font-size:   20px; font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;">
 <tr>
-  <td rowspan="4"><img src="http://minotar.net/avatar/'.$user->getName().'" alt="" width="64" height="64" id="mcface" /></td>
+  <td rowspan="4"><img src="./?page=mcskin&user='.$user->getName().'&view=body" alt="" width="60" height="120" id="mcface" /></td>
   <td>Name:</td><td>'.$user->getName().
-      ($user->hasPerms('isAdmin')?'&nbsp;<a href="admin/" style="font-size: small; font-weight: bold; color: #000000;">[ADMIN]</a>':'').'</td>
+      ($user->hasPerms('isAdmin')?'&nbsp;<a style="font-size: small; font-weight: bold; color: #000000;">[ADMIN]</a>':'').'</td>
 </tr>
 <tr><td>Money:&nbsp;&nbsp;</td><td>'.FormatPrice($user->getMoney()).'</td></tr>
 <tr><td colspan="2" align="center" style="font-size: smaller;">'.@date('jS M Y H:i:s').'</td></tr>
