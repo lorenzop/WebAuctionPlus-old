@@ -18,14 +18,13 @@ $(document).ready(function() {
     "sPaginationType"   : "full_numbers",
     "sPagePrevEnabled"  : true,
     "sPageNextEnabled"  : true,
+      "bProcessing"       : true,
+      "bServerSide"       : true,
+      "sAjaxSource"       : "./?page={page}&ajax=true",
   });
 } );
 </script>
 ';
-//      "bProcessing"       : true,
-//      "sAjaxSource"       : "./?page={page}&server_processing=true",
-//  var info = $(\'.dataTables_info\')
-//  $(\'tfoot\').append(info);
 
 
 $outputs['body top']='
@@ -83,6 +82,7 @@ $outputs['body row']='
         <input type="hidden" name="auctionid" value="{auction id}" />
         <input type="submit" value="Cancel" class="button" />
         </form>
+      </td>
 {endif}
     </tr>
 ';

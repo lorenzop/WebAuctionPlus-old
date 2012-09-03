@@ -32,7 +32,9 @@ ItemFuncs::$Enchantments=array(
 // default items
 ItemFuncs::$Items=array(
   1=>array(
-    'name'=>'Stone',
+    'name'=>array(
+      'en'=>'Stone',
+      'de'=>'Stein'),
     'icon'=>'Stone.png'),
   2=>array(
     'name'=>'Grass',

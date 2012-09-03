@@ -154,3 +154,7 @@ label {
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
   font-size:   18px;
 }
+
+table.display {
+  text-align: center;
+}

@@ -54,12 +54,12 @@ case 'default':
 <form action="./" name="loginform" method="post">
 {token form}
 <input type="hidden" name="page"     value="login" />
-<input type="hidden" name="lastpage" value="{lastpage}" />
+<input type="hidden" name="lastpage" value="./" />
 <table border="0" cellspacing="0" cellpadding="0" style="margin-top: -10px;width: 585px;">
 <tr>
   <td align="right"><label for="'.LOGIN_FORM_USERNAME.'">Username:&nbsp;</label></td>
   <td width="290"><input type="text"  name="'.LOGIN_FORM_USERNAME.'" value="" class="input" size="30" tabindex="1" id="'.LOGIN_FORM_USERNAME.'" /></td>
-  <td rowspan="3"><input type="submit" name="Submit" value="Submit" class="button" tabindex="3" /></td>
+  <td rowspan="3"><input type="submit" name="Submit" value="Submit" class="button" tabindex="3" style="margin-left: 10px;" /></td>
 </tr>
 <tr><td style="height: 5px;"></td></tr>
 <tr>

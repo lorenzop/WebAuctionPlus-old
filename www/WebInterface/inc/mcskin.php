@@ -108,12 +108,13 @@ function RenderSkin($data, $view='head', $cache=TRUE){
   if(!$cache) $expire_time = 0 - $expire_time;
   header('Cache-Control: private, max-age='.$expire_time.', pre-check='.$expire_time);
   header('Pragma: private');
-  header('Expires: '.date(DATE_RFC822,time() + $expire_time));
+  header('Expires: '.@date(DATE_RFC822,time() + $expire_time));
   // display rendered image
   header('Content-type: image/png');
   imagepng($rendered);
   imagedestroy($source);
   imagedestroy($rendered);
+  exit();
 }
 
 
@@ -130,6 +131,7 @@ if(empty($username)){
 }  
 // display head only
 RenderSkin($data, @$_GET['view'], $cache);
+exit();
 
 
 ?>

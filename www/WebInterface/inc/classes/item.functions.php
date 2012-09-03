@@ -102,8 +102,11 @@ public static function getDisplay($tableRowId, $itemId, $itemDamage, $qty, $ench
     'market price each'  => 'market price<br />goes here',
     'market price total' => 'market price<br />goes here',
   );
+  $itemType = self::getItemType($itemId);
+  if($itemType != 'tool') $tags['enchantments'] = '';
   RenderHTML::RenderTags($output, $tags);
-  RenderHTML::Block($output, 'has enchantments', (count($enchantments)>0) );
+  RenderHTML::Block($output, 'has damage'      , !empty($tags['item damage'])  );
+  RenderHTML::Block($output, 'has enchantments', !empty($tags['enchantments']) );
   return($output);
 }
 
@@ -218,7 +221,7 @@ public static function AddCreateItem($playerName, $Item){global $config;
   $query = "INSERT INTO `".$config['table prefix']."Items` (".
            "`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle`) VALUES (".
            "'".mysql_san($playerName)."', ".((int)$Item->getItemId()).", ".((int)$Item->getItemDamage()).", ".
-           ((int)$Item->getItemQty()).", '".mysql_san($Item->getEnchantmentsCompressed())."', '".$Item->getItemTitle()."')";
+           ((int)$Item->getItemQty()).", '".mysql_san($Item->getEnchantmentsCompressed())."', '".mysql_san($Item->getItemTitle())."')";
   $result = RunQuery($query, __file__, __line__);
   if(!$result){echo '<p style="color: red;">Error creating item stack!</p>'; exit();}
   $tableRowId = mysql_insert_id();

@@ -29,12 +29,59 @@ public static function QuerySingle($id){
 }
 // query
 protected function doQuery($WHERE=''){global $config;
-  $query = "SELECT `id`, `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, ".
+  $query = "SELECT ".(getVar('ajax','bool')?"SQL_CALC_FOUND_ROWS ":'').
+           "`id`, `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, ".
            "`price`, UNIX_TIMESTAMP(`created`) AS `created`, `allowBids`, `currentBid`, `currentWinner` ".
            "FROM `".$config['table prefix']."Auctions` ".
-           (empty($WHERE) ? '' : "WHERE ".$WHERE." ").
-           "ORDER BY `id` ASC";
-  $this->result = RunQuery($query, __file__, __line__);
+(empty($WHERE) ? '' : "WHERE ".$WHERE." ");
+  // search
+//  $query_where = '';
+  // sorting
+  $query_order = '';
+  if(isset($_GET['iSortCol_0'])){
+  	$order_cols = array(
+  	  0 => "`itemTitle`",
+  	  1 => "`playerName`",
+  	  2 => "`price`",
+  	  3 => "(`price` * `qty`)",
+  	  4 => "1", // market
+  	  5 => "`qty`",
+  	);
+    $iSortingCols = getVar('iSortingCols', 'int');
+    for($i = 0; $i < $iSortingCols; $i++){
+      $iSortCol = getVar('iSortCol_'.$i, 'int');
+      if(!getVar('bSortable_'.$iSortCol, 'bool')) continue;
+      if(!isset($order_cols[$iSortCol])) continue;
+      if(!empty($query_order)) $query_order .= ', ';
+      $query_order .= $order_cols[$iSortCol].' '.mysql_san(getVar('sSortDir_'.$i, 'str'));
+    }
+  }
+  if(empty($query_order)) $query_order = "`id` ASC";
+  $query_order = 'ORDER BY '.$query_order;
+  // pagination
+  $query_limit = '';
+  if(isset($_GET['iDisplayStart'])){
+    $start =  getVar('iDisplayStart',  'int');
+    $length = getVar('iDisplayLength', 'int');
+    if($length != -1) $query_limit = ' LIMIT '.((int)$start).', '.((int)$length);
+  }
+  $this->result = RunQuery($query.$query_order.$query_limit, __file__, __line__);
+}
+public static function TotalDisplaying(){
+  $query = "SELECT FOUND_ROWS()";
+  $result = RunQuery($query, __file__, __line__);
+  if(!$result) return(0);
+  $row = mysql_fetch_row($result);
+  if(count($row) != 1) return(0);
+  return($row[0]);
+}
+public static function TotalAllRows(){global $config;
+  $query = "SELECT COUNT(*) as `count` FROM `".$config['table prefix']."Auctions`";
+  $result = RunQuery($query, __file__, __line__);
+  if(!$result) return(0);
+  $row = mysql_fetch_row($result);
+  if(count($row) != 1) return(0);
+  return($row[0]);
 }
 
 

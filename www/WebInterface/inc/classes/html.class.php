@@ -87,6 +87,7 @@ public function addTags($tags){
 
 // replace {tag} tags
 public static function RenderTags(&$html, $tags=array()){global $config;
+  if(is_array($html)) $html = '$'."html can't be an array!!!";
 //  // include tags (loop until finished)
 //  for($t=0;$t<10;$t++){$StillWorking=FALSE;
 //    // remove comments
@@ -120,7 +121,10 @@ public static function RenderTags(&$html, $tags=array()){global $config;
     $searches[] = '{'.$search.'}';
     $replaces[] = $replace;
   }
-  $html = str_replace($searches, $replaces, $html);
+  $html = @str_replace(
+    $searches,
+    $replaces,
+    $html);
   unset($tags, $searches, $replaces);
 }
 // {if x} tag callback function

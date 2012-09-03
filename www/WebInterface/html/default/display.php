@@ -5,10 +5,12 @@ $outputs=array();
 
 // item display block
 $outputs['item']='
+<div style="padding-top: 10px; padding-bottom: 10px; text-align: center;">
 <img src="{item image url}" alt="{item title}" style="width: 32px; height: 32px; margin-bottom: 5px;" /><br />
-<b>{item name}</b><br />
-{item damage}
+<b>{item name}</b>
+{has damage}<br />{item damage}{/has damage}
 {has enchantments}{enchantments}{/has enchantments}
+</div>
 ';
 
 

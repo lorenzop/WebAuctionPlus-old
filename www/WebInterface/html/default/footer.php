@@ -4,9 +4,7 @@ $output='';
 
 
 //<div class="spacer"></div>
-$output.="\n\n\n".'
-<br /><br /><br /><br /><br /><br />
-';
+$output.="\n\n\n";
 switch($html->getPageFrame()){
 case 'default':
   $output.='
