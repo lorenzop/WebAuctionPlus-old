@@ -2,7 +2,7 @@
 // login page
 
 
-NoPageCache();
+//NoPageCache();
 // check login
 function doCheckLogin(){global $config;
   if(!isset($_POST[LOGIN_FORM_USERNAME]) || !isset($_POST[LOGIN_FORM_PASSWORD])) return;
