@@ -82,9 +82,10 @@ public class AuctionPlayer {
 	// player permissions
 	public String getPermsString() {
 		String tempPerms = "";
-		if (canBuy)  tempPerms = this.addStringSet(tempPerms, "canBuy",  ",");
-		if (canSell) tempPerms = this.addStringSet(tempPerms, "canSell", ",");
-		if (isAdmin) tempPerms = this.addStringSet(tempPerms, "isAdmin", ",");
+		if(canBuy)  tempPerms = this.addStringSet(tempPerms, "canBuy",  ",");
+		if(canSell) tempPerms = this.addStringSet(tempPerms, "canSell", ",");
+		if(isAdmin) tempPerms = this.addStringSet(tempPerms, "isAdmin", ",");
+		if(tempPerms.isEmpty()) return null;
 		return tempPerms;
 	}
 	public void setPerms(boolean canBuy, boolean canSell, boolean isAdmin) {
@@ -93,6 +94,7 @@ public class AuctionPlayer {
 		this.isAdmin = isAdmin;
 	}
 	public void setPerms(String Perms) {
+		if(Perms == null) Perms = "";
 		Perms = ","+Perms+",";
 		canBuy  = Perms.contains(",canBuy,");
 		canSell = Perms.contains(",canSell,");
