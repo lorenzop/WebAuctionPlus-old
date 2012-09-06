@@ -26,10 +26,10 @@ public class MySQLTables {
 		// create new tables
 		sqlTables("Auctions");
 		sqlTables("Items");
-		sqlTables("MarketPrices");
+//		sqlTables("MarketPrices");
 		sqlTables("Players");
 		sqlTables("RecentSigns");
-		sqlTables("SellPrice");
+//		sqlTables("SellPrice");
 		sqlTables("ShoutSigns");
 		sqlTables("Settings");
 		sqlTables("LogSales");
@@ -108,22 +108,22 @@ public class MySQLTables {
 					"`qty`				INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`enchantments`		VARCHAR(255)	NULL		DEFAULT NULL	, " +
 					"`itemTitle`		VARCHAR(32)		NULL		DEFAULT NULL	");
-		// MarketPrices
-		else if (tableName.equals("MarketPrices"))
-			if (alter) {
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`name`			`itemId`		INT    (11)		NOT NULL	DEFAULT '0'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`damage`		`itemDamage`	INT    (11)		NOT NULL	DEFAULT '0'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`time`			`time`			DATETIME		NOT NULL	DEFAULT '0000-00-00 00:00:00'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`marketprice`	`marketprice`	DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`ref`			`ref`			INT    (11)		NOT NULL	DEFAULT '0'");
-			} else
-				setTableExists("MarketPrices",
-					"`id`				INT    (11)		NOT NULL	AUTO_INCREMENT	, PRIMARY KEY(`id`), " +
-					"`itemId`			INT    (11)		NOT NULL	DEFAULT '0'		, " +
-					"`itemDamage`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
-					"`time`				DATETIME		NOT NULL	DEFAULT '0000-00-00 00:00:00', " +
-					"`marketprice`		DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'	, " +
-					"`ref`				INT    (11)		NOT NULL	DEFAULT '0'		");
+//		// MarketPrices
+//		else if (tableName.equals("MarketPrices"))
+//			if (alter) {
+//				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`name`			`itemId`		INT    (11)		NOT NULL	DEFAULT '0'");
+//				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`damage`		`itemDamage`	INT    (11)		NOT NULL	DEFAULT '0'");
+//				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`time`			`time`			DATETIME		NOT NULL	DEFAULT '0000-00-00 00:00:00'");
+//				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`marketprice`	`marketprice`	DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'");
+//				executeRawSQL("ALTER TABLE `"+dbPrefix+"MarketPrices` CHANGE	`ref`			`ref`			INT    (11)		NOT NULL	DEFAULT '0'");
+//			} else
+//				setTableExists("MarketPrices",
+//					"`id`				INT    (11)		NOT NULL	AUTO_INCREMENT	, PRIMARY KEY(`id`), " +
+//					"`itemId`			INT    (11)		NOT NULL	DEFAULT '0'		, " +
+//					"`itemDamage`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
+//					"`time`				DATETIME		NOT NULL	DEFAULT '0000-00-00 00:00:00', " +
+//					"`marketprice`		DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'	, " +
+//					"`ref`				INT    (11)		NOT NULL	DEFAULT '0'		");
 		// Players
 		else if (tableName.equals("Players"))
 			if (alter) {
@@ -163,26 +163,26 @@ public class MySQLTables {
 					"`x`				INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`y`				INT    (11)		NOT NULL	DEFAULT '0'		, " +
 					"`z`				INT    (11)		NOT NULL	DEFAULT '0'		");
-		// SellPrice
-		else if (tableName.equals("SellPrice"))
-			if (alter) {
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`name`			`itemId`	INT    (11)			NOT NULL	DEFAULT '0'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`damage`		`itemDamage` INT   (11)			NOT NULL	DEFAULT '0'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`time`			`time`		DATETIME			NOT NULL	DEFAULT '0000-00-00 00:00:00'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`quantity`		`qty`		INT    (11)			NOT NULL	DEFAULT '0'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`price`			`price`		DECIMAL(11,2)		NOT NULL	DEFAULT '0.00'");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`seller`		`seller`	VARCHAR(16)			CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
-				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`buyer`			`buyer`		VARCHAR(16)			CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
-			} else
-				setTableExists("SellPrice",
-					"`id`				INT    (11)		NOT NULL	AUTO_INCREMENT	, PRIMARY KEY(`id`), " +
-					"`itemId`			INT    (11)		NOT NULL	DEFAULT '0'		, " +
-					"`itemDamage`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
-					"`time`				DATETIME		NOT NULL	DEFAULT '0000-00-00 00:00:00', " +
-					"`qty`				INT    (11)		NOT NULL	DEFAULT '0'		, " +
-					"`price`			DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'	, " +
-					"`seller`			VARCHAR(16)		NULL		DEFAULT NULL	, " +
-					"`buyer`			VARCHAR(16)		NULL		DEFAULT NULL	");
+//		// SellPrice
+//		else if (tableName.equals("SellPrice"))
+//			if (alter) {
+//				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`name`			`itemId`	INT    (11)			NOT NULL	DEFAULT '0'");
+//				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`damage`		`itemDamage` INT   (11)			NOT NULL	DEFAULT '0'");
+//				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`time`			`time`		DATETIME			NOT NULL	DEFAULT '0000-00-00 00:00:00'");
+//				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`quantity`		`qty`		INT    (11)			NOT NULL	DEFAULT '0'");
+//				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`price`			`price`		DECIMAL(11,2)		NOT NULL	DEFAULT '0.00'");
+//				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`seller`		`seller`	VARCHAR(16)			CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
+//				executeRawSQL("ALTER TABLE `"+dbPrefix+"SellPrice`	CHANGE		`buyer`			`buyer`		VARCHAR(16)			CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
+//			} else
+//				setTableExists("SellPrice",
+//					"`id`				INT    (11)		NOT NULL	AUTO_INCREMENT	, PRIMARY KEY(`id`), " +
+//					"`itemId`			INT    (11)		NOT NULL	DEFAULT '0'		, " +
+//					"`itemDamage`		INT    (11)		NOT NULL	DEFAULT '0'		, " +
+//					"`time`				DATETIME		NOT NULL	DEFAULT '0000-00-00 00:00:00', " +
+//					"`qty`				INT    (11)		NOT NULL	DEFAULT '0'		, " +
+//					"`price`			DECIMAL(11,2)	NOT NULL	DEFAULT '0.00'	, " +
+//					"`seller`			VARCHAR(16)		NULL		DEFAULT NULL	, " +
+//					"`buyer`			VARCHAR(16)		NULL		DEFAULT NULL	");
 		// Settings
 		else if (tableName.equals("Settings"))
 			if (alter)

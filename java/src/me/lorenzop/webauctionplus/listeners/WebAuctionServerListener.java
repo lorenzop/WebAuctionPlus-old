@@ -2,6 +2,8 @@ package me.lorenzop.webauctionplus.listeners;
 
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 import net.milkbowl.vault.economy.Economy;
+
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -10,20 +12,18 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 public class WebAuctionServerListener implements Listener {
 
-	private final WebAuctionPlus plugin;
 
-	public WebAuctionServerListener(WebAuctionPlus plugin) {
-		this.plugin = plugin;
+	public WebAuctionServerListener() {
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPluginEnable(PluginEnableEvent event) {
 		// setup economy
-		if (plugin.economy == null) {
-			RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+		if (WebAuctionPlus.vaultEconomy == null) {
+			RegisteredServiceProvider<Economy> economyProvider = Bukkit.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
 			if (economyProvider != null) {
-				plugin.economy = (Economy)economyProvider.getProvider();
-				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Payment method enabled: " + plugin.economy.getName());
+				WebAuctionPlus.vaultEconomy = (Economy)economyProvider.getProvider();
+				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Payment method enabled: " + WebAuctionPlus.vaultEconomy.getName());
 			}
 			return;
 		}

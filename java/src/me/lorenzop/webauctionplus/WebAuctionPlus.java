@@ -91,10 +91,10 @@ public class WebAuctionPlus extends JavaPlugin {
 	public static RecentSignTask recentSignTask = null;
 
 	// announcer
-	public AnnouncerTask waAnnouncerTask;
+	public AnnouncerTask waAnnouncerTask = null;
 	public boolean announcerEnabled	= false;
 
-	public Economy economy			= null;
+	public static Economy vaultEconomy = null;
 
 
 	public WebAuctionPlus() {
@@ -124,7 +124,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new WebAuctionPlayerListener(this), this);
 		pm.registerEvents(new WebAuctionBlockListener (this), this);
-		pm.registerEvents(new WebAuctionServerListener(this), this);
+		pm.registerEvents(new WebAuctionServerListener(),     this);
 		isOk = true;
 	}
 
@@ -135,9 +135,9 @@ public class WebAuctionPlus extends JavaPlugin {
 		try {
 			getServer().getScheduler().cancelTasks(this);
 		} catch (Exception ignore) {}
-		waAnnouncerTask.clearMessages();
-		shoutSigns.clear();
-		recentSigns.clear();
+		if(waAnnouncerTask != null) waAnnouncerTask.clearMessages();
+		if(shoutSigns      != null) shoutSigns.clear();
+		if(recentSigns     != null) recentSigns.clear();
 		// close inventories
 		WebInventory.ForceCloseAll();
 		// close mysql connection

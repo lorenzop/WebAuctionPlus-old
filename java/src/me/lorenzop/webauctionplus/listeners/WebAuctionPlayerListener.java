@@ -8,6 +8,7 @@ import me.lorenzop.webauctionplus.WebInventory;
 import me.lorenzop.webauctionplus.dao.AuctionPlayer;
 import me.lorenzop.webauctionplus.tasks.PlayerAlertTask;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,7 +40,7 @@ public class WebAuctionPlayerListener implements Listener {
 		if (player == null) return;
 		// login code runs multi-threaded with a delay
 		// run after 2 seconds
-		plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new PlayerAlertTask(player), 2 * 20);
+		Bukkit.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new PlayerAlertTask(player), 30);
 	}
 
 
@@ -117,7 +118,7 @@ public class WebAuctionPlayerListener implements Listener {
 				} catch(NumberFormatException ignore) {}
 			}
 			// player has enough money
-			if(!plugin.economy.has(player, amount)) {
+			if(!WebAuctionPlus.vaultEconomy.has(player, amount)) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("not_enough_money_pocket"));
 				return;
 			}
@@ -128,13 +129,13 @@ public class WebAuctionPlayerListener implements Listener {
 			}
 			double currentMoney = auctionPlayer.getMoney();
 			if(lines[2].equals("All"))
-				amount = plugin.economy.getBalance(player);
+				amount = WebAuctionPlus.vaultEconomy.getBalance(player);
 			currentMoney += amount;
 			currentMoney = WebAuctionPlus.RoundDouble(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
 			p.sendMessage(WebAuctionPlus.chatPrefix + "Added " + amount +
 				" to auction account, new auction balance: " + currentMoney);
 			WebAuctionPlus.dataQueries.updatePlayerMoney(player, currentMoney);
-			plugin.economy.withdrawPlayer(player, amount);
+			WebAuctionPlus.vaultEconomy.withdrawPlayer(player, amount);
 			return;
 		}
 
@@ -169,7 +170,7 @@ public class WebAuctionPlayerListener implements Listener {
 				p.sendMessage(WebAuctionPlus.chatPrefix + "Removed " +
 					amount + " from auction account, new auction balance: " + currentMoney);
 				WebAuctionPlus.dataQueries.updatePlayerMoney(player, currentMoney);
-				plugin.economy.depositPlayer(player, amount);
+				WebAuctionPlus.vaultEconomy.depositPlayer(player, amount);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -209,13 +210,13 @@ public class WebAuctionPlayerListener implements Listener {
 			switch(roll) {
 				case 0: return "All your base are belong to Notch!";
 				case 1: return "Mmmmm, chocolate milk.";
-				case 2: return "I like potatos.";
-				case 3: return "99% mime free!";
+				case 2: return "Minecraft is like a potato because ______";
+				case 3: return "99.5% mime free!";
 				case 4: return "BAGOCK! I sorry, I thought you was corn.";
 				case 5: return "Hey, there's a creeper behind you! jk";
 				case 6: return "It's a trap!";
-				case 7: return "Who's Mary Ann?!";
-				case 8: return "It's like forgetting the words to your favorite song.";
+				case 7: return "Muhuhahahaha!";
+				case 8: return "Kittens give Morbo gas.";
 				case 9: return "Vote for net neutrality!";
 				case 10:return "That creeper stole your wallet!";
 			}

@@ -151,7 +151,7 @@ public class WebInventory {
 		tableRowIds.clear();
 		try {
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: isLocked");
-			st = conn.prepareStatement("SELECT `id`, `itemId`, `itemDamage`, `qty`, `enchantments` "+
+			st = conn.prepareStatement("SELECT `id`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle` "+
 				"FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Items` WHERE `playerName` = ? ORDER BY `id` ASC LIMIT ?");
 			st.setString(1, playerName);
 			st.setInt   (2, chest.getSize());
@@ -163,7 +163,7 @@ public class WebInventory {
 				i++; if(i >= chest.getSize()) break;
 				tableRowIds.put(i, rs.getInt("id"));
 				// create/split item stack
-				stacks[i] = getSplitItemStack( rs.getInt("id"), rs.getInt("itemId"), rs.getShort("itemDamage"), rs.getInt("qty"), rs.getString("enchantments") );
+				stacks[i] = getSplitItemStack( rs.getInt("id"), rs.getInt("itemId"), rs.getShort("itemDamage"), rs.getInt("qty"), rs.getString("enchantments"), rs.getString("itemTitle") );
 			}
 			chest.setContents(stacks);
 		} catch(SQLException e) {
@@ -174,7 +174,7 @@ public class WebInventory {
 		}
 	}
 	// create/split item stack
-	private ItemStack getSplitItemStack(int itemRowId, int itemId, short itemDamage, int qty, String enchStr) {
+	private ItemStack getSplitItemStack(int itemRowId, int itemId, short itemDamage, int qty, String enchStr, String itemTitle) {
 		ItemStack stack = new ItemStack(itemId, qty, itemDamage);
 		int maxSize = stack.getMaxStackSize();
 		// split stack
@@ -185,12 +185,13 @@ public class WebInventory {
 				try {
 					if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: getSplitItemStack  qty:"+Integer.toString(qty)+"  max:"+Integer.toString(maxSize));
 					st = conn.prepareStatement("INSERT INTO `"+WebAuctionPlus.dataQueries.dbPrefix()+"Items` ( "+
-						"`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments` )VALUES( ?, ?, ?, ?, ? )");
+						"`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle` )VALUES( ?, ?, ?, ?, ?, ? )");
 					st.setString(1, playerName);
 					st.setInt   (2, itemId);
 					st.setShort (3, itemDamage);
 					st.setInt   (4, maxSize);
 					st.setString(5, enchStr);
+					st.setString(6, itemTitle);
 					st.executeUpdate();
 				} catch(SQLException e) {
 					WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Unable to insert new item to inventory!");
