@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ALL | E_STRICT);
 define('DEFINE_INDEX_FILE',TRUE);
-define('CURRENT_VERSION', '1.1.5');
+define('CURRENT_VERSION', '1.1.6');
 
 // get,post,cookie (highest priority last)
 function getVar($name,$type='',$order=array('get','post')){$output='';
@@ -145,7 +145,6 @@ if(SettingsClass::getString('Version') != CURRENT_VERSION){
        '<b>Website is running: '.CURRENT_VERSION.'</b></center>';
   exit();
 }
-
 
 // jquery ui path
 $lpaths['static jquery'] = $lpaths['static'].'jquery/'.SanFilename(SettingsClass::getString('jQuery UI Pack')).'/';

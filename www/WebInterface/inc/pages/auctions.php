@@ -55,12 +55,14 @@ function RenderPage_auctions_ajax(){global $config,$html;
   header('Content-Type: text/plain');
   // list auctions
   $auctions = QueryAuctions::QueryCurrent();
+  $TotalDisplaying = QueryAuctions::TotalDisplaying();
+  $TotalAllRows    = QueryAuctions::TotalAllRows();
   $outputRows = "{\n".
-                "\t".'"iTotalDisplayRecords" : '.QueryAuctions::TotalDisplaying().",\n".
-                "\t".'"iTotalRecords" : '.       QueryAuctions::TotalAllRows()   .",\n".
+                "\t".'"iTotalDisplayRecords" : '.$TotalDisplaying.",\n".
+                "\t".'"iTotalRecords" : '.       $TotalAllRows   .",\n".
                 "\t".'"sEcho" : '.((int)getVar('sEcho','int')).",\n".
                 "\t".'"aaData" : ['."\n";
-  if(QueryAuctions::TotalAllRows() == 0){
+  if($TotalDisplaying < 1){
     unset($auctions);
   }else{
     $outputRows .= "\t{\n";
@@ -132,6 +134,7 @@ function RenderPage_auctions_ajax(){global $config,$html;
     $outputRows .= "\t}\n";
   }  
   $outputRows .= ']}'."\n";
+  //file_put_contents('ajax_output.txt',$outputRows);
   echo $outputRows;
   exit();
 }

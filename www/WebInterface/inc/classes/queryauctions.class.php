@@ -32,11 +32,23 @@ protected function doQuery($WHERE=''){global $config;
   $query = "SELECT ".(getVar('ajax','bool')?"SQL_CALC_FOUND_ROWS ":'').
            "`id`, `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, ".
            "`price`, UNIX_TIMESTAMP(`created`) AS `created`, `allowBids`, `currentBid`, `currentWinner` ".
-           "FROM `".$config['table prefix']."Auctions` ".
-(empty($WHERE) ? '' : "WHERE ".$WHERE." ");
-  // search
-//  $query_where = '';
-  // sorting
+           "FROM `".$config['table prefix']."Auctions` ";
+  // where
+  if(is_array($WHERE)){
+    $query_where = $WHERE;
+  }else{
+    $query_where = array();
+    if(!empty($WHERE)) $query_where[] = $WHERE;
+  }
+  // ajax search
+  $sSearch = getVar('sSearch');
+  if(!empty($sSearch))
+    $query_where[] = "(`itemTitle` LIKE '%".mysql_san($sSearch)."%' OR ".
+                     "`playerName` LIKE '%".mysql_san($sSearch)."%')";
+  // build where string
+  if(count($query_where) == 0) $query_where = '';
+  else $query_where = 'WHERE '.implode(' AND ', $query_where);
+  // ajax sorting
   $query_order = '';
   if(isset($_GET['iSortCol_0'])){
   	$order_cols = array(
@@ -57,7 +69,7 @@ protected function doQuery($WHERE=''){global $config;
     }
   }
   if(empty($query_order)) $query_order = "`id` ASC";
-  $query_order = 'ORDER BY '.$query_order;
+  $query_order = ' ORDER BY '.$query_order;
   // pagination
   $query_limit = '';
   if(isset($_GET['iDisplayStart'])){
@@ -65,7 +77,10 @@ protected function doQuery($WHERE=''){global $config;
     $length = getVar('iDisplayLength', 'int');
     if($length != -1) $query_limit = ' LIMIT '.((int)$start).', '.((int)$length);
   }
-  $this->result = RunQuery($query.$query_order.$query_limit, __file__, __line__);
+  $query .= $query_where.
+            $query_order.
+            $query_limit;
+  $this->result = RunQuery($query, __file__, __line__);
 }
 public static function TotalDisplaying(){
   $query = "SELECT FOUND_ROWS()";
