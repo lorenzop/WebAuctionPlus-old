@@ -42,8 +42,15 @@ public static function getItemName($itemId=0, $itemDamage=0){
   $item = self::getItemArray($itemId, $itemDamage);
   if(!is_array($item) || count($item) <= 0) return('Invalid');
   $name = $item['name'];
-  if(isset($item['type']) && $item['type'] == 'map')
-    $name=str_replace('#map#',$itemDamage,$name);
+  // multi-language
+  if(is_array($name)){
+    $lang = SettingsClass::getString('Language');
+    if(isset($name[$lang]))		$name = $name[$lang];
+    else if(isset($name['en']))	$name = $name['en'];
+    else						$name = reset($name);
+  }
+  if(@$item['type'] == 'map')
+    $name=str_replace('#map#', $itemDamage, $name);
   return($name);
 }
 
@@ -54,6 +61,13 @@ public static function getItemTitle($itemId=0, $itemDamage=0){
   if(!is_array($item) || count($item) <= 0) return('Invalid');
   if(isset($item['title'])) $title = $item['title'];
   else                      $title = $item['name'];
+  // multi-language
+  if(is_array($title)){
+    $lang = SettingsClass::getString('Language');
+    if(isset($title[$lang]))		$title = $title[$lang];
+    else if(isset($title['en']))	$title = $title['en'];
+    else							$title = reset($title);
+  }
   if(@$item['type'] == 'tool'){$title=str_replace('%damaged%', self::getPercentDamagedStr($itemDamage,$item['damage']), $title);
                                $title=str_replace('%charged%', self::getPercentChargedStr($itemDamage,$item['damage']), $title);}
   if(@$item['type'] == 'map' ) $title=str_replace('#map#'    , $itemDamage                                            , $title);
@@ -172,15 +186,16 @@ private static function getPercentDamagedStr($itemDamage, $maxDamage){
 
 // get percent charged
 private static function getPercentCharged($itemDamage, $maxDamage){
-  $charged = ( ( ((float)$maxDamage)-((float)$itemDamage) )/((float)$maxDamage) )*100.0;
-//TODO: should this be 103.8 ?
-  if($charged > 0 && (string)round($charged,1) == '0') return( (string)round($charged,2) );
-  else                                                 return( (string)round($charged,1) );
+  $a = ((float)$maxDamage) - ((float)$itemDamage);
+  $b = ((float)$maxDamage) - 1.0;
+  $charged = ($a / $b) * 100.0;
+  if($charged > 0 && (string)round($charged,1) == '0') return( (string) round($charged, 2) );
+  else                                                 return( (string) round($charged, 1) );
 }
 private static function getPercentChargedStr($itemDamage, $maxDamage){
   $charged = self::getPercentCharged($itemDamage, $maxDamage);
   if( ((string)$charged) == '0') return('Fully Charged!');
-  else                           return(((string)$charged).' % charged');
+  else                           return( ((string)$charged).' % charged' );
 }
 
 
@@ -211,8 +226,10 @@ public static function AddCreateItem($playerName, $Item){global $config;
     $row = mysql_fetch_assoc($result);
     $tableRowId = (int)$row['id'];
     // add qty to existing stack
-    $query = "UPDATE `".$config['table prefix']."Items` SET `qty`=`qty`+".((int)$Item->getItemQty()).
-             " WHERE `id` = ".((int)$tableRowId)." AND `playerName`='".mysql_san($playerName)."' LIMIT 1";
+    $query = "UPDATE `".$config['table prefix']."Items` SET ".
+             "`qty`=`qty`+".((int)$Item->getItemQty()).", ".
+             "`itemTitle` = '".mysql_san($Item->getItemTitle())."' ".
+             "WHERE `id` = ".((int)$tableRowId)." AND `playerName`='".mysql_san($playerName)."' LIMIT 1";
     $result = RunQuery($query, __file__, __line__);
     if(!$result){echo '<p style="color: red;">Error updating item stack!</p>'; exit();}
     return($tableRowId);
@@ -220,8 +237,12 @@ public static function AddCreateItem($playerName, $Item){global $config;
   // create new stack
   $query = "INSERT INTO `".$config['table prefix']."Items` (".
            "`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle`) VALUES (".
-           "'".mysql_san($playerName)."', ".((int)$Item->getItemId()).", ".((int)$Item->getItemDamage()).", ".
-           ((int)$Item->getItemQty()).", '".mysql_san($Item->getEnchantmentsCompressed())."', '".mysql_san($Item->getItemTitle())."')";
+           "'".mysql_san($playerName)."', ".
+           ((int)$Item->getItemId()).", ".
+           ((int)$Item->getItemDamage()).", ".
+           ((int)$Item->getItemQty()).", ".
+           "'".mysql_san($Item->getEnchantmentsCompressed())."', ".
+           "'".mysql_san($Item->getItemTitle())."')";
   $result = RunQuery($query, __file__, __line__);
   if(!$result){echo '<p style="color: red;">Error creating item stack!</p>'; exit();}
   $tableRowId = mysql_insert_id();

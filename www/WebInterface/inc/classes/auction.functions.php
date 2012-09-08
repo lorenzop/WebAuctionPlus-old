@@ -35,7 +35,7 @@ public static function Sell($id, $qty, $price, $desc){global $config, $user;
            ((int)$Item->getItemDamage()).", ".
            ((int)$qty).", ".
            "'".mysql_san($Item->getEnchantmentsCompressed())."', ".
-           "'".mysql_san(ItemFuncs::getItemTitle($Item->getItemId(), $Item->getItemDamage()))."', ".
+           "'".mysql_san($Item->getItemTitle())."', ".
            ((float)$price).", NOW() )";
   $result = RunQuery($query, __file__, __line__);
   if(!$result) {echo '<p style="color: red;">Error creating auction!</p>'; exit();}
