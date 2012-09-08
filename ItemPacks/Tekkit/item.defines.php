@@ -19,6 +19,7 @@ include($pathPrefix.'IndustrialCraft2'       .$pathPostfix);
 include($pathPrefix.'IronChests'             .$pathPostfix);
 include($pathPrefix.'NetherOres'             .$pathPostfix);
 include($pathPrefix.'NuclearControl'         .$pathPostfix);
+include($pathPrefix.'MFFS'                   .$pathPostfix);
 include($pathPrefix.'PowerConverters'        .$pathPostfix);
 include($pathPrefix.'RailCraft'              .$pathPostfix);
 include($pathPrefix.'RedPower'               .$pathPostfix);

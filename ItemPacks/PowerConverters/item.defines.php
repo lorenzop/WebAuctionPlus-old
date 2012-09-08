@@ -3,7 +3,7 @@
 $Items = &ItemFuncs::$Items;
 $pack  = 'PowerConverters';
 
-$Items[123]=array(
+$Items[190]=array(
   0 =>array(
     'name'=>'Engine Generator (LV)',
     'icon'=>'Engine_Generator_LV.png',
