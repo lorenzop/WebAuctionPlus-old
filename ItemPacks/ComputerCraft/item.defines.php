@@ -48,6 +48,7 @@ $Items[4256]=array(
   'name' =>'Floppy Disk #map#',
   'title'=>'Floppy Disk #map#',
   'icon' =>'Floppy_Disk.png',
+  'stack'=>1,
   'pack' =>$pack);
 
 unset($Items);
