@@ -69,7 +69,8 @@ public static function getItemTitle($itemId=0, $itemDamage=0){
     else							$title = reset($title);
   }
   if(@$item['type'] == 'tool'){$title=str_replace('%damaged%', self::getPercentDamagedStr($itemDamage,$item['damage']), $title);
-                               $title=str_replace('%charged%', self::getPercentChargedStr($itemDamage,$item['damage']), $title);}
+                               $title=str_replace('%charged%', self::getPercentChargedStr($itemDamage,$item['damage']), $title);
+                               $title=str_replace('%painted%', self::getPercentPaintedStr($itemDamage,$item['damage']), $title);}
   if(@$item['type'] == 'map' ) $title=str_replace('#map#'    , $itemDamage                                            , $title);
   return($title);
 }
@@ -139,19 +140,6 @@ public static function getItemImageUrl($itemId=0, $itemDamage=0){global $config;
 }
 
 
-// get full item title
-//public static function getItemDamageStr($itemId=0, $itemDamage=0){
-//  $item = self::getItemArray($itemId, $itemDamage);
-//  if(!is_array($item) || count($item) <= 0) return('');
-//  if(isset($item['title'])) $title = $item['title'];
-//  else                      $title = $item['name'];
-//  if(@$item['damage'] == 'tool') {$title=str_replace('%damaged%', self::getPercentDamagedStr($itemDamage,$item['damage']), $title);
-//                                  $title=str_replace('%charged%', self::getPercentChargedStr($itemDamage,$item['damage']), $title);}
-//  if(@$item['damage'] == 'map' )  $title=str_replace('#map#'    , ' '.$itemDamage                                        , $title);
-//  return($title);
-//}
-
-
 // get damage/charged percent string
 public static function getDamagedChargedStr($itemId=0, $itemDamage=0){
   $item = self::getItemArray($itemId, $itemDamage);
@@ -166,6 +154,8 @@ public static function getDamagedChargedStr($itemId=0, $itemDamage=0){
     return(self::getPercentDamagedStr($itemDamage, $maxDamage));
   elseif(strpos($title,'%charged%') !== FALSE)
     return(self::getPercentChargedStr($itemDamage, $maxDamage));
+  elseif(strpos($title,'%painted%') !== FALSE)
+    return(self::getPercentPaintedStr($itemDamage, $maxDamage));
   //elseif(strpos($title,'#map#') !== FALSE)
   return('');
 }
@@ -173,14 +163,24 @@ public static function getDamagedChargedStr($itemId=0, $itemDamage=0){
 
 // get percent damaged
 private static function getPercentDamaged($itemDamage, $maxDamage){
-  $damaged = ( ((float)$itemDamage)/((float)$maxDamage) )*100.0;
-  if($damaged > 0 && (string)round($damaged,1) == '0') return( (string)round($damaged,2) );
-  else                                                 return( (string)round($damaged,1) );
+  $a = (float)$itemDamage;
+  $b = (float)$maxDamage;
+  $damaged = ($a / $b) * 100.0;
+  if($damaged > 0 && (string)round($damaged,1) == '0') return( (string)round($damaged, 2) );
+  else                                                 return( (string)round($damaged, 1) );
 }
 private static function getPercentDamagedStr($itemDamage, $maxDamage){
   $damaged = self::getPercentDamaged($itemDamage, $maxDamage);
   if( ((string)$damaged) == '0') return('Brand New!');
   else                           return(((string)$damaged).' % damaged');
+}
+// get percent paint used
+private static function getPercentPaintedStr($itemDamage, $maxDamage){
+  $damaged = self::getPercentDamaged($itemDamage, $maxDamage);
+file_put_contents('sdgsfdg.txt', $damaged.'='.$maxDamage);
+  if(      ((string)$damaged) == '0'  ) return('Brand New!');
+  else if( ((string)$damaged) == '100') return('Empty!');
+  else                                  return(((string)$damaged).' % used');
 }
 
 
