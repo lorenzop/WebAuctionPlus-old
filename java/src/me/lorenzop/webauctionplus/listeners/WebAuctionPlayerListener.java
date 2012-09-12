@@ -76,7 +76,7 @@ public class WebAuctionPlayerListener implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		// right click only
-		if (event.getAction() != Action.RIGHT_CLICK_BLOCK &&
+		if( event.getAction() != Action.RIGHT_CLICK_BLOCK &&
 			event.getAction() != Action.RIGHT_CLICK_AIR) return;
 		Block block = event.getClickedBlock();
 		// not a sign
@@ -85,16 +85,16 @@ public class WebAuctionPlayerListener implements Listener {
 		// it's a sign
 		Sign sign = (Sign) block.getState();
 		String[] lines = sign.getLines();
-		if (!lines[0].equals("[WebAuction+]")) return;
+		if(!lines[0].equals("[WebAuction+]")) return;
 		event.setCancelled(true);
 		// get player info
 		Player p = event.getPlayer();
 		String player = p.getName();
 
 		// prevent click spamming signs
-		if (plugin.lastSignUse.containsKey(player))
+		if(plugin.lastSignUse.containsKey(player))
 			if( plugin.lastSignUse.get(player)+(long)plugin.signDelay > WebAuctionPlus.getCurrentMilli() ) {
-				p.sendMessage(WebAuctionPlus.chatPrefix + "Please wait a bit before using that again");
+				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("please_wait"));
 				return;
 			}
 		plugin.lastSignUse.put(player, WebAuctionPlus.getCurrentMilli());
@@ -184,7 +184,7 @@ public class WebAuctionPlayerListener implements Listener {
 				return;
 			}
 			// disallow creative
-			if(p.getGameMode() != GameMode.SURVIVAL) {
+			if(p.getGameMode() != GameMode.SURVIVAL && !p.isOp()) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_cheating"));
 				return;
 			}

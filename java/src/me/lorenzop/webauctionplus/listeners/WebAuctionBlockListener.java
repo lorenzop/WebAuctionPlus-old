@@ -68,7 +68,7 @@ public class WebAuctionBlockListener implements Listener {
 			WebAuctionPlus.dataQueries.createShoutSign(world, radius, sign.getX(), sign.getY(), sign.getZ());
 			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_shout_sign"));
 			return;
-		} else
+		}
 
 		// Recent sign
 		if(lines[1].equalsIgnoreCase("Recent")) {
@@ -101,7 +101,7 @@ public class WebAuctionBlockListener implements Listener {
 			WebAuctionPlus.dataQueries.createRecentSign(world, offset, sign.getX(), sign.getY(), sign.getZ());
 			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_recent_sign"));
 			return;
-		} else
+		}
 
 		// Deposit sign (money)
 		if(lines[1].equalsIgnoreCase("Deposit")) {
@@ -120,7 +120,7 @@ public class WebAuctionBlockListener implements Listener {
 			event.setLine(3, "");
 			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_deposit_sign"));
 			return;
-		} else
+		}
 
 		// Withdraw sign (money)
 		if(lines[1].equalsIgnoreCase("Withdraw")) {
@@ -141,7 +141,7 @@ public class WebAuctionBlockListener implements Listener {
 			event.setLine(3, "");
 			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_withdraw_sign"));
 			return;
-		} else
+		}
 
 		// MailBox sign
 		if(lines[1].equalsIgnoreCase("MailBox") ||
@@ -158,6 +158,8 @@ public class WebAuctionBlockListener implements Listener {
 			return;
 		}
 
+		// invalid web auction sign
+		p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("invalid_sign"));
 		CancelEvent(event);
 	}
 

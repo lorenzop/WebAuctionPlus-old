@@ -22,6 +22,7 @@ import me.lorenzop.webauctionplus.listeners.WebAuctionPlayerListener;
 import me.lorenzop.webauctionplus.listeners.WebAuctionServerListener;
 import me.lorenzop.webauctionplus.mysql.DataQueries;
 import me.lorenzop.webauctionplus.mysql.MySQLTables;
+import me.lorenzop.webauctionplus.mysql.MySQLUpdate;
 import me.lorenzop.webauctionplus.tasks.AnnouncerTask;
 import me.lorenzop.webauctionplus.tasks.PlayerAlertTask;
 import me.lorenzop.webauctionplus.tasks.RecentSignTask;
@@ -191,8 +192,12 @@ public class WebAuctionPlus extends JavaPlugin {
 
 		// update the version in db
 		if(! currentVersion.equals(settings.getString("Version")) ){
+			String oldVersion = settings.getString("Version");
+			// update database
+			MySQLUpdate.doUpdate(oldVersion);
+			// update version number
 			settings.setString("Version", currentVersion);
-			log.info(logPrefix+"Updated version to "+currentVersion);
+			log.info(logPrefix+"Updated version from "+oldVersion+" to "+currentVersion);
 		}
 
 		// load language file

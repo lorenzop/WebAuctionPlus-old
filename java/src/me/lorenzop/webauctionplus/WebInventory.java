@@ -28,7 +28,9 @@ public class WebInventory {
 		if(p == null) return;
 		playerName = p.getName();
 		int numSlots = WebAuctionPlus.MinMax( WebAuctionPlus.settings.getInteger("Inventory Rows"), 1, 6) * 9;
-		chest = Bukkit.getServer().createInventory(null, numSlots, "WebAuction+ MailBox");
+		String invTitle = WebAuctionPlus.Lang.getString("mailbox_title");
+		if(invTitle == null || invTitle.isEmpty()) invTitle = "WebAuction+ MailBox";
+		chest = Bukkit.getServer().createInventory(null, numSlots, invTitle);
 		loadInventory();
 		p.openInventory(chest);
 	}
@@ -44,9 +46,11 @@ public class WebInventory {
 			WebInventory inventory;
 			if(openInvs.containsKey(player)) {
 				// chest already open
+				p.sendMessage(WebAuctionPlus.chatPrefix+"MailBox already opened!");
 				WebAuctionPlus.log.warning("Inventory already open for "+player+"!");
-				inventory = openInvs.get(player);
-				p.openInventory(inventory.chest);
+				return;
+//				inventory = openInvs.get(player);
+//				p.openInventory(inventory.chest);
 			} else {
 				// create new virtual chest
 				WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Inventory opened for: "+player);
@@ -54,7 +58,7 @@ public class WebInventory {
 				openInvs.put(player, inventory);
 			}
 		}
-		p.sendMessage(WebAuctionPlus.chatPrefix+"MailBox inventory opened");
+		p.sendMessage(WebAuctionPlus.chatPrefix+WebAuctionPlus.Lang.getString("mailbox_opened"));
 	}
 	// close mailbox
 	public static void onInventoryClose(Player p){
@@ -71,6 +75,7 @@ public class WebInventory {
 			setLocked(player, false);
 		}
 		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"MailBox inventory closed and saved");
+		p.sendMessage(WebAuctionPlus.chatPrefix+WebAuctionPlus.Lang.getString("mailbox_closed"));
 	}
 	public static void ForceCloseAll() {
 		if(openInvs==null || openInvs.size()==0) return;

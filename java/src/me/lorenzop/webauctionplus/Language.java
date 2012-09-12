@@ -83,7 +83,7 @@ public class Language {
 				return value;
 		}
 		WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Language message not found: " + key);
-		return "Message not found!";
+		return "<<Message not found!>>";
 	}
 
 	private void loadKeys() {
@@ -98,8 +98,6 @@ public class Language {
 		langMap.put("not_enough_money_account",		"");
 		langMap.put("reloading",					"");
 		langMap.put("finished_reloading",			"");
-		langMap.put("saving",						"");
-		langMap.put("finished_saving",				"");
 		langMap.put("account_created",				"");
 		langMap.put("password_changed",				"");
 		langMap.put("account_not_found",			"");
@@ -110,6 +108,11 @@ public class Language {
 		langMap.put("created_deposit_mail_sign",	"");
 		langMap.put("created_withdraw_mail_sign",	"");
 		langMap.put("sign_removed",					"");
+		langMap.put("invalid_sign",					"");
+		langMap.put("mailbox_title",				"");
+		langMap.put("mailbox_opened",				"");
+		langMap.put("mailbox_closed",				"");
+		langMap.put("please_wait",					"");
 	}
 
 }

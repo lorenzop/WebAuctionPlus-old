@@ -38,20 +38,20 @@ public class RecentSignTask implements Runnable {
 		// %waType   - Buy Now or Auction
 		if(WebAuctionPlus.useSignLink()) {
 			varTitle	= Variables.get("waTitle");
-			varQtyPrice	= Variables.get("waPrice");
-			varSeller	= Variables.get("waSeller");
-			varType		= Variables.get("waType");
-			varTitle.setDefault		("N/A       ");
-			varQtyPrice.setDefault	("N/A       ");
-			varSeller.setDefault	("N/A       ");
-			varType.setDefault		("N/A       ");
+			varTitle.setDefault				("N/A       ");
 			varTitle.getTicker().interval	= 10;
-			varQtyPrice.getTicker().interval= 10;
-			varSeller.getTicker().interval	= 10;
-			varType.getTicker().interval	= 10;
 			varTitle.getTicker().mode		= TickMode.LEFT;
+			varQtyPrice	= Variables.get("waPrice");
+			varQtyPrice.setDefault			("N/A       ");
+			varQtyPrice.getTicker().interval= 10;
 			varQtyPrice.getTicker().mode	= TickMode.LEFT;
+			varSeller	= Variables.get("waSeller");
+			varSeller.setDefault			("N/A       ");
+			varSeller.getTicker().interval	= 10;
 			varSeller.getTicker().mode		= TickMode.LEFT;
+			varType		= Variables.get("waType");
+			varType.setDefault				("N/A       ");
+			varType.getTicker().interval	= 10;
 			varType.getTicker().mode		= TickMode.LEFT;
 		}
 	}

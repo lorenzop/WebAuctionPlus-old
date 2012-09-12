@@ -101,7 +101,7 @@ public class PlayerAlertTask implements Runnable {
 			// alert joined player
 			if(playerJoined!=null && p!=null) {
 				// alert admin of new version
-				if(WebAuctionPlus.newVersionAvailable && p.hasPermission("wa.webadmin"))
+				if(WebAuctionPlus.newVersionAvailable && ( p.hasPermission("wa.webadmin") || p.isOp() ))
 					p.sendMessage(WebAuctionPlus.chatPrefix + "A new version is available! " + WebAuctionPlus.newVersion);
 			}
 		} catch (SQLException e) {
