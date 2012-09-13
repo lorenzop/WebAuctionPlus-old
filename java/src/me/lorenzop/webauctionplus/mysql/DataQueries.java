@@ -52,8 +52,7 @@ public class DataQueries extends MySQLConnPool {
 			}
 			enchMap.put(entry.getKey().getId(), level);
 		}
-//TODO: add to language files
-		if(removedUnsafe && p != null) p.sendMessage(WebAuctionPlus.logPrefix+"Removed/modified unsafe enchantments!");
+		if(removedUnsafe && p != null) p.sendMessage(WebAuctionPlus.logPrefix+WebAuctionPlus.Lang.getString("removed_enchantments"));
 		// sort by enchantment id
 		SortedSet<Integer> enchSorted = new TreeSet<Integer> (enchMap.keySet());
 		// build string
@@ -102,8 +101,7 @@ public class DataQueries extends MySQLConnPool {
 			// add enchantment to map
 			ench.put(enchantment, level);
 		}
-//TODO: add to language files
-		if(removedUnsafe) p.sendMessage(WebAuctionPlus.logPrefix+"Removed/modified unsafe enchantments!");
+		if(removedUnsafe) p.sendMessage(WebAuctionPlus.logPrefix+WebAuctionPlus.Lang.getString("removed_enchantments"));
 		// add enchantments to stack
 		if(WebAuctionPlus.timEnabled())
 			stack.addUnsafeEnchantments(ench);
@@ -175,7 +173,6 @@ public class DataQueries extends MySQLConnPool {
 		}
 		return auction;
 	}
-
 
 
 	// shout sign

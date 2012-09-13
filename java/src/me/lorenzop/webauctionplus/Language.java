@@ -113,6 +113,7 @@ public class Language {
 		langMap.put("mailbox_opened",				"");
 		langMap.put("mailbox_closed",				"");
 		langMap.put("please_wait",					"");
+		langMap.put("removed_enchantments",			"");
 	}
 
 }

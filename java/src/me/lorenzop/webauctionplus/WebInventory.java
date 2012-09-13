@@ -169,6 +169,7 @@ public class WebInventory {
 				tableRowIds.put(i, rs.getInt("id"));
 				// create/split item stack
 				stacks[i] = getSplitItemStack( rs.getInt("id"), rs.getInt("itemId"), rs.getShort("itemDamage"), rs.getInt("qty"), rs.getString("enchantments"), rs.getString("itemTitle") );
+				if(stacks[i] == null) tableRowIds.remove(i);
 			}
 			chest.setContents(stacks);
 		} catch(SQLException e) {
@@ -182,6 +183,7 @@ public class WebInventory {
 	private ItemStack getSplitItemStack(int itemRowId, int itemId, short itemDamage, int qty, String enchStr, String itemTitle) {
 		ItemStack stack = new ItemStack(itemId, qty, itemDamage);
 		int maxSize = stack.getMaxStackSize();
+		if(maxSize < 1) return null;
 		// split stack
 		if(qty > maxSize) {
 			Connection conn = WebAuctionPlus.dataQueries.getConnection();

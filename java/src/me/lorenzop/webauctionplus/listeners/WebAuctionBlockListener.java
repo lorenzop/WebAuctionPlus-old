@@ -116,7 +116,7 @@ public class WebAuctionBlockListener implements Listener {
 				amount = WebAuctionPlus.ParseDouble(lines[2]);
 				if(amount <= 0.0) amount = 100.0;
 			} catch(NumberFormatException ignore) {}
-			event.setLine(2, WebAuctionPlus.FormatPrice(amount));
+			event.setLine(2, WebAuctionPlus.FormatDouble(amount));
 			event.setLine(3, "");
 			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_deposit_sign"));
 			return;
@@ -137,7 +137,7 @@ public class WebAuctionBlockListener implements Listener {
 					if(amount < 0.0) amount = 0.0;
 				} catch(NumberFormatException ignore) {}
 			}
-			event.setLine(2, amount==0.0 ? "All" : WebAuctionPlus.FormatPrice(amount) );
+			event.setLine(2, amount==0.0 ? "All" : WebAuctionPlus.FormatDouble(amount) );
 			event.setLine(3, "");
 			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_withdraw_sign"));
 			return;
