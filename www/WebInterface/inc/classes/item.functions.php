@@ -29,6 +29,19 @@ public static function getItemArray($itemId=0, $itemDamage=0){
 }
 
 
+// get item data by language
+protected static function getItemLangData(&$data){
+  // multi-language
+  if(is_array($data)){
+    $lang = SettingsClass::getString('Language');
+    if(isset($data[$lang]))     return($data[$lang]);
+    else if(isset($data['en'])) return($data['en'] );
+    else                        return(reset($data));
+  }
+  return($data);
+}
+
+
 // get item type
 public static function getItemType($itemId=0){
   $item = self::getItemArray($itemId);
@@ -43,12 +56,7 @@ public static function getItemName($itemId=0, $itemDamage=0){
   if(!is_array($item) || count($item) <= 0) return('Invalid');
   $name = $item['name'];
   // multi-language
-  if(is_array($name)){
-    $lang = SettingsClass::getString('Language');
-    if(isset($name[$lang]))		$name = $name[$lang];
-    else if(isset($name['en']))	$name = $name['en'];
-    else						$name = reset($name);
-  }
+  $name = self::getItemLangData($name);
   if(@$item['type'] == 'map')
     $name=str_replace('#map#', $itemDamage, $name);
   return($name);
@@ -62,12 +70,7 @@ public static function getItemTitle($itemId=0, $itemDamage=0){
   if(isset($item['title'])) $title = $item['title'];
   else                      $title = $item['name'];
   // multi-language
-  if(is_array($title)){
-    $lang = SettingsClass::getString('Language');
-    if(isset($title[$lang]))		$title = $title[$lang];
-    else if(isset($title['en']))	$title = $title['en'];
-    else							$title = reset($title);
-  }
+  $title = self::getItemLangData($title);
   if(@$item['type'] == 'tool'){$title=str_replace('%damaged%', self::getPercentDamagedStr($itemDamage,$item['damage']), $title);
                                $title=str_replace('%charged%', self::getPercentChargedStr($itemDamage,$item['damage']), $title);
                                $title=str_replace('%painted%', self::getPercentPaintedStr($itemDamage,$item['damage']), $title);}
@@ -78,10 +81,11 @@ public static function getItemTitle($itemId=0, $itemDamage=0){
 
 // get enchantment title
 public static function getEnchantmentTitle($enchId=-1){
-  if(isset(self::$Enchantments[$enchId]))
-    return(self::$Enchantments[$enchId]);
-  return(self::$Enchantments[-1]);
-//  return('Unknown Enchantment #'.$enchId);
+  if(isset(self::$Enchantments[$enchId])) $ench = self::$Enchantments[$enchId];
+  else                                    $ench = self::$Enchantments[-1];
+  // multi-language
+  return(self::getItemLangData($ench));
+//TODO: return('Unknown Enchantment #'.$enchId);
 }
 
 
@@ -146,10 +150,12 @@ public static function getDamagedChargedStr($itemId=0, $itemDamage=0){
   if(!is_array($item) || count($item) <= 0) return('Invalid');
   if(@$item['type'] != 'tool' && @$item['type'] != 'map') return('');
   if(isset($item['title'])) $title = $item['title'];
-  else                      $title =@$item['name'];
+  else                      $title = $item['name'];
   if(empty($title)) return('Invalid');
   $maxDamage = @$item['damage'];
   if($maxDamage == 0) return('');
+  // multi-language
+  $title = self::getItemLangData($title);
   if(strpos($title,'%damaged%') !== FALSE)
     return(self::getPercentDamagedStr($itemDamage, $maxDamage));
   elseif(strpos($title,'%charged%') !== FALSE)
@@ -177,7 +183,6 @@ private static function getPercentDamagedStr($itemDamage, $maxDamage){
 // get percent paint used
 private static function getPercentPaintedStr($itemDamage, $maxDamage){
   $damaged = self::getPercentDamaged($itemDamage, $maxDamage);
-file_put_contents('sdgsfdg.txt', $damaged.'='.$maxDamage);
   if(      ((string)$damaged) == '0'  ) return('Brand New!');
   else if( ((string)$damaged) == '100') return('Empty!');
   else                                  return(((string)$damaged).' % used');
