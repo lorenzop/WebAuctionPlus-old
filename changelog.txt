@@ -1,7 +1,49 @@
-WebAuctionPlus Change Log
+WebAuctionPlus - Change Log
 
 
-2012-08-09 WA+ 1.1.2 alpha
+2012-09-17 WA+ 1.1.7 beta r276
+==========================
+* finished adding items to RedPower2 and every other tekkit mod! this means it's complete! if we missed anything, feel free to report it to us, so it can be fixed. (please note, we attempt to keep these updated for compatibility with the latest version of tekkit. other versions may have issues)
+* fixed bug displaying items such as weapons, tools, or armor
+note: this is the first beta release!
+
+
+2012-09-13 WA+ 1.1.6 alpha r267
+==========================
+* finished ajax search box - searches for item name or seller name
+* added multi-language support for item names
+* fixed percent charged calculation for tekkit items
+* fixed deposit/withdraw signs for money
+note: the database will be automatically updated only once, when updating from 1.1.5 to 1.1.6. this update fixes damage id's for potions that have changed in a previous minecraft update.
+note: new messages have been added to the language files. these new lines all default to english. please translate these and send them in to be included in the next update.
+
+
+2012-09-04 WA+ 1.1.5 alpha r254
+==========================
+* added ajax to Current Auctions page to greatly improve page load time for large databases of auctions
+* added Inventory Rows setting to WA_Settings table for mailbox size in-game
+* new login form at top left of page
+* removed "Market price goes here" message - feature has not yet been finished, sorry
+* added new mcskin.php file to handle skin rendering internally (no more need for minotar.net)
+
+
+2012-08-19 WA+ 1.1.4 alpha r244
+==========================
+* finished "/wa reload" command
+* bug fixes and some new code
+
+
+2012-08-11 WA+ 1.1.3 alpha r234
+==========================
+* added error message if website is running the wrong version
+* added "/wa update" command to update recent signs and signlink signs
+* new signlink code to fix bugs preventing it from working
+* added AnnounceGlobally setting to config.yml
+* fixed bugs when buying/selling auctions
+* bug fixes for signs
+
+
+2012-08-09 WA+ 1.1.2 alpha r227
 ==========================
 * fixed handling of enchantments in virtual inventory
 * fixed website inventory locking to prevent item duping
@@ -15,19 +57,30 @@ note: the database has a few small changes, so be sure to make a backup before r
 note: the original web interface config.php has been removed, and db.config.php has been renamed to config.php and takes its place, so you'll need to use the new config.php file and copy your database connection settings into that.
 
 
-2012-08-08 WA+ 1.1.1 alpha
+2012-08-08 WA+ 1.1.1 alpha r213
 ==========================
 * first update with 1.3 support!
 * added new virtual chest for deposit and withdraw of items from web auction account
+* removed old mailbox signs
 * enchantments are now stored in the database with a simpler format
 * guest visitors can now view current auctions page without logging in
 * cancel buttons work!
-* added protection against cross-site request forgery
+* added csrf protection for better security of website
+* added more custom items to tekkit item packs
+* additional item packs for tekkit mods and other mods are now found in the AdditionalItemPacks.zip file included in the package
 note: the database has a few small changes, so be sure to make a backup before running the plugin
 note: the original web interface config.php has been removed, and db.config.php has been renamed to config.php and takes its place, so you'll need to use the new config.php file and copy your database connection settings into that.
 
 
-2012-04-24 WA+ 1.0.8 alpha
+2012-06-05 WA+ 1.0.9 alpha r172
+==========================
+* unreleased version - only for testers
+* multi-threaded sale alerts for both onPlayerJoin and scheduled task
+* added "/wa version" command
+* finished cancel auction buttons
+
+
+2012-04-24 WA+ 1.0.8 alpha r147
 ==========================
 * tracked down and tested well the bug with failing loading language files on windows servers
 * added wa.password.create and wa.password.change permission nodes
@@ -38,7 +91,7 @@ note: a bunch of features have been temporarily removed, will be finished in nex
 note: be sure to make a backup of your database before running this plugin. this version isn't recommended for live servers until more testing is done.
 
 
-2012-04-22 WA+ 1.0.7 alpha
+2012-04-22 WA+ 1.0.7 alpha r127/133
 ==========================
 * improved loading of language files
 * improved handling of numbers in money deposit/withdraw signs
@@ -49,7 +102,7 @@ note: a bunch of features have been temporarily removed, will be finished in nex
 note:be sure to make a backup of your database before running this plugin. this version isn't recommended for live servers until more testing is done.
 
 
-2012-04-15 WA+ 1.0.6 alpha
+2012-04-15 WA+ 1.0.6 alpha r117
 ==========================
 * fixed negative balance for players (can no longer buy items without enough money)
 * a few small fixes to how signs work
@@ -62,7 +115,7 @@ note: a bunch of features have been temporarily removed, will be finished in nex
 note: be sure to make a backup of your database before running this plugin. this version isn't recommended for live servers until more testing is done.
 
 
-2012-04-12 WA+ 1.0.5 alpha
+2012-04-12 WA+ 1.0.5 alpha r107
 ==========================
 * added multi-language support (only english is included, others will be added to next update)
 * fixed mailing items to players bug, again. think I got it this time
@@ -70,7 +123,7 @@ note: a bunch of features have been temporarily removed, will be finished in nex
 note: be sure to make a backup of your database before running this plugin. this version isn't recommended for live servers until more testing is done.
 
 
-2012-04-10 WA+ 1.0.4 alpha
+2012-04-10 WA+ 1.0.4 alpha r97/104
 ==========================
 * fixed bug players were getting with trying to mail items
 * fixed displaying of some items with damage values
@@ -85,7 +138,7 @@ note: a bunch of features have been temporarily removed, will be finished in nex
 note: be sure to make a backup of your database before running this plugin. this version isn't recommended for live servers until more testing is done.
 
 
-2012-05-08 WA+ 1.0.3 alpha
+2012-05-08 WA+ 1.0.3 alpha r78/85
 ==========================
 * next phase of rewrite
 * all new web interface
@@ -99,7 +152,7 @@ note: a bunch of features have been temporarily removed, will be finished in nex
 note: be sure to make a backup of your database before running this plugin. this version isn't recommended for live servers until more testing is done.
 
 
-2012-04-03 WA+ 1.0.2 alpha
+2012-04-03 WA+ 1.0.2 alpha r30
 ==========================
 * added lightweight announcer system
 * changed config task ticks to seconds
@@ -108,7 +161,7 @@ note: be sure to make a backup of your database before running this plugin. this
 * removed storage fees
 
 
-2012-04-03 WA+ 1.0.1 alpha
+2012-04-03 WA+ 1.0.1 alpha r20
 ==========================
 * fixed bug depositing enchanted items
 * fixed database table creation
