@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ALL | E_STRICT);
 define('DEFINE_INDEX_FILE',TRUE);
-define('CURRENT_VERSION', '1.1.6');
+define('CURRENT_VERSION', '1.1.7');
 
 // get,post,cookie (highest priority last)
 function getVar($name,$type='',$order=array('get','post')){$output='';
