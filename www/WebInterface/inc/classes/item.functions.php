@@ -178,14 +178,14 @@ private static function getPercentDamaged($itemDamage, $maxDamage){
 private static function getPercentDamagedStr($itemDamage, $maxDamage){
   $damaged = self::getPercentDamaged($itemDamage, $maxDamage);
   if( ((string)$damaged) == '0') return('Brand New!');
-  else                           return(((string)$damaged).' % damaged');
+  else                           return(((string)$damaged).'% damaged');
 }
 // get percent paint used
 private static function getPercentPaintedStr($itemDamage, $maxDamage){
   $damaged = self::getPercentDamaged($itemDamage, $maxDamage);
   if(      ((string)$damaged) == '0'  ) return('Brand New!');
   else if( ((string)$damaged) == '100') return('Empty!');
-  else                                  return(((string)$damaged).' % used');
+  else                                  return(((string)$damaged).'% used');
 }
 
 
@@ -200,7 +200,7 @@ private static function getPercentCharged($itemDamage, $maxDamage){
 private static function getPercentChargedStr($itemDamage, $maxDamage){
   $charged = self::getPercentCharged($itemDamage, $maxDamage);
   if( ((string)$charged) == '0') return('Fully Charged!');
-  else                           return( ((string)$charged).' % charged' );
+  else                           return( ((string)$charged).'% charged' );
 }
 
 
