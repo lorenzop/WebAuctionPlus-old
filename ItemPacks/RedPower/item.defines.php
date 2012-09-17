@@ -1,12 +1,13 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 // Red Power - item definitions
 $Items = &ItemFuncs::$Items;
-$pack  = 'RedPower';
 
 // covers (id: 136)
+$pack  = 'RedPower-covers';
 include('item.defines.covers.php');
 
 // wire (id: 136)
+$pack  = 'RedPower';
 $Items[136][256]=array(
   'name'=>'Red Alloy Wire',
   'icon'=>'Wire_Red_Alloy.png',
