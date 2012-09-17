@@ -1,7 +1,7 @@
 @echo off
 cls
 set tempdir=\WebAuctionPlus
-set outputfile=%CD%\WebAuctionPlus-1.1.xalpha.zip
+set outputfile=%CD%\WebAuctionPlus-1.1.xbeta.zip
 
 set tempdiritem=\ItemPacks
 set outputfileitem=%tempdir%\AdditionalItemPacks.zip
