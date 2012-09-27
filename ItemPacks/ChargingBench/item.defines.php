@@ -3,7 +3,7 @@
 $Items = &ItemFuncs::$Items;
 $pack  = 'chargingbench';
 
-$Items[189]=array(
+$Items[187]=array(
   0 =>array(
     'name'=>'Charging Bench Mk1',
     'icon'=>'Charging_Bench_Mk1.png',

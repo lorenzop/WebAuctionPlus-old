@@ -3,7 +3,7 @@
 $Items = &ItemFuncs::$Items;
 $pack  = 'CompactSolars';
 
-$Items[187]=array(
+$Items[183]=array(
   0 =>array(
     'name'=>'Low Voltage Solar Array',
     'icon'=>'Solar_Array_Low_Voltage.png',
