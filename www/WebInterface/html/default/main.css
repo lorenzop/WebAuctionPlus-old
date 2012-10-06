@@ -29,6 +29,8 @@ a:visited{
   color: #000000;
 }
 
+
+
 #holder {
   background-color: #FFFFFF;
   width:         auto;
@@ -47,6 +49,10 @@ a:visited{
   font-family:   "Trebuchet MS", Arial, Helvetica, sans-serif;
 }
 
+#titletable{
+  width: 100%;
+}
+
 //#new-auction-box {
 //  position:     relative;
 //  width:        600px;
@@ -55,11 +61,12 @@ a:visited{
 //  text-align:   center;
 //}
 
+
+
 #profile-box {
-  float:      left;
-  margin-top: 10px;
-  width:      300px;
-  height:     120px;
+  width:  585px;
+  height: 120px;
+  float:  left;
 }
 #mcface {
   margin-left:    15px;
@@ -68,24 +75,41 @@ a:visited{
 }
 
 #title-box {
-  width:         300px;
-  height:        120px;
-  margin-top:    -20px;
-  margin-bottom: 30px;
-  margin-left:   auto;
-  margin-right:  auto;
-  text-align:    center;
+  vertical-align: top;
+  height:         160px;
+  text-align:     center;
+  font-family:    Arial;
 }
 
 #menu-box {
-  float:         right;
-  margin-top:    10px;
+  vertical-align: top;
+  padding-top:    10px;
   padding-right: 10px;
   width:         200px;
   height:        120px;
   text-align:    right;
   font-size:     18px;
+  font-family:   Arial;
 }
+#no-menu-box {
+  width:         300px;
+  height:        120px;
+}
+
+
+
+.formtable {
+  border-radius: 6px 6px 6px 6px;
+  -moz-border-radius: 6px 6px 6px 6px;
+  -webkit-border-radius: 6px 6px 6px 6px;
+  -khtml-border-radius: 6px 6px 6px 6px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: #000000;
+  background-color: #eeeeee;
+}
+
+
 
 #createauctionTable{
   margin-top:     -50px;

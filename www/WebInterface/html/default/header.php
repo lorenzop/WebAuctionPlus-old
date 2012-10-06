@@ -35,15 +35,19 @@ switch($html->getPageFrame()){
 case 'default':
   $output.='
 <div id="holder">
-<div id="profile-box">
+<table border="0" cellspacing="0" cellpadding="0" id="titletable">
 
+
+
+<tr><td style="width: 1%;">
 {if logged in}
 
+<!-- profile box -->
 <table border="0" cellspacing="0" cellpadding="0" style="padding-bottom: 2px; text-align:  left; font-size:   20px; font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;">
 <tr>
   <td rowspan="4"><img src="./?page=mcskin&user='.$user->getName().'&view=body" alt="" width="60" height="120" id="mcface" /></td>
   <td height="30">Name:</td><td>'.$user->getName().
-      ($user->hasPerms('isAdmin')?'&nbsp;<a style="font-size: small; font-weight: bold; color: #000000;">[ADMIN]</a>':'').'</td>
+      ($user->hasPerms('isAdmin')?'&nbsp;<a href="./?dir=admin" style="font-size: small; font-weight: bold;">[ADMIN]</a>':'').'</td>
 </tr>
 <tr><td height="30">Money:&nbsp;&nbsp;</td><td>'.str_replace(' ','&nbsp;',FormatPrice($user->getMoney())).'</td></tr>
 <tr><td colspan="2" align="center" style="font-size: smaller;">'.@date('jS M Y H:i:s').'</td></tr>
@@ -51,11 +55,12 @@ case 'default':
 
 {else}
 
+<!-- login form -->
 <form action="./" name="loginform" method="post">
 {token form}
 <input type="hidden" name="page"     value="login" />
 <input type="hidden" name="lastpage" value="./" />
-<table border="0" cellspacing="0" cellpadding="0" style="margin-top: -10px;width: 585px;">
+<table border="0" cellspacing="0" cellpadding="0" id="profile-box">
 <tr>
   <td align="right"><label for="'.LOGIN_FORM_USERNAME.'">Username:&nbsp;</label></td>
   <td width="290"><input type="text"  name="'.LOGIN_FORM_USERNAME.'" value="" class="input" size="30" tabindex="1" id="'.LOGIN_FORM_USERNAME.'" /></td>
@@ -78,13 +83,21 @@ window.onload = formfocus;
 </script>
 
 {endif}
-
-</div>
-<div id="menu-box">
+</td>
 
 
-<a href="./">Home</a><br />
+
+<td id="title-box">
+  <h1 style="margin-bottom: 10px;">WebAuction<sup>Plus</sup></h1>
+  <h2>{page title}</h2>
+</td>
+
+
+
 {if logged in}
+<!-- menu -->
+<td id="menu-box">
+<a href="./">Home</a><br />
 <a href="./?page=myitems">My Items</a><br />
 <a href="./?page=myauctions">My Auctions</a><br />
 <!--
@@ -93,18 +106,14 @@ window.onload = formfocus;
 <a href="./?page=transactionlog">Transaction Log</a><br />
 -->
 <a href="./?page=logout{token}">Logout</a><br />
+</td>
 {else}
-<a href="./?page=login">Login</a><br />
+<td id="no-menu-box"></td>
 {endif}
 
 
-</div>
-<div id="title-box">
-  <div id="title-box2">
-    <h1 style="margin-bottom: 10px; text-align: center; font-family: Arial;">WebAuction<sup>Plus</sup></h1>
-    <h2>{page title}</h2>
-  </div>
-</div>
+
+</tr></table>
 ';
   break;
 case 'basic':

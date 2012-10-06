@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ALL | E_STRICT);
 define('DEFINE_INDEX_FILE',TRUE);
-define('CURRENT_VERSION', '1.1.7');
+define('CURRENT_VERSION', '1.1.8');
 
 // get,post,cookie (highest priority last)
 function getVar($name,$type='',$order=array('get','post')){$output='';
@@ -35,14 +35,6 @@ function toBoolean($value){
 define('LOGIN_FORM_USERNAME', 'WA_Login_Username');
 define('LOGIN_FORM_PASSWORD', 'WA_Login_Password');
 
-// get page name
-$page   = getVar('page');
-$action = getVar('action');
-if(empty($page)) $page='home';
-
-// render skin
-if($page=='mcskin'){require('inc/mcskin.php'); exit();}
-
 // set defaults
 $config=array(
   'settings'     => array(),
@@ -50,8 +42,9 @@ $config=array(
   'language'     => '',
   'html'         => NULL,
   'user'         => NULL,
-  'page'         => &$page,
-  'action'       => &$action,
+  'page'         => '',
+  'pagedir'      => '',
+  'action'       => '',
   'paths' => array(
     'local'      => array(),
     'http'       => array()
@@ -67,6 +60,9 @@ $config=array(
   ),
   'session name' => 'WebAuctionPlus User'
 );
+$page    = &$config['page'];
+$pagedir = &$config['pagedir'];
+$action  = &$config['action'];
 $settings = &$config['settings'];
 $languages= &$config['languages'];
 $language = &$config['language'];
@@ -109,7 +105,15 @@ if(!@date_default_timezone_get())
 // includes
 require($lpaths['includes'].'inc.php');
 $qtime = GetTimestamp();
-$page=SanFilename($page);
+
+// get page
+$page    = SanFilename(getVar('page'));
+$pagedir = SanFilename(getVar('dir'));
+$action  = SanFilename(getVar('action'));
+if(empty($page)) $page = 'home';
+
+// render skin
+if($page=='mcskin'){require('inc/mcskin.php'); exit();}
 
 // php session
 if(function_exists('session_status'))
@@ -168,13 +172,19 @@ $config['user'] = new UserClass();
 if($config['user'] === NULL) {echo '<p>Failed to load user manager!</p>'; exit();}
 
 // render page content
-$page_outputs['body'] = include($lpaths['pages'].SanFilename($page).'.php');
-if($page_outputs['body'] == TRUE){
-  $a = 'RenderPage_'.$page;
-  $page_outputs['body'] = $a();
+$PageFileName = $lpaths['pages'].(empty($pagedir)?'':$pagedir.'/').SanFilename($page).'.php';
+if(file_exists($PageFileName)){
+  $page_outputs['body'] = include($PageFileName);
+  if($page_outputs['body'] == TRUE){
+    $func = 'RenderPage_'.(empty($pagedir)?'':$pagedir.'_').$page;
+    if(function_exists($func)) $page_outputs['body'] = $func();
+    else                       $page_outputs['body'] = '<p>Page function not found!</p>';
+  }
+}else{
+  $page_outputs['body'] = '404 - Page not found!';
 }
 if    ($page_outputs['body'] === TRUE ) $page_outputs['body']='';
-elseif($page_outputs['body'] === FALSE) $page_outputs['body']='Unable to load page, render returned FALSE';
+elseif($page_outputs['body'] === FALSE) $page_outputs['body']='<p>Unable to load page, render returned FALSE</p>';
 $html->Display();
 @session_write_close();
 
