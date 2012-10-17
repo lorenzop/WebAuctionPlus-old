@@ -42,6 +42,7 @@ public function Display(){global $config,$lpaths;
   $this->tags['sitepage title'] = $config['site title'].(empty($config['title'])?'':' - '.$config['title']);
   $this->tags['token']          = CSRF::getTokenURL();
   $this->tags['token form']     = CSRF::getTokenForm();
+  self::Block($this->outputs['header'], 'setting:ez login', SettingsClass::getBoolean('ez Login'));
   // finish rendering page
   $output = $this->outputs['header']."\n".
             $this->outputs['body']  ."\n".
@@ -114,7 +115,8 @@ public static function RenderTags(&$html, $tags=array()){global $config;
   }
   unset($pathName, $path);
   // global tags
-  if(!isset($tags['page'])) $tags['page'] = $config['page'];
+  if(!isset($tags['pagedir'])) $tags['pagedir'] = $config['pagedir'];
+  if(!isset($tags['page']   )) $tags['page']    = $config['page'];
   // replace tags
   $searches = array(); $replaces = array();
   foreach($tags as $search => $replace){
@@ -221,6 +223,9 @@ public static function LoadCss($file){global $config,$paths;
   // remove comments
   $output = preg_replace('/\/\*(.*?)\*\//s','',$output);
   $config['html']->outputs['css'] .= "\n".$output."\n";
+}
+public static function AddCss($css){global $config;
+  $config['html']->outputs['css'] .= $css;
 }
 
 

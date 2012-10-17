@@ -103,14 +103,16 @@ function RenderSkin($data, $view='head', $cache=TRUE){
     imagecopyresampled($rendered, $source, 0, 0, $s, $s, $b, $b, $s, $s);
   }
 
-  // browser cache 3 hours
-  $expire_time = 3*60*60;
-  if(!$cache) $expire_time = 0 - $expire_time;
-  header('Cache-Control: private, max-age='.$expire_time.', pre-check='.$expire_time);
-  header('Pragma: private');
-  header('Expires: '.@date(DATE_RFC822,time() + $expire_time));
-  // display rendered image
-  header('Content-type: image/png');
+  if(!isset($_GET['testing'])){
+    // browser cache 3 hours
+    $expire_time = 3*60*60;
+    if(!$cache) $expire_time = 0 - $expire_time;
+    header('Cache-Control: private, max-age='.$expire_time.', pre-check='.$expire_time);
+    header('Pragma: private');
+    header('Expires: '.@date(DATE_RFC822,time() + $expire_time));
+    // display rendered image
+    header('Content-type: image/png');
+  }  
   imagepng($rendered);
   imagedestroy($source);
   imagedestroy($rendered);
