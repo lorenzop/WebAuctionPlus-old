@@ -1,6 +1,6 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 // admin - settings
-require('_admin.php');
+require('admin_common.php');
 if(!defined('ADMIN_OK')){echo 'Permission Denied!'; exit();}
 
 
@@ -23,12 +23,13 @@ if($config['action']=='save'){
     SaveSetting_string('Website Theme', $theme);
     // jquery ui pack
     $jqueryuipack = trim(getVar('jQuery_UI_Pack', 'str'));
-//array(
-//    'dark-hive',
-//    'dot.luv',
-//    'redmond',
-//    'start')
-    SaveSetting_string('jQuery UI Pack', $jqueryuipack);
+    if(in_array($jqueryuipack, array(
+      'dark-hive',
+      'dot.luv',
+      'redmond',
+      'start'
+    )))
+      SaveSetting_string('jQuery UI Pack', $jqueryuipack);
 
     // require login
     $requirelogin = getVar('Require_Login', 'bool');
@@ -57,11 +58,13 @@ if($config['action']=='save'){
     // language
     $language = trim(getVar('Language', 'str'));
     $language = trim(substr($language, 0, 2));
-//    'en (English)',
-//    'de ()',
-//    'fr (French)',
-//    'nl ()') ,
-    SaveSetting_string('Language', $language);
+    if(in_array($language, array(
+      'en',
+      'de',
+      'fr',
+      'nl'
+    )))
+      SaveSetting_string('Language', $language);
     // currency prefix
     $currencyprefix = getVar('Currency_Prefix', 'str');
     SaveSetting_string('Currency Prefix', $currencyprefix);
@@ -71,11 +74,7 @@ if($config['action']=='save'){
 
   } SaveSettings();
 
-echo '<center><h1>THIS PAGE IS NOT FINISHED,<br />AND DOES NOT SAVE ANYTHING!!</h1></center>';
-ForwardTo(getLastPage(), 4);
-
-
-//    echo '<center><h2>Settings saved successfully!</h2><br /><a href="'.getLastPage().'">Back to last page</a></center>';
+    echo '<center><h2>Settings saved successfully!</h2><br /><a href="'.getLastPage().'">Back to last page</a></center>';
     ForwardTo(getLastPage(), 2);
     exit();
 //  }
