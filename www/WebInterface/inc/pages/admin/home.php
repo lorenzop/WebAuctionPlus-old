@@ -4,9 +4,21 @@ require('admin_common.php');
 if(!defined('ADMIN_OK')){echo 'Permission Denied!'; exit();}
 
 
-function RenderPage_admin_home(){
-  $output=RenderHTML::LoadHTML('admin/menu.php');
-  $output.='<center>Future site of the admin page</center>';
+function RenderPage_admin_home(){global $config;
+  // load page html
+  $config['title'] = 'Dashboard';
+  $outputs = RenderHTML::LoadHTML('pages/admin/home.php');
+  if(!empty($outputs['css']))
+    $config['html']->AddCss($outputs['css']);
+  $output = $outputs['body'];
+  $tags = array(
+    'total auctions'       => 'N/A',
+    'total buynows'        => 'N/A',
+    'total items for sale' => 'N/A',
+    'total accounts'       => 'N/A',
+  );
+  RenderHTML::RenderTags($output, $tags);
+//  $output.='<center>Future site of the admin page</center>';
   return($output);
 }
 
