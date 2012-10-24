@@ -60,9 +60,9 @@ $config=array(
   ),
   'session name' => 'WebAuctionPlus User'
 );
-$page    = &$config['page'];
-$pagedir = &$config['pagedir'];
-$action  = &$config['action'];
+$page   = &$config['page'];
+$pagedir= &$config['pagedir'];
+$action = &$config['action'];
 $settings = &$config['settings'];
 $languages= &$config['languages'];
 $language = &$config['language'];
@@ -108,7 +108,7 @@ $qtime = GetTimestamp();
 
 // get page
 $page    = SanFilename(getVar('page'));
-$pagedir = SanFilename(getVar('dir'));
+$pagedir = SanFilename(getVar('pagedir'));
 $action  = SanFilename(getVar('action'));
 if(empty($page)) $page = 'home';
 
@@ -129,11 +129,12 @@ SettingsClass::LoadSettings();
 // default settings
 SettingsClass::setDefault('Version'            , 'unknown!' , TRUE );
 SettingsClass::setDefault('Language'           , 'en'       , TRUE );
-SettingsClass::setDefault('Require Login'      , FALSE      , TRUE );
-SettingsClass::setDefault('CSRF Protection'    , TRUE       , TRUE );
+SettingsClass::setDefault('Require Login'      , FALSE      , FALSE);
+SettingsClass::setDefault('ez Login'           , TRUE       , FALSE);
+SettingsClass::setDefault('CSRF Protection'    , TRUE       , FALSE);
 SettingsClass::setDefault('Currency Prefix'    , '$ '       , FALSE);
 SettingsClass::setDefault('Currency Postfix'   , ''         , FALSE);
-SettingsClass::setDefault('Custom Description' , FALSE      , TRUE );
+SettingsClass::setDefault('Custom Description' , FALSE      , FALSE);
 SettingsClass::setDefault('Website Theme'      , 'default'  , TRUE );
 SettingsClass::setDefault('jQuery UI Pack'     , 'redmond'  , TRUE );
 SettingsClass::setDefault('Item Packs'         , ''         , FALSE);

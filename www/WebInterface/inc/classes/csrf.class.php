@@ -46,11 +46,13 @@ public static function isEnabled(){
 
 // token for url
 public static function getTokenURL(){
-  return('&amp;'.self::SESSION_KEY.'='.self::getToken());
+  if(self::isEnabled()) return('&amp;'.self::SESSION_KEY.'='.self::getToken() );
+  else                  return('');
 }
 // token for form
 public static function getTokenForm(){
-  return '<input type="hidden" name="'.self::SESSION_KEY.'" value="'.self::getToken().'" />';
+  if(self::isEnabled()) return('<input type="hidden" name="'.self::SESSION_KEY.'" value="'.self::getToken().'" />');
+  else                  return('');
 }
 
 

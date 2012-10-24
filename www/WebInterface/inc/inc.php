@@ -129,6 +129,12 @@ function mysql_san($text){global $db;
 //}
 
 
+// has GD support
+function GDSupported(){
+  return(function_exists('gd_info'));
+}
+
+
 // trim / from path
 function trimPath($path){
   $path=str_replace('\\','/',$path);
@@ -214,6 +220,13 @@ function numberToRoman($num){
     $num = $num % $value;
   }
   return $result;
+}
+
+
+function MinMax($value, $min=FALSE, $max=FALSE){
+  if($min !== FALSE) if($value < $min) $value = $min;
+  if($max !== FALSE) if($value > $max) $value = $max;
+  return($value);
 }
 
 

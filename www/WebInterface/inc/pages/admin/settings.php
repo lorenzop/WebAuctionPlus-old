@@ -1,5 +1,86 @@
 <?php if(!defined('DEFINE_INDEX_FILE')){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 // admin - settings
+require('_admin.php');
+if(!defined('ADMIN_OK')){echo 'Permission Denied!'; exit();}
+
+
+// save settings
+if($config['action']=='save'){
+  CSRF::ValidateToken();
+
+  function SaveSettings(){
+    function SaveSetting_string($name, $value){global $config;
+      RunQuery("UPDATE `".$config['table prefix']."Settings` SET `value` = '".mysql_san($value)."' WHERE `name` = '".mysql_san($name)."' LIMIT 1", __file__, __line__);}
+    function SaveSetting_boolean($name, $value){global $config;
+      RunQuery("UPDATE `".$config['table prefix']."Settings` SET `value` = ".((int)toBoolean($value))." WHERE `name` = '".mysql_san($name)."' LIMIT 1", __file__, __line__);}
+    function SaveSetting_integer($name, $value){global $config;
+      RunQuery("UPDATE `".$config['table prefix']."Settings` SET `value` = ".((int)$value)." WHERE `name` = '".mysql_san($name)."' LIMIT 1", __file__, __line__);}
+    function SaveSetting_double($name, $value){global $config;
+      RunQuery("UPDATE `".$config['table prefix']."Settings` SET `value` = ".((float)$value)." WHERE `name` = '".mysql_san($name)."' LIMIT 1", __file__, __line__);}
+
+    // website theme
+    $theme = trim(getVar('Website_Theme', 'str'));
+    SaveSetting_string('Website Theme', $theme);
+    // jquery ui pack
+    $jqueryuipack = trim(getVar('jQuery_UI_Pack', 'str'));
+//array(
+//    'dark-hive',
+//    'dot.luv',
+//    'redmond',
+//    'start')
+    SaveSetting_string('jQuery UI Pack', $jqueryuipack);
+
+    // require login
+    $requirelogin = getVar('Require_Login', 'bool');
+    SaveSetting_boolean('Require Login', $requirelogin);
+    // ez login
+    $ezlogin = getVar('ez_Login', 'bool');
+    SaveSetting_boolean('ez Login', $ezlogin);
+    // csrf protection
+    $csrfprotection = getVar('CSRF_Protection', 'bool');
+    SaveSetting_boolean('CSRF Protection', $csrfprotection);
+
+    // inventory rows
+    $inventoryrows = getVar('Inventory_Rows', 'str');
+    $inventoryrows = (int) substr($inventoryrows, 0, 1);
+    $inventoryrows = MinMax($inventoryrows, 0, 6);
+    SaveSetting_integer('Inventory Rows', $inventoryrows);
+    // max sell price
+    $maxsellprice = getVar('Max_Sell_Price', 'double');
+    SaveSetting_double('Max Sell Price', $maxsellprice);
+    // max selling per player
+    $maxsellingperplayer = getVar('Max_Selling_Per_Player', 'int');
+    SaveSetting_double('Max Selling Per Player', $maxsellingperplayer);
+    //$output .= render_setting_row($outputs, 'Custom Description'     , 'checkbox',
+    //$output .= render_setting_row($outputs, 'Item Packs'             , 'text',
+
+    // language
+    $language = trim(getVar('Language', 'str'));
+    $language = trim(substr($language, 0, 2));
+//    'en (English)',
+//    'de ()',
+//    'fr (French)',
+//    'nl ()') ,
+    SaveSetting_string('Language', $language);
+    // currency prefix
+    $currencyprefix = getVar('Currency_Prefix', 'str');
+    SaveSetting_string('Currency Prefix', $currencyprefix);
+    // currency postfix
+    $currency_postfix = getVar('Currency_Postfix', 'str');
+    SaveSetting_string('Currency Postfix', $currency_postfix);
+
+  } SaveSettings();
+
+echo '<center><h1>THIS PAGE IS NOT FINISHED,<br />AND DOES NOT SAVE ANYTHING!!</h1></center>';
+ForwardTo(getLastPage(), 4);
+
+
+//    echo '<center><h2>Settings saved successfully!</h2><br /><a href="'.getLastPage().'">Back to last page</a></center>';
+    ForwardTo(getLastPage(), 2);
+    exit();
+//  }
+  echo $config['error']; exit();
+}
 
 
 function RenderPage_admin_settings(){global $config;
@@ -9,6 +90,7 @@ function RenderPage_admin_settings(){global $config;
   if(!empty($outputs['css']))
     $config['html']->AddCss($outputs['css']);
   $output = '';
+
   // assemble form
   function render_setting_row($outputs, $name, $type='text', $desc){global $config;
     $title = $name;
@@ -21,15 +103,20 @@ function RenderPage_admin_settings(){global $config;
       $output = '';
       foreach($type as $v){
         $temp = $outputs['list row'];
-        $temp = str_replace('{value}',    $v, $temp);
-        $temp = str_replace('{selected}', ($v==$value?'selected':''), $temp);
+        $temp = str_replace('{value}', $v, $temp);
+        if($name == 'Inventory Rows')
+          $temp = str_replace('{selected}', (substr($v,0,1)==$value ? 'selected' : ''), $temp);
+        else if($name == 'Language')
+          $temp = str_replace('{selected}', (substr($v,0,2)==$value ? 'selected' : ''), $temp);
+        else
+          $temp = str_replace('{selected}', ($v==$value?'selected':''), $temp);
         $output .= $temp;
       }
       $output = str_replace('{list rows}', $output, $outputs['list']);
     // checkbox field
     }else if($type == 'checkbox'){
       $output = $outputs['checkbox'];
-      if($value == TRUE) $value = 'checked'; else $value = '';
+      if($value == TRUE) $value = ' checked="checked" '; else $value = '';
     // int field
     }else if($type == 'int'){
       $output = $outputs['int'];

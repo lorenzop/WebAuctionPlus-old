@@ -16,11 +16,6 @@ public static function LoadSettings(){global $config, $db;
 }
 
 
-public static function SaveSettings(){global $config;
-  echo '<h1>SaveSettings function not finished!</h1>';
-}
-
-
 // set defaults / type
 public static function setDefault($name, $default='', $setIfEmpty=TRUE){global $config;
   // set default

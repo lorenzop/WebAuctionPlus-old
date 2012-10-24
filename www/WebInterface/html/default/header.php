@@ -26,6 +26,15 @@ $output.='
 <script type="text/javascript" language="javascript" src="{path=static}js/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" language="javascript" src="{path=static}js/jquery.dataTables-1.9.0.min.js"></script>
 <script type="text/javascript" language="javascript" src="{path=static}js/inputfunc.js"></script>
+<script type="text/javascript"><!--//
+function toggle(id) {
+  var e = document.getElementById(id);
+  if(e.style.display == \'block\')
+    e.style.display = \'none\';
+  else
+    e.style.display = \'block\';
+}
+//--></script>
 {AddToHeader}
 </head>
 <body>
@@ -47,7 +56,7 @@ case 'default':
 <tr>
   <td rowspan="4"><img src="./?page=mcskin&user='.$user->getName().'&view=body" alt="" width="60" height="120" id="mcface" /></td>
   <td height="30">Name:</td><td>'.$user->getName().
-      ($user->hasPerms('isAdmin')?'&nbsp;<a href="./?dir=admin" style="font-size: small; font-weight: bold;">[ADMIN]</a>':'').'</td>
+      ($user->hasPerms('isAdmin')?'&nbsp;<a href="./?pagedir=admin" style="font-size: small; font-weight: bold;">[ADMIN]</a>':'').'</td>
 </tr>
 <tr><td height="30">Money:&nbsp;&nbsp;</td><td>'.str_replace(' ','&nbsp;',FormatPrice($user->getMoney())).'</td></tr>
 <tr><td colspan="2" align="center" style="font-size: smaller;">'.@date('jS M Y H:i:s').'</td></tr>
@@ -55,6 +64,7 @@ case 'default':
 
 {else}
 
+{setting:ez login}
 <!-- login form -->
 <form action="./" name="loginform" method="post">
 {token form}
@@ -64,7 +74,7 @@ case 'default':
 <tr>
   <td align="right"><label for="'.LOGIN_FORM_USERNAME.'">Username:&nbsp;</label></td>
   <td width="290"><input type="text"  name="'.LOGIN_FORM_USERNAME.'" value="" class="input" size="30" tabindex="1" id="'.LOGIN_FORM_USERNAME.'" /></td>
-  <td rowspan="3"><input type="submit" name="Submit" value="Submit" class="button" tabindex="3" style="margin-left: 10px;" /></td>
+  <td rowspan="3"><input type="submit" name="Submit" value="Submit" class="input" tabindex="3" style="margin-left: 10px;" /></td>
 </tr>
 <tr><td style="height: 5px;"></td></tr>
 <tr>
@@ -81,6 +91,7 @@ function formfocus() {
 }
 window.onload = formfocus;
 </script>
+{/setting:ez login}
 
 {endif}
 </td>
@@ -98,6 +109,7 @@ window.onload = formfocus;
 <!-- menu -->
 <td id="menu-box">
 <a href="./">Home</a><br />
+'.($user->hasPerms('isAdmin')?'<a href="./?pagedir=admin">Admin</a><br />':'').'
 <a href="./?page=myitems">My Items</a><br />
 <a href="./?page=myauctions">My Auctions</a><br />
 <!--

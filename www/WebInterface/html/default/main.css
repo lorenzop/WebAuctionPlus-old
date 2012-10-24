@@ -92,7 +92,7 @@ a:visited{
   font-family:   Arial;
 }
 #no-menu-box {
-  width:         300px;
+//  width:         300px;
   height:        120px;
 }
 
@@ -137,10 +137,12 @@ a:visited{
   -moz-border-radius: 6px;
   font-family:    "Trebuchet MS", Arial, Helvetica, sans-serif;
   font-size:      18px;
+  outline:        none;
 }
 .input:hover {
   background-color: #CFD3FD;
 //  border-color: #CD9D3F;
+  text-decoration: none;
 }
 
 .select {

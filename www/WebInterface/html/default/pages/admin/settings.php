@@ -23,12 +23,14 @@ $outputs['css']='
 
 
 //{messages}
-$outputs['body top']='
+$outputs['body top']=
+RenderHTML::LoadHTML('admin/menu.php').'
 <form action="./" method="post">
-<input type="hidden" name="dir"    value="{dir}"  />
-<input type="hidden" name="page"   value="{page}" />
-<input type="hidden" name="action" value="save"   />
-<table border="0" cellpadding="5" cellspacing="0" align="center" class="formtable" style="width: 450px; margin-bottom: 30px;">
+{token form}
+<input type="hidden" name="pagedir" value="{pagedir}" />
+<input type="hidden" name="page"    value="{page}"    />
+<input type="hidden" name="action"  value="save"      />
+<table border="0" cellpadding="5" cellspacing="0" align="center" class="formtable" style="width: 500px; margin-bottom: 30px;">
 <tr>
   <td width="45%"></td>
   <td width="65%"></td>
@@ -38,7 +40,7 @@ $outputs['body top']='
 
 $outputs['body bottom']='
 <tr><td height="10"></td></tr>
-<tr><td align="center" colspan="2"><input type="submit" value="Save" class="input" disabled="disabled" /></td></tr>
+<tr><td align="center" colspan="2"><input type="submit" value="Save" class="input" /></td></tr>
 <tr><td height="10"></td></tr>
 </table>
 </form>
