@@ -1,12 +1,12 @@
 package me.lorenzop.webauctionplus;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
 import me.lorenzop.webauctionplus.mysql.DataQueries;
+import me.lorenzop.webauctionplus.mysql.MySQLPoolConn;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -105,12 +105,12 @@ public class WebInventory {
 	// inventory lock
 	public static boolean isLocked(String player) {
 		boolean locked = false;
-		Connection conn = WebAuctionPlus.dataQueries.getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: isLocked");
-			st = conn.prepareStatement("SELECT `Locked` FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Players` "+
+			st = poolConn.getConn().prepareStatement("SELECT `Locked` FROM `"+poolConn.dbPrefix()+"Players` "+
 				"WHERE `playerName` = ? LIMIT 1");
 			st.setString(1, player);
 			rs = st.executeQuery();
@@ -121,17 +121,18 @@ public class WebInventory {
 			e.printStackTrace();
 			return true;
 		} finally {
-			WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 		return locked;
 	}
 	// set inventory lock
 	public static void setLocked(String player, boolean locked) {
-		Connection conn = WebAuctionPlus.dataQueries.getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		try {
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: setLocked "+(locked?"engaged":"released"));
-			st = conn.prepareStatement("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+"Players` "+
+			st = poolConn.getConn().prepareStatement("UPDATE `"+poolConn.dbPrefix()+"Players` "+
 				"SET `Locked` = ? WHERE `playerName` = ? LIMIT 1");
 			if(locked) st.setInt   (1, 1);
 			else st.setInt   (1, 0);
@@ -141,14 +142,15 @@ public class WebInventory {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Unable to set inventory lock");
 			e.printStackTrace();
 		} finally {
-			WebAuctionPlus.dataQueries.closeResources(conn, st);
+			poolConn.releaseLock(st);
+			poolConn = null;
 		}
 	}
 
 
 	// load inventory from db
 	protected void loadInventory() {
-		Connection conn = WebAuctionPlus.dataQueries.getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 //		slotChanged.clear();
@@ -156,8 +158,8 @@ public class WebInventory {
 		tableRowIds.clear();
 		try {
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: isLocked");
-			st = conn.prepareStatement("SELECT `id`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle` "+
-				"FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Items` WHERE `playerName` = ? ORDER BY `id` ASC LIMIT ?");
+			st = poolConn.getConn().prepareStatement("SELECT `id`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle` "+
+				"FROM `"+poolConn.dbPrefix()+"Items` WHERE `playerName` = ? ORDER BY `id` ASC LIMIT ?");
 			st.setString(1, playerName);
 			st.setInt   (2, chest.getSize());
 			rs = st.executeQuery();
@@ -176,7 +178,8 @@ public class WebInventory {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Unable to set inventory lock");
 			e.printStackTrace();
 		} finally {
-			WebAuctionPlus.dataQueries.closeResources(conn, st);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 	}
 	// create/split item stack
@@ -186,12 +189,12 @@ public class WebInventory {
 		if(maxSize < 1) return null;
 		// split stack
 		if(qty > maxSize) {
-			Connection conn = WebAuctionPlus.dataQueries.getConnection();
+			MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 			PreparedStatement st = null;
 			while(qty > maxSize) {
 				try {
 					if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: getSplitItemStack  qty:"+Integer.toString(qty)+"  max:"+Integer.toString(maxSize));
-					st = conn.prepareStatement("INSERT INTO `"+WebAuctionPlus.dataQueries.dbPrefix()+"Items` ( "+
+					st = poolConn.getConn().prepareStatement("INSERT INTO `"+poolConn.dbPrefix()+"Items` ( "+
 						"`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle` )VALUES( ?, ?, ?, ?, ?, ? )");
 					st.setString(1, playerName);
 					st.setInt   (2, itemId);
@@ -205,12 +208,13 @@ public class WebInventory {
 					e.printStackTrace();
 					return null;
 				} finally {
-					WebAuctionPlus.dataQueries.closeResources(st, null);
+					poolConn.freeResource(st);
 				}
 				qty -= maxSize;
 			}
 			stack.setAmount(qty);
-			WebAuctionPlus.dataQueries.closeResources(conn);
+			poolConn.releaseLock();
+			poolConn = null;
 		}
 		// add enchantments
 		if(enchStr != null && !enchStr.isEmpty())
@@ -219,7 +223,7 @@ public class WebInventory {
 	}
 	// save inventory to db
 	protected void saveInventory() {
-		Connection conn = WebAuctionPlus.dataQueries.getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		int countInserted = 0;
 		int countUpdated  = 0;
@@ -235,14 +239,14 @@ public class WebInventory {
 				if(tableRowIds.containsKey(i)) {
 					try {
 						if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: saveInventory::delete slot "+Integer.toString(i));
-						st = conn.prepareStatement("DELETE FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Items` WHERE `id` = ? LIMIT 1");
+						st = poolConn.getConn().prepareStatement("DELETE FROM `"+poolConn.dbPrefix()+"Items` WHERE `id` = ? LIMIT 1");
 						st.setInt(1, tableRowIds.get(i));
 						st.executeUpdate();
 					} catch(SQLException e) {
 						WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Unable to delete item from inventory!");
 						e.printStackTrace();
 					} finally {
-						WebAuctionPlus.dataQueries.closeResources(st, null);
+						poolConn.freeResource(st);
 					}
 					countDeleted++;
 					continue;
@@ -259,7 +263,7 @@ public class WebInventory {
 				if(tableRowIds.containsKey(i)) {
 					try {
 						if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: saveInventory::update slot "+Integer.toString(i));
-						st = conn.prepareStatement("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+"Items` SET "+
+						st = poolConn.getConn().prepareStatement("UPDATE `"+poolConn.dbPrefix()+"Items` SET "+
 							"`itemId` = ?, `itemDamage` = ?, `qty` = ?, `enchantments` = ? WHERE `id` = ? LIMIT 1");
 						st.setInt   (1, Item.getTypeId());
 						st.setShort (2, Item.getDurability());
@@ -271,7 +275,7 @@ public class WebInventory {
 						WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Unable to update item to inventory!");
 						e.printStackTrace();
 					} finally {
-						WebAuctionPlus.dataQueries.closeResources(st, null);
+						poolConn.freeResource(st);
 					}
 					countUpdated++;
 					continue;
@@ -280,7 +284,7 @@ public class WebInventory {
 				} else {
 					try {
 						if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: saveInventory::insert slot "+Integer.toString(i));
-						st = conn.prepareStatement("INSERT INTO `"+WebAuctionPlus.dataQueries.dbPrefix()+"Items` ( "+
+						st = poolConn.getConn().prepareStatement("INSERT INTO `"+poolConn.dbPrefix()+"Items` ( "+
 							"`playerName`, `itemId`, `itemDamage`, `qty`, `enchantments` )VALUES( ?, ?, ?, ?, ? )");
 						st.setString(1, playerName);
 						st.setInt   (2, Item.getTypeId());
@@ -292,7 +296,7 @@ public class WebInventory {
 						WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Unable to insert new item to inventory!");
 						e.printStackTrace();
 					} finally {
-						WebAuctionPlus.dataQueries.closeResources(st, null);
+						poolConn.freeResource(st);
 					}
 					countInserted++;
 					continue;
@@ -301,7 +305,8 @@ public class WebInventory {
 			}
 
 		}
-		WebAuctionPlus.dataQueries.closeResources(conn);
+		poolConn.releaseLock();
+		poolConn = null;
 //		slotChanged.clear();
 		chest.clear();
 		tableRowIds.clear();

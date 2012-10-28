@@ -1,6 +1,6 @@
 name: WebAuctionPlus
 main: me.lorenzop.webauctionplus.WebAuctionPlus
-version: 1.1.7
+version: 1.1.8
 author: lorenzop
 website: http://webauctionplus.com/
 depend: [Vault]
@@ -30,7 +30,6 @@ permissions:
       wa.remove: true
       wa.webadmin: true
       wa.reload: true
-      wa.save: true
   wa.use.*:
     description: Gives access to all WebAuction commands
     default: false
@@ -106,7 +105,4 @@ permissions:
     default: op
   wa.reload:
     description: Reloads the WebAuctionPlus config.yml
-    default: op
-  wa.save:
-    description: Saves the WebAuctionPlus config.yml
     default: op

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 import me.lorenzop.webauctionplus.dao.Auction;
+import me.lorenzop.webauctionplus.mysql.DataQueries;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -33,7 +34,7 @@ public class ShoutSignTask implements Runnable {
 		if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Current Auction id = "+lastAuction);
 		if(plugin.getServer().getOnlinePlayers().length == 0) return;
 
-		Auction auction = WebAuctionPlus.dataQueries.getAuction(latestAuctionID);
+		Auction auction = DataQueries.getAuction(latestAuctionID);
 		ItemStack stack = auction.getItemStack();
 
 // TODO: language here
@@ -70,7 +71,7 @@ public class ShoutSignTask implements Runnable {
 			try {
 				for(Location signLoc : SignsToRemove) {
 					plugin.shoutSigns.remove(signLoc);
-					WebAuctionPlus.dataQueries.removeShoutSign(signLoc);
+					DataQueries.removeShoutSign(signLoc);
 					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Removed invalid sign at location: "+signLoc);
 				}
 			} catch(Exception e) {

@@ -21,6 +21,8 @@ import me.lorenzop.webauctionplus.listeners.WebAuctionCommands;
 import me.lorenzop.webauctionplus.listeners.WebAuctionPlayerListener;
 import me.lorenzop.webauctionplus.listeners.WebAuctionServerListener;
 import me.lorenzop.webauctionplus.mysql.DataQueries;
+import me.lorenzop.webauctionplus.mysql.MySQLPool;
+import me.lorenzop.webauctionplus.mysql.MySQLPoolConn;
 import me.lorenzop.webauctionplus.mysql.MySQLTables;
 import me.lorenzop.webauctionplus.mysql.MySQLUpdate;
 import me.lorenzop.webauctionplus.tasks.AnnouncerTask;
@@ -66,7 +68,7 @@ public class WebAuctionPlus extends JavaPlugin {
 	// language
 	public static Language Lang;
 
-	public static DataQueries dataQueries = null;
+	public static MySQLPool dbPool = null;
 	public WebAuctionCommands WebAuctionCommandsListener = new WebAuctionCommands(this);
 
 	public Map<String,   Long>    lastSignUse = new HashMap<String , Long>();
@@ -143,7 +145,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		WebInventory.ForceCloseAll();
 		// close mysql connection
 		try {
-			if(dataQueries != null) dataQueries.forceCloseConnections();
+			if(dbPool != null) dbPool.forceCloseConnections();
 		} catch (Exception ignore) {}
 		log.info(logPrefix + "Disabled, bye for now :-)");
 		// close config
@@ -174,7 +176,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		configDefaults();
 
 		// connect MySQL
-		if(dataQueries == null)
+		if(dbPool == null)
 			if(!ConnectDB()) {
 				log.severe(logPrefix+"*** Failed to load WebAuctionPlus. Please check your config.");
 				onDisable();
@@ -245,10 +247,10 @@ public class WebAuctionPlus extends JavaPlugin {
 
 			// Build shoutSigns map
 			if (shoutSignUpdateSeconds > 0)
-				shoutSigns.putAll(dataQueries.getShoutSignLocations());
+				shoutSigns.putAll(DataQueries.getShoutSignLocations());
 			// Build recentSigns map
 			if (recentSignUpdateSeconds > 0)
-				recentSigns.putAll(dataQueries.getRecentSignLocations());
+				recentSigns.putAll(DataQueries.getRecentSignLocations());
 
 			// report sales to players (always multi-threaded)
 			if (saleAlertSeconds > 0) {
@@ -286,24 +288,21 @@ public class WebAuctionPlus extends JavaPlugin {
 		return true;
 	}
 
-	public void onSaveConfig() {
-	}
-
 
 	// Init database
 	public synchronized boolean ConnectDB() {
 		if(config.getString("MySQL.Password").equals("password123"))
 			return false;
 		log.info(logPrefix + "MySQL Initializing.");
-		if(dataQueries != null) {
-			log.severe("Database connection already made?");
+		if(dbPool != null) {
+			log.severe("Database connection already made?!");
 			return false;
 		}
 		try {
 			int port = config.getInt("MySQL.Port");
 			if(port < 1) port = Integer.valueOf(config.getString("MySQL.Port"));
 			if(port < 1) port = 3306;
-			dataQueries = new DataQueries(
+			dbPool = new MySQLPool(log, logPrefix,
 				config.getString("MySQL.Host"),
 				port,
 				config.getString("MySQL.Username"),
@@ -311,10 +310,15 @@ public class WebAuctionPlus extends JavaPlugin {
 				config.getString("MySQL.Database"),
 				config.getString("MySQL.TablePrefix")
 			);
-			dataQueries.setConnPoolSizeWarn(config.getInt("MySQL.ConnectionPoolSizeWarn"));
-			dataQueries.setConnPoolSizeHard(config.getInt("MySQL.ConnectionPoolSizeHard"));
+			dbPool.setConnPoolSize_Warn(config.getInt("MySQL.ConnectionPoolSizeWarn"));
+			dbPool.setConnPoolSize_Hard(config.getInt("MySQL.ConnectionPoolSizeHard"));
+			// try connecting
+			MySQLPoolConn poolConn = dbPool.getLock();
+			if(poolConn == null) return false;
+			poolConn.releaseLock();
+			poolConn = null;
 			// create/update tables
-			MySQLTables dbTables = new MySQLTables(this);
+			MySQLTables dbTables = new MySQLTables();
 			if(!dbTables.isOk()) {
 				log.severe(logPrefix+"Error loading db updater class!");
 				return false;
@@ -328,6 +332,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		}
 		return true;
 	}
+
 
 	private void configDefaults() {
 		config.addDefault("MySQL.Host",						"localhost");
@@ -379,14 +384,17 @@ public class WebAuctionPlus extends JavaPlugin {
 		p.updateInventory();
 	}
 
+
 	public static long getCurrentMilli() {
 		return System.currentTimeMillis();
 	}
+
 
 	// format chat colors
 	public static String ReplaceColors(String text){
 		return text.replaceAll("&([0-9a-fA-F])", "\247$1");
 	}
+
 
 	// add strings with delimiter
 	public static String addStringSet(String baseString, String addThis, String Delim) {
@@ -395,6 +403,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		return baseString + Delim + addThis;
 	}
 
+
 //	public static String format(double amount) {
 //		DecimalFormat formatter = new DecimalFormat("#,##0.00");
 //		String formatted = formatter.format(amount);
@@ -402,6 +411,7 @@ public class WebAuctionPlus extends JavaPlugin {
 //			formatted = formatted.substring(0, formatted.length() - 1);
 //		return Common.formatted(formatted, Constants.Nodes.Major.getStringList(), Constants.Nodes.Minor.getStringList());
 //	}
+
 
 	// work with doubles
 	public static String FormatPrice(double value) {
@@ -420,6 +430,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		return rounded.doubleValue();
 	}
 
+
 	public static int getNewRandom(int oldNumber, int maxNumber) {
 		if (maxNumber == 0) return maxNumber;
 		if (maxNumber == 1) return 1 - oldNumber;
@@ -430,6 +441,7 @@ public class WebAuctionPlus extends JavaPlugin {
 			if (newNumber != oldNumber) return newNumber;
 		}
 	}
+
 
 	// min/max value
 	public static int MinMax(int value, int min, int max) {
@@ -467,6 +479,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		return changed;
 	}
 
+
 	public static String MD5(String str) {
 		MessageDigest md = null;
 		try {
@@ -486,6 +499,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		}
 		return hexString.toString();
 	}
+
 
 	public static void PrintProgress(double progress, int width) {
 		String output = "[";
@@ -517,6 +531,7 @@ public class WebAuctionPlus extends JavaPlugin {
 	public static void PrintProgress(int count, int total) {
 		PrintProgress(count, total, 20);
 	}
+
 
 	// announce radius
 	public static void BroadcastRadius(String msg, Location loc, int radius) {
@@ -578,6 +593,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		}
 	}
 
+
 	// updateCheck() from MilkBowl's Vault
 	// modified for my compareVersions() function
 	private static String doUpdateCheck() throws Exception {
@@ -600,6 +616,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		return null;
 	}
 
+
 	// compare versions
 	public static String compareVersions(String oldVersion, String newVersion) {
 		if(oldVersion == null || newVersion == null) return null;
@@ -618,6 +635,7 @@ public class WebAuctionPlus extends JavaPlugin {
 		}
 		return output;
 	}
+
 
 	// check for an updated version
 	private void checkUpdateAvailable() {

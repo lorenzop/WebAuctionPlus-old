@@ -1,6 +1,7 @@
 package me.lorenzop.webauctionplus.listeners;
 
 import me.lorenzop.webauctionplus.WebAuctionPlus;
+import me.lorenzop.webauctionplus.mysql.DataQueries;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -65,7 +66,7 @@ public class WebAuctionBlockListener implements Listener {
 			event.setLine(2, Integer.toString(radius));
 			event.setLine(3, "");
 			plugin.shoutSigns.put(sign.getLocation(), radius);
-			WebAuctionPlus.dataQueries.createShoutSign(world, radius, sign.getX(), sign.getY(), sign.getZ());
+			DataQueries.createShoutSign(world, radius, sign.getX(), sign.getY(), sign.getZ());
 			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_shout_sign"));
 			return;
 		}
@@ -98,7 +99,7 @@ public class WebAuctionBlockListener implements Listener {
 				event.setLine(3, "<New Sign>");
 //			}
 			plugin.recentSigns.put(sign.getLocation(), offset);
-			WebAuctionPlus.dataQueries.createRecentSign(world, offset, sign.getX(), sign.getY(), sign.getZ());
+			DataQueries.createRecentSign(world, offset, sign.getX(), sign.getY(), sign.getZ());
 			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_recent_sign"));
 			return;
 		}

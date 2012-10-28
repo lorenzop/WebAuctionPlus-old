@@ -1,6 +1,5 @@
 package me.lorenzop.webauctionplus.mysql;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,19 +19,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class DataQueries extends MySQLConnPool {
-
-
-	public DataQueries(String dbHost, int dbPort, String dbUser,
-			String dbPass, String dbName, String dbPrefix) {
-		DataQueries.logPrefix = WebAuctionPlus.logPrefix;
-		this.dbHost = dbHost;
-		this.dbPort = dbPort;
-		this.dbUser = dbUser;
-		this.dbPass = dbPass;
-		this.dbName = dbName;
-		this.dbPrefix = dbPrefix;
-	}
+public class DataQueries {
 
 
 	// encode/decode enchantments for database storage
@@ -139,15 +126,15 @@ public class DataQueries extends MySQLConnPool {
 
 
 	// auctions
-	public Auction getAuction(int auctionId) {
+	public static Auction getAuction(int auctionId) {
 		Auction auction = null;
-		Connection conn = getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(isDebug()) log.info("WA Query: getAuction "+Integer.toString(auctionId));
-			st = conn.prepareStatement("SELECT `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle`, "+
-				"`price`, `allowBids`, `currentBid`, `currentWinner` FROM `WA_Auctions` WHERE `id` = ? LIMIT 1");
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: getAuction "+Integer.toString(auctionId));
+			st = poolConn.getConn().prepareStatement("SELECT `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle`, "+
+				"`price`, `allowBids`, `currentBid`, `currentWinner` FROM `"+poolConn.dbPrefix()+"Auctions` WHERE `id` = ? LIMIT 1");
 //UNIX_TIMESTANP(`created`) AS `created`,
 			st.setInt(1, auctionId);
 			rs = st.executeQuery();
@@ -166,25 +153,26 @@ public class DataQueries extends MySQLConnPool {
 				auction.setCurrentWinner(rs.getString("currentWinner"));
 			}
 		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to get auction " + Integer.toString(auctionId));
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to get auction " + Integer.toString(auctionId));
 			e.printStackTrace();
 		} finally {
-			closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 		return auction;
 	}
 
 
 	// shout sign
-	public void createShoutSign(World world, int radius, int x, int y, int z) {
-		Connection conn = getConnection();
+	public static void createShoutSign(World world, int radius, int x, int y, int z) {
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(isDebug()) log.info("WA Query: createShoutSign " +
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: createShoutSign " +
 				Integer.toString(radius) + " " + Integer.toString(x) + "," +
 				Integer.toString(y) + "," + Integer.toString(z) );
-			st = conn.prepareStatement("INSERT INTO `"+dbPrefix+"ShoutSigns` " +
+			st = poolConn.getConn().prepareStatement("INSERT INTO `"+poolConn.dbPrefix()+"ShoutSigns` " +
 				"(`world`, `radius`, `x`, `y`, `z`) VALUES (?, ?, ?, ?, ?)");
 			st.setString(1, world.getName());
 			st.setInt   (2, radius);
@@ -193,19 +181,20 @@ public class DataQueries extends MySQLConnPool {
 			st.setInt   (5, z);
 			st.executeUpdate();
 		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to create shout sign");
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to create shout sign");
 			e.printStackTrace();
 		} finally {
-			closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 	}
-	public void removeShoutSign(Location location) {
-		Connection conn = getConnection();
+	public static void removeShoutSign(Location location) {
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(isDebug()) log.info("WA Query: removeShoutSign " + location.toString());
-			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"ShoutSigns` WHERE " +
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: removeShoutSign " + location.toString());
+			st = poolConn.getConn().prepareStatement("DELETE FROM `"+poolConn.dbPrefix()+"ShoutSigns` WHERE " +
 				"`world` = ? AND `x` = ? AND `y` = ? AND `z` = ?");
 			st.setString(1, location.getWorld().getName());
 			st.setInt   (2, (int) location.getX());
@@ -213,20 +202,21 @@ public class DataQueries extends MySQLConnPool {
 			st.setInt   (4, (int) location.getZ());
 			st.executeUpdate();
 		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to remove shout sign at location " + location);
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to remove shout sign at location " + location);
 			e.printStackTrace();
 		} finally {
-			closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 	}
-	public Map<Location, Integer> getShoutSignLocations() {
+	public static Map<Location, Integer> getShoutSignLocations() {
 		Map<Location, Integer> signLocations = new HashMap<Location, Integer>();
-		Connection conn = getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(isDebug()) log.info("WA Query: getShoutSignLocations");
-			st = conn.prepareStatement("SELECT `world`,`radius`,`x`,`y`,`z` FROM `"+dbPrefix+"ShoutSigns`");
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: getShoutSignLocations");
+			st = poolConn.getConn().prepareStatement("SELECT `world`,`radius`,`x`,`y`,`z` FROM `"+poolConn.dbPrefix()+"ShoutSigns`");
 			Location location;
 			rs = st.executeQuery();
 			while(rs.next()) {
@@ -235,25 +225,26 @@ public class DataQueries extends MySQLConnPool {
 				signLocations.put(location,    rs.getInt("radius"));
 			}
 		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to get shout sign locations");
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to get shout sign locations");
 			e.printStackTrace();
 		} finally {
-			closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 		return signLocations;
 	}
 
 
 	// recent sign
-	public void createRecentSign(World world, int offset, int x, int y, int z) {
-		Connection conn = getConnection();
+	public static void createRecentSign(World world, int offset, int x, int y, int z) {
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(isDebug()) log.info("WA Query: createRecentSign " +
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: createRecentSign " +
 				world.getName() + " " + Integer.toString(offset) + " " +
 				Integer.toString(x) + "," + Integer.toString(y) + "," + Integer.toString(z) );
-			st = conn.prepareStatement("INSERT INTO `"+dbPrefix+"RecentSigns` " +
+			st = poolConn.getConn().prepareStatement("INSERT INTO `"+poolConn.dbPrefix()+"RecentSigns` " +
 				"(`world`, `offset`, `x`, `y`, `z`) VALUES (?, ?, ?, ?, ?)");
 			st.setString(1, world.getName());
 			st.setInt   (2, offset);
@@ -262,19 +253,20 @@ public class DataQueries extends MySQLConnPool {
 			st.setInt   (5, z);
 			st.executeUpdate();
 		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to create recent sign");
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to create recent sign");
 			e.printStackTrace();
 		} finally {
-			closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 	}
-	public void removeRecentSign(Location location) {
-		Connection conn = getConnection();
+	public static void removeRecentSign(Location location) {
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(isDebug()) log.info("WA Query: removeRecentSign " + location.toString());
-			st = conn.prepareStatement("DELETE FROM `"+dbPrefix+"RecentSigns` WHERE "+
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: removeRecentSign " + location.toString());
+			st = poolConn.getConn().prepareStatement("DELETE FROM `"+poolConn.dbPrefix()+"RecentSigns` WHERE "+
 				"`world` = ? AND `x` = ? AND `y` = ? AND `z` = ?");
 			st.setString(1, location.getWorld().getName());
 			st.setInt   (2, (int) location.getX());
@@ -282,20 +274,21 @@ public class DataQueries extends MySQLConnPool {
 			st.setInt   (4, (int) location.getZ());
 			st.executeUpdate();
 		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to remove recent sign at location " + location.toString());
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to remove recent sign at location " + location.toString());
 			e.printStackTrace();
 		} finally {
-			closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 	}
-	public Map<Location, Integer> getRecentSignLocations() {
+	public static Map<Location, Integer> getRecentSignLocations() {
 		Map<Location, Integer> signLocations = new HashMap<Location, Integer>();
-		Connection conn = getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(isDebug()) log.info("WA Query: getRecentSignLocations");
-			st = conn.prepareStatement("SELECT `world`,`offset`,`x`,`y`,`z` FROM `"+dbPrefix+"RecentSigns`");
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: getRecentSignLocations");
+			st = poolConn.getConn().prepareStatement("SELECT `world`,`offset`,`x`,`y`,`z` FROM `"+poolConn.dbPrefix()+"RecentSigns`");
 			Location location;
 			rs = st.executeQuery();
 			while(rs.next()) {
@@ -304,24 +297,25 @@ public class DataQueries extends MySQLConnPool {
 				signLocations.put(location,    rs.getInt("offset"));
 			}
 		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to get shout sign locations");
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to get shout sign locations");
 			e.printStackTrace();
 		} finally {
-			closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 		return signLocations;
 	}
 
 
-	public AuctionPlayer getPlayer(String player) {
+	public static AuctionPlayer getPlayer(String player) {
 		AuctionPlayer waPlayer = null;
-		Connection conn = getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(isDebug()) log.info("WA Query: getPlayer " + player);
-			st = conn.prepareStatement("SELECT `id`,`playerName`,`money`,`Permissions` " +
-				"FROM `"+dbPrefix+"Players` WHERE `playerName` = ? LIMIT 1");
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: getPlayer " + player);
+			st = poolConn.getConn().prepareStatement("SELECT `id`,`playerName`,`money`,`Permissions` " +
+				"FROM `"+poolConn.dbPrefix()+"Players` WHERE `playerName` = ? LIMIT 1");
 			st.setString(1, player);
 			rs = st.executeQuery();
 			if(rs.next()) {
@@ -332,96 +326,101 @@ public class DataQueries extends MySQLConnPool {
 				waPlayer.setPerms(     rs.getString("Permissions"));
 			}
 		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to get player " + player);
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to get player " + player);
 			e.printStackTrace();
 		} finally {
-			closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 		return waPlayer;
 	}
 
 
-	public void createPlayer(AuctionPlayer waPlayer, String pass) {
-		Connection conn = getConnection();
+	public static void createPlayer(AuctionPlayer waPlayer, String pass) {
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(isDebug()) log.info("WA Query: createPlayer " + waPlayer.getPlayerName() +
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: createPlayer " + waPlayer.getPlayerName() +
 				" with perms: " + waPlayer.getPermsString());
-			st = conn.prepareStatement("INSERT INTO `"+dbPrefix+"Players` " +
+			st = poolConn.getConn().prepareStatement("INSERT INTO `"+poolConn.dbPrefix()+"Players` " +
 				"(`playerName`, `password`, `Permissions`) VALUES (?, ?, ?)");
 			st.setString(1, waPlayer.getPlayerName());
 			st.setString(2, pass);
 			st.setString(3, waPlayer.getPermsString());
 			st.executeUpdate();
 		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to update player permissions in DB");
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to update player permissions in DB");
 			e.printStackTrace();
 		} finally {
-			closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 	}
 
 
-	public void updatePlayerPassword(String player, String newPass) {
-		Connection conn = getConnection();
+	public static void updatePlayerPassword(String player, String newPass) {
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(isDebug()) log.info("WA Query: updatePlayerPassword " + player);
-			st = conn.prepareStatement("UPDATE `"+dbPrefix+"Players` SET `password` = ? WHERE `playerName` = ? LIMIT 1");
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: updatePlayerPassword " + player);
+			st = poolConn.getConn().prepareStatement("UPDATE `"+poolConn.dbPrefix()+"Players` SET `password` = ? WHERE `playerName` = ? LIMIT 1");
 			st.setString(1, newPass);
 			st.setString(2, player);
 			st.executeUpdate();
 		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to update password for player: " + player);
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to update password for player: " + player);
 			e.printStackTrace();
 		} finally {
-			closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 	}
 
 
-	public void updatePlayerPermissions(AuctionPlayer waPlayer, boolean canBuy, boolean canSell, boolean isAdmin) {
+	public static void updatePlayerPermissions(AuctionPlayer waPlayer, boolean canBuy, boolean canSell, boolean isAdmin) {
 		// return if update not needed
 		if(waPlayer.comparePerms(canBuy, canSell, isAdmin)) return;
-		Connection conn = getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
 			// update player permissions for website
 			waPlayer.setPerms(canBuy, canSell, isAdmin);
-			if(isDebug()) log.info("WA Query: updatePlayerPermissions " + waPlayer.getPlayerName() +
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: updatePlayerPermissions " + waPlayer.getPlayerName() +
 				" with perms: " + waPlayer.getPermsString());
-			st = conn.prepareStatement("UPDATE `"+dbPrefix+"Players` SET " +
+			st = poolConn.getConn().prepareStatement("UPDATE `"+poolConn.dbPrefix()+"Players` SET " +
 				"`Permissions` = ? WHERE `playerName` = ? LIMIT 1");
 			st.setString(1, waPlayer.getPermsString());
 			st.setString(2, waPlayer.getPlayerName());
 			st.executeUpdate();
 		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to update player permissions in DB");
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to update player permissions in DB");
 			e.printStackTrace();
 		} finally {
-			closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 	}
 
 
-	public void updatePlayerMoney(String player, double money) {
-		Connection conn = getConnection();
+	public static void updatePlayerMoney(String player, double money) {
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
-			if(isDebug()) log.info("WA Query: updatePlayerMoney " + player);
-			st = conn.prepareStatement("UPDATE `"+dbPrefix+"Players` SET `money` = ? WHERE `playerName` = ?");
+			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: updatePlayerMoney " + player);
+			st = poolConn.getConn().prepareStatement("UPDATE `"+poolConn.dbPrefix()+"Players` SET `money` = ? WHERE `playerName` = ?");
 			st.setDouble(1, money);
 			st.setString(2, player);
 			st.executeUpdate();
 		} catch(SQLException e) {
-			log.warning(logPrefix + "Unable to update player money in DB");
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to update player money in DB");
 			e.printStackTrace();
 		} finally {
-			closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 	}
 

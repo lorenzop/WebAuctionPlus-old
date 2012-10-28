@@ -1,6 +1,5 @@
 package me.lorenzop.webauctionplus.tasks;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,6 +8,8 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import me.lorenzop.webauctionplus.WebAuctionPlus;
+import me.lorenzop.webauctionplus.mysql.DataQueries;
+import me.lorenzop.webauctionplus.mysql.MySQLPoolConn;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -66,14 +67,14 @@ public class RecentSignTask implements Runnable {
 		String tickSeller	= "";
 		String tickType		= "";
 		// query auctions
-		Connection conn = WebAuctionPlus.dataQueries.getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: RecentSignTask");
-			st = conn.prepareStatement("SELECT `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle`, "+
+			st = poolConn.getConn().prepareStatement("SELECT `playerName`, `itemId`, `itemDamage`, `qty`, `enchantments`, `itemTitle`, "+
 				"`price`, UNIX_TIMESTAMP(`created`) AS `created`, `allowBids`, `currentWinner` " +
-				"FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Auctions` ORDER BY `id` DESC LIMIT ?");
+				"FROM `"+poolConn.dbPrefix()+"Auctions` ORDER BY `id` DESC LIMIT ?");
 			st.setInt(1, plugin.numberOfRecentLink);
 			rs = st.executeQuery();
 			int offset = 0;
@@ -119,7 +120,8 @@ public class RecentSignTask implements Runnable {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to update signs!");
 			e.printStackTrace();
 		} finally {
-			WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 
 		// set signlink vars
@@ -163,7 +165,7 @@ public class RecentSignTask implements Runnable {
 				// Remove any signs flagged for removal
 				for(Location signLoc : SignsToRemove) {
 					plugin.recentSigns.remove(signLoc);
-					WebAuctionPlus.dataQueries.removeRecentSign(signLoc);
+					DataQueries.removeRecentSign(signLoc);
 					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Removed invalid sign at location: "+signLoc);
 				}
 		} catch(Exception e) {

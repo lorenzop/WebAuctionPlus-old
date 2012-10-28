@@ -1,10 +1,11 @@
 package me.lorenzop.webauctionplus;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+
+import me.lorenzop.webauctionplus.mysql.MySQLPoolConn;
 
 public class waSettings {
 
@@ -21,12 +22,12 @@ public class waSettings {
 
 	public synchronized void LoadSettings(){
 		isOk = false;
-		Connection conn = WebAuctionPlus.dataQueries.getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: LoadSettings");
-			st = conn.prepareStatement("SELECT `name`, `value` FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Settings`");
+			st = poolConn.getConn().prepareStatement("SELECT `name`, `value` FROM `"+poolConn.dbPrefix()+"Settings`");
 			rs = st.executeQuery();
 			while (rs.next()) {
 				if(rs.getString(1) != null)
@@ -38,10 +39,11 @@ public class waSettings {
 			e.printStackTrace();
 			return;
 		} finally {
-			WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 		addDefaults();
-		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Loaded " + Integer.toString(settingsMap.size()) + " settings from db");
+		WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Loaded "+Integer.toString(settingsMap.size())+" settings from db");
 		isOk = (settingsMap.size()!=0);
 	}
 	public boolean isOk() {return this.isOk;}
@@ -52,6 +54,7 @@ public class waSettings {
 		addDefault("Version",				plugin.getDescription().getVersion().toString());
 		addDefault("Language",				"en");
 		addDefault("Require Login",			false);
+		addDefault("ez Login",				true);
 		addDefault("CSRF Protection",		true);
 		addDefault("Currency Prefix",		"$ ");
 		addDefault("Currency Postfix",		"");
@@ -69,20 +72,21 @@ public class waSettings {
 		if(!settingsMap.containsKey(name)) {
 //			if (plugin.dataQueries.debugSQL) WebAuctionPlus.log.info("WA Query: Insert setting: " + name);
 			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Adding default setting for: " + name);
-			Connection conn = WebAuctionPlus.dataQueries.getConnection();
+			MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 			PreparedStatement st = null;
 			ResultSet rs = null;
 			try {
-				st = conn.prepareStatement("INSERT INTO `"+WebAuctionPlus.dataQueries.dbPrefix()+"Settings` (`name`,`value`) VALUES (?, ?)");
+				st = poolConn.getConn().prepareStatement("INSERT INTO `"+poolConn.dbPrefix()+"Settings` (`name`,`value`) VALUES (?, ?)");
 				st.setString(1, name);
 				st.setString(2, value);
 				st.executeUpdate();
 				settingsMap.put(name, value);
 			} catch (SQLException e) {
-				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to add setting: " + name);
+				WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Unable to add setting: "+name);
 				e.printStackTrace();
 			} finally {
-				WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
+				poolConn.releaseLock(st, rs);
+				poolConn = null;
 			}
 		}
 	}
@@ -104,7 +108,7 @@ public class waSettings {
 	private void updateSettingsTable() {
 		if(settingsMap.containsKey("jquery ui pack")) {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Updating Settings table: jQuery UI Pack");
-			WebAuctionPlus.dataQueries.executeRawSQL("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+"Settings` SET `name` = 'jQuery UI Pack' WHERE `name` = 'jquery ui pack' LIMIT 1");
+			WebAuctionPlus.dbPool.executeRawSQL("UPDATE `"+WebAuctionPlus.dbPool.dbPrefix()+"Settings` SET `name` = 'jQuery UI Pack' WHERE `name` = 'jquery ui pack' LIMIT 1");
 			settingsMap.put("jQuery UI Pack", "");
 		}
 	}
@@ -144,12 +148,12 @@ public class waSettings {
 			return;
 		}
 		settingsMap.put(name, value);
-		Connection conn = WebAuctionPlus.dataQueries.getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		if (WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Update setting: " + name);
 		try {
-			st = conn.prepareStatement("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+"Settings` SET `value` = ? WHERE `name` = ? LIMIT 1");
+			st = poolConn.getConn().prepareStatement("UPDATE `"+poolConn.dbPrefix()+"Settings` SET `value` = ? WHERE `name` = ? LIMIT 1");
 			st.setString(1, value);
 			st.setString(2, name);
 			st.executeUpdate();
@@ -157,7 +161,8 @@ public class waSettings {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to update setting " + name);
 			e.printStackTrace();
 		} finally {
-			WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
+			poolConn.releaseLock(st, rs);
+			poolConn = null;
 		}
 	}
 	public void setInteger(String name, int value) {

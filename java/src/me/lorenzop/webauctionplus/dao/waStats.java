@@ -1,11 +1,11 @@
 package me.lorenzop.webauctionplus.dao;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import me.lorenzop.webauctionplus.WebAuctionPlus;
+import me.lorenzop.webauctionplus.mysql.MySQLPoolConn;
 
 public class waStats {
 
@@ -34,7 +34,7 @@ public class waStats {
 
 	private void doUpdate() {
 		if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info(WebAuctionPlus.logPrefix+"Updating stats");
-		Connection conn = WebAuctionPlus.dataQueries.getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
 
@@ -42,14 +42,14 @@ public class waStats {
 		totalBuyNowCount = 0;
 		try {
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Stats::count buy nows");
-			st = conn.prepareStatement("SELECT COUNT(*) FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Auctions` WHERE `allowBids` = 0");
+			st = poolConn.getConn().prepareStatement("SELECT COUNT(*) FROM `"+poolConn.dbPrefix()+"Auctions` WHERE `allowBids` = 0");
 			rs = st.executeQuery();
 			if(rs.next()) totalBuyNowCount = rs.getInt(1);
 		} catch (SQLException e) {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to get total buy now count");
 			e.printStackTrace();
 		} finally {
-			WebAuctionPlus.dataQueries.closeResources(st, rs);
+			poolConn.freeResource(st, rs);
 		}
 
 		// total auctions
@@ -58,14 +58,14 @@ public class waStats {
 			st = null;
 			rs = null;
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Stats::count auctions");
-			st = conn.prepareStatement("SELECT COUNT(*) FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Auctions` WHERE `allowBids` != 0");
+			st = poolConn.getConn().prepareStatement("SELECT COUNT(*) FROM `"+poolConn.dbPrefix()+"Auctions` WHERE `allowBids` != 0");
 			rs = st.executeQuery();
 			if(rs.next()) totalAuctionCount = rs.getInt(1);
 		} catch (SQLException e) {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to get total auction count");
 			e.printStackTrace();
 		} finally {
-			WebAuctionPlus.dataQueries.closeResources(st, rs);
+			poolConn.freeResource(st, rs);
 		}
 
 		// get max auction id
@@ -74,17 +74,18 @@ public class waStats {
 			st = null;
 			rs = null;
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: Stats::getMaxAuctionID");
-			st = conn.prepareStatement("SELECT MAX(`id`) AS `id` FROM `"+WebAuctionPlus.dataQueries.dbPrefix()+"Auctions`");
+			st = poolConn.getConn().prepareStatement("SELECT MAX(`id`) AS `id` FROM `"+poolConn.dbPrefix()+"Auctions`");
 			rs = st.executeQuery();
 			if(rs.next()) maxAuctionId = rs.getInt("id");
 		} catch (SQLException e) {
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to query for max Auction ID");
 			e.printStackTrace();
 		} finally {
-			WebAuctionPlus.dataQueries.closeResources(st, rs);
+			poolConn.freeResource(st, rs);
 		}
 
-		WebAuctionPlus.dataQueries.closeResources(conn);
+		poolConn.releaseLock();
+		poolConn = null;
 	}
 
 

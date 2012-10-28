@@ -6,6 +6,7 @@ import java.util.Random;
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 import me.lorenzop.webauctionplus.WebInventory;
 import me.lorenzop.webauctionplus.dao.AuctionPlayer;
+import me.lorenzop.webauctionplus.mysql.DataQueries;
 import me.lorenzop.webauctionplus.tasks.PlayerAlertTask;
 
 import org.bukkit.Bukkit;
@@ -122,7 +123,7 @@ public class WebAuctionPlayerListener implements Listener {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("not_enough_money_pocket"));
 				return;
 			}
-			AuctionPlayer auctionPlayer = WebAuctionPlus.dataQueries.getPlayer(player);
+			AuctionPlayer auctionPlayer = DataQueries.getPlayer(player);
 			if(auctionPlayer == null) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_not_found"));
 				return;
@@ -134,7 +135,7 @@ public class WebAuctionPlayerListener implements Listener {
 			currentMoney = WebAuctionPlus.RoundDouble(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
 			p.sendMessage(WebAuctionPlus.chatPrefix + "Added " + amount +
 				" to auction account, new auction balance: " + currentMoney);
-			WebAuctionPlus.dataQueries.updatePlayerMoney(player, currentMoney);
+			DataQueries.updatePlayerMoney(player, currentMoney);
 			WebAuctionPlus.vaultEconomy.withdrawPlayer(player, amount);
 			return;
 		}
@@ -147,7 +148,7 @@ public class WebAuctionPlayerListener implements Listener {
 			}
 			double amount = 0.0D;
 			try {
-				AuctionPlayer auctionPlayer = WebAuctionPlus.dataQueries.getPlayer(player);
+				AuctionPlayer auctionPlayer = DataQueries.getPlayer(player);
 				if(auctionPlayer == null) {
 					p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_not_found"));
 					return;
@@ -169,7 +170,7 @@ public class WebAuctionPlayerListener implements Listener {
 				currentMoney = WebAuctionPlus.RoundDouble(currentMoney, 2, BigDecimal.ROUND_HALF_UP);
 				p.sendMessage(WebAuctionPlus.chatPrefix + "Removed " +
 					amount + " from auction account, new auction balance: " + currentMoney);
-				WebAuctionPlus.dataQueries.updatePlayerMoney(player, currentMoney);
+				DataQueries.updatePlayerMoney(player, currentMoney);
 				WebAuctionPlus.vaultEconomy.depositPlayer(player, amount);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -184,7 +185,7 @@ public class WebAuctionPlayerListener implements Listener {
 				return;
 			}
 			// disallow creative
-			if(p.getGameMode() != GameMode.SURVIVAL && !p.isOp()) {
+			if(p.getGameMode() != GameMode.SURVIVAL && p.getGameMode() != GameMode.ADVENTURE && !p.isOp()) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_cheating"));
 				return;
 			}

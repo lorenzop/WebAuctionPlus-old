@@ -2,6 +2,7 @@ package me.lorenzop.webauctionplus.listeners;
 
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 import me.lorenzop.webauctionplus.dao.AuctionPlayer;
+import me.lorenzop.webauctionplus.mysql.DataQueries;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -107,7 +108,7 @@ public class WebAuctionCommands implements CommandExecutor {
 					args[2] = "";
 				}
 				if(player.isEmpty()) return false;
-				AuctionPlayer waPlayer = WebAuctionPlus.dataQueries.getPlayer(player);
+				AuctionPlayer waPlayer = DataQueries.getPlayer(player);
 				// create that person in database
 				if(waPlayer == null) {
 					// permission to create an account
@@ -123,7 +124,7 @@ public class WebAuctionCommands implements CommandExecutor {
 						sender.hasPermission("wa.cansell")  && isPlayer,
 						sender.hasPermission("wa.webadmin") && isPlayer
 					);
-					WebAuctionPlus.dataQueries.createPlayer(waPlayer, pass);
+					DataQueries.createPlayer(waPlayer, pass);
 					if (sender instanceof Player)
 						sender.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("account_created"));
 					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("account_created") + " " + player +
@@ -137,7 +138,7 @@ public class WebAuctionCommands implements CommandExecutor {
 							return true;
 						}
 					}
-					WebAuctionPlus.dataQueries.updatePlayerPassword(player, pass);
+					DataQueries.updatePlayerPassword(player, pass);
 					if(sender instanceof Player)
 						sender.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("password_changed"));
 					WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("password_changed") + " " + player);

@@ -1,6 +1,5 @@
 package me.lorenzop.webauctionplus.tasks;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,6 +8,8 @@ import java.util.Map;
 
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 import me.lorenzop.webauctionplus.dao.AuctionPlayer;
+import me.lorenzop.webauctionplus.mysql.DataQueries;
+import me.lorenzop.webauctionplus.mysql.MySQLPoolConn;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -45,42 +46,42 @@ public class PlayerAlertTask implements Runnable {
 			}
 		// only running for a single joined player
 		} else {
-			waPlayer = WebAuctionPlus.dataQueries.getPlayer(playerJoined);
+			waPlayer = DataQueries.getPlayer(playerJoined);
 			p = Bukkit.getPlayerExact(playerJoined);
 			if (waPlayer==null || p==null) return;
 			// update permissions
 			boolean canBuy  = p.hasPermission("wa.canbuy");
 			boolean canSell = p.hasPermission("wa.cansell");
 			boolean isAdmin = p.hasPermission("wa.webadmin");
-			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Player found - " + playerJoined + " with perms:" +
+			WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + "Player found - "+playerJoined+" with perms:"+
 					(canBuy ?" canBuy" :"") +
 					(canSell?" canSell":"") +
 					(isAdmin?" isAdmin":"") );
-			WebAuctionPlus.dataQueries.updatePlayerPermissions(waPlayer, canBuy, canSell, isAdmin);
+			DataQueries.updatePlayerPermissions(waPlayer, canBuy, canSell, isAdmin);
 			// build query
 			whereSql += "seller = ?";
 			playersMap.put(1, playerJoined);
 		}
 		if(playersMap.size() == 0) return;
 		// run the querys
-		Connection conn = WebAuctionPlus.dataQueries.getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st = null;
 		ResultSet rs = null;
+		String markSeenSql = "";
 		try {
 			if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: SaleAlertTask::SaleAlerts " + playersMap.toString());
-			st = conn.prepareStatement("SELECT `id`, `saleType`, `itemType`, `itemTitle`, `seller`,`buyer`,`qty`,`price` FROM `" +
-				WebAuctionPlus.dataQueries.dbPrefix()+"LogSales` WHERE ( " + whereSql + " ) AND `logType` = 'sale' AND `alert` != 0 LIMIT 4");
+			st = poolConn.getConn().prepareStatement("SELECT `id`, `saleType`, `itemType`, `itemTitle`, `seller`,`buyer`,`qty`,`price` FROM `" +
+				poolConn.dbPrefix()+"LogSales` WHERE ( " + whereSql + " ) AND `logType` = 'sale' AND `alert` != 0 LIMIT 4");
 			for(Map.Entry<Integer, String> entry : playersMap.entrySet()) {
 				st.setString(entry.getKey(), entry.getValue());
 			}
 			rs = st.executeQuery();
-			String markSeenSql = "";
 			while (rs.next()) {
 				if(playerJoined == null)
 					p = Bukkit.getPlayerExact(rs.getString("seller"));
 				if(p != null) {
 // TODO: language here
-					p.sendMessage(WebAuctionPlus.chatPrefix+"You sold " +
+					p.sendMessage(WebAuctionPlus.chatPrefix+"You sold "+
 						rs.getInt   ("qty")+"x "+
 						rs.getString("itemTitle")+" to "+
 						rs.getString("buyer")+" for "+
@@ -91,25 +92,34 @@ public class PlayerAlertTask implements Runnable {
 					markSeenSql += "`id` = " + Integer.toString(rs.getInt("id"));
 				}
 			}
+		} catch (SQLException e) {
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Unable to get sale alerts for players");
+			e.printStackTrace();
+		} finally {
+			poolConn.freeResource(st, rs);
+		}
+		try {
 			// mark seen
 			if(!markSeenSql.isEmpty()) {
 				if(WebAuctionPlus.isDebug()) WebAuctionPlus.log.info("WA Query: SaleAlertTask::SaleAlerts " + playersMap.toString());
-				st = conn.prepareStatement("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+"LogSales` SET `alert` = 0 WHERE " + markSeenSql);
+				st = poolConn.getConn().prepareStatement("UPDATE `"+poolConn.dbPrefix()+"LogSales` SET `alert` = 0 WHERE " + markSeenSql);
 				if(st.executeUpdate() == 0)
 					WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Failed to mark sale alerts seen!");
 			}
 			// alert joined player
-			if(playerJoined!=null && p!=null) {
+			if(playerJoined != null && p != null) {
 				// alert admin of new version
 				if(WebAuctionPlus.newVersionAvailable && ( p.hasPermission("wa.webadmin") || p.isOp() ))
-					p.sendMessage(WebAuctionPlus.chatPrefix + "A new version is available! " + WebAuctionPlus.newVersion);
+					p.sendMessage(WebAuctionPlus.chatPrefix+"A new version is available! "+WebAuctionPlus.newVersion);
 			}
 		} catch (SQLException e) {
-			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix + "Unable to get sale alerts for players");
+			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Unable to get sale alerts for players");
 			e.printStackTrace();
 		} finally {
-			WebAuctionPlus.dataQueries.closeResources(conn, st, rs);
+			poolConn.freeResource(st, rs);
 		}
+		poolConn.releaseLock();
+		poolConn = null;
 	}
 
 

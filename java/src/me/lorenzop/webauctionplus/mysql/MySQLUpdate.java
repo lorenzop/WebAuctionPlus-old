@@ -1,6 +1,5 @@
 package me.lorenzop.webauctionplus.mysql;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -83,11 +82,11 @@ public class MySQLUpdate {
 			UpdatePotion(fromId, toId, "Items");
 	}
 	private static int UpdatePotion(int fromId, int toId, String table) {
-		Connection conn			= WebAuctionPlus.dataQueries.getConnection();
+		MySQLPoolConn poolConn = WebAuctionPlus.dbPool.getLock();
 		PreparedStatement st	= null;
 		int affected = 0;
 		try {
-			st = conn.prepareStatement("UPDATE `"+WebAuctionPlus.dataQueries.dbPrefix()+table+"` SET `itemDamage` = ? WHERE `itemId` = 373 AND `itemDamage` = ?");
+			st = poolConn.getConn().prepareStatement("UPDATE `"+poolConn.dbPrefix()+table+"` SET `itemDamage` = ? WHERE `itemId` = 373 AND `itemDamage` = ?");
 			st.setInt(1, toId);
 			st.setInt(2, fromId);
 			affected = st.executeUpdate();
@@ -95,7 +94,8 @@ public class MySQLUpdate {
 			e.printStackTrace();
 			WebAuctionPlus.log.warning(WebAuctionPlus.logPrefix+"Unable to update potions!");
 		} finally {
-			WebAuctionPlus.dataQueries.closeResources(conn, st);
+			poolConn.releaseLock(st);
+			poolConn = null;
 		}
 		return affected;
 	}
