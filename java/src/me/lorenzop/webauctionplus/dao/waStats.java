@@ -4,6 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.poixson.pxnUtils;
+
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 import me.lorenzop.webauctionplus.mysql.MySQLPoolConn;
 
@@ -21,7 +23,7 @@ public class waStats {
 	}
 
 	private synchronized boolean Update() {
-		long tim = WebAuctionPlus.getCurrentMilli();
+		long tim = pxnUtils.getCurrentMillis();
 		// update no more than every 5 seconds
 		if( lastUpdate == -1 || ((tim-lastUpdate) >= (5000)) ) {
 			doUpdate();

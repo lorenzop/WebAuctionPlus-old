@@ -3,13 +3,10 @@ package me.lorenzop.webauctionplus;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -385,22 +382,9 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 
-	public static long getCurrentMilli() {
-		return System.currentTimeMillis();
-	}
-
-
 	// format chat colors
 	public static String ReplaceColors(String text){
 		return text.replaceAll("&([0-9a-fA-F])", "\247$1");
-	}
-
-
-	// add strings with delimiter
-	public static String addStringSet(String baseString, String addThis, String Delim) {
-		if (addThis.isEmpty())    return baseString;
-		if (baseString.isEmpty()) return addThis;
-		return baseString + Delim + addThis;
 	}
 
 
@@ -431,76 +415,7 @@ public class WebAuctionPlus extends JavaPlugin {
 	}
 
 
-	public static int getNewRandom(int oldNumber, int maxNumber) {
-		if (maxNumber == 0) return maxNumber;
-		if (maxNumber == 1) return 1 - oldNumber;
-		Random randomGen = new Random();
-		int newNumber = 0;
-		while (true) {
-			newNumber = randomGen.nextInt(maxNumber + 1);
-			if (newNumber != oldNumber) return newNumber;
-		}
-	}
-
-
-	// min/max value
-	public static int MinMax(int value, int min, int max) {
-		if(value < min) value = min;
-		if(value > max) value = max;
-		return value;
-	}
-	public static long MinMax(long value, long min, long max) {
-		if(value < min) value = min;
-		if(value > max) value = max;
-		return value;
-	}
-	public static double MinMax(double value, double min, double max) {
-		if(value < min) value = min;
-		if(value > max) value = max;
-		return value;
-	}
-	// min/max by object
-	public static boolean MinMax(Integer value, int min, int max) {
-		boolean changed = false;
-		if(value < min) {value = min; changed = true;}
-		if(value > max) {value = max; changed = true;}
-		return changed;
-	}
-	public static boolean MinMax(Long value, long min, long max) {
-		boolean changed = false;
-		if(value < min) {value = min; changed = true;}
-		if(value > max) {value = max; changed = true;}
-		return changed;
-	}
-	public static boolean MinMax(Double value, double min, double max) {
-		boolean changed = false;
-		if(value < min) {value = min; changed = true;}
-		if(value > max) {value = max; changed = true;}
-		return changed;
-	}
-
-
-	public static String MD5(String str) {
-		MessageDigest md = null;
-		try {
-			md = MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-		md.update(str.getBytes());
-		byte[] byteData = md.digest();
-		StringBuffer hexString = new StringBuffer();
-		for (int i = 0; i < byteData.length; i++) {
-			String hex = Integer.toHexString(0xFF & byteData[i]);
-			if (hex.length() == 1) {
-				hexString.append('0');
-			}
-			hexString.append(hex);
-		}
-		return hexString.toString();
-	}
-
-
+	// console progress bar
 	public static void PrintProgress(double progress, int width) {
 		String output = "[";
 		int prog = (int)(progress * width);

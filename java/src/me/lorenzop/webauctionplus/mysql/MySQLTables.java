@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+import com.poixson.pxnUtils;
+
 import me.lorenzop.webauctionplus.WebAuctionPlus;
 
 public class MySQLTables {
@@ -291,9 +293,9 @@ public class MySQLTables {
 				while (rs.next()) {
 					stNew = poolConn.getConn().prepareStatement("UPDATE `"+dbPrefix()+"Players` SET `Permissions` = ? WHERE `id` = ?");
 					tempPerms = "";
-					if (rs.getBoolean("canBuy"))  tempPerms = WebAuctionPlus.addStringSet(tempPerms, "canBuy",  ",");
-					if (rs.getBoolean("canSell")) tempPerms = WebAuctionPlus.addStringSet(tempPerms, "canSell", ",");
-					if (rs.getBoolean("isAdmin")) tempPerms = WebAuctionPlus.addStringSet(tempPerms, "isAdmin", ",");
+					if (rs.getBoolean("canBuy"))  tempPerms = pxnUtils.addStringSet(tempPerms, "canBuy",  ",");
+					if (rs.getBoolean("canSell")) tempPerms = pxnUtils.addStringSet(tempPerms, "canSell", ",");
+					if (rs.getBoolean("isAdmin")) tempPerms = pxnUtils.addStringSet(tempPerms, "isAdmin", ",");
 					stNew.setString(1, tempPerms);
 					stNew.setInt   (2, rs.getInt("id"));
 					stNew.executeUpdate();

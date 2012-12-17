@@ -10,6 +10,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.poixson.pxnUtils;
+
 public class WebAuctionCommands implements CommandExecutor {
 
 	private final WebAuctionPlus plugin;
@@ -92,7 +94,7 @@ public class WebAuctionCommands implements CommandExecutor {
 				boolean isPlayer = (sender instanceof Player);
 				if (isPlayer) {
 					if (params != 2 || args[1].isEmpty()) return false;
-					pass = WebAuctionPlus.MD5(args[1]);
+					pass = pxnUtils.MD5(args[1]);
 					args[1] = "";
 				// is console
 				} else {
@@ -104,7 +106,7 @@ public class WebAuctionCommands implements CommandExecutor {
 						sender.sendMessage(WebAuctionPlus.logPrefix+"Note: if you really need to, you can add a player to the database, just md5 the password.");
 						return true;
 					}
-					pass = WebAuctionPlus.MD5(args[2]);
+					pass = pxnUtils.MD5(args[2]);
 					args[2] = "";
 				}
 				if(player.isEmpty()) return false;

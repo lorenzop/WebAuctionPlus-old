@@ -25,6 +25,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import com.poixson.pxnUtils;
+
 public class WebAuctionPlayerListener implements Listener {
 
 	private final WebAuctionPlus plugin;
@@ -93,12 +95,13 @@ public class WebAuctionPlayerListener implements Listener {
 		String player = p.getName();
 
 		// prevent click spamming signs
+		long ms = pxnUtils.getCurrentMillis();
 		if(plugin.lastSignUse.containsKey(player))
-			if( plugin.lastSignUse.get(player)+(long)plugin.signDelay > WebAuctionPlus.getCurrentMilli() ) {
+			if( plugin.lastSignUse.get(player)+(long)plugin.signDelay > ms) {
 				p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("please_wait"));
 				return;
 			}
-		plugin.lastSignUse.put(player, WebAuctionPlus.getCurrentMilli());
+		plugin.lastSignUse.put(player, ms);
 
 		// Shout sign
 		if(lines[1].equals("Shout")) {
@@ -200,8 +203,9 @@ public class WebAuctionPlayerListener implements Listener {
 	// shout sign
 	private static long lastUseShout = 0;
 	public static void clickSignShout(Location loc) {
-		if(lastUseShout+(10*60*1000) > WebAuctionPlus.getCurrentMilli()) return;
-		lastUseShout = WebAuctionPlus.getCurrentMilli();
+		long ms = pxnUtils.getCurrentMillis();
+		if(lastUseShout+(10*60*1000) > ms) return;
+		lastUseShout = ms;
 		WebAuctionPlus.BroadcastRadius(getShoutMessage(), loc, 20);
 	}
 	protected static String getShoutMessage() {

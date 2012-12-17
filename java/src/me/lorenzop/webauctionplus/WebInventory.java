@@ -13,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.poixson.pxnUtils;
+
 public class WebInventory {
 
 	// inventory instances
@@ -27,7 +29,7 @@ public class WebInventory {
 	public WebInventory(Player p) {
 		if(p == null) return;
 		playerName = p.getName();
-		int numSlots = WebAuctionPlus.MinMax( WebAuctionPlus.settings.getInteger("Inventory Rows"), 1, 6) * 9;
+		int numSlots = pxnUtils.MinMax( WebAuctionPlus.settings.getInteger("Inventory Rows"), 1, 6) * 9;
 		String invTitle = WebAuctionPlus.Lang.getString("mailbox_title");
 		if(invTitle == null || invTitle.isEmpty()) invTitle = "WebAuction+ MailBox";
 		chest = Bukkit.getServer().createInventory(null, numSlots, invTitle);

@@ -7,6 +7,8 @@ import me.lorenzop.webauctionplus.WebAuctionPlus;
 
 import org.bukkit.Server;
 
+import com.poixson.pxnUtils;
+
 public class AnnouncerTask implements Runnable {
 
 	private int currentAnnouncement   = 0;
@@ -27,7 +29,7 @@ public class AnnouncerTask implements Runnable {
 		if (announcementMessages.isEmpty()) return;
 		// random
 		if (announceRandom) {
-			currentAnnouncement = WebAuctionPlus.getNewRandom(currentAnnouncement, announcementMessages.size() - 1);
+			currentAnnouncement = pxnUtils.getNewRandom(0, announcementMessages.size()-1, currentAnnouncement);
 			announce(currentAnnouncement);
 		// sequential
 		} else {
