@@ -2,18 +2,17 @@ package com.webauctionplus;
 
 import java.io.IOException;
 
+import com.poixson.pxnCommon.JavaPlugin.pxnConfig;
 import com.poixson.pxnCommon.JavaPlugin.pxnJavaPlugin;
-import com.poixson.pxnCommon.Language.pxnLanguageMessages;
 import com.poixson.pxnCommon.Logger.pxnLogger;
 import com.poixson.pxnCommon.Metrics.pxnMetrics;
 import com.poixson.pxnCommon.dbPool.dbPool;
-import com.poixson.pxnCommon.dbPool.dbPoolConn;
 
 
 public class WebAuctionPlus extends pxnJavaPlugin {
 
 	// plugin info
-	private static WebAuctionPlus plugin       = null;
+	protected static WebAuctionPlus waPlugin     = null;
 @SuppressWarnings("unused")
 	private static final String pluginName     = "";
 
@@ -30,43 +29,29 @@ public class WebAuctionPlus extends pxnJavaPlugin {
 	// log
 //TODO: maybe make a separate chat formatter
 //	public static final FormatListener chatPrefix = FormatText.setChatPrefix("{darkgreen}[{white}WebAuction{darkgreen}] ");
-	public static final pxnLogger log = new pxnLogger("WebAuction+");
-
-	// database pool
-	private static dbPool db = null;
+//	public static final pxnLogger log = new pxnLogger("WebAuction+");
 
 	// stats
 	private static pxnMetrics metrics = null;
 @SuppressWarnings("unused")
 	private static waStatsCache stats = null;
 
-	// language
-	private static pxnLanguageMessages language = null;
-
-
-
 
 	public WebAuctionPlus() {
+		super();
 isDebug = true;
+		log = new pxnLogger(getPluginName());
 		// only one instance allowed
-		if(plugin != null) {
-			PluginAlreadyRunningMessage();
-			return;
-		}
-		plugin = this;
-		
+		if(waPlugin != null) return;
+		if(!isOk()) return;
+		waPlugin = this;
 	}
-
-
-
-
-
-
 
 
 	// load plugin
 	public void onEnable() {
-log.info("starting..");
+		if(!isOk()) return;
+getLog().info("starting..");
 		// init metrics
 		try {
 			metrics = new pxnMetrics(this, "testPlugin");
@@ -77,8 +62,20 @@ log.info("starting..");
 //		PluginManager pm = getServer().getPluginManager();
 //		pm.registerEvents(new WebAuctionPlayerListener(this), this);
 //		pm.registerEvents(new WebAuctionBlockListener (this), this);
+
+
+		// load config.yml
+		_LoadConfig();
+
+
+
+		// connect to database
+		db = new dbPool("127.0.0.1", 3306, "testuser", "testpass", "bukkitT");
+
+
+
 		// done
-		log.info("WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		getLog().info("WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		isOk = true;
 	}
 
@@ -89,35 +86,132 @@ log.info("starting..");
 
 
 
-	// get WebAuctionPlus plugin instance
+
+	private void _LoadConfig() {
+
+		config = new pxnConfig(this);
+
+
+
+
+//		// load settings from db
+//		if(settings != null) settings = null;
+//		settings = new waSettings(this);
+//		settings.LoadSettings();
+//		if(!settings.isOk()) {onDisable(); return false;}
+//
+//		// update the version in db
+//		if(! currentVersion.equals(settings.getString("Version")) ){
+//			String oldVersion = settings.getString("Version");
+//			// update database
+//			MySQLUpdate.doUpdate(oldVersion);
+//			// update version number
+//			settings.setString("Version", currentVersion);
+//			log.info(logPrefix+"Updated version from "+oldVersion+" to "+currentVersion);
+//		}
+//
+//		// load language file
+//		if(Lang != null) Lang = null;
+//		Lang = new Language(this);
+//		Lang.loadLanguage(settings.getString("Language"));
+//		if(!Lang.isOk()) {onDisable(); return false;}
+//
+//		try {
+//			isDebug = config.getBoolean("Development.Debug");
+//			addComment("debug_mode", Arrays.asList("# This is where you enable debug mode"))
+//			signDelay          = config.getInt    ("Misc.SignClickDelay");
+//			timEnabled         = config.getBoolean("Misc.UnsafeEnchantments");
+//			announceGlobal     = config.getBoolean("Misc.AnnounceGlobally");
+//			numberOfRecentLink = config.getInt    ("SignLink.NumberOfLatestAuctionsToTrack");
+//			useSignLink        = config.getBoolean("SignLink.Enabled");
+//			if(useSignLink)
+//				if(!Bukkit.getPluginManager().getPlugin("SignLink").isEnabled()) {
+//					log.warning(logPrefix+"SignLink is enabled but plugin is not loaded!");
+//					useSignLink = false;
+//				}
+//
+//			// scheduled tasks
+//			BukkitScheduler scheduler = Bukkit.getScheduler();
+//			boolean UseMultithreads = config.getBoolean("Development.UseMultithreads");
+//
+//			// announcer
+//			announcerEnabled = config.getBoolean("Announcer.Enabled");
+//			long announcerMinutes = 20 * 60 * config.getLong("Tasks.AnnouncerMinutes");
+//			if(announcerEnabled) waAnnouncerTask = new AnnouncerTask(this);
+//			if (announcerEnabled && announcerMinutes>0) {
+//				if(announcerMinutes < 6000) announcerMinutes = 6000; // minimum 5 minutes
+//				waAnnouncerTask.chatPrefix     = config.getString ("Announcer.Prefix");
+//				waAnnouncerTask.announceRandom = config.getBoolean("Announcer.Random");
+//				waAnnouncerTask.addMessages(     config.getStringList("Announcements"));
+//				scheduler.scheduleAsyncRepeatingTask(this, waAnnouncerTask,
+//					(announcerMinutes/2), announcerMinutes);
+//				log.info(logPrefix + "Enabled Task: Announcer (always multi-threaded)");
+//			}
+//
+//			long saleAlertSeconds        = 20 * config.getLong("Tasks.SaleAlertSeconds");
+//			long shoutSignUpdateSeconds  = 20 * config.getLong("Tasks.ShoutSignUpdateSeconds");
+//			long recentSignUpdateSeconds = 20 * config.getLong("Tasks.RecentSignUpdateSeconds");
+//			useOriginalRecent            =      config.getBoolean("Misc.UseOriginalRecentSigns");
+//
+//			// Build shoutSigns map
+//			if (shoutSignUpdateSeconds > 0)
+//				shoutSigns.putAll(DataQueries.getShoutSignLocations());
+//			// Build recentSigns map
+//			if (recentSignUpdateSeconds > 0)
+//				recentSigns.putAll(DataQueries.getRecentSignLocations());
+//
+//			// report sales to players (always multi-threaded)
+//			if (saleAlertSeconds > 0) {
+//				if(saleAlertSeconds < 3*20) saleAlertSeconds = 3*20;
+//				scheduler.scheduleAsyncRepeatingTask(this, new PlayerAlertTask(),
+//					saleAlertSeconds, saleAlertSeconds);
+//				log.info(logPrefix + "Enabled Task: Sale Alert (always multi-threaded)");
+//			}
+//			// shout sign task
+//			if (shoutSignUpdateSeconds > 0) {
+//				if (UseMultithreads)
+//					scheduler.scheduleAsyncRepeatingTask(this, new ShoutSignTask(this),
+//						shoutSignUpdateSeconds, shoutSignUpdateSeconds);
+//				else
+//					scheduler.scheduleSyncRepeatingTask (this, new ShoutSignTask(this),
+//						shoutSignUpdateSeconds, shoutSignUpdateSeconds);
+//				log.info(logPrefix + "Enabled Task: Shout Sign (using " + (UseMultithreads?"multiple threads":"single thread") + ")");
+//			}
+//			// update recent signs
+//			if(recentSignUpdateSeconds > 0 && useOriginalRecent) {
+//				recentSignTask = new RecentSignTask(this);
+//				if (UseMultithreads)
+//					scheduler.scheduleAsyncRepeatingTask(this, recentSignTask,
+//						5*20, recentSignUpdateSeconds);
+//				else
+//					scheduler.scheduleSyncRepeatingTask (this, recentSignTask,
+//						5*20, recentSignUpdateSeconds);
+//				log.info(logPrefix + "Enabled Task: Recent Sign (using " + (UseMultithreads?"multiple threads":"single thread") + ")");
+//			}
+//		} catch (Exception e) {
+//			log.severe("Unable to load config");
+//			e.printStackTrace();
+//			return false;
+//		}
+//		return true;
+
+
+
+	}
+
+
+
+
+
+
+
+
 	public static WebAuctionPlus getPlugin() {
-		return plugin;
+		return waPlugin;
 	}
-
-
-	// get logger
-	@Override
-	public pxnLogger getLog() {
-		return log;
-	}
-
-
-	// get db lock from pool
-	public static dbPoolConn getDB() {
-		if(db == null)
-			return null;
-		return db.getLock();
-	}
-
-
-	// get language
-	public static pxnLanguageMessages getLang() {
-		synchronized(language) {
-			if(language == null)
-				language = pxnLanguageMessages.factory();
-			return language;
-		}
-	}
+//	public static dbPoolConn getDBLock() {
+//		return getPlugin().getDB();
+//	}
 
 
 	public void onLoadMetrics() {
@@ -125,10 +219,10 @@ log.info("starting..");
 		try {
 			metrics = new pxnMetrics(this);
 			if(metrics.isOptOut()) {
-				log.info("Plugin metrics are disabled, you bum.");
+				getLog().info("Plugin metrics are disabled, you bum.");
 				return;
 			}
-			log.info("Starting metrics");
+			getLog().info("Starting metrics");
 			// Create graphs for total Buy Nows / Auctions
 			pxnMetrics.Graph lineGraph = metrics.createGraph("Stacks For Sale");
 			pxnMetrics.Graph pieGraph  = metrics.createGraph("Selling Method");
@@ -158,52 +252,24 @@ return 0;
 		} catch (IOException e) {
 			// Failed to submit the stats :-(
 			if(isDebug()) {
-				log.exception(e);
+				getLog().exception(e);
 			}
 		}
 	}
 
 
-
-
-
-
-
-
 	@Override
 	public String getPluginName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "WebAuctionPlus3.0";
 	}
-
-
-
-
-
-
-
-
-	@Override
-	public String getPluginFullName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
-
-
-
-	@Override
-	public String getRunningVersion() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
-
-
+//	@Override
+//	public String getPluginFullName() {
+//return null;
+//	}
+//	@Override
+//	public String getRunningVersion() {
+//return null;
+//	}
 
 
 }
