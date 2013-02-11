@@ -1,34 +1,31 @@
 package com.webauctionplus.tasks;
 
-import com.poixson.pxnCommon.pxnTask;
+import com.poixson.pxnCommon.Task.pxnTaskThrottled;
+import com.webauctionplus.WebAuctionPlus;
 
 
-public class taskPlayerLogin extends pxnTask {
+public class TaskPlayerLogin extends pxnTaskThrottled {
 
 @SuppressWarnings("unused")
 	private final String playerName;
 
 
-	public taskPlayerLogin(String playerName) {
-		super("PlayerLoginTask");
+	public TaskPlayerLogin(String playerName) {
+		super(WebAuctionPlus.getPlugin(), "PlayerLoginTask-"+playerName);
 		if(playerName == null) throw new IllegalArgumentException("playerName can't be null!");
 		this.playerName = playerName;
-		this.setTaskName("PlayerLoginTask-"+playerName);
+//		this.setTaskName("PlayerLoginTask-"+playerName);
 	}
 
 
 	@Override
-	public void run() {
-		// skip if already running
-		if(!getLock()) return;
+	public void runTaskThrottled() {
 		try {
 			// player login event
 			_Update_PlayerLogin();
 		} catch (Exception e) {
-			getLogger().exception(e);
+			log.exception(e);
 		}
-		// done
-		releaseLock();
 	}
 
 

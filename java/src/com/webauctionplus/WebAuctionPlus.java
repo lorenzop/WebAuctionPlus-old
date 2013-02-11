@@ -2,97 +2,271 @@ package com.webauctionplus;
 
 import java.io.IOException;
 
-import com.poixson.pxnCommon.JavaPlugin.pxnConfig;
-import com.poixson.pxnCommon.JavaPlugin.pxnJavaPlugin;
+import com.poixson.pxnCommon.BukkitPlugin.pxnPlugin;
+import com.poixson.pxnCommon.Listeners.pxnListenerServer;
+import com.poixson.pxnCommon.Logger.FormatChat;
 import com.poixson.pxnCommon.Logger.pxnLogger;
 import com.poixson.pxnCommon.Metrics.pxnMetrics;
-import com.poixson.pxnCommon.dbPool.dbPool;
+import com.poixson.pxnCommon.Task.pxnTask;
+import com.poixson.pxnCommon.dbPool.dbPoolConn;
+import com.webauctionplus.listeners.waListenerCommand;
+import com.webauctionplus.tasks.TaskAnnouncer;
+import com.webauctionplus.tasks.TaskUpdatePlayers;
 
 
-public class WebAuctionPlus extends pxnJavaPlugin {
+public class WebAuctionPlus extends pxnPlugin {
 
 	// plugin info
-	protected static WebAuctionPlus waPlugin     = null;
-@SuppressWarnings("unused")
-	private static final String pluginName     = "";
+	protected static WebAuctionPlus waPlugin   = null;
+	protected FormatChat chat = new FormatChat("{darkgreen}[{white}WebAuction{darkgreen}] ");
+	// plugin name
+	@Override
+	public String getPluginName() {
+		return "WebAuctionPlus";
+	}
 
-	// version
-@SuppressWarnings("unused")
-	private static final String pluginVersion  = "";
-@SuppressWarnings("unused")
-	private static String versionAvailable     = "";
-@SuppressWarnings("unused")
-	private static boolean newVersionAvailable = false;
-
-
-
-	// log
-//TODO: maybe make a separate chat formatter
-//	public static final FormatListener chatPrefix = FormatText.setChatPrefix("{darkgreen}[{white}WebAuction{darkgreen}] ");
-//	public static final pxnLogger log = new pxnLogger("WebAuction+");
+	// listeners
+	private pxnListenerServer listenerServer = null;
+	private waListenerCommand listenerCommand = null;
 
 	// stats
 	private static pxnMetrics metrics = null;
-@SuppressWarnings("unused")
-	private static waStatsCache stats = null;
+	private static waStatsCache statsCache = null;
+
+	// tasks
+	private pxnTask taskUpdatePlayers = null;
+	private pxnTask taskAnnouncer     = null;
 
 
 	public WebAuctionPlus() {
 		super();
 isDebug = true;
-		log = new pxnLogger(getPluginName());
 		// only one instance allowed
 		if(waPlugin != null) return;
-		if(!isOk()) return;
-		waPlugin = this;
+		if(isOk == false) return;
 	}
 
 
 	// load plugin
+	@Override
 	public void onEnable() {
-		if(!isOk()) return;
-getLog().info("starting..");
-		// init metrics
-		try {
-			metrics = new pxnMetrics(this, "testPlugin");
-		} catch (IOException e) {
-			e.printStackTrace();
+		if(isOk == false) return;
+		StartPlugin();
+		if(!isOk()){
+			getLog().severe("Failed to load WebAuctionPlus. Unloading to be safe..");
+			onDisable();
+			return;
 		}
-		// register listeners
-//		PluginManager pm = getServer().getPluginManager();
-//		pm.registerEvents(new WebAuctionPlayerListener(this), this);
-//		pm.registerEvents(new WebAuctionBlockListener (this), this);
-
-
-		// load config.yml
-		_LoadConfig();
-
-
-
-		// connect to database
-		db = new dbPool("127.0.0.1", 3306, "testuser", "testpass", "bukkitT");
-
-
-
-		// done
-		getLog().info("WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		isOk = true;
 	}
 
 
 	// unload plugin
+	@Override
 	public void onDisable() {
+		StopPlugin();
 	}
 
 
+	private void StartPlugin() {
+		if(isOk == false) return;
+		// stop first if needed
+		if(isOk == true)
+			StopPlugin();
+		// starting plugin
+		getLog().info("Starting..");
+		waPlugin = this;
+
+		// load server listener
+		if(listenerServer == null) {
+			listenerServer = new pxnListenerServer(getLog());
+			registerListener(listenerServer);
+		}
+		// command listener
+		if(listenerCommand == null) {
+			listenerCommand = new waListenerCommand();
+			registerListener(listenerCommand);
+		}
+
+		// load config
+		LoadConfig();
+
+//TODO:
+//		// connect to database
+//db = new dbPool(this, "127.0.0.1", 3306, "testuser", "testpass", "bukkitT");
+
+		// load stats cache
+		if(statsCache == null)
+			statsCache = new waStatsCache();
+
+//TODO:
+//		// load settings db
+//		if(settings != null) settings = null;
+//		settings = new waSettings(this);
+//		settings.LoadSettings();
+//		if(!settings.isOk()) {onDisable(); return false;}
+		
+//TODO:
+//		// update the version in db
+//		if(! currentVersion.equals(settings.getString("Version")) ){
+//			String oldVersion = settings.getString("Version");
+//			// update database
+//			MySQLUpdate.doUpdate(oldVersion);
+//			// update version number
+//			settings.setString("Version", currentVersion);
+//			log.info(logPrefix+"Updated version from "+oldVersion+" to "+currentVersion);
+//		}
+
+//TODO:
+//		// load language file
+//		if(Lang != null) Lang = null;
+//		Lang = new Language(this);
+//		Lang.loadLanguage(settings.getString("Language"));
+//		if(!Lang.isOk()) {onDisable(); return false;}
+
+//TODO:
+//		try {
+//			isDebug = config.getBoolean("Development.Debug");
+//			addComment("debug_mode", Arrays.asList("# This is where you enable debug mode"))
+//			signDelay          = config.getInt    ("Misc.SignClickDelay");
+//			timEnabled         = config.getBoolean("Misc.UnsafeEnchantments");
+//			announceGlobal     = config.getBoolean("Misc.AnnounceGlobally");
+//			numberOfRecentLink = config.getInt    ("SignLink.NumberOfLatestAuctionsToTrack");
+//			useSignLink        = config.getBoolean("SignLink.Enabled");
+//			if(useSignLink)
+//				if(!Bukkit.getPluginManager().getPlugin("SignLink").isEnabled()) {
+//					log.warning(logPrefix+"SignLink is enabled but plugin is not loaded!");
+//					useSignLink = false;
+//				}
+
+//TODO:
+//			// scheduled tasks
+//			BukkitScheduler scheduler = Bukkit.getScheduler();
+//			boolean UseMultithreads = config.getBoolean("Development.UseMultithreads");
+
+//TODO:
+//			// announcer
+//			announcerEnabled = config.getBoolean("Announcer.Enabled");
+//			long announcerMinutes = 20 * 60 * config.getLong("Tasks.AnnouncerMinutes");
+//			if(announcerEnabled) waAnnouncerTask = new AnnouncerTask(this);
+//			if (announcerEnabled && announcerMinutes>0) {
+//				if(announcerMinutes < 6000) announcerMinutes = 6000; // minimum 5 minutes
+//				waAnnouncerTask.chatPrefix     = config.getString ("Announcer.Prefix");
+//				waAnnouncerTask.announceRandom = config.getBoolean("Announcer.Random");
+//				waAnnouncerTask.addMessages(     config.getStringList("Announcements"));
+//				scheduler.scheduleAsyncRepeatingTask(this, waAnnouncerTask,
+//					(announcerMinutes/2), announcerMinutes);
+//				log.info(logPrefix + "Enabled Task: Announcer (always multi-threaded)");
+//			}
+
+//TODO:
+//			long saleAlertSeconds        = 20 * config.getLong("Tasks.SaleAlertSeconds");
+//			long shoutSignUpdateSeconds  = 20 * config.getLong("Tasks.ShoutSignUpdateSeconds");
+//			long recentSignUpdateSeconds = 20 * config.getLong("Tasks.RecentSignUpdateSeconds");
+//			useOriginalRecent            =      config.getBoolean("Misc.UseOriginalRecentSigns");
+
+//TODO:
+//			// Build shoutSigns map
+//			if (shoutSignUpdateSeconds > 0)
+//				shoutSigns.putAll(dataQueries.getShoutSignLocations());
+//			// Build recentSigns map
+//			if (recentSignUpdateSeconds > 0)
+//				recentSigns.putAll(dataQueries.getRecentSignLocations());
+
+//TODO:
+//			// report sales to players (always multi-threaded)
+//			if (saleAlertSeconds > 0) {
+//				if(saleAlertSeconds < 3*20) saleAlertSeconds = 3*20;
+//				scheduler.scheduleAsyncRepeatingTask(this, new PlayerAlertTask(),
+//					saleAlertSeconds, saleAlertSeconds);
+//				log.info(logPrefix + "Enabled Task: Sale Alert (always multi-threaded)");
+//			}
+//			// shout sign task
+//			if (shoutSignUpdateSeconds > 0) {
+//				if (UseMultithreads)
+//					scheduler.scheduleAsyncRepeatingTask(this, new ShoutSignTask(this),
+//						shoutSignUpdateSeconds, shoutSignUpdateSeconds);
+//				else
+//					scheduler.scheduleSyncRepeatingTask (this, new ShoutSignTask(this),
+//						shoutSignUpdateSeconds, shoutSignUpdateSeconds);
+//				log.info(logPrefix + "Enabled Task: Shout Sign (using " + (UseMultithreads?"multiple threads":"single thread") + ")");
+//			}
+//			// update recent signs
+//			if(recentSignUpdateSeconds > 0 && useOriginalRecent) {
+//				recentSignTask = new RecentSignTask(this);
+//				if (UseMultithreads)
+//					scheduler.scheduleAsyncRepeatingTask(this, recentSignTask,
+//						5*20, recentSignUpdateSeconds);
+//				else
+//					scheduler.scheduleSyncRepeatingTask (this, recentSignTask,
+//						5*20, recentSignUpdateSeconds);
+//				log.info(logPrefix + "Enabled Task: Recent Sign (using " + (UseMultithreads?"multiple threads":"single thread") + ")");
+//			}
+//		} catch (Exception e) {
+//			log.severe("Unable to load config");
+//			e.printStackTrace();
+//			return false;
+//		}
+//		return true;
+
+//TODO:
+//		//### register listeners
+//		try {
+//			PluginManager pm = getServer().getPluginManager();
+//this is in pxn			// server listener
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		if( == null)
+//		pm.registerEvents(new WebAuctionPlayerListener(this), this);
+//		if( == null)
+//		pm.registerEvents(new WebAuctionBlockListener (this), this);
+
+		// update players task
+		taskUpdatePlayers = new TaskUpdatePlayers()
+			.setDelay(1)
+			.setPeriod(20)
+			.Start();
+		// announcer task
+		taskAnnouncer = new TaskAnnouncer()
+			.setDelay(1)
+			.setPeriod(20)
+			.Start();
+
+		// init metrics
+		try {
+			metrics = new pxnMetrics(this, "TestPlugin2");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+//TODO:
+//		CheckUpdateAvailable();
+
+		// done
+getLog().info("WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		setOk();
+	}
 
 
-	private void _LoadConfig() {
+	private void StopPlugin() {
+		// stop tasks
+		try {
+			taskUpdatePlayers.Stop();
+			taskUpdatePlayers = null;
+		} catch (Exception ignore) {}
+		try {
+			taskAnnouncer.Stop();
+			taskAnnouncer = null;
+		} catch (Exception ignore) {}
+		// reset plugin
+		isOk = null;
+		errorMsgs.clear();
+	}
 
-		config = new pxnConfig(this);
 
-
-
+	private void LoadConfig() {
+//		config = new pxnConfig(this);
 
 //		// load settings from db
 //		if(settings != null) settings = null;
@@ -194,24 +368,12 @@ getLog().info("starting..");
 //			return false;
 //		}
 //		return true;
-
-
-
 	}
-
-
-
-
-
-
 
 
 	public static WebAuctionPlus getPlugin() {
 		return waPlugin;
 	}
-//	public static dbPoolConn getDBLock() {
-//		return getPlugin().getDB();
-//	}
 
 
 	public void onLoadMetrics() {
@@ -231,7 +393,7 @@ getLog().info("starting..");
 				@Override
 				public int getValue(){
 //					return stats.getTotalBuyNows();
-return 0;
+return 11;
 				}
 			};
 			// auction count
@@ -239,7 +401,7 @@ return 0;
 				@Override
 				public int getValue(){
 //					return stats.getTotalAuctions();
-return 0;
+return 11;
 				}
 			};
 			// total selling
@@ -256,20 +418,6 @@ return 0;
 			}
 		}
 	}
-
-
-	@Override
-	public String getPluginName() {
-		return "WebAuctionPlus3.0";
-	}
-//	@Override
-//	public String getPluginFullName() {
-//return null;
-//	}
-//	@Override
-//	public String getRunningVersion() {
-//return null;
-//	}
 
 
 }
