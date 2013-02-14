@@ -3,12 +3,9 @@ package com.webauctionplus;
 import java.io.IOException;
 
 import com.poixson.pxnCommon.BukkitPlugin.pxnPlugin;
-import com.poixson.pxnCommon.Listeners.pxnListenerServer;
 import com.poixson.pxnCommon.Logger.FormatChat;
-import com.poixson.pxnCommon.Logger.pxnLogger;
 import com.poixson.pxnCommon.Metrics.pxnMetrics;
 import com.poixson.pxnCommon.Task.pxnTask;
-import com.poixson.pxnCommon.dbPool.dbPoolConn;
 import com.webauctionplus.listeners.waListenerCommand;
 import com.webauctionplus.tasks.TaskAnnouncer;
 import com.webauctionplus.tasks.TaskUpdatePlayers;
@@ -17,16 +14,10 @@ import com.webauctionplus.tasks.TaskUpdatePlayers;
 public class WebAuctionPlus extends pxnPlugin {
 
 	// plugin info
-	protected static WebAuctionPlus waPlugin   = null;
+	private static WebAuctionPlus plugin = null;
 	protected FormatChat chat = new FormatChat("{darkgreen}[{white}WebAuction{darkgreen}] ");
-	// plugin name
-	@Override
-	public String getPluginName() {
-		return "WebAuctionPlus";
-	}
 
 	// listeners
-	private pxnListenerServer listenerServer = null;
 	private waListenerCommand listenerCommand = null;
 
 	// stats
@@ -40,47 +31,29 @@ public class WebAuctionPlus extends pxnPlugin {
 
 	public WebAuctionPlus() {
 		super();
-isDebug = true;
 		// only one instance allowed
-		if(waPlugin != null) return;
-		if(isOk == false) return;
+		plugin = (WebAuctionPlus) SingleInstance(plugin, this);
+isDebug = true;
+	}
+	// plugin name
+	@Override
+	public String getPluginName() {
+		return "WebAuctionPlus";
+	}
+	// get plugin instance
+	public static WebAuctionPlus getPlugin() {
+		return plugin;
 	}
 
 
 	// load plugin
-	@Override
-	public void onEnable() {
-		if(isOk == false) return;
-		StartPlugin();
-		if(!isOk()){
-			getLog().severe("Failed to load WebAuctionPlus. Unloading to be safe..");
-			onDisable();
-			return;
-		}
-	}
-
-
-	// unload plugin
-	@Override
-	public void onDisable() {
-		StopPlugin();
-	}
-
-
-	private void StartPlugin() {
-		if(isOk == false) return;
-		// stop first if needed
-		if(isOk == true)
+	protected void StartPlugin() {
+		// already loaded
+		if(okEquals(true))
 			StopPlugin();
 		// starting plugin
 		getLog().info("Starting..");
-		waPlugin = this;
 
-		// load server listener
-		if(listenerServer == null) {
-			listenerServer = new pxnListenerServer(getLog());
-			registerListener(listenerServer);
-		}
 		// command listener
 		if(listenerCommand == null) {
 			listenerCommand = new waListenerCommand();
@@ -245,22 +218,25 @@ isDebug = true;
 
 		// done
 getLog().info("WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		setOk();
+		setOk(true);
 	}
 
 
-	private void StopPlugin() {
+	// unload plugin
+	protected void StopPlugin() {
 		// stop tasks
 		try {
-			taskUpdatePlayers.Stop();
+			if(taskUpdatePlayers != null)
+				taskUpdatePlayers.Stop();
 			taskUpdatePlayers = null;
 		} catch (Exception ignore) {}
 		try {
-			taskAnnouncer.Stop();
+			if(taskAnnouncer != null)
+				taskAnnouncer.Stop();
 			taskAnnouncer = null;
 		} catch (Exception ignore) {}
-		// reset plugin
-		isOk = null;
+		// reset plugin state
+		setOk(false);
 		errorMsgs.clear();
 	}
 
@@ -368,11 +344,6 @@ getLog().info("WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 //			return false;
 //		}
 //		return true;
-	}
-
-
-	public static WebAuctionPlus getPlugin() {
-		return waPlugin;
 	}
 
 

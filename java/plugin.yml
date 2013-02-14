@@ -1,9 +1,9 @@
-name: WebAuctionPlus
+name: WebAuctionPlus3
 main: com.webauctionplus.WebAuctionPlus
 version: 3.0.2
 author: lorenzop
 website: http://webauctionplus.com/
-depend: [Vault]
+depend: [pxnCommon, Vault]
 commands:
   wa:
     description: WebAuctionPlus
