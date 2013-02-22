@@ -1,14 +1,18 @@
 package com.webauctionplus;
 
-import java.io.IOException;
-
+import com.poixson.pxnCommon.pxnVault;
 import com.poixson.pxnCommon.BukkitPlugin.pxnPlugin;
 import com.poixson.pxnCommon.Logger.FormatChat;
-import com.poixson.pxnCommon.Metrics.pxnMetrics;
+import com.poixson.pxnCommon.SignUI.SignManager;
+import com.poixson.pxnCommon.SignUI.SignPlugin;
 import com.poixson.pxnCommon.Task.pxnTask;
-import com.webauctionplus.listeners.waListenerCommand;
+import com.poixson.pxnCommon.dbPool.dbConfig;
+import com.poixson.pxnCommon.dbPool.dbPool;
+import com.poixson.pxnCommon.pxnLinks.pxnVaultLink;
+import com.webauctionplus.Signs.waSign;
+import com.webauctionplus.Signs.waSignMailbox;
+import com.webauctionplus.Signs.waSignWebsite;
 import com.webauctionplus.tasks.TaskAnnouncer;
-import com.webauctionplus.tasks.TaskUpdatePlayers;
 
 
 public class WebAuctionPlus extends pxnPlugin {
@@ -18,15 +22,20 @@ public class WebAuctionPlus extends pxnPlugin {
 	protected FormatChat chat = new FormatChat("{darkgreen}[{white}WebAuction{darkgreen}] ");
 
 	// listeners
-	private waListenerCommand listenerCommand = null;
+//	private waListenerCommand listenerCommand = null;
 
 	// stats
-	private static pxnMetrics metrics = null;
+//	private static pxnMetrics metrics = null;
 	private static waStatsCache statsCache = null;
 
 	// tasks
 	private pxnTask taskUpdatePlayers = null;
 	private pxnTask taskAnnouncer     = null;
+
+	// libraries
+	private pxnVaultLink vaultLink = null;
+@SuppressWarnings("unused")
+	private SignManager signManager = null;
 
 
 	public WebAuctionPlus() {
@@ -52,21 +61,26 @@ isDebug = true;
 		if(okEquals(true))
 			StopPlugin();
 		// starting plugin
-		getLog().info("Starting..");
+		getLog().info("Starting plugin..");
 
-		// command listener
-		if(listenerCommand == null) {
-			listenerCommand = new waListenerCommand();
-			registerListener(listenerCommand);
-		}
+		pxnVault.PreloadEconomy(getLog());
+
+//		// command listener
+//		if(listenerCommand == null) {
+//			listenerCommand = new waListenerCommand();
+//			registerListener(listenerCommand);
+//		}
 
 		// load config
 		LoadConfig();
 
 //TODO:
 //		// connect to database
-//db = new dbPool(this, "127.0.0.1", 3306, "testuser", "testpass", "bukkitT");
-
+db = dbPool.factory(this, dbConfig.factory("127.0.0.1", 3306, "testuser", "testpass", "bukkitT"));
+//@SuppressWarnings("unused")
+//dbPool db2 = dbPool.factory(this, dbConfig.factory("localhost", 3306, "bukkitR", "bukkitpass", "bukkitR"));
+//@SuppressWarnings("unused")
+//dbPool db3 = dbPool.factory(this, dbConfig.factory("localhost", 3306, "testuser", "testpass", "bukkitT"));
 		// load stats cache
 		if(statsCache == null)
 			statsCache = new waStatsCache();
@@ -115,6 +129,24 @@ isDebug = true;
 //			// scheduled tasks
 //			BukkitScheduler scheduler = Bukkit.getScheduler();
 //			boolean UseMultithreads = config.getBoolean("Development.UseMultithreads");
+
+
+
+		vaultLink = pxnVaultLink.factory(this);
+
+
+// wa signs
+SignPlugin signPlugin = new waSign();
+// mailbox sign
+signPlugin.addSign(new waSignMailbox());
+// website sign
+signPlugin.addSign(new waSignWebsite());
+// load sign manager
+signManager = SignManager.factory(this, signPlugin);
+
+
+
+
 
 //TODO:
 //			// announcer
@@ -195,23 +227,23 @@ isDebug = true;
 //		if( == null)
 //		pm.registerEvents(new WebAuctionBlockListener (this), this);
 
-		// update players task
-		taskUpdatePlayers = new TaskUpdatePlayers()
-			.setDelay(1)
-			.setPeriod(20)
-			.Start();
+//		// update players task
+//		taskUpdatePlayers = new TaskUpdatePlayers()
+//			.setDelay(1)
+//			.setPeriod(20)
+//			.Start();
 		// announcer task
 		taskAnnouncer = new TaskAnnouncer()
 			.setDelay(1)
 			.setPeriod(20)
 			.Start();
 
-		// init metrics
-		try {
-			metrics = new pxnMetrics(this, "TestPlugin2");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		// init metrics
+//		try {
+//			metrics = new pxnMetrics(this, "TestPlugin2");
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
 //TODO:
 //		CheckUpdateAvailable();
@@ -224,6 +256,12 @@ getLog().info("WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
 	// unload plugin
 	protected void StopPlugin() {
+		// stop web link objects
+		try {
+			if(vaultLink != null)
+				vaultLink.Stop();
+			vaultLink = null;
+		} catch (Exception ignore) {}
 		// stop tasks
 		try {
 			if(taskUpdatePlayers != null)
@@ -236,7 +274,7 @@ getLog().info("WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			taskAnnouncer = null;
 		} catch (Exception ignore) {}
 		// reset plugin state
-		setOk(false);
+		setOk(null);
 		errorMsgs.clear();
 	}
 
@@ -347,48 +385,48 @@ getLog().info("WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 	}
 
 
-	public void onLoadMetrics() {
-		// usage stats
-		try {
-			metrics = new pxnMetrics(this);
-			if(metrics.isOptOut()) {
-				getLog().info("Plugin metrics are disabled, you bum.");
-				return;
-			}
-			getLog().info("Starting metrics");
-			// Create graphs for total Buy Nows / Auctions
-			pxnMetrics.Graph lineGraph = metrics.createGraph("Stacks For Sale");
-			pxnMetrics.Graph pieGraph  = metrics.createGraph("Selling Method");
-			// buy now count
-			pxnMetrics.Plotter plotterBuyNows = new pxnMetrics.Plotter("Buy Nows") {
-				@Override
-				public int getValue(){
+//	public void onLoadMetrics() {
+//		// usage stats
+//		try {
+//			metrics = new pxnMetrics(this);
+//			if(metrics.isOptOut()) {
+//				getLog().info("Plugin metrics are disabled, you bum.");
+//				return;
+//			}
+//			getLog().info("Starting metrics");
+//			// Create graphs for total Buy Nows / Auctions
+//			pxnMetrics.Graph lineGraph = metrics.createGraph("Stacks For Sale");
+//			pxnMetrics.Graph pieGraph  = metrics.createGraph("Selling Method");
+//			// buy now count
+//			pxnMetrics.Plotter plotterBuyNows = new pxnMetrics.Plotter("Buy Nows") {
+//				@Override
+//				public int getValue(){
 //					return stats.getTotalBuyNows();
-return 11;
-				}
-			};
-			// auction count
-			pxnMetrics.Plotter plotterAuctions = new pxnMetrics.Plotter("Auctions") {
-				@Override
-				public int getValue(){
+//return 11;
+//				}
+//			};
+//			// auction count
+//			pxnMetrics.Plotter plotterAuctions = new pxnMetrics.Plotter("Auctions") {
+//				@Override
+//				public int getValue(){
 //					return stats.getTotalAuctions();
-return 11;
-				}
-			};
-			// total selling
-			lineGraph.addPlotter(plotterBuyNows);
-			lineGraph.addPlotter(plotterAuctions);
-			// selling ratio
-			pieGraph.addPlotter(plotterBuyNows);
-			pieGraph.addPlotter(plotterAuctions);
-			metrics.start();
-		} catch (IOException e) {
-			// Failed to submit the stats :-(
-			if(isDebug()) {
-				getLog().exception(e);
-			}
-		}
-	}
+//return 11;
+//				}
+//			};
+//			// total selling
+//			lineGraph.addPlotter(plotterBuyNows);
+//			lineGraph.addPlotter(plotterAuctions);
+//			// selling ratio
+//			pieGraph.addPlotter(plotterBuyNows);
+//			pieGraph.addPlotter(plotterAuctions);
+//			metrics.start();
+//		} catch (IOException e) {
+//			// Failed to submit the stats :-(
+//			if(isDebug()) {
+//				getLog().exception(e);
+//			}
+//		}
+//	}
 
 
 }

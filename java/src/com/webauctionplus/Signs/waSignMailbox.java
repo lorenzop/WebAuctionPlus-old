@@ -1,14 +1,13 @@
 package com.webauctionplus.Signs;
 
-import org.bukkit.GameMode;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.SignChangeEvent;
 
-import com.poixson.pxnCommon.SignUI.SignDAO;
+import com.poixson.pxnCommon.SignUI.SignType;
 
 
-public class waSignMailbox extends waSign {
+public class waSignMailbox extends SignType {
+	// mailbox
 	private static final String SignMailBox = "MailBox";
 	private static final String[] SignMailBox_aliases = {
 		"Mail Box",
@@ -22,38 +21,26 @@ public class waSignMailbox extends waSign {
 	// validate sign lines
 	@Override
 	public boolean ValidateSign(SignChangeEvent event) {
-		// validate first line
-		if(!super.ValidateSign(event))
-			return false;
-		Block block = event.getBlock();
 		Player player = event.getPlayer();
-
 		// mailbox sign
-		if(SignDAO.ValidLine(event, 1, SignMailBox, SignMailBox_aliases)) {
-			if(!player.hasPermission("wa.sign.create.mailbox")) {
+		if(!ValidLine(event, 1, SignMailBox, SignMailBox_aliases))
+			return false;
+		if(!player.hasPermission("wa.sign.create.mailbox")) {
 //TODO:
 player.sendMessage("&4No permission.");
-				event.setCancelled(true);
-				return false;
-			}
-			event.setLine(2, "");
-			event.setLine(3, "");
+			CancelSign(event);
+			return false;
+		}
+		event.setLine(2, "");
+		event.setLine(3, "");
 //TODO:
 player.sendMessage("Created MailBox sign.");
-//p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_deposit_mail_sign"));
-			return true;
-		}
+//p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_ _sign"));
+		return true;
+	}
 
-		// invalid sign
-//TODO:
-player.sendMessage("&4Invalid sign.");
-//p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("invalid_sign"));
-		event.setCancelled(true);
-		// break sign
-		if(player.getGameMode().equals(GameMode.CREATIVE))
-			block.setTypeId(0);
-		else
-			block.breakNaturally();
+
+
 
 //		// Shout sign
 //		if(lines[1].equalsIgnoreCase("Shout")) {
@@ -107,9 +94,6 @@ player.sendMessage("&4Invalid sign.");
 //			p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_recent_sign"));
 //			return;
 //		}
-
-		return false;
-	}
 
 
 	// sign clicked

@@ -2,11 +2,10 @@ package com.webauctionplus.Signs;
 
 import org.bukkit.event.block.SignChangeEvent;
 
-import com.poixson.pxnCommon.SignUI.SignDAO;
-import com.poixson.pxnCommon.SignUI.SignHandler;
+import com.poixson.pxnCommon.SignUI.SignPlugin;
 
 
-public abstract class waSign implements SignHandler {
+public class waSign extends SignPlugin {
 	private static final String SignFirstLine = "&1[WebAuction+]";
 	private static final String[] SignFirstLine_aliases = {
 		"[WebAuction+]",
@@ -17,15 +16,21 @@ public abstract class waSign implements SignHandler {
 
 	// validate sign lines
 	@Override
-	public boolean ValidateSign(SignChangeEvent event) {
-		return SignDAO.ValidLine(event, 0, SignFirstLine, SignFirstLine_aliases);
+	public boolean ValidateSignFirst(SignChangeEvent event) {
+		return ValidLine(event, 0, SignFirstLine, SignFirstLine_aliases);
 	}
 
 
-//	// sign clicked
-//	@Override
-//	public void onClick() {
-//	}
+	@Override
+	public void InvalidSign(SignChangeEvent event) {
+		// invalid sign
+//TODO:
+event.getPlayer().sendMessage("&4Invalid sign.");
+//p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("invalid_sign"));
+		event.setCancelled(true);
+		// break sign
+		CancelSign(event);
+	}
 
 
 }
