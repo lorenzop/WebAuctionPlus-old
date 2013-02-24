@@ -2,8 +2,10 @@ package com.webauctionplus.Signs;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.poixson.pxnCommon.pxnUtils;
+import com.poixson.pxnCommon.SignUI.SignDAO;
 import com.poixson.pxnCommon.SignUI.SignType;
 
 
@@ -13,22 +15,30 @@ public class waSignWebsite extends SignType {
 	private static final String[] SignWebsite_aliases = {
 		"Website",
 		"Web Site",
-		"Web"
+		"Web",
+		"Link",
+		"URL"
 	};
+
+
+	@Override
+	public String getType() {
+		return "website";
+	}
 
 
 	// validate sign lines
 	@Override
-	public boolean ValidateSign(SignChangeEvent event) {
+	public String onCreateSign(SignChangeEvent event) {
 		Player player = event.getPlayer();
 		// website sign
 		if(!ValidLine(event, 1, SignWebsite, SignWebsite_aliases))
-			return false;
+			return null;
 		if(!player.hasPermission("wa.sign.create.website")) {
 //TODO:
 player.sendMessage("&4No permission.");
 			CancelSign(event);
-			return false;
+			return null;
 		}
 String website = "http://mc.poixson.com/";
 		if(website.startsWith("http://") ) website = website.substring(7);
@@ -46,13 +56,16 @@ String website = "http://mc.poixson.com/";
 //TODO:
 player.sendMessage("Created Website sign.");
 //p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_ _sign"));
-		return true;
+		return getType();
 	}
 
 
 	// sign clicked
 	@Override
-	public void onClick() {
+	public void onClick(PlayerInteractEvent event, SignDAO sign) {
+		Player player = event.getPlayer();
+String website = "http://mc.poixson.com/";
+player.sendMessage(website);
 	}
 
 

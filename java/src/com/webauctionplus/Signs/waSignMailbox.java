@@ -2,7 +2,9 @@ package com.webauctionplus.Signs;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
+import com.poixson.pxnCommon.SignUI.SignDAO;
 import com.poixson.pxnCommon.SignUI.SignType;
 
 
@@ -18,28 +20,32 @@ public class waSignMailbox extends SignType {
 	};
 
 
+	@Override
+	public String getType() {
+		return "mailbox";
+	}
+
+
 	// validate sign lines
 	@Override
-	public boolean ValidateSign(SignChangeEvent event) {
+	public String onCreateSign(SignChangeEvent event) {
 		Player player = event.getPlayer();
 		// mailbox sign
 		if(!ValidLine(event, 1, SignMailBox, SignMailBox_aliases))
-			return false;
+			return null;
 		if(!player.hasPermission("wa.sign.create.mailbox")) {
 //TODO:
 player.sendMessage("&4No permission.");
 			CancelSign(event);
-			return false;
+			return null;
 		}
 		event.setLine(2, "");
 		event.setLine(3, "");
 //TODO:
 player.sendMessage("Created MailBox sign.");
 //p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("created_ _sign"));
-		return true;
+		return getType();
 	}
-
-
 
 
 //		// Shout sign
@@ -98,7 +104,7 @@ player.sendMessage("Created MailBox sign.");
 
 	// sign clicked
 	@Override
-	public void onClick() {
+	public void onClick(PlayerInteractEvent event, SignDAO sign) {
 	}
 
 
