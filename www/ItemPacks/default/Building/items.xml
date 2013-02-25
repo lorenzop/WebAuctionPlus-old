@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<Items lang="en" category="Building Blocks">
+	<item id="1">
+		<title>Stone</title>
+		<icon>Stone.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>1</emc>
+	</item>
+	<item id="2">
+		<title>Grass</title>
+		<icon>Grass.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>1</emc>
+	</item>
+	<item id="3">
+		<title>Dirt</title>
+		<icon>Dirt.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>1</emc>
+	</item>
+	<item id="4">
+		<title>Cobblestone</title>
+		<icon>Cobblestone.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>1</emc>
+	</item>
+	<item id="5">
+		<subitem damage="0">
+			<title>Wooden Plank (Oak)</title>
+			<icon>Wooden_Plank_Oak.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>8</emc>
+		</subitem>
+		<subitem damage="1">
+			<title>Wooden Plank (Pine)</title>
+			<icon>Wooden_Plank_Pine.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>8</emc>
+		</subitem>
+		<subitem damage="2">
+			<title>Wooden Plank (Birch)</title>
+			<icon>Wooden_Plank_Birch.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>8</emc>
+		</subitem>
+		<subitem damage="3">
+			<title>Wooden Plank (Jungle)</title>
+			<icon>Wooden_Plank_Jungle.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>8</emc>
+		</subitem>
+		<subitem damage="default">
+			<title>Unknown Wooden Plank</title>
+			<icon>Wooden_Plank_Oak.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>8</emc>
+		</subitem>
+	</item>
+	<item id="7">
+		<title>Bedrock</title>
+		<icon>Bedrock.png</icon>
+		<sprite x="" y=""></sprite>
+	</item>
+	<item id="12">
+		<title>Sand</title>
+		<icon>Sand.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>1</emc>
+	</item>
+	<item id="13">
+		<title>Gravel</title>
+		<icon>Gravel.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>4</emc>
+	</item>
+	<item id="14">
+		<title>Gold Ore</title>
+		<icon>Gold_Ore.png</icon>
+		<sprite x="" y=""></sprite>
+ 	</item>
+	<item id="15">
+		<title>Iron Ore</title>
+		<icon>Iron_Ore.png</icon>
+		<sprite x="" y=""></sprite>
+	</item>
+	<item id="16">
+		<title>Coal Ore</title>
+		<icon>Coal_Ore.png</icon>
+		<sprite x="" y=""></sprite>
+	</item>
+	<item id="17">
+		<subitem damage="0">
+			<title>Oak Log</title>
+			<icon>Log_Oak.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>32</emc>
+		</subitem>
+		<subitem damage="1">
+			<title>Pine Log</title>
+			<icon>Log_Pine.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>32</emc>
+		</subitem>
+		<subitem damage="2">
+			<title>Birch Log</title>
+			<icon>Log_Birch.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>32</emc>
+		</subitem>
+		<subitem damage="3">
+			<title>Jungle Log</title>
+			<icon>Log_Jungle.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>32</emc>
+		</subitem>
+		<subitem damage="default">
+			<title>Unknown Log</title>
+			<icon>Log.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>32</emc>
+		</subitem>
+	</item>
+	<item id="19">
+		<title>Sponge</title>
+		<icon>Sponge.png</icon>
+		<sprite x="" y=""></sprite>
+	</item>
+	<item id="20">
+		<title>Glass</title>
+		<icon>Glass.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>1</emc>
+	</item>
+	<item id="21">
+		<title>Lapis Lazuli Ore</title>
+		<icon>Lapis_Lazuli_Ore.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>864</emc>
+	</item>
+	<item id="22">
+		<title>Lapis Lazuli Block</title>
+		<icon>Lapis_Lazuli_Block.png.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>7776</emc>
+	</item>
+	<item id="24">
+		<subitem damage="0">
+			<title>Sandstone</title>
+			<icon>Sandstone.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>4</emc>
+		</subitem>
+		<subitem damage="1">
+			<title>Decorative Sandstone</title>
+			<icon>Sandstone_Decorative.png.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>4</emc>
+		</subitem>
+		<subitem damage="2">
+			<title>Smooth Sandstone</title>
+			<icon>Sandstone_Smooth.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>4</emc>
+		</subitem>
+		<subitem damage="default">
+			<title>Unknown Sandstone</title>
+			<icon>Sandstone.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>4</emc>
+		</subitem>
+	</item>
+
+
+
+
+
+
+
+
+
+
+</Items>

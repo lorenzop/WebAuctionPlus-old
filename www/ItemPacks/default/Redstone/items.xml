@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<Items lang="en" category="Redstone">
+	<item id="23">
+		<title>Dispenser</title>
+		<icon>Dispenser.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>119</emc>
+	</item>
+	<item id="25">
+		<title>Note Block</title>
+		<icon>Note_Block.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>128</emc>
+	</item>
+	<item id="29">
+		<title>Sticky Piston</title>
+		<icon>Sticky_Piston.png.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>372</emc>
+	</item>
+
+
+
+
+
+
+
+
+
+</Items>

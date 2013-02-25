@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<Items lang="en" category="Decoration Blocks">
+	<item id="6">
+		<subitem damage="0">
+			<title>Oak Sapling</title>
+			<icon>Sapling_Oak.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>32</emc>
+		</subitem>
+		<subitem damage="1">
+			<title>Pine Sapling</title>
+			<icon>Sapling_Pine.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>32</emc>
+		</subitem>
+		<subitem damage="2">
+			<title>Birch Sapling</title>
+			<icon>Sapling_Birch.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>32</emc>
+		</subitem>
+		<subitem damage="3">
+			<title>Jungle Sapling</title>
+			<icon>Sapling_Jungle.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>32</emc>
+		</subitem>
+		<subitem damage="default">
+			<title>Unknown Sapling</title>
+			<icon>Sapling.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>32</emc>
+		</subitem>
+	</item>
+	<item id="18">
+		<subitem damage="4">
+			<title>Oak Leaves</title>
+			<icon>Leaves_Oak.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>1</emc>
+		</subitem>
+		<subitem damage="5">
+			<title>Pine Leaves</title>
+			<icon>Leaves_Pine.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>1</emc>
+		</subitem>
+		<subitem damage="6">
+			<title>Birch Leaves</title>
+			<icon>Leaves_Birch.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>1</emc>
+		</subitem>
+		<subitem damage="7">
+			<title>Jungle Leaves</title>
+			<icon>Leaves_Jungle.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>1</emc>
+		</subitem>
+		<subitem damage="default">
+			<title>Unknown Leaves</title>
+			<icon>Leaves.png</icon>
+			<sprite x="" y=""></sprite>
+			<emc>1</emc>
+		</subitem>
+	</item>
+	<item id="30">
+		<title>Web</title>
+		<icon>Cobweb.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>12</emc>
+	</item>
+
+
+
+
+
+</Items>

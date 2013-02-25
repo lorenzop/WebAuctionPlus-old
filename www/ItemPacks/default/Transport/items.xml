@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<Items lang="en" category="Transport">
+	<item id="27">
+		<title>Powered Rail</title>
+		<icon>Rail_Powered.png.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>2048</emc>
+	</item>
+	<item id="28">
+		<title>Detector Rail</title>
+		<icon>Rail_Detector.png</icon>
+		<sprite x="" y=""></sprite>
+		<emc>256</emc>
+	</item>
+
+
+
+
+
+
+</Items>

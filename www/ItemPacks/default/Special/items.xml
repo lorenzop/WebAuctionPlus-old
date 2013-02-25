@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<Items lang="en" category="Special">
+	<item id="8">
+		<title>Water</title>
+		<icon>Water.png</icon>
+		<sprite x="" y=""></sprite>
+	</item>
+	<item id="9">
+		<title>Stationary Water</title>
+		<icon>Water.png</icon>
+		<sprite x="" y=""></sprite>
+	</item>
+	<item id="10">
+		<title>Lava</title>
+		<icon>Lava.png</icon>
+		<sprite x="" y=""></sprite>
+	</item>
+	<item id="11">
+		<title>Stationary Lava</title>
+		<icon>Lava.png</icon>
+		<sprite x="" y=""></sprite>
+	</item>
+	<item id="26">
+		<title>Bed Block</title>
+		<icon>Bed.png</icon>
+		<sprite x="" y=""></sprite>
+	</item>
+
+
+
+
+
+
+</Items>
