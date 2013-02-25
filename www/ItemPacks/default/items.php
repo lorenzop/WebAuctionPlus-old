@@ -3,7 +3,7 @@ if(!defined('PORTAL_INDEX_FILE') || \PORTAL_INDEX_FILE!==TRUE){if(headers_sent()
 class DefinesLoader_default_items extends DefinesLoader {
 
 
-	public function __construct() {
+	protected function LoadCategories() {
 		$this->LoadCategory('Brewing');
 		$this->LoadCategory('Building');
 		$this->LoadCategory('Combat');
@@ -23,6 +23,7 @@ class DefinesLoader_default_items extends DefinesLoader {
 	protected function getType() {
 		return 'items';
 	}
+
 
 }
 ?>
