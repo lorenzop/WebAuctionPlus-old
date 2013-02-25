@@ -1,8 +1,8 @@
 <?php
 
-define('psm\DEBUG',			TRUE);
-define('psm\DEFAULT_MODULE',	'wa');
-define('psm\DEFAULT_PAGE',		'current');
+define('psm\DEBUG',          TRUE);
+define('psm\DEFAULT_MODULE', 'wa');
+define('psm\DEFAULT_PAGE',   'current');
 
 // load the portal
 include('portal/Portal.php');

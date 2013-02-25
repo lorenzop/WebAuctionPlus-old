@@ -1,5 +1,5 @@
 <?php namespace wa;
-if(!defined('\PORTAL_INDEX_FILE') || \PORTAL_INDEX_FILE!==TRUE){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
+if(!defined('PORTAL_INDEX_FILE') || \PORTAL_INDEX_FILE!==TRUE){if(headers_sent()){echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}else{header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 class page_home extends \psm\Page {
 
 
@@ -37,7 +37,7 @@ class home_Query extends \psm\datatables_Query {
 		$pdo = \psm\db::getDB('main');
 		$query = 'SELECT ';
 		$params = array();
-		$query .= "`id`, `playerName`, `itemId`, `qty`, `itemTitle` FROM `WA_Auctions` LIMIT 3";
+		$query .= "`sale_id`, `username`, `itemId`, `qty`, `itemTitle` FROM `WA_ForSale` LIMIT 3";
 //		$params[':limit'] = 1;
 		$this->st = $pdo->prepare($query);
 		$this->st->execute($params);
