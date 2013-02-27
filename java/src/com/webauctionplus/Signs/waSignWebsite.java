@@ -30,10 +30,11 @@ public class waSignWebsite extends SignType {
 
 	// sign clicked
 	@Override
-	public void onSignClick(PlayerInteractEvent event, SignDAO sign) {
+	public boolean onSignClick(PlayerInteractEvent event, SignDAO sign) {
 		Player player = event.getPlayer();
 String website = "http://mc.poixson.com/";
 player.sendMessage(website);
+		return true;
 	}
 
 
@@ -72,7 +73,7 @@ player.sendMessage("Created Website sign.");
 
 	// sign removed
 	@Override
-	public void onSignRemove(BlockBreakEvent event, SignDAO sign) {
+	public boolean onSignRemove(BlockBreakEvent event, SignDAO sign) {
 
 
 
@@ -80,7 +81,7 @@ player.sendMessage("Created Website sign.");
 
 
 
-
+		return false;
 	}
 
 

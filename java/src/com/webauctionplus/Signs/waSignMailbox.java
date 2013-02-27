@@ -29,7 +29,8 @@ public class waSignMailbox extends SignType {
 
 	// sign clicked
 	@Override
-	public void onSignClick(PlayerInteractEvent event, SignDAO sign) {
+	public boolean onSignClick(PlayerInteractEvent event, SignDAO sign) {
+		return false;
 	}
 
 
@@ -111,7 +112,7 @@ player.sendMessage("Created MailBox sign.");
 
 	// sign removed
 	@Override
-	public void onSignRemove(BlockBreakEvent event, SignDAO sign) {
+	public boolean onSignRemove(BlockBreakEvent event, SignDAO sign) {
 
 
 
@@ -119,7 +120,7 @@ player.sendMessage("Created MailBox sign.");
 
 
 
-
+		return false;
 	}
 
 
