@@ -1,6 +1,7 @@
 package com.webauctionplus.Signs;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -26,9 +27,15 @@ public class waSignMailbox extends SignType {
 	}
 
 
+	// sign clicked
+	@Override
+	public void onSignClick(PlayerInteractEvent event, SignDAO sign) {
+	}
+
+
 	// validate sign lines
 	@Override
-	public String onCreateSign(SignChangeEvent event) {
+	public String onSignCreate(SignChangeEvent event) {
 		Player player = event.getPlayer();
 		// mailbox sign
 		if(!ValidLine(event, 1, SignMailBox, SignMailBox_aliases))
@@ -102,9 +109,17 @@ player.sendMessage("Created MailBox sign.");
 //		}
 
 
-	// sign clicked
+	// sign removed
 	@Override
-	public void onClick(PlayerInteractEvent event, SignDAO sign) {
+	public void onSignRemove(BlockBreakEvent event, SignDAO sign) {
+
+
+
+
+
+
+
+
 	}
 
 

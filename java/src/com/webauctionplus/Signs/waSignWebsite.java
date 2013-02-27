@@ -1,6 +1,7 @@
 package com.webauctionplus.Signs;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -27,9 +28,18 @@ public class waSignWebsite extends SignType {
 	}
 
 
+	// sign clicked
+	@Override
+	public void onSignClick(PlayerInteractEvent event, SignDAO sign) {
+		Player player = event.getPlayer();
+String website = "http://mc.poixson.com/";
+player.sendMessage(website);
+	}
+
+
 	// validate sign lines
 	@Override
-	public String onCreateSign(SignChangeEvent event) {
+	public String onSignCreate(SignChangeEvent event) {
 		Player player = event.getPlayer();
 		// website sign
 		if(!ValidLine(event, 1, SignWebsite, SignWebsite_aliases))
@@ -60,12 +70,17 @@ player.sendMessage("Created Website sign.");
 	}
 
 
-	// sign clicked
+	// sign removed
 	@Override
-	public void onClick(PlayerInteractEvent event, SignDAO sign) {
-		Player player = event.getPlayer();
-String website = "http://mc.poixson.com/";
-player.sendMessage(website);
+	public void onSignRemove(BlockBreakEvent event, SignDAO sign) {
+
+
+
+
+
+
+
+
 	}
 
 
