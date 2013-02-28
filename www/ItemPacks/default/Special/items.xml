@@ -3,27 +3,27 @@
 	<item id="8">
 		<title>Water</title>
 		<icon>Water.png</icon>
-		<sprite x="" y=""></sprite>
+		<sprite y="1" x="1">Sprites_Special.png</sprite>
 	</item>
 	<item id="9">
 		<title>Stationary Water</title>
 		<icon>Water.png</icon>
-		<sprite x="" y=""></sprite>
+		<sprite y="1" x="1">Sprites_Special.png</sprite>
 	</item>
 	<item id="10">
 		<title>Lava</title>
 		<icon>Lava.png</icon>
-		<sprite x="" y=""></sprite>
+		<sprite y="1" x="2">Sprites_Special.png</sprite>
 	</item>
 	<item id="11">
 		<title>Stationary Lava</title>
 		<icon>Lava.png</icon>
-		<sprite x="" y=""></sprite>
+		<sprite y="1" x="2">Sprites_Special.png</sprite>
 	</item>
 	<item id="26">
 		<title>Bed Block</title>
 		<icon>Bed.png</icon>
-		<sprite x="" y=""></sprite>
+		<sprite y="1" x="3">Sprites_Special.png</sprite>
 	</item>
 
 

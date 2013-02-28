@@ -116,60 +116,175 @@
 		<subitem damage="default">
 			<title>Unknown Log</title>
 			<icon>Log.png</icon>
-			<sprite y="4" x="1">Sprites_Building.png</sprite>
+			<sprite y="3" x="3">Sprites_Building.png</sprite>
 			<emc>32</emc>
 		</subitem>
 	</item>
 	<item id="19">
 		<title>Sponge</title>
 		<icon>Sponge.png</icon>
-		<sprite y="4" x="2">Sprites_Building.png</sprite>
+		<sprite y="4" x="1">Sprites_Building.png</sprite>
 	</item>
 	<item id="20">
 		<title>Glass</title>
 		<icon>Glass.png</icon>
-		<sprite y="4" x="3">Sprites_Building.png</sprite>
+		<sprite y="4" x="2">Sprites_Building.png</sprite>
 		<emc>1</emc>
 	</item>
 	<item id="21">
 		<title>Lapis Lazuli Ore</title>
 		<icon>Lapis_Lazuli_Ore.png</icon>
-		<sprite y="4" x="4">Sprites_Building.png</sprite>
+		<sprite y="4" x="3">Sprites_Building.png</sprite>
 		<emc>864</emc>
 	</item>
 	<item id="22">
 		<title>Lapis Lazuli Block</title>
 		<icon>Lapis_Lazuli_Block.png</icon>
-		<sprite y="4" x="5">Sprites_Building.png</sprite>
+		<sprite y="4" x="4">Sprites_Building.png</sprite>
 		<emc>7776</emc>
 	</item>
 	<item id="24">
 		<subitem damage="0">
 			<title>Sandstone</title>
 			<icon>Sandstone.png</icon>
-			<sprite y="4" x="6">Sprites_Building.png</sprite>
+			<sprite y="4" x="5">Sprites_Building.png</sprite>
 			<emc>4</emc>
 		</subitem>
 		<subitem damage="1">
 			<title>Decorative Sandstone</title>
 			<icon>Sandstone_Decorative.png</icon>
-			<sprite y="5" x="1">Sprites_Building.png</sprite>
+			<sprite y="4" x="6">Sprites_Building.png</sprite>
 			<emc>4</emc>
 		</subitem>
 		<subitem damage="2">
 			<title>Smooth Sandstone</title>
 			<icon>Sandstone_Smooth.png</icon>
-			<sprite y="5" x="2">Sprites_Building.png</sprite>
+			<sprite y="5" x="1">Sprites_Building.png</sprite>
 			<emc>4</emc>
 		</subitem>
 		<subitem damage="default">
 			<title>Unknown Sandstone</title>
 			<icon>Sandstone.png</icon>
-			<sprite y="5" x="3">Sprites_Building.png</sprite>
+			<sprite y="4" x="5">Sprites_Building.png</sprite>
 			<emc>4</emc>
 		</subitem>
 	</item>
-
+	<item id="35">
+		<subitem damage="0">
+			<title>White Wool</title>
+			<icon>Wool_White.png</icon>
+			<sprite y="1" x="1">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="1">
+			<title>Orange Wool</title>
+			<icon>Wool_Orange.png</icon>
+			<sprite y="1" x="2">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="2">
+			<title>Magenta Wool</title>
+			<icon>Wool_Magenta.png</icon>
+			<sprite y="1" x="3">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="3">
+			<title>Light Blue Wool</title>
+			<icon>Wool_Light_Blue.png</icon>
+			<sprite y="1" x="4">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="4">
+			<title>Yellow Wool</title>
+			<icon>Wool_Yellow.png</icon>
+			<sprite y="1" x="5">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="5">
+			<title>Light Green Wool</title>
+			<icon>Wool_Lime.png</icon>
+			<sprite y="1" x="6">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="6">
+			<title>Pink Wool</title>
+			<icon>Wool_Pink.png</icon>
+			<sprite y="2" x="1">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="7">
+			<title>Grey Wool</title>
+			<icon>Wool_Gray.png</icon>
+			<sprite y="2" x="2">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="8">
+			<title>Light Grey Wool</title>
+			<icon>Wool_Light_Gray.png</icon>
+			<sprite y="2" x="3">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="9">
+			<title>Cyan Wool</title>
+			<icon>Wool_Cyan.png</icon>
+			<sprite y="2" x="4">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="10">
+			<title>Purple Wool</title>
+			<icon>Wool_Purple.png</icon>
+			<sprite y="2" x="5">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="11">
+			<title>Blue Wool</title>
+			<icon>Wool_Blue.png</icon>
+			<sprite y="2" x="6">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="12">
+			<title>Brown Wool</title>
+			<icon>Wool_Brown.png</icon>
+			<sprite y="3" x="1">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="13">
+			<title>Dark Green Wool</title>
+			<icon>Wool_Green.png</icon>
+			<sprite y="3" x="2">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="14">
+			<title>Red Wool</title>
+			<icon>Wool_Red.png</icon>
+			<sprite y="3" x="3">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="15">
+			<title>Black Wool</title>
+			<icon>Wool_Black.png</icon>
+			<sprite y="3" x="4">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+		<subitem damage="default">
+			<title>Unknown Wool</title>
+			<icon>Wool_White.png</icon>
+			<sprite y="1" x="1">Sprites_Wool.png</sprite>
+			<emc>48</emc>
+		</subitem>
+	</item>
+	<item id="41">
+		<title>Gold Block</title>
+		<icon>Gold_Block.png</icon>
+		<sprite y="5" x="2">Sprites_Building.png</sprite>
+		<emc>18432</emc>
+	</item>
+	<item id="42">
+		<title>Iron Block</title>
+		<icon>Iron_Block.png</icon>
+		<sprite y="5" x="3">Sprites_Building.png</sprite>
+		<emc>2304</emc>
+	</item>
 
 
 

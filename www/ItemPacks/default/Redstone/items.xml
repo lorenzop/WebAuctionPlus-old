@@ -3,24 +3,47 @@
 	<item id="23">
 		<title>Dispenser</title>
 		<icon>Dispenser.png</icon>
-		<sprite x="" y=""></sprite>
+		<sprite y="1" x="1">Sprites_Redstone.png</sprite>
 		<emc>119</emc>
 	</item>
 	<item id="25">
 		<title>Note Block</title>
 		<icon>Note_Block.png</icon>
-		<sprite x="" y=""></sprite>
+		<sprite y="1" x="2">Sprites_Redstone.png</sprite>
 		<emc>128</emc>
 	</item>
 	<item id="29">
 		<title>Sticky Piston</title>
-		<icon>Sticky_Piston.png.png</icon>
-		<sprite x="" y=""></sprite>
+		<icon>Piston_Sticky.png</icon>
+		<sprite y="1" x="3">Sprites_Redstone.png</sprite>
 		<emc>372</emc>
 	</item>
-
-
-
+	<item id="33">
+		<title>Piston</title>
+		<icon>Piston.png</icon>
+		<sprite y="1" x="4">Sprites_Redstone.png</sprite>
+		<emc>348</emc>
+	</item>
+	<item id="34">
+		<subitem damage="0">
+			<title>Piston</title>
+			<icon>Piston.png</icon>
+			<sprite y="1" x="5">Sprites_Redstone.png</sprite>
+			<emc>348</emc>
+		</subitem>
+		<subitem damage="1">
+			<title>Sticky Piston</title>
+			<icon>Piston_Sticky.png</icon>
+			<sprite y="1" x="6">Sprites_Redstone.png</sprite>
+			<emc>372</emc>
+		</subitem>
+		<subitem damage="default">
+			<title>Unknown Piston</title>
+			<icon>Piston.png</icon>
+			<sprite y="1" x="5">Sprites_Redstone.png</sprite>
+			<emc>1</emc>
+		</subitem>
+	</item>
 
 
 
