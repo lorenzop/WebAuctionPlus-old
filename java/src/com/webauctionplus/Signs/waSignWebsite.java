@@ -12,7 +12,7 @@ import com.poixson.pxnCommon.SignUI.SignType;
 
 public class waSignWebsite extends SignType {
 	// website
-	private static final String SignWebsite = ""; //"&5";
+	private static final String SignWebsite = "&5";
 	private static final String[] SignWebsite_aliases = {
 		"Website",
 		"Web Site",
@@ -57,10 +57,10 @@ String website = "http://mc.poixson.com/";
 		if(website.endsWith("/")) website = website.substring(0, website.length()-1);
 		int i;
 		for(i=1; i<=3; i++) {
-			int L = pxnUtils.MinMax(website.length(), 0, 15-SignWebsite.length());
-			if(L == 0) break;
-			event.setLine(i, pxnUtils.ReplaceColors(SignWebsite+website.substring(0, L)));
-			website = website.substring(L);
+			int len = pxnUtils.MinMax(website.length(), 0, 15-SignWebsite.length());
+			if(len == 0) break;
+			event.setLine(i, pxnUtils.ReplaceColors( SignWebsite+website.substring(0, len) ));
+			website = website.substring(len);
 			if(website.isEmpty()) break;
 		}
 		ClearSignAfter(i, event);
@@ -74,14 +74,7 @@ player.sendMessage("Created Website sign.");
 	// sign removed
 	@Override
 	public boolean onSignRemove(BlockBreakEvent event, SignDAO sign) {
-
-
-
-
-
-
-
-		return false;
+		return event.getPlayer().hasPermission("wa.sign.remove");
 	}
 
 

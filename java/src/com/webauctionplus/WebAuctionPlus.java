@@ -56,6 +56,7 @@ isDebug = true;
 
 
 	// load plugin
+	@Override
 	protected void StartPlugin() {
 		// already loaded
 		if(okEquals(true))
@@ -255,6 +256,7 @@ getLog().info("WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
 
 	// unload plugin
+	@Override
 	protected void StopPlugin() {
 		// stop web link objects
 		try {

@@ -1,5 +1,6 @@
 package com.webauctionplus.Signs;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
@@ -30,6 +31,17 @@ public class waSignMailbox extends SignType {
 	// sign clicked
 	@Override
 	public boolean onSignClick(PlayerInteractEvent event, SignDAO sign) {
+		Player player = event.getPlayer();
+		if(!player.hasPermission("wa.sign.use.mailbox"))
+			return false;
+		// disallow creative
+		if(player.getGameMode() != GameMode.SURVIVAL && !player.isOp()) {
+//TODO:
+//player.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_cheating"));
+			return false;
+		}
+
+
 		return false;
 	}
 
@@ -113,15 +125,17 @@ player.sendMessage("Created MailBox sign.");
 	// sign removed
 	@Override
 	public boolean onSignRemove(BlockBreakEvent event, SignDAO sign) {
-
-
-
-
-
-
-
-		return false;
+		return event.getPlayer().hasPermission("wa.sign.remove");
 	}
+
+
+//if(!p.hasPermission("wa.remove")) {
+//	event.setCancelled(true);
+//	p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("no_permission"));
+//} else {
+//	p.sendMessage(WebAuctionPlus.chatPrefix + WebAuctionPlus.Lang.getString("sign_removed"));
+//	WebAuctionPlus.log.info(WebAuctionPlus.logPrefix + WebAuctionPlus.Lang.getString("sign_removed"));
+//}
 
 
 }
