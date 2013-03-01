@@ -1,6 +1,6 @@
-name: WebAuctionPlus3
+name: WebAuctionPlus
 main: com.webauctionplus.WebAuctionPlus
-version: 3.0.2
+version: 3.0.3
 author: lorenzop
 website: http://webauctionplus.com/
 depend: [pxnCommon, Vault]
@@ -9,6 +9,20 @@ commands:
     description: WebAuctionPlus
     usage: Use "/wa password [somepassword]" to set your password, then log into the WebAuction on the website.
 permissions:
+
+
+  wa.create.sign.mailbox:
+    description: Lets you create mailbox signs
+    default: op
+  wa.create.sign.website:
+    description: Lets you create website link signs
+    default: op
+
+  wa.sign.remove:
+    description: Gives permission to remove/destroy a WebAuctionPlus sign.
+    default: op
+
+
   wa.*:
     description: Gives access to all WebAuction commands
     default: false
