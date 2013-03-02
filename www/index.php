@@ -6,6 +6,6 @@ define('psm\DEFAULT_PAGE',   'current');
 
 // load the portal
 include('portal/Portal.php');
-$portal = new \psm\Portal('wa');
+$portal = \psm\Portal::AutoLoad('wa');
 
 ?>

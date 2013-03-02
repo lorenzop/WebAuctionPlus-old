@@ -14,7 +14,7 @@ class page_home extends \psm\Page {
 			'Qty',
 			'Buy',
 		);
-		$table = new \psm\datatables_Table(
+		$table = new \psm\DataTables\Table(
 			$headings,
 			new home_Query(),
 			FALSE
@@ -28,13 +28,13 @@ class page_home extends \psm\Page {
 
 
 }
-class home_Query extends \psm\datatables_Query {
+class home_Query extends \psm\DataTables\Query {
 
 	private $st = NULL;
 
 
 	public function runQuery() {
-		$pdo = \psm\db::getDB('main');
+		$pdo = \psm\DB\DB::getDB('main');
 		$query = 'SELECT ';
 		$params = array();
 		$query .= "`sale_id`, `username`, `itemId`, `qty`, `itemTitle` FROM `WA_ForSale` LIMIT 3";
