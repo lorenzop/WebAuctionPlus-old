@@ -2,10 +2,10 @@
 
 define('psm\DEBUG',          TRUE);
 define('psm\DEFAULT_MODULE', 'wa');
-define('psm\DEFAULT_PAGE',   'current');
+//define('psm\DEFAULT_PAGE',   'current');
 
 // load the portal
-include('portal/Portal.php');
-$portal = \psm\Portal::AutoLoad('wa');
+include(__DIR__.'/portal/Portal.php');
+$portal = \psm\Portal::factory();
 
 ?>
