@@ -152,7 +152,7 @@ $num_queries=3;
 {footer content}
 
 				<p><a href="http://dev.bukkit.org/server-mods/webauctionplus/" target="_blank" style="color: #333333;">
-				<u>WebAuctionPlus</u> '.\wa\WA_VERSION.'</a><br /><span style="font-size: smaller;">By lorenzop</span></p>
+				<u>WebAuctionPlus</u> '.\wa\module_wa::getVersion().'</a><br /><span style="font-size: smaller;">By lorenzop</span></p>
 			</td>
 			<td class="footer-td-3">'.
 				'<a href="http://twitter.github.com/bootstrap/" target="_blank">'.

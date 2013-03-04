@@ -14,40 +14,38 @@ class module_wa extends \psm\Portal\Module {
 //echo $pass->hash('pass');
 //exit();
 
-		$portal = \psm\Portal::getPortal();
-		\psm\Portal\Page::addPath(__DIR__.DIR_SEP.'pages');
-		$engine = $portal->getEngine();
-
 // load config.php
 //$config = \psm\config::loadConfig('config.php');
-//
-\psm\DB\DB::addDB('main', \psm\Portal::getLocalPath('root').DIR_SEP.'config.php');
+
+		// load database config
+		\psm\DB\DB::addDB(
+			'wa main',
+			\psm\Portal::getLocalPath('root').DIR_SEP.'config.php'
+		);
+
 //$db = \psm\DB\DB::getDB('main');
-//
 //$user = waUser::getUserSession($db);
 //echo '<br /><br /><br /><pre>'.print_r($user, TRUE).'</pre>';
-//
-
-		$pageObj = $portal->getPageObj();
-if(empty($pageObj))
-$engine->addToPage('<p>PAGE IS NULL</p>');
-		$engine->addToPage($pageObj);
-		$engine->Display();
-
-//WA3_Mailbox
-//WA3_Players
-//WA3_Selling
-//WA3_Settings
-//WA3_
-//WA3_
 
 	}
 
 
+	public function Init() {
+		$this->_LoadPage();
+		$this->engine->Display();
+	}
 
 
-	public static function getName() {
+	// get module name
+	public function getModName() {
 		return self::module_name;
+	}
+	public static function getModuleName() {
+		return self::module_name;
+	}
+	// get version
+	public function getModVersion() {
+		return self::version;
 	}
 	public static function getVersion() {
 		return self::version;
