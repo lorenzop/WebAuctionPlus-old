@@ -16,19 +16,23 @@ class module_wa extends \psm\Portal\Module {
 
 		$portal = \psm\Portal::getPortal();
 		\psm\Portal\Page::addPath(__DIR__.DIR_SEP.'pages');
+		$engine = $portal->getEngine();
 
 // load config.php
 //$config = \psm\config::loadConfig('config.php');
 //
-//\psm\DB\DB::addDB('main', \psm\PATH_ROOT.DIR_SEP.'config.php');
+\psm\DB\DB::addDB('main', \psm\Portal::getLocalPath('root').DIR_SEP.'config.php');
 //$db = \psm\DB\DB::getDB('main');
 //
 //$user = waUser::getUserSession($db);
 //echo '<br /><br /><br /><pre>'.print_r($user, TRUE).'</pre>';
 //
-//\psm\page::LoadPage($portal->getPage());
 
-		$portal->genericRender();
+		$pageObj = $portal->getPageObj();
+if(empty($pageObj))
+$engine->addToPage('<p>PAGE IS NULL</p>');
+		$engine->addToPage($pageObj);
+		$engine->Display();
 
 //WA3_Mailbox
 //WA3_Players
@@ -42,11 +46,10 @@ class module_wa extends \psm\Portal\Module {
 
 
 
-	public function getName() {
+	public static function getName() {
 		return self::module_name;
 	}
-
-	public function getVersion() {
+	public static function getVersion() {
 		return self::version;
 	}
 
