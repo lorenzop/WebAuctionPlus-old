@@ -55,5 +55,13 @@ class module_wa extends \psm\Portal\Module {
 	}
 
 
+	public function getModTitle() {
+		return self::module_title;
+	}
+	public function getModTitleHtml() {
+		return self::module_title_html;
+	}
+
+
 }
 ?>
