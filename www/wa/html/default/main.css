@@ -19,23 +19,16 @@ body {
 }
 
 #footer-push,
-footer,
-footer .container {
+#footer {
 	height: 60px;
 }
-
-footer .container {
-	width: 100%;
+#footer {
+	background-color: #f0f0f0;
 	border-top-width: 1px;
 	border-top-style: solid;
 	border-top-color: #cccccc;
 }
-
-footer .container table {
-	background-color: #f0f0f0;
-}
-
-footer .container table {
+#footer #footer-table {
 	width: 100%;
 	border-width: 0px;
 }

@@ -10,16 +10,18 @@ class html_main extends \psm\html\tplFile_Main {
 	public function __construct() {
 		parent::__construct();
 		// main menu
-		$this->mainMenu = \psm\Bootstrap\NavBar::factory()
+		$this->mainMenu = \psm\Widgets\NavBar\NavBar::factory()
+			->setSelected(\psm\Portal::getModName())
 			->setBrand('WebAuction<sup>Plus</sup>')
 			->addBreak()
-			->addButton('sitehome',	'Home',				'/',					'icon-home')
+			->addButton('',			'Home',				'/',					'icon-home')
 			->addButton('wa',		'WebAuction',		'/wa/',					'icon-shopping-cart')
 			->addButton('wb',		'WeBook',			'/wb/',					'icon-book')
-			->addDropdown('player',	'lorenzop',			NULL,					'icon-user',			TRUE)
+			->addDropdown('profile','lorenzop',			NULL,					'icon-user',			TRUE)
 		;
 		// sub menu
-		$this->subMenu  = \psm\Bootstrap\NavBar::factory()
+		$this->subMenu  = \psm\Widgets\NavBar\NavBar::factory()
+			->setSelected(\psm\Portal::getPage())
 			->addButton('current',	'Current Sales',	'./?page=current',		'icon-home')
 			->addButton('myshop',	'My Shop',			'./?page=myshop',		'icon-shopping-cart')
 			->addButton('mymailbox','My Mailbox',		'./?page=mymailbox',	'icon-envelope')
@@ -126,12 +128,12 @@ $num_queries=3;
 		return '
 	<div id="footer-push"></div>
 </div>
-<footer>
+<footer id="footer">
 	<div class="container">
-		<table>
+		<table id="footer-table">
 		<tr>
 			<td class="footer-td-1">'.
-				'Rendered page in '.GetRenderTime().' Seconds<br />'.
+				'Rendered page in '.\psm\Portal::GetRenderTime().' Seconds<br />'.
 				'with '.((int)@$num_queries).' Queries&nbsp;</b>'.
 			'</td>
 			<td class="footer-td-2">
@@ -146,7 +148,7 @@ $num_queries=3;
 {footer content}
 
 				<p><a href="http://dev.bukkit.org/server-mods/webauctionplus/" target="_blank" style="color: #333333;">
-				<u>WebAuctionPlus</u> '.\wa\module_wa::getVersion().'</a><br /><span style="font-size: smaller;">By lorenzop</span></p>
+				<u>WebAuctionPlus</u> '.\wa\module_wa::getVersion().'</a><br /><span style="font-size: smaller;">by lorenzop</span><span style="font-size: xx-small;"> &copy; 2012-2013</span></p>
 			</td>
 			<td class="footer-td-3">'.
 				'<a href="http://twitter.github.com/bootstrap/" target="_blank">'.
