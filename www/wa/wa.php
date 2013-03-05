@@ -5,7 +5,9 @@ class module_wa extends \psm\Portal\Module {
 
 	// WebAuctionPlus
 	const module_name = 'wa';
-	const version = '3.0.0';
+	const module_title = 'WebAuctionPlus';
+	const module_title_html = 'WebAuction<sup>Plus</sup>';
+	const version = '3.0.3';
 
 
 	public function __construct() {
@@ -21,7 +23,7 @@ class module_wa extends \psm\Portal\Module {
 		// load database config
 		\psm\DB\DB::addDB(
 			'wa main',
-			\psm\Portal::getLocalPath('root').DIR_SEP.'config.php'
+			\psm\Paths::getLocal('root').DIR_SEP.'config.php'
 		);
 
 //$db = \psm\DB\DB::getDB('main');
