@@ -3,6 +3,8 @@ if(!defined('psm\INDEX_FILE') || \psm\INDEX_FILE!==TRUE) {if(headers_sent()) {ec
 	else {header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
 class page_home extends \psm\Portal\Page {
 
+	const dbName = 'main';
+
 
 	public function Render() {
 		$headings = array(
@@ -15,7 +17,7 @@ class page_home extends \psm\Portal\Page {
 			'Qty',
 			'Buy',
 		);
-		$table = new \psm\DataTables\Table(
+		$table = new \psm\Widgets\DataTables\Table(
 			$headings,
 			new home_Query(),
 			FALSE
@@ -29,17 +31,18 @@ class page_home extends \psm\Portal\Page {
 
 
 }
-class home_Query extends \psm\DataTables\Query {
+class home_Query extends \psm\Widgets\DataTables\Query {
 
 	private $st = NULL;
 
 
 	public function runQuery() {
-		$pdo = \psm\DB\DB::getDB('main');
+		$db = \psm\dbPool\dbPool::getDB(page_home::dbName);
 		$query = 'SELECT ';
 		$params = array();
 		$query .= "`sale_id`, `username`, `itemId`, `qty`, `itemTitle` FROM `WA_ForSale` LIMIT 3";
 //		$params[':limit'] = 1;
+		$db->
 		$this->st = $pdo->prepare($query);
 		$this->st->execute($params);
 		return TRUE;

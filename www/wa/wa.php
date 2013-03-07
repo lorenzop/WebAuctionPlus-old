@@ -21,10 +21,7 @@ class module_wa extends \psm\Portal\Module {
 //$config = \psm\config::loadConfig('config.php');
 
 		// load database config
-		\psm\DB\DB::addDB(
-			'wa main',
-			\psm\Paths::getLocal('root').DIR_SEP.'config.php'
-		);
+		\psm\dbPool\dbPool::LoadConfig();
 
 //$db = \psm\DB\DB::getDB('main');
 //$user = waUser::getUserSession($db);
