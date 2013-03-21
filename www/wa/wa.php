@@ -1,6 +1,6 @@
 <?php namespace wa;
-if(!defined('psm\INDEX_FILE') || \psm\INDEX_FILE!==TRUE) {if(headers_sent()) {echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}
-	else {header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
+if(!defined('psm\\INDEX_FILE') || \psm\INDEX_FILE!==TRUE) {if(headers_sent()) {echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}
+	else {header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die('<font size="+2">Access Denied!!</font>');}
 global $ClassCount; $ClassCount++;
 class module_wa extends \psm\Portal\Module {
 
@@ -22,9 +22,9 @@ class module_wa extends \psm\Portal\Module {
 //$config = \psm\config::loadConfig('config.php');
 
 		// load database config
-		\psm\dbPool\dbPool::LoadConfig();
+		\psm\pxdb\dbPool::LoadConfig();
 
-//$db = \psm\DB\DB::getDB('main');
+//$db = \psm\pxdb\dbPool::getDB('main');
 //$user = waUser::getUserSession($db);
 //echo '<br /><br /><br /><pre>'.print_r($user, TRUE).'</pre>';
 

@@ -1,6 +1,6 @@
 <?php namespace wa\Pages;
-if(!defined('psm\INDEX_FILE') || \psm\INDEX_FILE!==TRUE) {if(headers_sent()) {echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}
-	else {header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die("<font size=+2>Access Denied!!</font>");}
+if(!defined('psm\\INDEX_FILE') || \psm\INDEX_FILE!==TRUE) {if(headers_sent()) {echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}
+	else {header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die('<font size="+2">Access Denied!!</font>');}
 global $ClassCount; $ClassCount++;
 class page_home extends \psm\Portal\Page {
 
@@ -18,12 +18,12 @@ class page_home extends \psm\Portal\Page {
 			'Qty',
 			'Buy',
 		);
-		$table = new \psm\Widgets\DataTables\Table(
+		$table = \psm\Widgets\Widget_DataTables::factory(
 			$headings,
 			new home_Query(),
 			FALSE
 		);
-		return 'HOME'.$table->Render();
+		return $table->Render();
 	}
 
 
@@ -34,34 +34,35 @@ class page_home extends \psm\Portal\Page {
 }
 class home_Query extends \psm\Widgets\DataTables\Query {
 
-	private $st = NULL;
+	private $db = NULL;
 
 
 	public function runQuery() {
-		$db = \psm\dbPool\dbPool::getDB(page_home::dbName);
-		$query = 'SELECT ';
-		$params = array();
-		$query .= "`sale_id`, `username`, `itemId`, `qty`, `itemTitle` FROM `WA_ForSale` LIMIT 3";
+		$this->db = \psm\pxdb\dbPool::getDB(page_home::dbName);
+		$sql = 'SELECT ';
+		$sql .= "`selling_id` AS `id`, `username`, `item`, `qty`, `cached_title` ".
+			"FROM `wa_Selling` LIMIT 0, 2";
+//echo $sql;
 //		$params[':limit'] = 1;
-		$db->
-		$this->st = $pdo->prepare($query);
-		$this->st->execute($params);
+		$this->db->Prepare($sql);
+		$this->db->Exec();
+//echo $this->db->getRowCount();
 		return TRUE;
 	}
 
 
 	public function getRow() {
-		$row = $this->st->fetch(\PDO::FETCH_ASSOC);
-		if($row === FALSE) return NULL;
+		if(!$this->db->hasNext())
+			return NULL;
 		return array(
-			$row['itemTitle'],
-			$row['playerName'],
+			$this->db->getString('cached_title'),
+			$this->db->getString('username'),
 			'expires',
 			'price each',
 			'price total',
 			'market',
-			$row['qty'],
-			$row['id']
+			$this->db->getInt('qty'),
+			$this->db->getInt('id')
 		);
 	}
 
