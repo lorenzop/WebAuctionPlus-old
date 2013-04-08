@@ -8,6 +8,7 @@ class page_home extends \psm\Portal\Page {
 
 
 	public function Render() {
+		return 'home page';
 		$headings = array(
 			'Item',
 			'Seller',
@@ -32,7 +33,8 @@ class page_home extends \psm\Portal\Page {
 
 
 }
-class home_Query extends \psm\Widgets\DataTables\Query {
+//class home_Query extends \psm\Widgets\DataTables\Query {
+class home_Query {
 
 	private $db = NULL;
 

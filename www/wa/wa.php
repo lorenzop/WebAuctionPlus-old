@@ -8,32 +8,30 @@ class module_wa extends \psm\Portal\Module {
 	const module_name = 'wa';
 	const module_title = 'WebAuctionPlus';
 	const module_title_html = 'WebAuction<sup>Plus</sup>';
-	const version = '3.0.3';
+	const version = '3.0.5';
 
 
-	public function __construct() {
-		parent::__construct();
-
+//	public function __construct() {
+//		parent::__construct();
 //$pass = new \psm\PassCrypt();
 //echo $pass->hash('pass');
 //exit();
-
 // load config.php
 //$config = \psm\config::loadConfig('config.php');
-
-		// load database config
-		\psm\pxdb\dbPool::LoadConfig();
-
+// load database config
+//\psm\pxdb\dbPool::LoadConfig();
 //$db = \psm\pxdb\dbPool::getDB('main');
 //$user = waUser::getUserSession($db);
 //echo '<br /><br /><br /><pre>'.print_r($user, TRUE).'</pre>';
-
-	}
+//	}
 
 
 	public function Init() {
 		$this->_LoadPage();
-		$this->engine->Display();
+		$engine = \psm\Portal::getEngine();
+		$engine->setSiteTitle('WebAuctionPlus');
+		$engine->setPageTitle('Home');
+		$engine->Display();
 	}
 
 
