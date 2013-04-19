@@ -1,8 +1,7 @@
 <?php namespace wa;
-if(!defined('psm\\INDEX_FILE') || \psm\INDEX_FILE!==TRUE) {if(headers_sent()) {echo '<header><meta http-equiv="refresh" content="0;url=../"></header>';}
-	else {header('HTTP/1.0 301 Moved Permanently'); header('Location: ../');} die('<font size="+2">Access Denied!!</font>');}
+use \psm\Portal as Portal;
 global $ClassCount; $ClassCount++;
-class module_wa extends \psm\Portal\Module {
+class module_wa extends Portal\Module {
 
 	// WebAuctionPlus
 	const module_name = 'wa';
@@ -27,8 +26,9 @@ class module_wa extends \psm\Portal\Module {
 
 
 	public function Init() {
-		$this->_LoadPage();
-		$engine = \psm\Portal::getEngine();
+		Portal::LoadPage();
+		Portal::LoadAction();
+		$engine = Portal::getEngine();
 		$engine->setSiteTitle('WebAuctionPlus');
 		$engine->setPageTitle('Home');
 		$engine->Display();
