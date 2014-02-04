@@ -81,7 +81,7 @@ public class WebAuctionPlayerListener implements Listener {
 		// right click only
 		if( event.getAction() != Action.RIGHT_CLICK_BLOCK &&
 			event.getAction() != Action.RIGHT_CLICK_AIR) return;
-		Block block = event.getClickedBlock();
+		Block block = event.getPlayer().getTargetBlock(null, 1);
 		// not a sign
 		if(block == null) return;
 		if(block.getType() != Material.SIGN_POST && block.getType() != Material.WALL_SIGN) return;
